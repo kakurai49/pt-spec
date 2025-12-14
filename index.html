@@ -1,0 +1,801 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>動く仕様書：ボール反射 × きれいな音（Web版ゴールサンプル）</title>
+  <style>
+    :root{
+      --bg:#0b1020;
+      --panel:#121a33;
+      --panel2:#0f1730;
+      --text:#e9ecff;
+      --muted:#b6bce6;
+      --line:rgba(255,255,255,.12);
+      --accent:#7aa2ff;
+      --ok:#4ade80;
+      --warn:#fbbf24;
+      --bad:#fb7185;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      background:
+        radial-gradient(1000px 600px at 20% 10%, rgba(122,162,255,.18), transparent 55%),
+        radial-gradient(900px 600px at 80% 30%, rgba(74,222,128,.12), transparent 55%),
+        linear-gradient(180deg, var(--bg), #070a14);
+      color:var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
+      line-height:1.6;
+    }
+    a{ color: var(--accent); text-decoration:none; }
+    a:hover{ text-decoration:underline; }
+    header{
+      padding:28px 18px 18px;
+      border-bottom:1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.03), transparent);
+    }
+    header .wrap{
+      max-width:1100px;
+      margin:0 auto;
+      display:flex;
+      gap:16px;
+      align-items:flex-start;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+    h1{
+      margin:0;
+      font-size: clamp(18px, 2.2vw, 26px);
+      letter-spacing:.02em;
+    }
+    header p{
+      margin:8px 0 0;
+      color:var(--muted);
+      max-width:72ch;
+    }
+
+    main{
+      max-width:1100px;
+      margin:0 auto;
+      padding:18px;
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:16px;
+    }
+    @media (max-width: 980px){
+      main{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border:1px solid var(--line);
+      border-radius:14px;
+      overflow:hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,.30);
+    }
+    .card .hd{
+      padding:14px 14px 12px;
+      border-bottom:1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .card .hd h2{
+      margin:0;
+      font-size:16px;
+      letter-spacing:.02em;
+    }
+    .card .bd{
+      padding:14px;
+    }
+
+    .demo{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:12px;
+    }
+
+    .canvasFrame{
+      background:#0a0f22;
+      border:1px solid var(--line);
+      border-radius:12px;
+      overflow:hidden;
+      position:relative;
+      aspect-ratio: 1 / 1;
+      width:min(640px, 100%);
+    }
+    canvas{ width:100%; height:100%; display:block; }
+    .badge{
+      position:absolute;
+      left:10px; top:10px;
+      background: rgba(0,0,0,.45);
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:999px;
+      padding:6px 10px;
+      font-size:12px;
+      color: var(--muted);
+      backdrop-filter: blur(8px);
+      user-select:none;
+    }
+
+    .controls{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    @media (max-width: 540px){
+      .controls{ grid-template-columns:1fr; }
+    }
+    .row{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    label{
+      font-size:12px;
+      color:var(--muted);
+      display:block;
+      margin-bottom:6px;
+    }
+    select, button, input[type="range"]{
+      width:100%;
+    }
+    select, button{
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.14);
+      color: var(--text);
+      padding:10px 12px;
+      border-radius:10px;
+      outline:none;
+    }
+    button{
+      cursor:pointer;
+      font-weight:600;
+      letter-spacing:.02em;
+    }
+    button.primary{
+      border-color: rgba(122,162,255,.45);
+      box-shadow: 0 0 0 1px rgba(122,162,255,.20) inset;
+    }
+    button:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+    }
+    .toggle{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 12px;
+      padding:10px 12px;
+    }
+    .toggle small{
+      color:var(--muted);
+      display:block;
+    }
+    .toggle input{
+      transform: scale(1.15);
+    }
+
+    .spec h3{
+      margin:18px 0 8px;
+      font-size:14px;
+      letter-spacing:.02em;
+    }
+    .spec p, .spec li{
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .spec ul{
+      margin:8px 0 0 18px;
+      padding:0;
+    }
+    .kbd{
+      display:inline-block;
+      padding:2px 8px;
+      border-radius:8px;
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.25);
+      font-size:12px;
+      color: var(--text);
+      margin: 0 2px;
+    }
+
+    .status{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      color:var(--muted);
+      font-size:12px;
+    }
+    .dot{
+      width:9px; height:9px; border-radius:50%;
+      display:inline-block;
+      background: rgba(255,255,255,.25);
+      border:1px solid rgba(255,255,255,.18);
+      margin-right:6px;
+      vertical-align:middle;
+    }
+    .dot.ok{ background: rgba(74,222,128,.85); }
+    .dot.warn{ background: rgba(251,191,36,.90); }
+    .dot.bad{ background: rgba(251,113,133,.90); }
+
+    .hr{
+      height:1px; background: var(--line); margin:14px 0;
+    }
+    code, pre{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      font-size: 12px;
+    }
+    pre{
+      margin:10px 0 0;
+      padding:12px;
+      background: rgba(0,0,0,.25);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 12px;
+      overflow:auto;
+      color: #e6e9ff;
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div>
+      <h1>動く仕様書：ボール反射 × きれいな音（Web版ゴールサンプル）</h1>
+      <p>
+        このページ自体が「仕様書」であり「ゴールサンプル」です。キャンバス内でボールが反射し、壁に当たった瞬間に音が鳴ります。
+        音は Web Audio API（正弦波 + フェード + 倍音）で生成し、STEP を上げるほど“楽器寄り”の挙動になります。
+      </p>
+    </div>
+    <div class="status" aria-live="polite">
+      <span><span id="audioDot" class="dot warn"></span><span id="audioStatus">Audio: 未有効（クリックで有効化）</span></span>
+      <span><span class="dot ok"></span>Animation: 常時動作</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- Left: Demo -->
+  <section class="card">
+    <div class="hd">
+      <h2>デモ</h2>
+      <div class="row">
+        <button id="btnEnableAudio" class="primary">Audio を有効化</button>
+        <button id="btnReset">リセット</button>
+      </div>
+    </div>
+    <div class="bd demo">
+      <div class="canvasFrame" aria-label="bouncing balls demo">
+        <div class="badge" id="badgeText">STEP 1 / 壁で音程変化</div>
+        <canvas id="c"></canvas>
+      </div>
+
+      <div class="controls">
+        <div>
+          <label for="stepSel">STEP（仕様の段階）</label>
+          <select id="stepSel">
+            <option value="1">STEP 1：壁ごとに音程（最小）</option>
+            <option value="2">STEP 2：3ボール（C-E-G）＝和音ポリリズム</option>
+            <option value="3">STEP 3：マウス位置 + 速度で音程変化（表情）</option>
+            <option value="4">STEP 4：Cメジャーへ量子化（さらに楽器寄り）</option>
+          </select>
+        </div>
+
+        <div class="toggle">
+          <div>
+            <div style="font-weight:700; letter-spacing:.02em;">ミュート</div>
+            <small>音を鳴らさず動作確認したい場合</small>
+          </div>
+          <input id="muteChk" type="checkbox" />
+        </div>
+
+        <div class="toggle">
+          <div>
+            <div style="font-weight:700; letter-spacing:.02em;">倍音ミックス</div>
+            <small>2倍音・3倍音を少し混ぜて“芯”を出す</small>
+          </div>
+          <input id="harmChk" type="checkbox" checked />
+        </div>
+
+        <div>
+          <label for="volRange">音量</label>
+          <input id="volRange" type="range" min="0" max="0.6" step="0.01" value="0.22" />
+        </div>
+
+        <div>
+          <label for="coolRange">衝突クールダウン（秒）</label>
+          <input id="coolRange" type="range" min="0" max="0.10" step="0.005" value="0.03" />
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="spec">
+        <h3>使い方（この仕様書の読み方）</h3>
+        <ul>
+          <li>ブラウザでこのHTMLを開く</li>
+          <li><span class="kbd">Audio を有効化</span> をクリック（ブラウザの自動再生制限対策）</li>
+          <li>STEPを選ぶと、仕様どおりに挙動が変わる（＝仕様の確認になる）</li>
+          <li>STEP 3 以降：マウスを左右に動かすと音程が変化</li>
+        </ul>
+
+        <h3>仕様概要</h3>
+        <p>
+          「壁で反射するボール」と「衝突音」を結び付け、段階的に“楽器寄り”へ拡張できるゴールサンプル。
+          Python版へ移植する際も、同じ関数構造（反射/衝突→音程決定→発音）で再現できる。
+        </p>
+
+        <h3>STEP別の要件（受け入れ条件）</h3>
+        <ul>
+          <li><b>STEP 1</b>：ボールは枠内で反射し続ける。壁（左/右/上/下）で音程（半音オフセット）が変わる。</li>
+          <li><b>STEP 2</b>：ボールを3個に増やす（C-E-G）。それぞれ周期が異なるため、自然にポリリズムになる。</li>
+          <li><b>STEP 3</b>：音程決定に「マウス位置」と「速度」を加算し、表情を出す。</li>
+          <li><b>STEP 4</b>：最終音程を Cメジャースケールへ量子化し、外れ音を減らし楽器っぽくする。</li>
+        </ul>
+
+        <h3>音響仕様（きれいな音のための最低要件）</h3>
+        <ul>
+          <li>波形：正弦波（基本波）</li>
+          <li>クリック防止：Attack/Release（フェード）を必ず付ける</li>
+          <li>倍音：2倍音・3倍音を少量混ぜられる（トグル）</li>
+          <li>同時発音：衝突が重なっても鳴る（簡易ポリフォニー）</li>
+        </ul>
+
+        <h3>移植のための「関数分割」見取り図（このページの内部設計）</h3>
+        <pre>
+bounce(ball) -> hitWall?
+  -> decideFreq(ball, wall, step, mouseX, speed)
+     -> (optional) quantizeToMajor(freq)
+  -> synth.play(freq, envelope, harmonics)</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- Right: Spec (more structured) -->
+  <aside class="card">
+    <div class="hd">
+      <h2>仕様（詳細）</h2>
+    </div>
+    <div class="bd spec">
+      <h3>画面仕様</h3>
+      <ul>
+        <li>中央に正方形キャンバス（枠線付き）</li>
+        <li>ボールは枠内で常時移動（停止しない）</li>
+        <li>STEP・ミュート・倍音・音量・クールダウンをUIで切替可能</li>
+      </ul>
+
+      <h3>反射仕様</h3>
+      <ul>
+        <li>壁接触時：座標を壁境界に補正してから速度符号を反転（めり込み防止）</li>
+        <li>フレーム：requestAnimationFrame で更新（約60fps）</li>
+      </ul>
+
+      <h3>衝突→発音の仕様</h3>
+      <ul>
+        <li>衝突イベント発生時のみ発音</li>
+        <li>クールダウン：衝突音が連打されすぎないよう最小間隔を持つ</li>
+        <li>壁別：左/右/上/下で音程の半音オフセットを変える</li>
+      </ul>
+
+      <h3>ポリリズムとは</h3>
+      <p>
+        速さ（周期）の違う複数のリズムが同時に鳴ること。ボールが複数で速度が違うと、
+        「壁に当たるタイミング（リズム）」がズレて重なり、自然にポリリズムになる。
+      </p>
+
+      <h3>操作</h3>
+      <ul>
+        <li><span class="kbd">Audio を有効化</span>：音を鳴らすために必須（ブラウザ制限）</li>
+        <li><span class="kbd">リセット</span>：ボール配置と速度を初期化</li>
+        <li>マウス移動：STEP 3 以降で音程に反映</li>
+      </ul>
+
+      <h3>非目標（このサンプルではやらない）</h3>
+      <ul>
+        <li>リアルな物理（摩擦・回転・重力など）</li>
+        <li>高品質リバーブ等の重いエフェクト（次拡張で可）</li>
+      </ul>
+    </div>
+  </aside>
+</main>
+
+<script>
+(() => {
+  // =========================
+  // Utilities
+  // =========================
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  const semiToRatio = (semi) => Math.pow(2, semi / 12);
+  const nowSec = () => performance.now() / 1000;
+
+  // =========================
+  // Canvas setup (HiDPI)
+  // =========================
+  const canvas = document.getElementById("c");
+  const ctx = canvas.getContext("2d");
+  const frame = canvas.parentElement;
+
+  function resizeCanvas() {
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    const rect = frame.getBoundingClientRect();
+    const w = Math.floor(rect.width * dpr);
+    const h = Math.floor(rect.height * dpr);
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width = w;
+      canvas.height = h;
+    }
+    // 描画はCSSピクセル基準にスケール
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  // =========================
+  // UI Elements
+  // =========================
+  const stepSel = document.getElementById("stepSel");
+  const btnEnableAudio = document.getElementById("btnEnableAudio");
+  const btnReset = document.getElementById("btnReset");
+  const muteChk = document.getElementById("muteChk");
+  const harmChk = document.getElementById("harmChk");
+  const volRange = document.getElementById("volRange");
+  const coolRange = document.getElementById("coolRange");
+  const badgeText = document.getElementById("badgeText");
+  const audioDot = document.getElementById("audioDot");
+  const audioStatus = document.getElementById("audioStatus");
+
+  // =========================
+  // Audio (Web Audio API): Sine + Envelope + Harmonics
+  // =========================
+  let audioCtx = null;
+  let masterGain = null;
+  const activeVoices = [];
+  const MAX_VOICES = 18;
+
+  function setAudioStatus(state) {
+    // state: "off" | "ready"
+    if (state === "ready") {
+      audioDot.className = "dot ok";
+      audioStatus.textContent = "Audio: 有効";
+      btnEnableAudio.disabled = true;
+    } else {
+      audioDot.className = "dot warn";
+      audioStatus.textContent = "Audio: 未有効（クリックで有効化）";
+      btnEnableAudio.disabled = false;
+    }
+  }
+
+  async function enableAudio() {
+    if (audioCtx) {
+      try { await audioCtx.resume(); } catch {}
+      setAudioStatus("ready");
+      return;
+    }
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    masterGain = audioCtx.createGain();
+    masterGain.gain.value = 0.9;
+    masterGain.connect(audioCtx.destination);
+
+    try { await audioCtx.resume(); } catch {}
+    setAudioStatus("ready");
+  }
+
+  function playNote(freqHz, durationMs = 140) {
+    if (muteChk.checked) return;
+    if (!audioCtx || audioCtx.state !== "running") return;
+
+    const volume = clamp(parseFloat(volRange.value || "0.22"), 0, 0.8);
+    const useHarm = !!harmChk.checked;
+
+    // Voice limiter
+    while (activeVoices.length > MAX_VOICES) {
+      const v = activeVoices.shift();
+      try { v.stop(); } catch {}
+    }
+
+    const t0 = audioCtx.currentTime;
+    const dur = clamp(durationMs / 1000, 0.05, 1.2);
+
+    // Envelope (Attack/Release)
+    const attack = 0.010;
+    const release = 0.060;
+    const t1 = t0 + attack;
+    const t2 = t0 + Math.max(attack, dur - release);
+    const t3 = t0 + dur;
+
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(Math.max(0.0002, volume), t1);
+    g.gain.setValueAtTime(Math.max(0.0002, volume), t2);
+    g.gain.exponentialRampToValueAtTime(0.0001, t3);
+    g.connect(masterGain);
+
+    // Fundamental
+    const o1 = audioCtx.createOscillator();
+    o1.type = "sine";
+    o1.frequency.setValueAtTime(freqHz, t0);
+
+    // Slight soft clip by gain staging + tanh not available here; keep volume moderate.
+    const g1 = audioCtx.createGain();
+    g1.gain.value = 1.0;
+    o1.connect(g1).connect(g);
+
+    // Harmonics (2x, 3x) tiny mix for "芯"
+    let o2, o3, g2, g3;
+    if (useHarm) {
+      o2 = audioCtx.createOscillator(); o2.type = "sine"; o2.frequency.setValueAtTime(freqHz * 2, t0);
+      o3 = audioCtx.createOscillator(); o3.type = "sine"; o3.frequency.setValueAtTime(freqHz * 3, t0);
+
+      g2 = audioCtx.createGain(); g2.gain.value = 0.18;
+      g3 = audioCtx.createGain(); g3.gain.value = 0.10;
+
+      o2.connect(g2).connect(g);
+      o3.connect(g3).connect(g);
+    }
+
+    const stopAll = () => {
+      try { o1.stop(); } catch {}
+      if (o2) try { o2.stop(); } catch {}
+      if (o3) try { o3.stop(); } catch {}
+      try { g.disconnect(); } catch {}
+      try { g1.disconnect(); } catch {}
+      if (g2) try { g2.disconnect(); } catch {}
+      if (g3) try { g3.disconnect(); } catch {}
+    };
+
+    o1.start(t0);
+    if (o2) o2.start(t0);
+    if (o3) o3.start(t0);
+
+    o1.stop(t3);
+    if (o2) o2.stop(t3);
+    if (o3) o3.stop(t3);
+
+    // Cleanup later
+    const voice = { stop: stopAll };
+    activeVoices.push(voice);
+    setTimeout(() => {
+      const idx = activeVoices.indexOf(voice);
+      if (idx >= 0) activeVoices.splice(idx, 1);
+      stopAll();
+    }, (dur + 0.1) * 1000);
+  }
+
+  // =========================
+  // Spec/Behavior: Balls & Steps
+  // =========================
+  const BORDER = 6;
+  let step = parseInt(stepSel.value, 10) || 1;
+
+  const wallOffsets = { left: 0, right: 4, top: 7, bottom: 12 }; // semitones
+
+  // Mouse for STEP3+
+  let mouseX = 0.5;
+  let mouseY = 0.5;
+  frame.addEventListener("mousemove", (e) => {
+    const r = frame.getBoundingClientRect();
+    mouseX = clamp((e.clientX - r.left) / r.width, 0, 1);
+    mouseY = clamp((e.clientY - r.top) / r.height, 0, 1);
+  });
+
+  function quantizeToCMajor(freq, root = 261.63) {
+    // C major: 0,2,4,5,7,9,11
+    const scale = [0,2,4,5,7,9,11];
+    const semis = 12 * Math.log2(freq / root);
+    const nearest = Math.round(semis);
+    const octave = Math.floor(nearest / 12);
+    const within = ((nearest % 12) + 12) % 12;
+
+    let best = scale[0];
+    let bestDist = Math.abs(scale[0] - within);
+    for (const s of scale) {
+      const d = Math.abs(s - within);
+      if (d < bestDist) { best = s; bestDist = d; }
+    }
+    return root * semiToRatio(octave * 12 + best);
+  }
+
+  function pitchModFromMouse() {
+    // x: -6..+6 semis
+    return (mouseX * 12) - 6;
+  }
+
+  function pitchModFromSpeed(ball) {
+    const speed = Math.hypot(ball.vx, ball.vy);
+    return clamp((speed - 2.0) * 1.5, 0, 6); // 0..+6 semis
+  }
+
+  function decideFreq(ball, wall) {
+    let semis = wallOffsets[wall] ?? 0;
+
+    if (step >= 3) {
+      semis += pitchModFromMouse();
+      semis += pitchModFromSpeed(ball);
+    }
+
+    let freq = ball.baseFreq * semiToRatio(semis);
+
+    if (step >= 4) {
+      freq = quantizeToCMajor(freq, 261.63);
+    }
+    return clamp(freq, 60, 2000);
+  }
+
+  function badgeForStep(s) {
+    if (s === 1) return "STEP 1 / 壁で音程変化";
+    if (s === 2) return "STEP 2 / 3ボール（C-E-G）＝和音ポリリズム";
+    if (s === 3) return "STEP 3 / マウス+速度で音程（表情）";
+    return "STEP 4 / Cメジャー量子化（楽器寄り）";
+  }
+
+  function makeBallsForStep(s, W, H) {
+    const left = BORDER, top = BORDER, right = W - BORDER, bottom = H - BORDER;
+
+    // 画面サイズに応じた初期配置
+    const cx = (left + right) / 2;
+    const cy = (top + bottom) / 2;
+
+    if (s === 1) {
+      return [
+        { x: cx - 140, y: cy - 40, vx: 3.6, vy: 2.7, r: 14, color: "#1f6feb", baseFreq: 261.63, lastHit: 0 }, // C4
+      ];
+    }
+    // STEP2+ は3ボール（C E G）
+    return [
+      { x: cx - 170, y: cy - 50, vx: 3.6,  vy: 2.1,  r: 14, color: "#1f6feb", baseFreq: 261.63, lastHit: 0 }, // C4
+      { x: cx + 120, y: cy + 60, vx: -2.7, vy: 3.9,  r: 14, color: "#2da44e", baseFreq: 329.63, lastHit: 0 }, // E4
+      { x: cx + 10,  y: cy - 140, vx: 4.2,  vy: -2.8, r: 14, color: "#bf8700", baseFreq: 392.00, lastHit: 0 }, // G4
+    ];
+  }
+
+  let balls = [];
+  let lastFrameT = 0;
+
+  function reset() {
+    resizeCanvas();
+    const rect = frame.getBoundingClientRect();
+    const W = rect.width;
+    const H = rect.height;
+    balls = makeBallsForStep(step, W, H);
+    badgeText.textContent = badgeForStep(step);
+  }
+
+  function bounceAndGetHit(ball, W, H) {
+    const left = BORDER;
+    const top = BORDER;
+    const right = W - BORDER;
+    const bottom = H - BORDER;
+
+    ball.x += ball.vx;
+    ball.y += ball.vy;
+
+    let hit = null;
+
+    if (ball.x - ball.r <= left) {
+      ball.x = left + ball.r;
+      ball.vx *= -1;
+      hit = "left";
+    } else if (ball.x + ball.r >= right) {
+      ball.x = right - ball.r;
+      ball.vx *= -1;
+      hit = "right";
+    }
+
+    if (ball.y - ball.r <= top) {
+      ball.y = top + ball.r;
+      ball.vy *= -1;
+      hit = hit ?? "top";
+    } else if (ball.y + ball.r >= bottom) {
+      ball.y = bottom - ball.r;
+      ball.vy *= -1;
+      hit = hit ?? "bottom";
+    }
+
+    return hit;
+  }
+
+  function maybePlayHit(ball, wall) {
+    const cooldown = clamp(parseFloat(coolRange.value || "0.03"), 0, 0.2);
+    const t = nowSec();
+    if (t - (ball.lastHit || 0) < cooldown) return;
+    ball.lastHit = t;
+
+    const freq = decideFreq(ball, wall);
+    const dur = (step <= 2) ? 110 : 140;
+    playNote(freq, dur);
+  }
+
+  function draw(W, H) {
+    // Background
+    ctx.clearRect(0, 0, W, H);
+
+    // Frame border (drawn inside)
+    ctx.save();
+    ctx.strokeStyle = "rgba(255,255,255,0.14)";
+    ctx.lineWidth = BORDER;
+    ctx.strokeRect(BORDER/2, BORDER/2, W - BORDER, H - BORDER);
+    ctx.restore();
+
+    // Balls
+    for (const b of balls) {
+      // Shadow
+      ctx.beginPath();
+      ctx.arc(b.x + 7, b.y + 9, b.r * 0.95, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(0,0,0,0.35)";
+      ctx.fill();
+
+      // Body
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+      ctx.fillStyle = b.color;
+      ctx.fill();
+
+      // Highlight
+      ctx.beginPath();
+      ctx.arc(b.x - b.r*0.35, b.y - b.r*0.35, b.r*0.35, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(255,255,255,0.18)";
+      ctx.fill();
+    }
+
+    // STEP3+ hint: show mouse line lightly
+    if (step >= 3) {
+      ctx.save();
+      ctx.strokeStyle = "rgba(122,162,255,0.20)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(mouseX * W, 0);
+      ctx.lineTo(mouseX * W, H);
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  function animate(t) {
+    resizeCanvas();
+    const rect = frame.getBoundingClientRect();
+    const W = rect.width;
+    const H = rect.height;
+
+    // Update
+    // (dtは必須ではないが、後で速度調整したい時に使えるように残す)
+    const dt = lastFrameT ? (t - lastFrameT) / 1000 : (1/60);
+    lastFrameT = t;
+
+    for (const b of balls) {
+      const wall = bounceAndGetHit(b, W, H);
+      if (wall) maybePlayHit(b, wall);
+    }
+
+    // Draw
+    draw(W, H);
+
+    requestAnimationFrame(animate);
+  }
+
+  // =========================
+  // Wire up UI
+  // =========================
+  btnEnableAudio.addEventListener("click", enableAudio);
+  btnReset.addEventListener("click", reset);
+
+  stepSel.addEventListener("change", () => {
+    step = parseInt(stepSel.value, 10) || 1;
+    reset();
+  });
+
+  // On load
+  setAudioStatus("off");
+  window.addEventListener("resize", reset);
+  reset();
+  requestAnimationFrame(animate);
+})();
+</script>
+</body>
+</html>
