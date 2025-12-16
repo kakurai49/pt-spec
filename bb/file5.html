@@ -1,0 +1,1636 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ポップアートPythonシラバス - クエストボード開発（動く仕様書付き）</title>
+  <link rel="stylesheet" href="pop3_style.css" />
+  <!-- KaTeX for math rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+
+  <style>
+    /* ===== 元HTMLのスタイル（そのまま） ===== */
+    :root {
+      --pop-yellow: #ffdd57;
+      --pop-pink: #ff4081;
+      --pop-blue: #1e90ff;
+      --pop-green: #2ecc71;
+      --pop-purple: #9b59b6;
+      --pop-orange: #ff7f50;
+      --ink: #1f2937;
+      --paper: rgba(255,255,255,.92);
+      --soft: rgba(0,0,0,.08);
+    }
+
+    body {
+      background: linear-gradient(135deg, var(--pop-yellow) 0%, #ffcc00 100%);
+      color: #222;
+      line-height: 1.7;
+    }
+
+    .intro-section {
+      background: linear-gradient(to right, #ffecd2 0%, #fcb69f 100%);
+      border-left: 8px solid var(--pop-orange);
+      padding: 20px;
+      margin: 25px 0;
+      border-radius: 0 15px 15px 0;
+      box-shadow: 5px 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .session-card {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      margin: 30px 0;
+      border-top: 10px solid;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .session-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    }
+
+    .session-1 { border-color: var(--pop-pink); }
+    .session-2 { border-color: var(--pop-blue); }
+    .session-3 { border-color: var(--pop-green); }
+    .session-4 { border-color: var(--pop-purple); }
+    .session-5 { border-color: var(--pop-orange); }
+    .session-6 { border-color: #e74c3c; }
+    .session-7 { border-color: #1abc9c; }
+    .session-8 { border-color: #3498db; }
+    .session-9 { border-color: #9b59b6; }
+    .session-10 { border-color: #f1c40f; }
+
+    h1, h2, h3, h4 {
+      margin-top: 0;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      color: var(--pop-pink);
+      padding-bottom: 10px;
+      border-bottom: 3px dashed var(--pop-pink);
+    }
+
+    h3 {
+      color: var(--pop-blue);
+      font-size: 1.6rem;
+      background: linear-gradient(to right, rgba(30, 144, 255, 0.1), transparent);
+      padding: 8px 15px;
+      border-radius: 8px;
+    }
+
+    h4 {
+      color: var(--pop-green);
+      font-size: 1.3rem;
+    }
+
+    .spell-card {
+      background: #f8f9fa;
+      border-left: 6px solid var(--pop-purple);
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 0 10px 10px 0;
+      font-family: 'Courier New', monospace;
+      font-weight: bold;
+      color: #2c3e50;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+    }
+
+    .function-list {
+      background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+      padding: 15px;
+      border-radius: 10px;
+      border: 2px solid var(--pop-blue);
+      margin: 15px 0;
+    }
+
+    .ikea-section {
+      background: linear-gradient(135deg, #fff9c4 0%, #ffecb3 100%);
+      padding: 15px;
+      border-radius: 10px;
+      border: 2px dashed #ff9800;
+      margin: 15px 0;
+    }
+
+    pre {
+      background-color: #2d3436 !important;
+      color: #dfe6e9 !important;
+      padding: 20px !important;
+      border-radius: 10px !important;
+      border: 3px solid var(--pop-blue) !important;
+      font-size: 1rem !important;
+      line-height: 1.5 !important;
+      overflow-x: auto !important;
+      white-space: pre-wrap !important;
+      word-wrap: break-word !important;
+      font-family: 'Courier New', Courier, monospace !important;
+      max-width: 100% !important;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.3) !important;
+    }
+
+    pre code { color: #dfe6e9 !important; }
+
+    table {
+      border-collapse: separate;
+      border-spacing: 0;
+      width: 100%;
+      margin: 20px 0;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    th {
+      background: linear-gradient(to right, var(--pop-pink), #ff79a9);
+      color: white;
+      font-weight: bold;
+      padding: 12px;
+      text-align: left;
+    }
+
+    td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    tr:nth-child(even) { background-color: rgba(255, 221, 87, 0.2); }
+    tr:hover { background-color: rgba(255, 64, 129, 0.1); }
+
+    strong { color: var(--pop-pink); font-weight: bold; }
+
+    .footer {
+      background: linear-gradient(to right, var(--pop-pink), #ff79a9);
+      color: white;
+      padding: 20px;
+      text-align: center;
+      position: relative;
+      bottom: 0;
+      width: 100%;
+      margin-top: 40px;
+      box-shadow: 0 -5px 15px rgba(0,0,0,0.1);
+    }
+
+    @media (max-width: 768px) {
+      .container { width: 95%; padding: 15px; }
+      .session-card { padding: 15px; }
+      h2 { font-size: 1.6rem; }
+      h3 { font-size: 1.3rem; }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .session-card, .intro-section { animation: fadeInUp 0.6s ease-out; }
+
+    .badge {
+      display: inline-block;
+      background: var(--pop-pink);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      margin-right: 10px;
+      margin-bottom: 10px;
+    }
+
+    .badge-blue { background: var(--pop-blue); }
+    .badge-green { background: var(--pop-green); }
+    .badge-purple { background: var(--pop-purple); }
+
+    .math-container {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 15px;
+      border-radius: 10px;
+      margin: 15px 0;
+      border: 2px solid var(--pop-blue);
+      overflow-x: auto;
+    }
+
+    /* ===== ここから追加：「動く仕様書」UI ===== */
+    .spec-wrap {
+      background: linear-gradient(135deg, rgba(255,255,255,.96), rgba(255,255,255,.86));
+      border: 3px solid rgba(31,41,55,.15);
+      border-radius: 18px;
+      padding: 18px;
+      margin: 18px 0 28px 0;
+      box-shadow: 0 12px 28px rgba(0,0,0,.14);
+    }
+    .spec-head {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .spec-title {
+      display: flex;
+      gap: 10px;
+      align-items: baseline;
+      flex-wrap: wrap;
+    }
+    .spec-title h2 {
+      margin: 0;
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: rgba(30,144,255,.10);
+      border: 1px solid rgba(30,144,255,.25);
+      color: var(--ink);
+      font-weight: 700;
+      font-size: 0.92rem;
+    }
+    .pill small { font-weight: 700; opacity: .8; }
+
+    .spec-grid {
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 14px;
+      margin-top: 12px;
+    }
+    @media (max-width: 900px) { .spec-grid { grid-template-columns: 1fr; } }
+
+    .card {
+      background: var(--paper);
+      border: 1px solid rgba(0,0,0,.10);
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: inset 0 0 12px rgba(0,0,0,.04);
+    }
+    .card h4 { margin: 0 0 10px 0; }
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    @media (max-width: 600px) { .row { grid-template-columns: 1fr; } }
+
+    .ctrl {
+      display: grid;
+      gap: 6px;
+    }
+    .ctrl label { font-weight: 800; color: #0f172a; }
+    .ctrl input[type="text"], .ctrl input[type="number"], .ctrl select, .ctrl textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,.18);
+      outline: none;
+      background: white;
+      box-shadow: 0 2px 0 rgba(0,0,0,.04);
+      font-size: 0.98rem;
+    }
+    .ctrl input[type="range"] { width: 100%; }
+
+    .btns {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    .btn {
+      appearance: none;
+      border: 1px solid rgba(0,0,0,.14);
+      background: linear-gradient(135deg, rgba(255,64,129,.16), rgba(255,64,129,.08));
+      color: #111827;
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 10px 18px rgba(0,0,0,.10);
+      transition: transform .15s ease, opacity .15s ease;
+      user-select: none;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn:active { transform: translateY(0px); opacity: .9; }
+    .btn.blue { background: linear-gradient(135deg, rgba(30,144,255,.18), rgba(30,144,255,.08)); }
+    .btn.green { background: linear-gradient(135deg, rgba(46,204,113,.18), rgba(46,204,113,.08)); }
+    .btn.orange { background: linear-gradient(135deg, rgba(255,127,80,.20), rgba(255,127,80,.10)); }
+    .btn.gray { background: linear-gradient(135deg, rgba(17,24,39,.10), rgba(17,24,39,.06)); }
+
+    .disabled {
+      opacity: .45 !important;
+      filter: grayscale(.55);
+      pointer-events: none !important;
+    }
+
+    .kpi {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    @media (max-width: 600px) { .kpi { grid-template-columns: 1fr; } }
+    .kpi .box {
+      background: rgba(255,221,87,.18);
+      border: 1px solid rgba(255,221,87,.45);
+      border-radius: 16px;
+      padding: 10px 12px;
+    }
+    .kpi .box b { font-size: 1.25rem; display:block; }
+    .hint {
+      background: rgba(155,89,182,.10);
+      border: 1px dashed rgba(155,89,182,.45);
+      border-radius: 14px;
+      padding: 10px 12px;
+      color: #111827;
+      margin-top: 10px;
+      font-weight: 800;
+    }
+
+    .list {
+      margin: 10px 0 0 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 10px;
+    }
+    .item {
+      background: white;
+      border-radius: 16px;
+      border: 1px solid rgba(0,0,0,.10);
+      box-shadow: 0 10px 18px rgba(0,0,0,.08);
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+    }
+    .item-top {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+    .tag {
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      background: rgba(46,204,113,.10);
+      border: 1px solid rgba(46,204,113,.22);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-weight: 900;
+      font-size: .9rem;
+    }
+    .tag.done { background: rgba(31,41,55,.08); border-color: rgba(31,41,55,.15); }
+    .meta { opacity: .75; font-weight: 800; font-size: .9rem; }
+    .titleline { font-weight: 1000; font-size: 1.05rem; color: #0b1220; }
+    .titleline .muted { opacity: .65; font-weight: 800; }
+    .actions {
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .mini {
+      padding: 8px 10px;
+      border-radius: 12px;
+      font-weight: 1000;
+      border: 1px solid rgba(0,0,0,.14);
+      cursor: pointer;
+      background: rgba(255,255,255,.95);
+      box-shadow: 0 8px 16px rgba(0,0,0,.08);
+    }
+    .mini:hover { transform: translateY(-1px); }
+    .mini:active { transform: translateY(0px); opacity: .9; }
+
+    .console {
+      background: #0b1220;
+      color: #e5e7eb;
+      border-radius: 16px;
+      padding: 12px;
+      border: 2px solid rgba(30,144,255,.35);
+      box-shadow: inset 0 0 18px rgba(0,0,0,.45);
+    }
+    .console .log {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: .95rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+      min-height: 84px;
+      max-height: 220px;
+      overflow:auto;
+      margin: 0 0 10px 0;
+    }
+    .console input {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.20);
+      outline: none;
+      background: rgba(255,255,255,.06);
+      color: #e5e7eb;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-weight: 900;
+    }
+    .smallnote { font-size: .92rem; font-weight: 850; opacity: .85; }
+  </style>
+</head>
+
+<body>
+  <header>
+    🎨 Pythonクエストボード開発シラバス 🚀
+  </header>
+
+  <div class="container">
+    <!-- =========================================================
+         追加：動く仕様書（JavaScript版クエストボード）
+         ========================================================= -->
+    <section class="spec-wrap" id="spec">
+      <div class="spec-head">
+        <div class="spec-title">
+          <h2>🧪 動く仕様書：JavaScript版「クエストボード」</h2>
+          <span class="pill">回数で機能が解放される <small>（第1回→第10回）</small></span>
+        </div>
+        <div class="pill" id="levelPill">現在：第<span id="levelNum">1</span>回まで</div>
+      </div>
+
+      <div class="card">
+        <div class="row">
+          <div class="ctrl">
+            <label for="levelRange">回数スライダー（この回までの仕様が使える）</label>
+            <input id="levelRange" type="range" min="1" max="10" value="1" />
+            <div class="smallnote">未解放の機能はグレー＆操作不可になります（「積み上げ」を体験するため）。</div>
+          </div>
+          <div class="ctrl">
+            <label>仕様の柱（シラバス準拠）</label>
+            <div class="hint" id="featureHint">第1回：入力→整形→表示（まず動いた！）</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="spec-grid">
+        <div class="card">
+          <h4>クエスト操作（GUI）</h4>
+
+          <div class="row">
+            <div class="ctrl">
+              <label for="titleInput">クエスト名</label>
+              <input id="titleInput" type="text" placeholder="例：筋トレ / 読書 / 掃除" maxlength="80" />
+              <div class="smallnote">第1回の仕様：前後の空白を削り、先頭1文字だけ大文字化。</div>
+            </div>
+            <div class="ctrl">
+              <label for="xpInput">XP（達成点）</label>
+              <input id="xpInput" type="number" min="1" max="999" value="1" />
+              <div class="smallnote">XPは第2回から有効（ToDoをゲーム化）。</div>
+            </div>
+          </div>
+
+          <div class="btns">
+            <button class="btn green" id="addBtn">受注！（追加）</button>
+            <button class="btn blue" id="sampleBtn">サンプル投入</button>
+            <button class="btn orange" id="saveBtn">保存</button>
+            <button class="btn gray" id="resetBtn">データ初期化</button>
+          </div>
+
+          <div class="row" style="margin-top:10px;">
+            <div class="ctrl">
+              <label for="searchInput">検索</label>
+              <input id="searchInput" type="text" placeholder="部分一致（第6回で解放）" />
+            </div>
+            <div class="ctrl">
+              <label for="sortSelect">並び替え</label>
+              <select id="sortSelect">
+                <option value="idAsc">ID昇順</option>
+                <option value="idDesc">ID降順</option>
+                <option value="xpDesc">XP高い順</option>
+                <option value="createdDesc">新しい順</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row" style="margin-top:10px;">
+            <div class="ctrl">
+              <label for="filterSelect">絞り込み</label>
+              <select id="filterSelect">
+                <option value="all">すべて</option>
+                <option value="undone">未完了のみ</option>
+                <option value="done">完了のみ</option>
+              </select>
+            </div>
+            <div class="ctrl">
+              <label for="ikeaMark">IKEA改造：完了マーク</label>
+              <input id="ikeaMark" type="text" maxlength="6" placeholder="例：✅ / ★ / DONE" />
+              <div class="smallnote">第10回で保存されます（あなた仕様）。</div>
+            </div>
+          </div>
+
+          <ul class="list" id="list"></ul>
+        </div>
+
+        <div class="card">
+          <h4>状態・仕様テスト・CLI風（高回で解放）</h4>
+
+          <div class="kpi" id="kpi">
+            <div class="box">
+              <div class="meta">総クエスト</div>
+              <b id="kpiTotal">0</b>
+            </div>
+            <div class="box">
+              <div class="meta">完了</div>
+              <b id="kpiDone">0</b>
+            </div>
+            <div class="box">
+              <div class="meta">獲得XP</div>
+              <b id="kpiXp">0</b>
+            </div>
+          </div>
+
+          <div class="hint" id="statsHint" style="margin-top:12px;">
+            第10回：集計（完了率・獲得XP）がここに出ます
+          </div>
+
+          <div class="card" style="margin-top:12px;">
+            <h4 style="margin-bottom:6px;">薄いTDD（assert）</h4>
+            <div class="smallnote">第8回以降：テストは主役にしない（動作確認の道具として薄く）。</div>
+            <div class="btns">
+              <button class="btn blue" id="runTestsBtn">assertテスト実行</button>
+            </div>
+            <div class="smallnote" id="testResult">（未実行）</div>
+          </div>
+
+          <div class="card console" style="margin-top:12px;">
+            <div class="log" id="consoleLog"># 第9回以降：CLI風コマンドが使えます（例）&#10;quest add "筋トレ" --xp 3&#10;quest list --undone&#10;quest done 1&#10;quest delete 2&#10;quest search 筋&#10;quest stats</div>
+            <input id="consoleInput" type="text" placeholder="quest ..." />
+            <div class="smallnote" style="opacity:.85;margin-top:8px;">
+              ※ 第9回で解放。第7回の保存（localStorage）と組み合わせると「道具」感が上がる。
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== ここから下は、添付HTMLの内容（元のまま） ====== -->
+    <div class="intro-section">
+      <h2>あなたの「願い」を実現するシラバス</h2>
+      <p>このシラバスは、あなたの「願い」</p>
+      <ul>
+        <li><strong>コードが身につく</strong></li>
+        <li><strong>毎回"できた"で終わる</strong></li>
+        <li><strong>IKEA効果でモチベ維持</strong></li>
+        <li><strong>第10回で"最初の関数たち"が核のシステムが動く感動</strong></li>
+      </ul>
+      <p>に合わせて設計された<strong>具体シラバス（全10回）</strong>です。</p>
+      <p>TDDは主役にせず、<strong>"動作確認の道具"</strong>として薄く使います（基本はデモ＋<code>assert</code>、余裕があれば<code>pytest</code>）。</p>
+    </div>
+
+    <div class="intro-section">
+      <h2>理論の言い方に合わせた設計（超短く）</h2>
+      <div class="math-container">
+        <div class="katex">
+          \text{World (W)} = \{\text{Pythonを覚えながら"動く小さなシステム"を育てる全可能性}\}
+        </div>
+      </div>
+      <div class="math-container">
+        <div class="katex">
+          \text{評価基準 (E)} = \text{毎回の達成感（IKEA）} + \text{ちょうど良い難易度（Goldilocks）} + \text{知識の積み上げ}
+        </div>
+      </div>
+      <div class="math-container">
+        <div class="katex">
+          \text{観点 (S)} = \text{毎回「何で区別して伸ばすか」}
+        </div>
+      </div>
+      <p>このシラバスでは <strong>背骨S＝"ユーザ価値（機能）"</strong>、サブで <strong>S＝"Python知識"</strong>、最後に <strong>S＝"自分改造（IKEA）"</strong> を合成して進めます。</p>
+    </div>
+
+    <div class="intro-section">
+      <h2>作品（最後に動くシステム）</h2>
+      <h3>「クエストボード」（ToDoをゲーム化したCLIアプリ）</h3>
+      <ul>
+        <li>クエスト追加 / 一覧 / 完了 / 削除 / 検索 / 集計（獲得XP）</li>
+        <li>JSONに保存・読込</li>
+        <li>最終的に <code>quest add "筋トレ" --xp 3</code> みたいにコマンドでも動く</li>
+      </ul>
+      <div class="ikea-section">
+        <p>🎯 <strong>ポイント:</strong> "ToDo"だと地味になりがちなので、<strong>XP（達成点）</strong>を入れて「育つ感じ」を強くしています。</p>
+      </div>
+    </div>
+
+    <div class="intro-section">
+      <h2>毎回の授業フォーマット（固定）</h2>
+      <ol>
+        <li>今日のゴール（1文）</li>
+        <li>今日の"覚える呪文"（3つだけ）</li>
+        <li>今日増やす関数（2〜4個）</li>
+        <li>デモで「できた！」（必須）</li>
+        <li><strong>1分IKEA改造</strong>（必須：自分仕様にして所有感）</li>
+      </ol>
+      <div class="spell-card">
+        ※Goldilocks維持ルール：<strong>新しい概念は1個、エッジケースは最大2個まで</strong>
+      </div>
+    </div>
+
+    <h2>シラバス（全10回・具体）</h2>
+
+    <!-- 第1回 -->
+    <div class="session-card session-1">
+      <h3><span class="badge">第1回</span> まず動いた！入力→整形→表示</h3>
+      <h4>背骨S（ユーザ価値）</h4>
+      <p>クエストを"入力して表示"できる</p>
+      <h4>Python知識S</h4>
+      <p>実行、変数、型（str/int）、命名、<code>input/print</code></p>
+      <h4>今日の呪文（暗記）</h4>
+      <div class="spell-card">
+        <code>name = input("...")</code><br>
+        <code>text.strip()</code><br>
+        <code>print(f"...{name}...")</code>
+      </div>
+      <h4>増える関数</h4>
+      <div class="function-list">
+        <code>prompt_title() -> str</code><br>
+        <code>normalize_title(title: str) -> str</code>
+      </div>
+      <h4>できたデモ</h4>
+      <p>入力したクエスト名が整形されて表示される</p>
+      <h4>IKEA改造（選択式）</h4>
+      <div class="ikea-section">
+        表示文言を自分の世界観に（例：「クエスト受注！」）
+      </div>
+    </div>
+
+    <!-- 第2回 -->
+    <div class="session-card session-2">
+      <h3><span class="badge badge-blue">第2回</span> データを持つ（list/dict）→追加＆一覧</h3>
+      <h4>背骨S</h4>
+      <p>追加したクエストを一覧できる</p>
+      <h4>Python知識S</h4>
+      <p><code>list</code>/<code>dict</code>、<code>append</code>、要素アクセス</p>
+      <h4>呪文</h4>
+      <div class="spell-card">
+        <code>tasks = []</code><br>
+        <code>tasks.append(task)</code><br>
+        <code>for t in tasks: ...</code>
+      </div>
+      <h4>増える関数</h4>
+      <div class="function-list">
+        <code>make_task(title: str, xp: int = 1) -> dict</code><br>
+        <code>add_task(tasks: list, task: dict) -> None</code><br>
+        <code>format_task(task: dict) -> str</code>
+      </div>
+      <h4>できた</h4>
+      <p>2件追加して一覧表示</p>
+      <h4>IKEA改造</h4>
+      <div class="ikea-section">
+        表示フォーマット（絵文字/インデント/順番）を自分好みに
+      </div>
+    </div>
+
+    <!-- 第3回 -->
+    <div class="session-card session-3">
+      <h3><span class="badge badge-green">第3回</span> if/forで"完了"ができる（アプリっぽさ爆上がり）</h3>
+      <h4>背骨S</h4>
+      <p>完了（DONE）にできる／未完了一覧に絞れる</p>
+      <h4>Python知識S</h4>
+      <p><code>if</code>、比較、bool、<code>continue</code></p>
+      <h4>呪文</h4>
+      <div class="spell-card">
+        <code>if cond: ... else: ...</code><br>
+        <code>task["done"] = True</code><br>
+        <code>if task["done"]: continue</code>
+      </div>
+      <h4>増える関数</h4>
+      <div class="function-list">
+        <code>next_id(tasks) -> int</code>（ID付与がここで入る）<br>
+        <code>find_task(tasks, task_id) -> dict | None</code><br>
+        <code>complete_task(tasks, task_id) -> bool</code>
+      </div>
+      <h4>できた</h4>
+      <p>ID指定で完了→未完了だけ表示</p>
+      <h4>IKEA改造</h4>
+      <div class="ikea-section">
+        完了マークを自分仕様（✅/★/DONE など）
+      </div>
+    </div>
+
+    <!-- 第4回 -->
+    <div class="session-card session-4">
+      <h3><span class="badge badge-purple">第4回</span> メニュー化（while）で"操作してる感"を作る</h3>
+      <h4>背骨S</h4>
+      <p>メニューで「追加/一覧/完了」が選べる</p>
+      <h4>Python知識S</h4>
+      <p><code>while</code>、関数分割の感覚（UIと処理を分ける）</p>
+      <h4>呪文</h4>
+      <div class="spell-card">
+        <code>while True:</code><br>
+        <code>choice = input("> ")</code><br>
+        <code>break</code>
+      </div>
+      <h4>増える関数</h4>
+      <div class="function-list">
+        <code>show_menu() -> str</code><br>
+        <code>handle_choice(choice, tasks) -> bool</code>（続行/終了）
+      </div>
+      <h4>できた</h4>
+      <p>アプリとして連続操作できる</p>
+      <h4>IKEA改造</h4>
+      <div class="ikea-section">
+        メニュー項目の名前を世界観に合わせる（例：受注/掲示板/報告）
+      </div>
+    </div>
+
+    <!-- 第5回 -->
+    <div class="session-card session-5">
+      <h3><span class="badge">第5回</span> 削除＋入力の安全化（落ちない快適さ）</h3>
+      <h4>背骨S</h4>
+      <p>削除できる／変な入力でも落ちにくい</p>
+      <h4>Python知識S</h4>
+      <p><code>try/except</code>、エラー文の作り方</p>
+      <h4>呪文</h4>
+      <div class="spell-card">
+        <code>try: n = int(s) except ValueError: ...</code><br>
+        <code>return None</code>（失敗時の合図）<br>
+        <code>if x is None: ...</code>
+      </div>
+      <h4>増える関数</h4>
+      <div class="function-list">
+        <code>safe_int(text: str) -> int | None</code><br>
+        <code>delete_task(tasks, task_id) -> bool</code>
+      </div>
+      <h4>できた</h4>
+      <p>存在しないIDでも"優しく"メッセージが出る</p>
+      <h4>IKEA改造</h4>
+      <div class="ikea-section">
+        エラー文を"自分の言葉"に（UXが作品感を作る）
+      </div>
+    </div>
+
+    <!-- 第6回 -->
+    <div class="session-card session-6">
+      <h3><span class="badge">第6回</span> 検索・並び替え（便利さでテンションが上がる回）</h3>
+      <h4>背骨S</h4>
+      <p>検索できる／並び替えできる</p>
+      <h4>Python知識S</h4>
+      <p>文字列操作、<code>in</code>、<code>sorted</code>、key関数</p>
+      <h4>呪文</h4>
+      <div class="spell-card">
+        <code>q.lower()</code><br>
+        <code>if q in title:</code><br>
+        <code>sorted(tasks, key=lambda t: t["id"])</code>
+      </div>
+      <h4>増える関数</h4>
+      <div class="function-list">
+        <code>search_tasks(tasks, query) -> list</code><br>
+        <code>sort_tasks(tasks, mode="id") -> list</code>
+      </div>
+      <h4>できた</h4>
+      <p>検索結果だけ一覧できる</p>
+      <h4>IKEA改造</h4>
+      <div class="ikea-section">
+        検索ルールを選ぶ（部分一致/前方一致/大文字小文字無視など）
+      </div>
+    </div>
+
+    <!-- 第7回 -->
+    <div class="session-card session-7">
+      <h3><span class="badge">第7回</span> 保存できた！（最大の感動ポイント）</h3>
+      <h4>背骨S</h4>
+      <p>終了しても残る（JSON保存/読込）</p>
+      <h4>Python知識S</h4>
+      <p><code>with open</code>、<code>json.load/dump</code>、<code>pathlib</code></p>
+      <h4>呪文</h4>
+      <div class="spell-card">
+        <code>from pathlib import Path</code><br>
+        <code>with path.open("r", encoding="utf-8") as f:</code><br>
+        <code>json.dump(data, f, ensure_ascii=False, indent=2)</code>
+      </div>
+      <h4>増える関数</h4>
+      <div class="function-list">
+        <code>load_tasks(path) -> list</code><br>
+        <code>save_tasks(path, tasks) -> None</code>
+      </div>
+      <h4>できた</h4>
+      <p>再起動してもクエストが復元される</p>
+      <h4>IKEA改造</h4>
+      <div class="ikea-section">
+        保存ファイル名・保存場所を"自分の作品名"にする
+      </div>
+    </div>
+
+    <!-- 第8回 -->
+    <div class="session-card session-8">
+      <h3><span class="badge">第8回</span> 構造（モジュール分割）で"増築できる体"にする</h3>
+      <h4>背骨S</h4>
+      <p>整理しても壊れない（見通しが良くなる）</p>
+      <h4>Python知識S</h4>
+      <p><code>import</code>、ファイル分割、<code>main()</code>入口</p>
+      <h4>呪文</h4>
+      <div class="spell-card">
+        <code>def main(): ...</code><br>
+        <code>if __name__ == "__main__": main()</code><br>
+        <code>from core import add_task</code>
+      </div>
+      <h4>成果（構造）</h4>
+      <div class="function-list">
+        <code>core.py</code>（ロジック）<br>
+        <code>ui.py</code>（表示/入力）<br>
+        <code>storage.py</code>（保存/読込）<br>
+        <code>main.py</code>（結線）
+      </div>
+      <h4>できた</h4>
+      <p>コードが"部品の集合"として見える</p>
+      <h4>IKEA改造</h4>
+      <div class="ikea-section">
+        フォルダ名/モジュール名を作品名に（所有感が強い）
+      </div>
+    </div>
+
+    <!-- 第9回 -->
+    <div class="session-card session-9">
+      <h3><span class="badge">第9回</span> コマンドで動いた！（道具になった感動）</h3>
+      <h4>背骨S</h4>
+      <p>CLIサブコマンド（add/list/done/search）</p>
+      <h4>Python知識S</h4>
+      <p><code>argparse</code>（or 最小なら <code>sys.argv</code>）</p>
+      <h4>呪文</h4>
+      <div class="spell-card">
+        <code>import argparse</code><br>
+        <code>parser.add_subparsers(dest="cmd")</code><br>
+        <code>args = parser.parse_args()</code>
+      </div>
+      <h4>増える関数</h4>
+      <div class="function-list">
+        <code>parse_args() -> Namespace</code><br>
+        <code>dispatch(args, tasks) -> list</code>（必要なら更新返す）
+      </div>
+      <h4>できた</h4>
+      <p>ターミナルからコマンドで操作できる</p>
+      <h4>IKEA改造</h4>
+      <div class="ikea-section">
+        自分コマンドを1個追加（例：<code>stats</code> や <code>today</code>）
+      </div>
+    </div>
+
+    <!-- 第10回 -->
+    <div class="session-card session-10">
+      <h3><span class="badge">第10回</span> 統合して"システムが動いた"（最初の関数が核で現役）</h3>
+      <h4>背骨S</h4>
+      <p>既存関数の再利用で"育て切る"</p>
+      <h4>Python知識S</h4>
+      <p>復習＋結線（依存の向き、流れの整理）</p>
+      <h4>仕上げ内容（例）</h4>
+      <div class="function-list">
+        <code>stats</code>：獲得XP、完了率、連続達成（簡易でもOK）<br>
+        ヘルプ/README/使用例を整備（"人に渡せる"が感動になる）
+      </div>
+      <h4>できた（最終デモ）</h4>
+      <ol>
+        <li>追加 → 保存</li>
+        <li>再起動 → 読込</li>
+        <li>完了 → 集計（XP増える）</li>
+        <li>コマンドで一連が動く</li>
+      </ol>
+      <h4>IKEA改造（卒業制作）</h4>
+      <div class="ikea-section">
+        最後に"自分機能"を1個（タグ/優先度/締切など）
+      </div>
+    </div>
+
+    <div class="intro-section">
+      <h2>このシラバスが「ワクワク×Goldilocks」を保つ理由（要点だけ）</h2>
+      <div class="math-container">
+        <div class="katex">
+          \text{達成感} = \text{毎回の機能増加} + \text{IKEA改造} + \text{Goldilocks難易度}
+        </div>
+      </div>
+      <ul>
+        <li><strong>毎回の達成が"見える"背骨S</strong>（機能が増えて作品が育つ）</li>
+        <li>新知識は<strong>1個</strong>に絞る（難しすぎない）</li>
+        <li>毎回"自分改造"で<strong>所有感が積み上がる</strong>（IKEA効果）</li>
+        <li>第7回（保存）と第9回（CLI）に<strong>大きい感動の山</strong>を置いて、中だるみを防ぐ</li>
+        <li>第10回で「第1回の <code>normalize_title</code> がまだ現役」＝積み上げの証明</li>
+      </ul>
+
+      <div class="ikea-section">
+        <h4>🎯 最終ゴール</h4>
+        <p>必要なら、このシラバスをそのまま授業で使える形にして、各回ごとに</p>
+        <ul>
+          <li><strong>配布用テンプレコード</strong>（その回の開始時点の状態）</li>
+          <li><strong>講師用の最終コード</strong></li>
+          <li>受講者向け <strong>"今日の呪文カード"</strong>（3行チートシート）</li>
+        </ul>
+        <p>までセットで作れます。</p>
+      </div>
+    </div>
+
+    <h3>サンプルコード（preタグ内の表示テスト）</h3>
+    <pre><code># 第1回のサンプルコード
+def prompt_title() -> str:
+    """クエスト名を入力させる"""
+    title = input("クエスト名を入力してください: ")
+    return title
+
+def normalize_title(title: str) -> str:
+    """タイトルを整形する（第1回で作る関数）"""
+    # この関数は第10回まで現役で使われる！
+    normalized = title.strip()
+    if normalized:
+        # 最初の文字を大文字に
+        normalized = normalized[0].upper() + normalized[1:]
+    return normalized
+
+# デモ実行
+if __name__ == "__main__":
+    raw_title = prompt_title()
+    clean_title = normalize_title(raw_title)
+    print(f"クエスト「{clean_title}」を登録しました！")</code></pre>
+
+    <div class="math-container">
+      <h4>KaTeX テスト: 進捗率の計算式</h4>
+      <div class="katex">
+        \text{進捗率} = \frac{\text{完了クエスト数}}{\text{総クエスト数}} \times 100\%
+      </div>
+    </div>
+
+    <div class="math-container">
+      <h4>獲得XPの計算式</h4>
+      <div class="katex">
+        \text{総獲得XP} = \sum_{i=1}^{n} \text{XP}_i \times \delta_i, \quad \delta_i = \begin{cases} 1 & \text{完了時} \\ 0 & \text{未完時} \end{cases}
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    🎨 ポップアートPythonシラバス - クエストボード開発 🚀 | 全10回で「動くシステム」を作りながらPythonをマスター！
+  </div>
+
+  <!-- KaTeX JS -->
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\\\\(', right: '\\\\)', display: false},
+        {left: '\\\\[', right: '\\\\]', display: true}
+      ],
+      throwOnError: false
+    });">
+  </script>
+
+  <!-- =========================================================
+       追加：動く仕様書（JavaScript実装）
+       ========================================================= -->
+  <script>
+    (() => {
+      "use strict";
+
+      // ========== 回数 → 機能ゲート ==========
+      // 1:入力整形, 2:追加/一覧, 3:完了, 5:削除+安全化, 6:検索/並替, 7:保存, 8:薄いTDD, 9:CLI風, 10:集計+IKEA保存
+      const GATE = {
+        normalize: 1,
+        addList: 2,
+        done: 3,
+        delete: 5,
+        searchSort: 6,
+        storage: 7,
+        tests: 8,
+        cli: 9,
+        stats: 10,
+        ikeaPersist: 10,
+      };
+
+      const featureTextByLevel = (lv) => {
+        if (lv <= 1) return "第1回：入力→整形→表示（まず動いた！）";
+        if (lv === 2) return "第2回：データを持つ（追加＆一覧）";
+        if (lv === 3) return "第3回：完了（DONE）でアプリっぽさ爆上がり";
+        if (lv === 4) return "第4回：メニュー化（ここではUIの整理イメージ）";
+        if (lv === 5) return "第5回：削除＋入力安全化（落ちない快適さ）";
+        if (lv === 6) return "第6回：検索・並び替え（便利さでテンションUP）";
+        if (lv === 7) return "第7回：保存・復元（localStorageで道具化）";
+        if (lv === 8) return "第8回：薄いTDD（assert）で動作確認の筋肉";
+        if (lv === 9) return "第9回：CLI風コマンドで操作（道具になった感動）";
+        return "第10回：集計＋IKEA改造を保存（自分の作品として完成）";
+      };
+
+      // ========== DOM ==========
+      const $ = (id) => document.getElementById(id);
+
+      const levelRange = $("levelRange");
+      const levelNum = $("levelNum");
+      const levelPill = $("levelPill");
+      const featureHint = $("featureHint");
+
+      const titleInput = $("titleInput");
+      const xpInput = $("xpInput");
+      const addBtn = $("addBtn");
+      const sampleBtn = $("sampleBtn");
+      const saveBtn = $("saveBtn");
+      const resetBtn = $("resetBtn");
+
+      const searchInput = $("searchInput");
+      const sortSelect = $("sortSelect");
+      const filterSelect = $("filterSelect");
+      const ikeaMark = $("ikeaMark");
+
+      const listEl = $("list");
+
+      const kpiTotal = $("kpiTotal");
+      const kpiDone = $("kpiDone");
+      const kpiXp = $("kpiXp");
+      const statsHint = $("statsHint");
+
+      const runTestsBtn = $("runTestsBtn");
+      const testResult = $("testResult");
+
+      const consoleLog = $("consoleLog");
+      const consoleInput = $("consoleInput");
+
+      // ========== 状態 ==========
+      const LS_KEY = "questboard_js_spec_v1";
+      const LS_PREF = "questboard_js_spec_pref_v1";
+      let level = 1;
+
+      /** @type {{id:number,title:string,xp:number,done:boolean,createdAt:number}[]} */
+      let tasks = [];
+
+      /** @type {{doneMark:string, messageAdd:string}} */
+      let pref = { doneMark: "✅", messageAdd: "クエスト受注！" };
+
+      // ========== 仕様（第1回）整形 ==========
+      function normalizeTitle(s) {
+        const raw = String(s ?? "");
+        const trimmed = raw.trim();
+        if (!trimmed) return "";
+        return trimmed[0].toUpperCase() + trimmed.slice(1);
+      }
+
+      function safeInt(s, fallback = null) {
+        const n = Number(s);
+        if (!Number.isFinite(n)) return fallback;
+        const ni = Math.floor(n);
+        if (ni <= 0) return fallback;
+        return ni;
+      }
+
+      function nextId() {
+        let max = 0;
+        for (const t of tasks) max = Math.max(max, t.id);
+        return max + 1;
+      }
+
+      function addTask(title, xp) {
+        const t = {
+          id: nextId(),
+          title,
+          xp,
+          done: false,
+          createdAt: Date.now(),
+        };
+        tasks.push(t);
+        return t;
+      }
+
+      function findTask(id) {
+        return tasks.find(t => t.id === id) ?? null;
+      }
+
+      function completeTask(id) {
+        const t = findTask(id);
+        if (!t) return false;
+        t.done = true;
+        return true;
+      }
+
+      function deleteTask(id) {
+        const idx = tasks.findIndex(t => t.id === id);
+        if (idx < 0) return false;
+        tasks.splice(idx, 1);
+        return true;
+      }
+
+      function save() {
+        if (level < GATE.storage) return false;
+        try {
+          localStorage.setItem(LS_KEY, JSON.stringify({ tasks }));
+          if (level >= GATE.ikeaPersist) {
+            localStorage.setItem(LS_PREF, JSON.stringify(pref));
+          }
+          return true;
+        } catch {
+          return false;
+        }
+      }
+
+      function load() {
+        try {
+          const raw = localStorage.getItem(LS_KEY);
+          if (raw) {
+            const obj = JSON.parse(raw);
+            if (obj && Array.isArray(obj.tasks)) tasks = obj.tasks;
+          }
+          const rp = localStorage.getItem(LS_PREF);
+          if (rp) {
+            const p = JSON.parse(rp);
+            if (p && typeof p.doneMark === "string") pref.doneMark = p.doneMark;
+            if (p && typeof p.messageAdd === "string") pref.messageAdd = p.messageAdd;
+          }
+        } catch {
+          // ignore
+        }
+      }
+
+      // ========== 描画 ==========
+      function applyGates() {
+        levelNum.textContent = String(level);
+        levelPill.textContent = `現在：第${level}回まで`;
+        featureHint.textContent = featureTextByLevel(level);
+
+        // 第2回以前はXP入力を弱める（追加は第2回で解放）
+        xpInput.classList.toggle("disabled", level < GATE.addList);
+        addBtn.classList.toggle("disabled", level < GATE.addList);
+
+        // 第6回（検索/並び替え）
+        searchInput.classList.toggle("disabled", level < GATE.searchSort);
+        sortSelect.classList.toggle("disabled", level < GATE.searchSort);
+        filterSelect.classList.toggle("disabled", level < GATE.done); // 完了がないと完了/未完フィルタ意味薄い
+
+        // 第7回（保存）
+        saveBtn.classList.toggle("disabled", level < GATE.storage);
+
+        // 第8回（テスト）
+        runTestsBtn.classList.toggle("disabled", level < GATE.tests);
+        testResult.textContent = (level < GATE.tests) ? "（第8回で解放）" : "（未実行）";
+
+        // 第9回（CLI）
+        consoleInput.classList.toggle("disabled", level < GATE.cli);
+
+        // 第10回（IKEA保存＋集計）
+        ikeaMark.classList.toggle("disabled", level < GATE.ikeaPersist);
+        statsHint.textContent = (level < GATE.stats)
+          ? "第10回：集計（完了率・獲得XP）がここに出ます"
+          : "第10回：集計OK（完了率・獲得XP・総数）";
+      }
+
+      function computeView() {
+        let view = [...tasks];
+
+        // filter
+        const filter = filterSelect.value;
+        if (level >= GATE.done) {
+          if (filter === "undone") view = view.filter(t => !t.done);
+          if (filter === "done") view = view.filter(t => t.done);
+        }
+
+        // search
+        if (level >= GATE.searchSort) {
+          const q = normalizeTitle(searchInput.value).toLowerCase();
+          if (q) view = view.filter(t => t.title.toLowerCase().includes(q));
+        }
+
+        // sort
+        if (level >= GATE.searchSort) {
+          const mode = sortSelect.value;
+          const cmpNum = (a,b) => a - b;
+          if (mode === "idAsc") view.sort((a,b) => cmpNum(a.id,b.id));
+          if (mode === "idDesc") view.sort((a,b) => cmpNum(b.id,a.id));
+          if (mode === "xpDesc") view.sort((a,b) => cmpNum(b.xp,a.xp) || cmpNum(a.id,b.id));
+          if (mode === "createdDesc") view.sort((a,b) => cmpNum(b.createdAt,a.createdAt));
+        }
+
+        return view;
+      }
+
+      function updateKpi() {
+        const total = tasks.length;
+        const done = tasks.filter(t => t.done).length;
+        const xp = tasks.reduce((sum, t) => sum + (t.done ? t.xp : 0), 0);
+
+        kpiTotal.textContent = String(total);
+        kpiDone.textContent = String(done);
+        kpiXp.textContent = String(xp);
+
+        if (level >= GATE.stats) {
+          const pct = total ? Math.round((done / total) * 100) : 0;
+          statsHint.textContent = `完了率：${pct}% ／ 獲得XP：${xp} ／ 総数：${total}`;
+        }
+      }
+
+      function render() {
+        applyGates();
+        updateKpi();
+
+        const view = computeView();
+        listEl.innerHTML = "";
+
+        if (level < GATE.addList) {
+          const li = document.createElement("li");
+          li.className = "item";
+          li.innerHTML = `
+            <div class="titleline">🔒 第2回で「追加＆一覧」が解放されます</div>
+            <div class="meta">今は第1回：入力→整形→表示の体験だけ</div>
+          `;
+          listEl.appendChild(li);
+          return;
+        }
+
+        if (view.length === 0) {
+          const li = document.createElement("li");
+          li.className = "item";
+          li.innerHTML = `
+            <div class="titleline">（まだクエストがありません）</div>
+            <div class="meta">「サンプル投入」か、上で追加してみてください。</div>
+          `;
+          listEl.appendChild(li);
+          return;
+        }
+
+        for (const t of view) {
+          const li = document.createElement("li");
+          li.className = "item";
+
+          const mark = t.done ? (pref.doneMark || "✅") : "⬜";
+          const doneTag = t.done ? `<span class="tag done">${mark} 完了</span>` : `<span class="tag">🎯 未完了</span>`;
+          const xpText = (level >= GATE.addList) ? `XP ${t.xp}` : `XP ?`;
+          const created = new Date(t.createdAt).toLocaleString();
+
+          const canDone = level >= GATE.done && !t.done;
+          const canDelete = level >= GATE.delete;
+
+          li.innerHTML = `
+            <div class="item-top">
+              <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                ${doneTag}
+                <span class="tag" style="background:rgba(255,127,80,.12);border-color:rgba(255,127,80,.25);">🆔 ${t.id}</span>
+                <span class="tag" style="background:rgba(30,144,255,.10);border-color:rgba(30,144,255,.22);">⚡ ${xpText}</span>
+              </div>
+              <div class="meta">${created}</div>
+            </div>
+
+            <div class="titleline">${mark} ${escapeHtml(t.title)} <span class="muted">（第${t.done ? 3 : 2}回系の仕様）</span></div>
+
+            <div class="actions">
+              <button class="mini" data-act="done" data-id="${t.id}" ${canDone ? "" : "disabled"} title="第3回で解放">完了</button>
+              <button class="mini" data-act="delete" data-id="${t.id}" ${canDelete ? "" : "disabled"} title="第5回で解放">削除</button>
+            </div>
+          `;
+
+          // disabled状態の見た目
+          const doneBtn = li.querySelector('button[data-act="done"]');
+          const delBtn = li.querySelector('button[data-act="delete"]');
+          if (doneBtn && doneBtn.disabled) doneBtn.classList.add("disabled");
+          if (delBtn && delBtn.disabled) delBtn.classList.add("disabled");
+
+          listEl.appendChild(li);
+        }
+      }
+
+      function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, (c) => ({
+          "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+        }[c]));
+      }
+
+      // ========== GUIイベント ==========
+      levelRange.addEventListener("input", () => {
+        level = Number(levelRange.value);
+        render();
+      });
+
+      addBtn.addEventListener("click", () => {
+        if (level < GATE.addList) return;
+
+        const normalized = (level >= GATE.normalize) ? normalizeTitle(titleInput.value) : String(titleInput.value ?? "");
+        if (!normalized) {
+          toast("クエスト名が空です（入力してね）");
+          return;
+        }
+
+        const xp = (level >= GATE.addList) ? (safeInt(xpInput.value, 1) ?? 1) : 1;
+        const t = addTask(normalized, xp);
+
+        toast(pref.messageAdd || "クエスト受注！");
+        titleInput.value = "";
+        xpInput.value = "1";
+
+        if (level >= GATE.storage) save();
+        render();
+
+        // 仕様っぽく：追加したIDをCLIに出しておく
+        logLine(`+ added #${t.id} "${t.title}" (xp=${t.xp})`);
+      });
+
+      sampleBtn.addEventListener("click", () => {
+        if (level < GATE.addList) {
+          toast("第2回で解放：まずは第1回の入力→整形を体験してね");
+          return;
+        }
+        const sample = [
+          { title: " 筋トレ ", xp: 3 },
+          { title: "読書", xp: 2 },
+          { title: "部屋そうじ", xp: 1 },
+        ];
+        for (const s of sample) {
+          const title = (level >= GATE.normalize) ? normalizeTitle(s.title) : s.title;
+          addTask(title, s.xp);
+        }
+        if (level >= GATE.done) completeTask(tasks[0]?.id ?? 1);
+        if (level >= GATE.storage) save();
+        toast("サンプル投入！");
+        render();
+        logLine("* sample loaded");
+      });
+
+      saveBtn.addEventListener("click", () => {
+        if (level < GATE.storage) return;
+        if (level >= GATE.ikeaPersist) {
+          pref.doneMark = (ikeaMark.value || pref.doneMark || "✅").trim().slice(0, 6);
+        }
+        const ok = save();
+        toast(ok ? "保存しました（localStorage）" : "保存に失敗しました");
+        render();
+      });
+
+      resetBtn.addEventListener("click", () => {
+        tasks = [];
+        try { localStorage.removeItem(LS_KEY); } catch {}
+        if (level >= GATE.ikeaPersist) {
+          try { localStorage.removeItem(LS_PREF); } catch {}
+          pref = { doneMark: "✅", messageAdd: "クエスト受注！" };
+          ikeaMark.value = "";
+        }
+        toast("初期化しました");
+        render();
+        logLine("! reset");
+      });
+
+      searchInput.addEventListener("input", render);
+      sortSelect.addEventListener("change", render);
+      filterSelect.addEventListener("change", render);
+
+      ikeaMark.addEventListener("input", () => {
+        if (level < GATE.ikeaPersist) return;
+        pref.doneMark = (ikeaMark.value || "✅").trim().slice(0, 6);
+        render();
+      });
+
+      listEl.addEventListener("click", (ev) => {
+        const btn = ev.target.closest("button");
+        if (!btn) return;
+        const act = btn.dataset.act;
+        const id = safeInt(btn.dataset.id, null);
+        if (!id) return;
+
+        if (act === "done") {
+          if (level < GATE.done) return;
+          const ok = completeTask(id);
+          toast(ok ? `#${id} 完了！` : `#${id} が見つかりません`);
+          if (level >= GATE.storage) save();
+          render();
+          logLine(ok ? `done ${id}` : `done ${id} (not found)`);
+        }
+
+        if (act === "delete") {
+          if (level < GATE.delete) return;
+          const ok = deleteTask(id);
+          toast(ok ? `#${id} 削除` : `#${id} が見つかりません`);
+          if (level >= GATE.storage) save();
+          render();
+          logLine(ok ? `delete ${id}` : `delete ${id} (not found)`);
+        }
+      });
+
+      // ========== 薄いTDD（assert） ==========
+      function assert(cond, msg) {
+        if (!cond) throw new Error("assert failed: " + msg);
+      }
+
+      runTestsBtn.addEventListener("click", () => {
+        if (level < GATE.tests) return;
+
+        try {
+          // 仕様テスト（薄く）：normalize / add / done / delete の最小
+          assert(normalizeTitle("  abc ") === "Abc", "normalizeTitle trims and capitalizes");
+          const backup = JSON.parse(JSON.stringify(tasks));
+
+          tasks = [];
+          addTask("Test", 2);
+          assert(tasks.length === 1, "addTask adds");
+          const id = tasks[0].id;
+          assert(id === 1, "first id is 1 when empty");
+          if (level >= GATE.done) {
+            assert(completeTask(id) === true, "completeTask ok");
+            assert(tasks[0].done === true, "done flag true");
+          }
+          if (level >= GATE.delete) {
+            assert(deleteTask(id) === true, "deleteTask ok");
+            assert(tasks.length === 0, "deleted");
+          }
+
+          // restore
+          tasks = backup;
+
+          testResult.textContent = "✅ テストOK（薄いassert）";
+          toast("テストOK");
+          logLine("tests: ok");
+          render();
+        } catch (e) {
+          testResult.textContent = "❌ テスト失敗: " + (e?.message ?? String(e));
+          toast("テスト失敗");
+          logLine("tests: fail " + (e?.message ?? String(e)));
+        }
+      });
+
+      // ========== CLI風 ==========
+      function logLine(s) {
+        const now = new Date().toLocaleTimeString();
+        consoleLog.textContent += `\n[${now}] ${s}`;
+        consoleLog.scrollTop = consoleLog.scrollHeight;
+      }
+
+      function parseArgs(line) {
+        // 超軽量：クォート対応のトークナイズ
+        const out = [];
+        let cur = "";
+        let q = null;
+        for (let i=0; i<line.length; i++) {
+          const c = line[i];
+          if (q) {
+            if (c === q) { q = null; continue; }
+            cur += c;
+            continue;
+          }
+          if (c === '"' || c === "'") { q = c; continue; }
+          if (/\s/.test(c)) {
+            if (cur) { out.push(cur); cur = ""; }
+            continue;
+          }
+          cur += c;
+        }
+        if (cur) out.push(cur);
+        return out;
+      }
+
+      function cliHelp() {
+        return [
+          "quest add \"title\" --xp 3",
+          "quest list --undone | --done",
+          "quest done 1",
+          "quest delete 2",
+          "quest search KEYWORD",
+          "quest stats",
+          "quest save",
+        ].join("\n");
+      }
+
+      function cliExec(lineRaw) {
+        if (level < GATE.cli) return;
+        const line = String(lineRaw ?? "").trim();
+        if (!line) return;
+
+        const args = parseArgs(line);
+        if (args[0] !== "quest") {
+          logLine("unknown: 先頭は quest で始めてください");
+          return;
+        }
+        const cmd = args[1] || "help";
+
+        const flags = new Set(args.filter(a => a.startsWith("--")));
+        const getFlagValue = (name, fallback=null) => {
+          const idx = args.indexOf(name);
+          if (idx >= 0 && idx+1 < args.length) return args[idx+1];
+          return fallback;
+        };
+
+        if (cmd === "help") {
+          logLine(cliHelp());
+          return;
+        }
+
+        if (cmd === "add") {
+          if (level < GATE.addList) { logLine("locked: 第2回で add 解放"); return; }
+          const title = normalizeTitle(args[2] ?? "");
+          if (!title) { logLine("error: title is empty"); return; }
+          const xpRaw = getFlagValue("--xp", "1");
+          const xp = safeInt(xpRaw, 1) ?? 1;
+          const t = addTask(title, xp);
+          if (level >= GATE.storage) save();
+          render();
+          logLine(`added #${t.id} "${t.title}" xp=${t.xp}`);
+          return;
+        }
+
+        if (cmd === "list") {
+          if (level < GATE.addList) { logLine("locked: 第2回で list 解放"); return; }
+          let view = [...tasks];
+          if (level >= GATE.done) {
+            if (flags.has("--undone")) view = view.filter(t => !t.done);
+            if (flags.has("--done")) view = view.filter(t => t.done);
+          }
+          const lines = view.map(t => {
+            const mark = t.done ? (pref.doneMark || "✅") : "⬜";
+            return `${mark} #${t.id} ${t.title} (xp=${t.xp})`;
+          });
+          logLine(lines.length ? lines.join("\n") : "(empty)");
+          return;
+        }
+
+        if (cmd === "done") {
+          if (level < GATE.done) { logLine("locked: 第3回で done 解放"); return; }
+          const id = safeInt(args[2], null);
+          if (!id) { logLine("error: id"); return; }
+          const ok = completeTask(id);
+          if (level >= GATE.storage) save();
+          render();
+          logLine(ok ? `done #${id}` : `not found #${id}`);
+          return;
+        }
+
+        if (cmd === "delete") {
+          if (level < GATE.delete) { logLine("locked: 第5回で delete 解放"); return; }
+          const id = safeInt(args[2], null);
+          if (!id) { logLine("error: id"); return; }
+          const ok = deleteTask(id);
+          if (level >= GATE.storage) save();
+          render();
+          logLine(ok ? `deleted #${id}` : `not found #${id}`);
+          return;
+        }
+
+        if (cmd === "search") {
+          if (level < GATE.searchSort) { logLine("locked: 第6回で search 解放"); return; }
+          const q = String(args[2] ?? "").toLowerCase();
+          const view = tasks.filter(t => t.title.toLowerCase().includes(q));
+          const lines = view.map(t => `#${t.id} ${t.title}`);
+          logLine(lines.length ? lines.join("\n") : "(no match)");
+          return;
+        }
+
+        if (cmd === "stats") {
+          if (level < GATE.stats) { logLine("locked: 第10回で stats 解放"); return; }
+          const total = tasks.length;
+          const done = tasks.filter(t => t.done).length;
+          const xp = tasks.reduce((s,t) => s + (t.done ? t.xp : 0), 0);
+          const pct = total ? Math.round(done / total * 100) : 0;
+          logLine(`total=${total} done=${done} rate=${pct}% xp=${xp}`);
+          render();
+          return;
+        }
+
+        if (cmd === "save") {
+          if (level < GATE.storage) { logLine("locked: 第7回で save 解放"); return; }
+          if (level >= GATE.ikeaPersist) {
+            pref.doneMark = (ikeaMark.value || pref.doneMark || "✅").trim().slice(0, 6);
+          }
+          const ok = save();
+          logLine(ok ? "saved (localStorage)" : "save failed");
+          render();
+          return;
+        }
+
+        logLine(`unknown cmd: ${cmd}\n` + cliHelp());
+      }
+
+      consoleInput.addEventListener("keydown", (ev) => {
+        if (ev.key !== "Enter") return;
+        if (level < GATE.cli) return;
+        const line = consoleInput.value;
+        consoleInput.value = "";
+        logLine("> " + line);
+        cliExec(line);
+      });
+
+      // ========== トースト ==========
+      let toastTimer = null;
+      function toast(msg) {
+        // 既存UIを汚さない軽量toast（title属性で代替）
+        // ここではヘッダーの title を一瞬だけ変える
+        const h = document.querySelector("header");
+        if (!h) return;
+        const prev = h.textContent;
+        h.textContent = "💬 " + msg;
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => { h.textContent = prev; }, 900);
+      }
+
+      // ========== 初期化 ==========
+      function init() {
+        load();
+        // 初期のIKEA表示
+        ikeaMark.value = pref.doneMark || "✅";
+
+        level = Number(levelRange.value);
+        consoleLog.textContent = consoleLog.textContent.trimEnd();
+        render();
+
+        // 仕様っぽいメッセージ
+        logLine("boot: spec ready");
+        if (tasks.length) logLine(`boot: loaded tasks=${tasks.length}`);
+      }
+
+      init();
+    })();
+  </script>
+</body>
+</html>

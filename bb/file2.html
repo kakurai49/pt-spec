@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pythonコード作法集中講座シラバス</title>
+
+  <!-- KaTeX CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+  <!-- メインCSS（元HTMLの参照を維持） -->
+  <link rel="stylesheet" href="pop3_style.css" />
+
+  <style>
+    /* ===== 元HTML（添付）側のスタイル（そのまま維持） ===== */
+    body { background: linear-gradient(135deg, #ffdd57 0%, #ffcc00 100%); }
+    .container { background: linear-gradient(to bottom right, #ffffff, #f8f9fa); border: 5px solid #ff4081; }
+    h1, h2, h3 { color: #d5006d; text-shadow: 2px 2px 0 #ffcc00; }
+    pre, code { background-color: #2d2d2d !important; color: #f8f8f2 !important; border: 3px solid #ff4081 !important; font-size: 1rem; }
+    pre { padding: 15px; border-radius: 10px; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word; }
+    table { border: 4px solid #333; background-color: #fffacd; }
+    th { background-color: #ff4081; color: white; font-weight: bold; text-transform: uppercase; }
+    td { background-color: #fffff0; }
+    .badge { display: inline-block; padding: 5px 10px; border-radius: 20px; font-weight: bold; margin: 5px; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); box-shadow: 0 3px 6px rgba(0,0,0,0.2); }
+    .badge-fmt { background: linear-gradient(90deg, #ff4081, #ff79b0); }
+    .badge-name { background: linear-gradient(90deg, #1e90ff, #63b8ff); }
+    .badge-struct { background: linear-gradient(90deg, #32cd32, #7cfc00); }
+    .badge-state { background: linear-gradient(90deg, #ff8c00, #ffb347); }
+    .badge-doc { background: linear-gradient(90deg, #9370db, #baa5ff); }
+    .badge-error { background: linear-gradient(90deg, #dc143c, #ff6b84); }
+    .badge-type { background: linear-gradient(90deg, #20b2aa, #5fded6); }
+    .badge-tool { background: linear-gradient(90deg, #ff69b4, #ffb6d9); }
+    .lesson { border-left: 10px solid; padding-left: 20px; margin: 30px 0; background: #fff; border-radius: 0 15px 15px 0; box-shadow: 5px 5px 15px rgba(0,0,0,0.1); transition: transform 0.3s; }
+    .lesson:hover { transform: translateX(10px); }
+    .lesson-1 { border-color: #ff4081; }
+    .lesson-2 { border-color: #1e90ff; }
+    .lesson-3 { border-color: #32cd32; }
+    .lesson-4 { border-color: #ff8c00; }
+    .lesson-5 { border-color: #9370db; }
+    .lesson-6 { border-color: #dc143c; }
+    .lesson-7 { border-color: #20b2aa; }
+    .lesson-8 { border-color: #ff69b4; }
+    .katex-display { overflow-x: auto; overflow-y: hidden; padding: 10px; background: #f8f9fa; border-radius: 8px; border: 2px dashed #ccc; }
+    .highlight { background-color: #fffbcc; padding: 3px 6px; border-radius: 4px; font-weight: bold; }
+    .footer { background: linear-gradient(90deg, #ff4081, #ff79b0); font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
+
+    /* ===== 追加：動く仕様書（JavaScriptサンプルアプリ） ===== */
+    .spec {
+      margin: 18px 0 28px;
+      padding: 18px;
+      border-radius: 16px;
+      border: 4px solid #1e90ff;
+      background: linear-gradient(to bottom right, #ffffff, #e8f4ff);
+      box-shadow: 6px 6px 18px rgba(0,0,0,0.12);
+    }
+    .spec h2 { margin-top: 0; }
+    .spec .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .spec .card {
+      background: #fff;
+      border: 2px solid rgba(0,0,0,0.12);
+      border-radius: 14px;
+      padding: 12px;
+      box-shadow: 2px 2px 10px rgba(0,0,0,0.06);
+    }
+    .spec label { display: block; font-weight: 700; margin: 8px 0 4px; }
+    .spec input[type="text"], .spec select, .spec textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px;
+      border-radius: 10px;
+      border: 2px solid rgba(0,0,0,0.18);
+      outline: none;
+      font-size: 14px;
+    }
+    .spec textarea { min-height: 70px; resize: vertical; }
+    .spec .btnbar { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+    .spec button {
+      cursor: pointer;
+      border: 0;
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-weight: 800;
+      box-shadow: 2px 2px 10px rgba(0,0,0,0.08);
+    }
+    .spec .btn-primary { background: linear-gradient(90deg, #32cd32, #7cfc00); }
+    .spec .btn-danger  { background: linear-gradient(90deg, #dc143c, #ff6b84); color: #fff; }
+    .spec .btn-info    { background: linear-gradient(90deg, #1e90ff, #63b8ff); color: #fff; }
+    .spec .btn-neutral { background: linear-gradient(90deg, #9370db, #baa5ff); color: #fff; }
+    .spec .muted { opacity: 0.85; font-size: 13px; }
+    .spec .list { margin: 0; padding: 0; list-style: none; }
+    .spec .item {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 10px;
+      align-items: start;
+      padding: 10px;
+      border-radius: 12px;
+      border: 2px solid rgba(0,0,0,0.10);
+      background: #fff;
+      margin: 8px 0;
+    }
+    .spec .item small { display: block; opacity: 0.85; }
+    .spec .pill {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-weight: 800;
+      margin-right: 6px;
+      border: 2px solid rgba(0,0,0,0.12);
+      background: #fffacd;
+    }
+    .spec .item.done { opacity: 0.78; }
+    .spec .item.done .title { text-decoration: line-through; }
+    .spec .right { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    .spec .kpi { display: flex; gap: 10px; flex-wrap: wrap; }
+    .spec .kpi .pill { background: #fffff0; }
+    .spec .tests { margin-top: 10px; }
+    .spec .testrow { display: grid; grid-template-columns: auto 1fr; gap: 10px; padding: 8px 10px; border-radius: 12px; background: rgba(255,255,255,0.8); border: 2px dashed rgba(0,0,0,0.18); margin: 8px 0; }
+    .spec .pass { font-weight: 900; }
+    .spec .pass::before { content: "✅ "; }
+    .spec .fail { font-weight: 900; }
+    .spec .fail::before { content: "❌ "; }
+    .spec .warn { font-weight: 900; }
+    .spec .warn::before { content: "⚠️ "; }
+    .spec details summary { cursor: pointer; font-weight: 900; }
+  </style>
+</head>
+
+<body>
+  <header>
+    Python「コード作法」集中講座シラバス（全8回）
+  </header>
+
+  <div class="container">
+
+    <!-- =========================================================
+         追加：動く仕様書（JavaScriptサンプルアプリ）
+         目的：このHTML自体が「仕様書」であり、ボタン操作で仕様を検証できる
+         ========================================================= -->
+    <section class="spec" id="live-spec">
+      <h2>動く仕様書：提出物トラッカー（サンプルアプリ / JavaScript）</h2>
+      <p class="muted">
+        このセクションは「仕様書」＋「実装」＋「自己テスト」を同じ場所に置いたデモです。
+        仕様観点は本講座のチェック観点（整形・命名・構造・状態・ドキュメント・例外・型・ツール）を意識しています。:contentReference[oaicite:0]{index=0}
+      </p>
+
+      <div class="row">
+        <div class="card">
+          <h3>仕様（ユーザー視点）</h3>
+          <ul>
+            <li>提出物を「タイトル・回・観点タグ・メモ」で登録できる。</li>
+            <li>登録した提出物は一覧表示され、<strong>レビュー済み</strong>を切り替えられる。</li>
+            <li>検索（タイトル/メモ）・回フィルタ・観点フィルタで絞り込みできる。</li>
+            <li>データはブラウザに保存され、リロードしても残る（localStorage）。</li>
+            <li>JSONエクスポート/インポートで、別環境へ移行できる。</li>
+            <li>「自己テスト」ボタンで、上記仕様が動作しているか自動判定する。</li>
+          </ul>
+
+          <details>
+            <summary>仕様（開発者視点：データ構造）</summary>
+            <pre><code>{
+  id: string,            // 一意ID（uuid相当）
+  title: string,         // 提出物名（必須）
+  lesson: number,        // 第n回（1..8）
+  tags: string[],        // 観点タグ（例: "S_fmt"）
+  note: string,          // メモ
+  done: boolean,         // レビュー済み
+  createdAt: string      // ISO日時
+}</code></pre>
+          </details>
+        </div>
+
+        <div class="card">
+          <h3>操作（フォーム）</h3>
+
+          <label for="in-title">タイトル（必須）</label>
+          <input id="in-title" type="text" maxlength="80" placeholder="例：第2回の命名リファクタ提出" />
+
+          <label for="in-lesson">回（1〜8）</label>
+          <select id="in-lesson">
+            <option value="1">第1回</option><option value="2">第2回</option><option value="3">第3回</option><option value="4">第4回</option>
+            <option value="5">第5回</option><option value="6">第6回</option><option value="7">第7回</option><option value="8">第8回</option>
+          </select>
+
+          <label for="in-tags">観点タグ（カンマ区切り）</label>
+          <input id="in-tags" type="text" placeholder="例：S_name,S_fmt" />
+
+          <label for="in-note">メモ</label>
+          <textarea id="in-note" placeholder="どこを直したか／なぜ直したか（実況ではなく理由）"></textarea>
+
+          <div class="btnbar">
+            <button class="btn-primary" id="btn-add" type="button">追加</button>
+            <button class="btn-info" id="btn-test" type="button">自己テスト実行</button>
+            <button class="btn-neutral" id="btn-export" type="button">JSONエクスポート</button>
+            <button class="btn-neutral" id="btn-import" type="button">JSONインポート</button>
+            <button class="btn-danger" id="btn-clear" type="button">全削除</button>
+          </div>
+
+          <p class="muted" id="msg" aria-live="polite"></p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px;">
+        <h3>絞り込み</h3>
+        <div class="row" style="grid-template-columns: 1fr 1fr 1fr;">
+          <div>
+            <label for="f-q">検索（タイトル/メモ）</label>
+            <input id="f-q" type="text" placeholder="例：命名 / 例外 / ガード" />
+          </div>
+          <div>
+            <label for="f-lesson">回</label>
+            <select id="f-lesson">
+              <option value="all">すべて</option>
+              <option value="1">第1回</option><option value="2">第2回</option><option value="3">第3回</option><option value="4">第4回</option>
+              <option value="5">第5回</option><option value="6">第6回</option><option value="7">第7回</option><option value="8">第8回</option>
+            </select>
+          </div>
+          <div>
+            <label for="f-tag">観点タグ</label>
+            <select id="f-tag">
+              <option value="all">すべて</option>
+              <option value="S_fmt">S_fmt（整形）</option>
+              <option value="S_name">S_name（命名）</option>
+              <option value="S_struct">S_struct（構造）</option>
+              <option value="S_state">S_state（状態）</option>
+              <option value="S_doc">S_doc（ドキュメント）</option>
+              <option value="S_error">S_error（例外）</option>
+              <option value="S_type">S_type（型）</option>
+              <option value="S_tool">S_tool（ツール）</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="kpi" style="margin-top:10px;">
+          <span class="pill" id="kpi-total">全件: 0</span>
+          <span class="pill" id="kpi-done">レビュー済み: 0</span>
+          <span class="pill" id="kpi-open">未レビュー: 0</span>
+        </div>
+
+        <ul class="list" id="list" style="margin-top:10px;"></ul>
+      </div>
+
+      <div class="card tests">
+        <h3>自己テスト結果（動く仕様書）</h3>
+        <div id="tests"></div>
+        <p class="muted">
+          ※「自己テスト」はミニマムな仕様検証です。講座の合格基準（命名/整形/構造/安全/説明）にも接続する設計です。:contentReference[oaicite:1]{index=1}
+        </p>
+      </div>
+    </section>
+
+    <script>
+      "use strict";
+
+      /**
+       * 提出物トラッカー（動く仕様書）
+       * - localStorage 永続化
+       * - CRUD + フィルタ + JSON IO
+       * - 仕様セルフテスト
+       */
+
+      // ====== 定数（命名：意味のある名前） ======
+      const STORAGE_KEY = "refactor_submissions_v1";
+
+      const els = {
+        title: document.getElementById("in-title"),
+        lesson: document.getElementById("in-lesson"),
+        tags: document.getElementById("in-tags"),
+        note: document.getElementById("in-note"),
+        msg: document.getElementById("msg"),
+
+        fQ: document.getElementById("f-q"),
+        fLesson: document.getElementById("f-lesson"),
+        fTag: document.getElementById("f-tag"),
+
+        list: document.getElementById("list"),
+        tests: document.getElementById("tests"),
+
+        kpiTotal: document.getElementById("kpi-total"),
+        kpiDone: document.getElementById("kpi-done"),
+        kpiOpen: document.getElementById("kpi-open"),
+
+        btnAdd: document.getElementById("btn-add"),
+        btnTest: document.getElementById("btn-test"),
+        btnExport: document.getElementById("btn-export"),
+        btnImport: document.getElementById("btn-import"),
+        btnClear: document.getElementById("btn-clear"),
+      };
+
+      // ====== 状態（副作用を局所化） ======
+      /** @type {Array<{id:string,title:string,lesson:number,tags:string[],note:string,done:boolean,createdAt:string}>} */
+      let submissions = loadSubmissions();
+
+      // ====== ユーティリティ ======
+      function nowIso() {
+        return new Date().toISOString();
+      }
+
+      function uid() {
+        // 安全側：cryptoがあれば使う
+        if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+        return "id_" + Math.random().toString(16).slice(2) + "_" + Date.now().toString(16);
+      }
+
+      function safeTrim(value) {
+        return String(value ?? "").trim();
+      }
+
+      function parseTags(csv) {
+        return safeTrim(csv)
+          .split(",")
+          .map((s) => s.trim())
+          .filter((s) => s.length > 0);
+      }
+
+      function flash(message, kind = "info") {
+        els.msg.textContent = message;
+        els.msg.style.color = kind === "danger" ? "#dc143c" : kind === "ok" ? "#32cd32" : "#1e90ff";
+      }
+
+      // ====== 永続化（ツール化の入口） ======
+      function loadSubmissions() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return [];
+          const data = JSON.parse(raw);
+          return Array.isArray(data) ? data : [];
+        } catch (err) {
+          console.error(err);
+          return [];
+        }
+      }
+
+      function saveSubmissions() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(submissions));
+        } catch (err) {
+          console.error(err);
+          flash("保存に失敗しました（localStorage容量などを確認）", "danger");
+        }
+      }
+
+      // ====== バリデーション（境界で検証） ======
+      function validateInput({ title, lesson }) {
+        if (title.length === 0) return { ok: false, reason: "タイトルは必須です。" };
+        if (title.length > 80) return { ok: false, reason: "タイトルが長すぎます（80文字まで）。" };
+        const n = Number(lesson);
+        if (!Number.isInteger(n) || n < 1 || n > 8) return { ok: false, reason: "回は1〜8で指定してください。" };
+        return { ok: true };
+      }
+
+      // ====== CRUD ======
+      function addSubmission() {
+        const title = safeTrim(els.title.value);
+        const lesson = Number(els.lesson.value);
+        const tags = parseTags(els.tags.value);
+        const note = safeTrim(els.note.value);
+
+        const v = validateInput({ title, lesson });
+        if (!v.ok) {
+          flash(v.reason, "danger");
+          return;
+        }
+
+        const item = {
+          id: uid(),
+          title,
+          lesson,
+          tags,
+          note,
+          done: false,
+          createdAt: nowIso(),
+        };
+
+        submissions = [item, ...submissions];
+        saveSubmissions();
+        render();
+
+        // フォームリセット（I/Oとロジックを分離しつつ、UI操作はここに集約）
+        els.title.value = "";
+        els.tags.value = "";
+        els.note.value = "";
+        flash("追加しました。", "ok");
+      }
+
+      function toggleDone(id) {
+        submissions = submissions.map((s) => (s.id === id ? { ...s, done: !s.done } : s));
+        saveSubmissions();
+        render();
+      }
+
+      function removeOne(id) {
+        submissions = submissions.filter((s) => s.id !== id);
+        saveSubmissions();
+        render();
+      }
+
+      function clearAll() {
+        const ok = confirm("全削除します。よろしいですか？");
+        if (!ok) return;
+        submissions = [];
+        saveSubmissions();
+        render();
+        flash("全削除しました。", "ok");
+      }
+
+      // ====== フィルタ ======
+      function getFilteredSubmissions() {
+        const q = safeTrim(els.fQ.value).toLowerCase();
+        const lesson = els.fLesson.value;
+        const tag = els.fTag.value;
+
+        return submissions.filter((s) => {
+          const matchesQ =
+            q.length === 0 ||
+            s.title.toLowerCase().includes(q) ||
+            (s.note || "").toLowerCase().includes(q);
+
+          const matchesLesson = lesson === "all" || String(s.lesson) === lesson;
+          const matchesTag = tag === "all" || (s.tags || []).includes(tag);
+
+          return matchesQ && matchesLesson && matchesTag;
+        });
+      }
+
+      // ====== JSON IO ======
+      function exportJson() {
+        try {
+          const json = JSON.stringify(submissions, null, 2);
+          // 画面上に出す（コピーしやすい）
+          prompt("以下をコピーして保存してください（JSON）:", json);
+        } catch (err) {
+          console.error(err);
+          flash("エクスポートに失敗しました。", "danger");
+        }
+      }
+
+      function importJson() {
+        const raw = prompt("インポートするJSONを貼り付けてください:");
+        if (raw === null) return;
+
+        try {
+          const data = JSON.parse(raw);
+          if (!Array.isArray(data)) throw new Error("JSONは配列形式である必要があります。");
+
+          // 最低限の整形（境界で検証）
+          const normalized = data
+            .filter((x) => x && typeof x === "object")
+            .map((x) => ({
+              id: safeTrim(x.id) || uid(),
+              title: safeTrim(x.title),
+              lesson: Number(x.lesson),
+              tags: Array.isArray(x.tags) ? x.tags.map((t) => safeTrim(t)).filter(Boolean) : [],
+              note: safeTrim(x.note),
+              done: Boolean(x.done),
+              createdAt: safeTrim(x.createdAt) || nowIso(),
+            }));
+
+          // 重要：取り込み後も検証（壊れたデータを抱えない）
+          const valid = normalized.filter((x) => validateInput({ title: x.title, lesson: x.lesson }).ok);
+
+          submissions = valid;
+          saveSubmissions();
+          render();
+          flash(`インポートしました（有効 ${valid.length} 件）。`, "ok");
+        } catch (err) {
+          console.error(err);
+          flash("インポートに失敗しました（JSON形式を確認）。", "danger");
+        }
+      }
+
+      // ====== 表示 ======
+      function renderKpi(items) {
+        const total = items.length;
+        const done = items.filter((x) => x.done).length;
+        const open = total - done;
+
+        els.kpiTotal.textContent = `全件: ${total}`;
+        els.kpiDone.textContent = `レビュー済み: ${done}`;
+        els.kpiOpen.textContent = `未レビュー: ${open}`;
+      }
+
+      function renderList(items) {
+        els.list.innerHTML = "";
+
+        if (items.length === 0) {
+          const li = document.createElement("li");
+          li.className = "item";
+          li.innerHTML = `<div class="pill">空</div><div><div class="title"><strong>まだ提出物がありません</strong></div><small>フォームから追加してください。</small></div><div></div>`;
+          els.list.appendChild(li);
+          return;
+        }
+
+        for (const s of items) {
+          const li = document.createElement("li");
+          li.className = "item" + (s.done ? " done" : "");
+          const tagsHtml = (s.tags || []).map((t) => `<span class="pill">${escapeHtml(t)}</span>`).join("");
+
+          li.innerHTML = `
+            <div class="pill">第${s.lesson}回</div>
+            <div>
+              <div class="title"><strong>${escapeHtml(s.title)}</strong></div>
+              <small>${tagsHtml || '<span class="pill">タグなし</span>'}</small>
+              <small>${escapeHtml(s.note || "")}</small>
+              <small>作成: ${escapeHtml(new Date(s.createdAt).toLocaleString())}</small>
+            </div>
+            <div class="right">
+              <button class="btn-info" type="button" data-act="toggle" data-id="${escapeAttr(s.id)}">${s.done ? "未レビューへ" : "レビュー済み"}</button>
+              <button class="btn-danger" type="button" data-act="remove" data-id="${escapeAttr(s.id)}">削除</button>
+            </div>
+          `;
+
+          els.list.appendChild(li);
+        }
+      }
+
+      function render() {
+        const items = getFilteredSubmissions();
+        renderKpi(items);
+        renderList(items);
+      }
+
+      // ====== エスケープ（XSS対策） ======
+      function escapeHtml(str) {
+        return String(str).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+      }
+      function escapeAttr(str) {
+        return escapeHtml(str).replace(/`/g, "&#96;");
+      }
+
+      // ====== 仕様自己テスト ======
+      function runSelfTests() {
+        const results = [];
+
+        // テスト1：追加できる（タイトル必須）
+        const before = submissions.length;
+        const tmp = {
+          id: uid(),
+          title: "SELFTEST: add",
+          lesson: 1,
+          tags: ["S_fmt"],
+          note: "selftest",
+          done: false,
+          createdAt: nowIso(),
+        };
+        submissions = [tmp, ...submissions];
+        saveSubmissions();
+        const after = loadSubmissions().length;
+        results.push({
+          name: "追加：1件増える（保存もされる）",
+          ok: after === before + 1,
+          detail: `before=${before}, after=${after}`,
+        });
+
+        // テスト2：done切替が機能する
+        const id = tmp.id;
+        const a = submissions.find((x) => x.id === id);
+        toggleDone(id);
+        const b = submissions.find((x) => x.id === id);
+        results.push({
+          name: "レビュー済み切替：doneが反転する",
+          ok: Boolean(a) && Boolean(b) && a.done !== b.done,
+          detail: `before=${a ? a.done : "N/A"}, after=${b ? b.done : "N/A"}`,
+        });
+
+        // テスト3：フィルタ（タグ）が効く
+        els.fTag.value = "S_fmt";
+        const filtered = getFilteredSubmissions();
+        const allHaveTag = filtered.every((x) => (x.tags || []).includes("S_fmt"));
+        results.push({
+          name: "フィルタ：タグ指定で該当のみ表示される",
+          ok: allHaveTag,
+          detail: `filtered=${filtered.length}`,
+        });
+
+        // テスト4：削除できる
+        const beforeDel = submissions.length;
+        removeOne(id);
+        const afterDel = submissions.length;
+        results.push({
+          name: "削除：1件減る",
+          ok: afterDel === beforeDel - 1,
+          detail: `before=${beforeDel}, after=${afterDel}`,
+        });
+
+        // テスト5：JSONエクスポートできる（例外にならない）
+        let exportOk = true;
+        try {
+          JSON.stringify(submissions);
+        } catch {
+          exportOk = false;
+        }
+        results.push({
+          name: "JSON：シリアライズ可能",
+          ok: exportOk,
+          detail: exportOk ? "ok" : "failed",
+        });
+
+        // テスト結果描画
+        render();
+        renderTestResults(results);
+
+        flash("自己テストを実行しました。", "ok");
+      }
+
+      function renderTestResults(results) {
+        els.tests.innerHTML = "";
+        for (const r of results) {
+          const div = document.createElement("div");
+          div.className = "testrow";
+          const cls = r.ok ? "pass" : "fail";
+          div.innerHTML = `<div class="${cls}">${escapeHtml(r.name)}</div><div class="muted">${escapeHtml(r.detail || "")}</div>`;
+          els.tests.appendChild(div);
+        }
+
+        // 注意喚起（仕様としての誤りを避ける）
+        const note = document.createElement("div");
+        note.className = "testrow";
+        note.innerHTML = `<div class="warn">注意</div><div class="muted">自己テストは最小限です。境界入力（空/型違い）などは手動でも確認してください。</div>`;
+        els.tests.appendChild(note);
+      }
+
+      // ====== イベント ======
+      els.btnAdd.addEventListener("click", addSubmission);
+      els.btnClear.addEventListener("click", clearAll);
+      els.btnExport.addEventListener("click", exportJson);
+      els.btnImport.addEventListener("click", importJson);
+      els.btnTest.addEventListener("click", runSelfTests);
+
+      els.fQ.addEventListener("input", render);
+      els.fLesson.addEventListener("change", render);
+      els.fTag.addEventListener("change", render);
+
+      // 一覧のボタンはイベント委譲
+      els.list.addEventListener("click", (e) => {
+        const t = e.target;
+        if (!(t instanceof HTMLElement)) return;
+        const act = t.getAttribute("data-act");
+        const id = t.getAttribute("data-id");
+        if (!act || !id) return;
+
+        if (act === "toggle") toggleDone(id);
+        if (act === "remove") removeOne(id);
+      });
+
+      // 初期描画
+      render();
+      renderTestResults([
+        { name: "初期状態：アプリ起動", ok: true, detail: "ready" },
+      ]);
+    </script>
+
+    <!-- ===== ここから下は「添付HTML（シラバス本文）」を維持 ===== -->
+    <!-- （あなたの添付HTMLの container 内先頭に「動く仕様書」を差し込んだ形です） -->
+
+    <h1>授業用シラバス：Python「コード作法」集中講座（全8回）</h1>
+    <p><strong>対象：</strong>Python初学者〜初級（if/for/list/dict を触ったことがある）<br />
+      <strong>目的：</strong><span class="highlight">動くコード</span>を <span class="highlight">読める・直せる・育てられるコード</span>にする（関数化・設計の前段）</p>
+
+    <h2>到達目標（この講座を終えたら）</h2>
+    <ul>
+      <li>命名・整形・構造が揃った「他人が読める」コードを書ける</li>
+      <li>ありがちな事故（ミュータブル既定値、握りつぶし例外、ループ中変更など）を避けられる</li>
+      <li>formatter / linter / type / test を“仕組み”として使い始められる</li>
+      <li>次のステップ（関数分割・引数/戻り値設計）へ自然に接続できる</li>
+    </ul>
+
+    <h2>授業フォーマット（毎回の型）</h2>
+    <ul>
+      <li>5分：前回のコードレビュー（直すポイント3つだけ）</li>
+      <li>15分：今日の作法（ルール＋理由＋ありがち事故）</li>
+      <li>30分：<strong>リファクタ演習</strong>（悪い→良いに直す）</li>
+      <li>10分：共有・チェックリストで自己採点</li>
+      <li>宿題：小さめ（15〜30分）＋次回冒頭でレビュー</li>
+    </ul>
+
+    <h2>評価（合格基準）</h2>
+    <p>各回の演習コードが、次のチェックを満たすこと（OK/NGで判定）</p>
+    <ul>
+      <li><strong>命名</strong>：意味が伝わる・組み込み名を潰さない・boolは is/has/can</li>
+      <li><strong>整形</strong>：インデント/空白/改行が一貫、1行が長すぎない</li>
+      <li><strong>構造</strong>：ネストが深すぎない、重複を減らしている、I/O分離の意識</li>
+      <li><strong>安全</strong>：ミュータブル既定値なし、握りつぶし例外なし、境界で検証</li>
+      <li><strong>説明</strong>：docstring/コメントが「なぜ」で機能している</li>
+    </ul>
+
+    <h1>全8回の授業計画</h1>
+
+    <div class="lesson lesson-1">
+      <h2>第1回：コード作法の全体像＆整形の基礎（<span class="badge badge-fmt">S_fmt</span> 入門）</h2>
+      <p><strong>扱う作法</strong></p>
+      <ul>
+        <li>インデント（4スペース）／空白／空行／読みやすい改行（括弧で折り返し）</li>
+        <li>「整形は議論しない」：ツールで揃える発想（導入だけ）</li>
+      </ul>
+      <p><strong>授業内演習</strong></p>
+      <ul>
+        <li>“読めない密集コード”を、空白と改行だけで読みやすくする（動作は変更禁止）</li>
+      </ul>
+      <p><strong>宿題</strong></p>
+      <ul>
+        <li>自分の過去コード（短いものでOK）を整形して提出（Before/After）</li>
+      </ul>
+    </div>
+
+    <div class="lesson lesson-2">
+      <h2>第2回：命名（変数・関数・定数）で8割決まる（<span class="badge badge-name">S_name</span>）</h2>
+      <p><strong>扱う作法</strong></p>
+      <ul>
+        <li>snake_case / CapWords / UPPER_SNAKE</li>
+        <li>変数は名詞、処理は動詞、boolは is/has/can</li>
+        <li><code>list</code>, <code>dict</code>, <code>sum</code>, <code>id</code> など組み込み名を潰さない</li>
+        <li>単位を名前に含める（timeout_ms など）</li>
+      </ul>
+      <p><strong>授業内演習</strong></p>
+      <ul>
+        <li><code>tmp</code>, <code>data</code>, <code>flag</code>, <code>x</code> だらけのコードを“意味が分かる名前”に全置換</li>
+      </ul>
+      <p><strong>宿題</strong></p>
+      <ul>
+        <li>「名前だけ」改善して可読性を上げるリファクタ（ロジック変更禁止）</li>
+      </ul>
+    </div>
+
+    <div class="lesson lesson-3">
+      <h2>第3回：コメントとdocstring（書く場所・書かない場所）（<span class="badge badge-doc">S_doc</span>）</h2>
+      <p><strong>扱う作法</strong></p>
+      <ul>
+        <li>コメントは実況ではなく「なぜ」</li>
+        <li>docstring：1行要約＋必要なら引数/戻り値/例外</li>
+        <li>TODOは回収できる形（理由・期限・参照）</li>
+      </ul>
+      <p><strong>授業内演習</strong></p>
+      <ul>
+        <li>実況コメントを削除してコードで表現 → 本当に必要な「理由コメント」だけ残す</li>
+        <li>関数3つ（短いのでOK）に docstring を書く</li>
+      </ul>
+      <p><strong>宿題</strong></p>
+      <ul>
+        <li>2つの関数に docstring（要約＋Args/Returns）を追加して提出</li>
+      </ul>
+    </div>
+
+    <div class="lesson lesson-4">
+      <h2>第4回：構造（分割・責務・ネスト）—関数前夜の設計感（<span class="badge badge-struct">S_struct</span>）</h2>
+      <p><strong>扱う作法</strong></p>
+      <ul>
+        <li>1責務、長い処理は段落化→切り出し候補</li>
+        <li>ガード節（早期 return）でネストを浅く</li>
+        <li>重複（コピペ）の検出と排除</li>
+        <li>I/O（print/input/ファイル）とロジックを分離する考え方</li>
+      </ul>
+      <p><strong>授業内演習</strong></p>
+      <ul>
+        <li>ネスト3段のコードをガード節で2段以下にする</li>
+        <li>コピペ2か所を“共通化”する（関数化はまだ仮の塊でもOK）</li>
+      </ul>
+      <p><strong>宿題</strong></p>
+      <ul>
+        <li>「I/Oと計算が混ざった」コードを2層に分ける（ロジック部分を純化）</li>
+      </ul>
+    </div>
+
+    <div class="lesson lesson-5">
+      <h2>第5回：状態と副作用の事故を潰す（<span class="badge badge-state">S_state</span>）</h2>
+      <p><strong>扱う作法</strong></p>
+      <ul>
+        <li>ミュータブル既定値禁止（<code>x=[]</code> 事故）</li>
+        <li>in-place変更は明示（名前 or doc）</li>
+        <li>ループ中にリストを変更しない（安全な書き方）</li>
+        <li>グローバル状態を避ける（外から渡す意識）</li>
+      </ul>
+      <p><strong>授業内演習</strong></p>
+      <ul>
+        <li>ミュータブル既定値のバグを再現→<code>None</code>パターンで修正</li>
+        <li>“走査中remove”のバグを安全な書き方に修正</li>
+      </ul>
+      <p><strong>宿題</strong></p>
+      <ul>
+        <li>自分のコードから「副作用が多い部分」を1つ選び、影響範囲を減らす修正</li>
+      </ul>
+    </div>
+
+    <div class="lesson lesson-6">
+      <h2>第6回：例外設計・エラーメッセージ（<span class="badge badge-error">S_error</span>）</h2>
+      <p><strong>扱う作法</strong></p>
+      <ul>
+        <li>例外 vs 返り値（None乱用を避ける）</li>
+        <li>try範囲は最小・catchは具体的に</li>
+        <li>握りつぶし禁止、文脈付与（どの入力で何が起きたか）</li>
+      </ul>
+      <p><strong>授業内演習</strong></p>
+      <ul>
+        <li><code>except: pass</code> を “調査可能な失敗”に直す（ログorメッセージ＋再送出）</li>
+        <li>境界入力（空、型違い）で壊れるコードを堅牢化</li>
+      </ul>
+      <p><strong>宿題</strong></p>
+      <ul>
+        <li>エラー文言を改善する（利用者が次に何をすべきか分かる文）</li>
+      </ul>
+    </div>
+
+    <div class="lesson lesson-7">
+      <h2>第7回：型ヒントと“契約”で読み違いを減らす（<span class="badge badge-type">S_type</span>）</h2>
+      <p><strong>扱う作法</strong></p>
+      <ul>
+        <li>公開関数から型注釈（入力と戻り値）</li>
+        <li><code>Optional</code> / Noneの扱い</li>
+        <li>境界で変換・検証して内部をきれいに</li>
+        <li>必要なら <code>dataclass</code> で形を固定</li>
+        <li><code>assert</code> は“前提”にだけ使う</li>
+      </ul>
+      <p><strong>授業内演習</strong></p>
+      <ul>
+        <li>型が曖昧で読み間違う関数に型注釈を付け、分岐を整理</li>
+        <li>辞書キー地獄を dataclass に置き換える（小さく）</li>
+      </ul>
+      <p><strong>宿題</strong></p>
+      <ul>
+        <li>1ファイルに「型注釈＋境界検証」を導入して提出</li>
+      </ul>
+    </div>
+
+    <div class="lesson lesson-8">
+      <h2>第8回：ツールで作法を自動化＆総合演習（<span class="badge badge-tool">S_tool</span>＋総まとめ）</h2>
+      <p><strong>扱う作法</strong></p>
+      <ul>
+        <li>formatter / linter / type / test を“毎回同じ品質”にする</li>
+        <li>最小テスト（1関数1テストで十分スタート）</li>
+        <li>設定は1か所に寄せる（例：pyproject.toml）</li>
+      </ul>
+      <p><strong>授業内演習（総合）</strong></p>
+      <ul>
+        <li>配布する“汚いスクリプト”を、8回分の観点で段階的に改善</li>
+        <li>最後にチェックリストで自己採点→講師レビュー</li>
+      </ul>
+      <p><strong>最終課題</strong></p>
+      <ul>
+        <li>自分の小作品（50〜150行程度）を提出：
+          <ul>
+            <li>整形・命名・構造・例外・（可能なら型/テスト）を適用</li>
+            <li>Before/After と「直した理由」を短く添える</li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
+    <h2>付録：授業で使う「コード作法チェックリスト（提出物用）」</h2>
+    <table>
+      <thead>
+        <tr><th>観点</th><th>チェック項目</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="badge badge-fmt">整形</span></td><td>インデント/空白/改行が一貫している</td></tr>
+        <tr><td><span class="badge badge-name">命名</span></td><td>名前が具体的で、boolが is/has/can になっている</td></tr>
+        <tr><td><span class="badge badge-struct">構造</span></td><td>ネストが深すぎない（ガード節を検討した）</td></tr>
+        <tr><td><span class="badge badge-struct">構造</span></td><td>同じ塊が繰り返されていない（DRY）</td></tr>
+        <tr><td><span class="badge badge-struct">構造</span></td><td>I/Oと計算が必要以上に混ざっていない</td></tr>
+        <tr><td><span class="badge badge-state">状態</span></td><td>ミュータブル既定値を使っていない</td></tr>
+        <tr><td><span class="badge badge-error">エラー</span></td><td>例外を握りつぶしていない（文脈が残る）</td></tr>
+        <tr><td><span class="badge badge-doc">ドキュメント</span></td><td>コメント/docstringが「なぜ」を説明している</td></tr>
+        <tr><td><span class="badge badge-type">型</span> / <span class="badge badge-tool">ツール</span></td><td>（可能なら）型注釈 or 境界検証 or 簡単なテストがある</td></tr>
+      </tbody>
+    </table>
+
+    <h2>観点集合の数学的表現</h2>
+    <p>このシラバスで扱うコード作法の観点集合は以下の通りです：</p>
+    <div class="katex-equation">
+      S = \{S_{\text{fmt}}, S_{\text{name}}, S_{\text{struct}}, S_{\text{state}}, S_{\text{doc}}, S_{\text{error}}, S_{\text{type}}, S_{\text{tool}}\}
+    </div>
+    <p>各回では、対応する観点 \(S_i\) の適用 \(A(S_i)\) を学びます。</p>
+
+    <h2>最小構成（時間がない場合：全4回に圧縮）</h2>
+    <ol>
+      <li><span class="badge badge-fmt">fmt</span> + <span class="badge badge-tool">tool</span>（整形は自動化まで）</li>
+      <li><span class="badge badge-name">name</span>（命名だけで読める化）</li>
+      <li><span class="badge badge-struct">struct</span> + <span class="badge badge-state">state</span>（バグ減らす肝）</li>
+      <li><span class="badge badge-doc">doc</span> + <span class="badge badge-error">error</span>（保守と事故対応）＋総合演習</li>
+    </ol>
+
+    <div class="character">
+      <h3>授業で使う共通チェックリスト（毎回これで採点）</h3>
+      <ul>
+        <li><strong><span class="badge badge-fmt">fmt</span>：</strong>ブロックが段落化され、長い式が読める形に折れている</li>
+        <li><strong><span class="badge badge-name">name</span>：</strong><code>flag/tmp/data</code> が減り、boolが <code>is_/has_</code> などになっている</li>
+        <li><strong><span class="badge badge-struct">struct</span>：</strong>ネストが深すぎず、同じ処理が散らばっていない</li>
+        <li><strong><span class="badge badge-state">state</span>：</strong>in-placeが意図通りで、共有参照や走査中変更の罠がない</li>
+        <li><strong><span class="badge badge-doc">doc</span>：</strong>コメントが“なぜ”中心で、TODOが追跡可能</li>
+        <li><strong><span class="badge badge-error">error</span>：</strong>tryが最小で、失敗の仕方が一貫している</li>
+        <li><strong><span class="badge badge-type">type</span>（任意）：</strong>境界や主要データに注釈・前提がある</li>
+        <li><strong><span class="badge badge-tool">tool</span>（任意）：</strong>整形や単純ミス検出を自動化できる</li>
+      </ul>
+    </div>
+
+    <p><em>必要なら、このシラバスに合わせて <strong>各回の配布用“悪いコード”素材（演習問題）</strong> と、提出物の <strong>採点ルーブリック（点数化）</strong> まで一気に作って渡せます。</em></p>
+  </div>
+
+  <div class="footer">
+    Pythonコード作法集中講座シラバス © 2023 - カラフルPOPスタイルで学ぶ可読性・保守性
+  </div>
+
+  <!-- KaTeX JS -->
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body);"></script>
+</body>
+</html>

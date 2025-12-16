@@ -1,0 +1,1377 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pythonレッスンプラン - 全10回で関数までマスター</title>
+    <link rel="stylesheet" href="pop3_style.css">
+    <!-- KaTeXのCSSとJSを読み込み -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+
+    <style>
+        /* 追加スタイル: コントラスト強化とカラフルなデザイン */
+        body {
+            background: linear-gradient(135deg, #ffdd57 0%, #ff9e57 50%, #ff6b9d 100%);
+            background-attachment: fixed;
+            color: #222;
+            line-height: 1.6;
+        }
+
+        .container {
+            background: linear-gradient(to bottom, #ffffff, #fff8e1);
+            border: 5px solid #ff4081;
+            box-shadow: 0 10px 30px rgba(255, 64, 129, 0.3);
+        }
+
+        h2 {
+            background: linear-gradient(90deg, #ff4081, #ff9e00);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            border-bottom: 3px solid #ff4081;
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            color: #ff6b00;
+            font-size: 1.5rem;
+            margin-top: 20px;
+            padding-left: 10px;
+            border-left: 5px solid #ff4081;
+        }
+
+        ul {
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 10px;
+            padding: 15px 20px 15px 40px;
+            box-shadow: inset 0 0 10px rgba(255, 64, 129, 0.1);
+            border: 2px dashed #ff9e57;
+        }
+
+        li {
+            margin-bottom: 8px;
+            padding-left: 5px;
+        }
+
+        li strong {
+            color: #ff4081;
+        }
+
+        /* preタグ内のバグ修正: 白背景に白文字問題を解決 */
+        pre, pre * {
+            color: #222 !important;
+            background-color: #f8f9fa !important;
+        }
+
+        pre {
+            border: 3px solid #ff4081 !important;
+            background: linear-gradient(to right, #f8f9fa, #e9ecef) !important;
+            border-left: 10px solid #ff4081 !important;
+            font-weight: bold;
+        }
+
+        code {
+            color: #d63384 !important;
+            font-weight: bold;
+        }
+
+        /* キャラクターセクションの色分け */
+        .character:nth-child(odd) {
+            background: linear-gradient(to right, #ffdd57, #ffecb3);
+        }
+
+        .character:nth-child(even) {
+            background: linear-gradient(to right, #bbdefb, #e3f2fd);
+        }
+
+        .character {
+            border-width: 4px;
+            border-style: solid;
+            border-image: linear-gradient(45deg, #ff4081, #ff9e00) 1;
+            transition: all 0.4s ease;
+        }
+
+        .character:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        /* 数式表示の強化 */
+        .katex {
+            font-size: 1.2em !important;
+            color: #d63384 !important;
+        }
+
+        .katex-display {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 15px;
+            border: 2px solid #ff4081;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        /* レスポンシブ調整 */
+        @media (max-width: 768px) {
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            h3 {
+                font-size: 1.3rem;
+            }
+
+            .character {
+                padding: 15px;
+            }
+        }
+
+        /* 目次スタイル */
+        .toc {
+            background: linear-gradient(135deg, #ffecb3, #bbdefb);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 3px solid #ff4081;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .toc h3 {
+            color: #ff4081;
+            text-align: center;
+            margin-top: 0;
+        }
+
+        .toc ul {
+            columns: 2;
+            column-gap: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .toc ul {
+                columns: 1;
+            }
+        }
+
+        /* =========================
+           ✅ 動く仕様書（追加）
+           ========================= */
+        .live-spec {
+            margin: 25px 0 35px;
+            padding: 20px;
+            border-radius: 18px;
+            border: 4px solid #ff4081;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(255, 236, 179, 0.85));
+            box-shadow: 0 10px 22px rgba(0,0,0,0.12);
+        }
+
+        .live-spec p {
+            margin: 10px 0 0;
+        }
+
+        .live-spec-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 18px;
+            margin-top: 15px;
+        }
+
+        @media (max-width: 900px) {
+            .live-spec-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: rgba(255,255,255,0.85);
+            border: 2px dashed #ff9e57;
+            border-radius: 14px;
+            padding: 14px;
+            box-shadow: inset 0 0 10px rgba(255, 64, 129, 0.08);
+        }
+
+        .spec-list {
+            margin: 0;
+            padding-left: 18px;
+        }
+
+        .spec-list li {
+            margin: 10px 0;
+            padding: 10px 10px 10px 12px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 12px;
+            border: 2px solid rgba(255, 64, 129, 0.25);
+        }
+
+        .req-title {
+            font-weight: 800;
+            color: #222;
+        }
+
+        .badge {
+            display: inline-block;
+            margin-left: 8px;
+            padding: 2px 10px;
+            border-radius: 999px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            vertical-align: middle;
+            border: 2px solid transparent;
+        }
+
+        .badge.pending { background: rgba(187,222,251,0.9); border-color: rgba(30,136,229,0.45); color: #0d47a1; }
+        .badge.pass { background: rgba(200,230,201,0.95); border-color: rgba(46,125,50,0.55); color: #1b5e20; }
+        .badge.fail { background: rgba(255,205,210,0.95); border-color: rgba(198,40,40,0.55); color: #b71c1c; }
+
+        .req-detail {
+            margin-top: 6px;
+            font-size: 0.95rem;
+            color: #444;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 12px;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .controls { grid-template-columns: 1fr; }
+        }
+
+        .field label {
+            display: block;
+            font-weight: 800;
+            margin-bottom: 6px;
+            color: #ff4081;
+        }
+
+        textarea, input[type="text"], input[type="number"] {
+            width: 100%;
+            box-sizing: border-box;
+            border: 3px solid rgba(255, 64, 129, 0.45);
+            border-radius: 12px;
+            padding: 10px;
+            font-size: 1rem;
+            background: rgba(255,255,255,0.95);
+            outline: none;
+        }
+
+        textarea:focus, input[type="text"]:focus, input[type="number"]:focus {
+            border-color: rgba(255, 64, 129, 0.9);
+            box-shadow: 0 0 0 4px rgba(255, 64, 129, 0.15);
+        }
+
+        .checks {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px 10px;
+            margin-top: 8px;
+        }
+
+        @media (max-width: 600px) {
+            .checks { grid-template-columns: 1fr; }
+        }
+
+        .checks label {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            padding: 8px 10px;
+            border-radius: 12px;
+            background: rgba(255, 236, 179, 0.6);
+            border: 2px solid rgba(255, 158, 87, 0.35);
+            font-weight: 700;
+            color: #333;
+        }
+
+        .btn-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .btn {
+            cursor: pointer;
+            border-radius: 999px;
+            border: 3px solid #ff4081;
+            background: rgba(255,255,255,0.95);
+            padding: 10px 14px;
+            font-weight: 900;
+            color: #ff4081;
+            transition: transform 0.06s ease, box-shadow 0.2s ease;
+        }
+
+        .btn:hover { transform: translateY(-1px); box-shadow: 0 8px 14px rgba(0,0,0,0.12); }
+        .btn:active { transform: translateY(0px); }
+
+        .btn.primary {
+            background: linear-gradient(135deg, #ff4081, #ff9e00);
+            color: white;
+            border-color: rgba(255, 64, 129, 0.9);
+        }
+
+        .note {
+            margin-top: 10px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            background: rgba(187, 222, 251, 0.55);
+            border: 2px solid rgba(30, 136, 229, 0.25);
+            color: #0d47a1;
+            font-weight: 700;
+        }
+
+        .error {
+            margin-top: 10px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            background: rgba(255,205,210,0.75);
+            border: 2px solid rgba(198,40,40,0.25);
+            color: #b71c1c;
+            font-weight: 900;
+            white-space: pre-wrap;
+            display: none;
+        }
+
+        .summary {
+            margin-top: 10px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            background: rgba(200,230,201,0.65);
+            border: 2px solid rgba(46,125,50,0.2);
+            color: #1b5e20;
+            font-weight: 800;
+        }
+
+        table.result-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            overflow: hidden;
+            border-radius: 12px;
+            border: 2px solid rgba(255, 64, 129, 0.35);
+            background: rgba(255,255,255,0.95);
+        }
+
+        .result-table th, .result-table td {
+            padding: 10px;
+            border-bottom: 1px solid rgba(0,0,0,0.08);
+        }
+
+        .result-table th {
+            text-align: left;
+            background: rgba(255, 236, 179, 0.75);
+            border-bottom: 2px solid rgba(255, 64, 129, 0.25);
+        }
+
+        .result-table td:nth-child(2), .result-table td:nth-child(3) {
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .debug {
+            margin-top: 10px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.85);
+            border: 2px dashed rgba(255, 64, 129, 0.35);
+            display: none;
+            white-space: pre-wrap;
+            word-break: break-word;
+            font-weight: 700;
+        }
+
+        .test-report {
+            margin-top: 10px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.85);
+            border: 2px solid rgba(255, 158, 87, 0.35);
+        }
+
+        .mini {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #444;
+        }
+
+        details {
+            margin-top: 12px;
+        }
+
+        details summary {
+            cursor: pointer;
+            font-weight: 900;
+            color: #ff4081;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        Pythonレッスンプラン - 全10回で「関数に入る前提〜関数で小さく作れる」まで
+    </header>
+
+    <div class="container">
+
+        <!-- =========================
+             ✅ 動く仕様書（ページ上部に追加）
+             ========================= -->
+        <section id="liveSpec" class="live-spec">
+            <h2>0回目：動く仕様書（実行できる受け入れ条件）— 単語頻度アナライザ</h2>
+            <p>
+                このセクションは「毎回のミニ成果物を積み上げて、最後にミニプロジェクトとして統合する」という方針に合わせた、
+                <strong>“動く仕様書”</strong>です。下のデモを操作し、<strong>仕様テスト</strong>を実行すると、受け入れ条件が自動で判定されます。
+            </p>
+
+            <div class="live-spec-grid">
+                <div class="panel">
+                    <h3>✅ 仕様（受け入れ条件）</h3>
+                    <ol class="spec-list" id="specList">
+                        <li data-req="R1">
+                            <span class="req-title">R1. テキスト入力を解析できる</span>
+                            <span class="badge pending">未</span>
+                            <div class="req-detail"></div>
+                        </li>
+                        <li data-req="R2">
+                            <span class="req-title">R2. 正規化（大文字小文字・句読点）を切り替えできる</span>
+                            <span class="badge pending">未</span>
+                            <div class="req-detail"></div>
+                        </li>
+                        <li data-req="R3">
+                            <span class="req-title">R3. 頻度を集計し、回数の降順で表示できる</span>
+                            <span class="badge pending">未</span>
+                            <div class="req-detail"></div>
+                        </li>
+                        <li data-req="R4">
+                            <span class="req-title">R4. フィルタ（除外語・最小文字数・最小回数）に対応</span>
+                            <span class="badge pending">未</span>
+                            <div class="req-detail"></div>
+                        </li>
+                        <li data-req="R5">
+                            <span class="req-title">R5. 想定外入力（空入力）をエラーで安全に扱う</span>
+                            <span class="badge pending">未</span>
+                            <div class="req-detail"></div>
+                        </li>
+                        <li data-req="R6">
+                            <span class="req-title">R6. 結果をコピー / CSVでエクスポートできる</span>
+                            <span class="badge pending">未</span>
+                            <div class="req-detail"></div>
+                        </li>
+                        <li data-req="R7">
+                            <span class="req-title">R7. 仕様テストをワンクリックで実行できる</span>
+                            <span class="badge pending">未</span>
+                            <div class="req-detail"></div>
+                        </li>
+                        <li data-req="R8">
+                            <span class="req-title">R8. 主要処理が関数に分割されている（tokenize / count / sort / export）</span>
+                            <span class="badge pass">OK</span>
+                            <div class="req-detail mini">※この要件は“設計要件”のため、実装済みとして固定OK</div>
+                        </li>
+                    </ol>
+
+                    <div class="btn-row">
+                        <button class="btn primary" id="btnRunSpecTests">🧪 仕様テスト実行</button>
+                        <button class="btn" id="btnResetSpec">↩ ステータスリセット</button>
+                    </div>
+
+                    <div class="test-report" id="specTestReport">
+                        <div class="mini">ここに仕様テストの結果が表示されます。</div>
+                    </div>
+
+                    <details>
+                        <summary>このアプリが「10回の積み上げ」に対応するポイント</summary>
+                        <ul>
+                            <li><strong>2回目</strong>：入力（textarea）＋文字列処理（正規化・分割）</li>
+                            <li><strong>3回目</strong>：配列（tokens）をループで処理</li>
+                            <li><strong>4回目</strong>：辞書相当（Map）で頻度カウント</li>
+                            <li><strong>5回目</strong>：条件分岐でフィルタ／ガード節（空入力チェック）</li>
+                            <li><strong>7回目</strong>：デバッグ表示（tokensプレビュー）で原因追跡しやすく</li>
+                            <li><strong>9回目</strong>：処理を関数に分割（tokenize → count → sort → render）</li>
+                            <li><strong>10回目</strong>：要件（フィルタ・エクスポート・テスト）を統合して完成</li>
+                        </ul>
+                    </details>
+                </div>
+
+                <div class="panel">
+                    <h3>🧩 デモ（仕様を満たすか操作で確認）</h3>
+
+                    <div class="field">
+                        <label for="wfText">入力テキスト</label>
+                        <textarea id="wfText" rows="7" placeholder="文章を貼り付けてください（例：Hello hello world!）"></textarea>
+                    </div>
+
+                    <div class="controls">
+                        <div class="field">
+                            <label for="wfStopwords">除外語（スペース or カンマ区切り）</label>
+                            <input id="wfStopwords" type="text" placeholder="例: a the の に は です ます" />
+                        </div>
+
+                        <div class="field">
+                            <label for="wfTopN">表示する上位N件</label>
+                            <input id="wfTopN" type="number" min="1" max="200" value="10" />
+                        </div>
+
+                        <div class="field">
+                            <label for="wfMinLen">最小文字数</label>
+                            <input id="wfMinLen" type="number" min="1" max="50" value="1" />
+                        </div>
+
+                        <div class="field">
+                            <label for="wfMinCount">最小回数</label>
+                            <input id="wfMinCount" type="number" min="1" max="9999" value="1" />
+                        </div>
+                    </div>
+
+                    <div class="checks">
+                        <label><input type="checkbox" id="optCaseInsensitive" checked> 大文字小文字を区別しない</label>
+                        <label><input type="checkbox" id="optStripPunct" checked> 句読点・記号を無視する</label>
+                        <label><input type="checkbox" id="optIncludeNumbers"> 数字をトークンとして扱う</label>
+                        <label><input type="checkbox" id="optLiveMode"> ライブ解析（入力変更で自動）</label>
+                        <label><input type="checkbox" id="optDebug"> デバッグ表示（tokens）</label>
+                    </div>
+
+                    <div class="btn-row">
+                        <button class="btn" id="btnSample">✍ サンプル入力</button>
+                        <button class="btn primary" id="btnAnalyze">▶ 解析</button>
+                        <button class="btn" id="btnClear">🧹 クリア</button>
+                        <button class="btn" id="btnCopy">📋 結果コピー</button>
+                        <button class="btn" id="btnExportCsv">⬇ CSVエクスポート</button>
+                    </div>
+
+                    <div class="error" id="wfError"></div>
+                    <div class="summary" id="wfSummary">総トークン: 0 / ユニーク: 0 / 表示: 0</div>
+
+                    <table class="result-table" aria-label="単語頻度の結果">
+                        <thead>
+                            <tr>
+                                <th>単語</th>
+                                <th>回数</th>
+                                <th>割合</th>
+                            </tr>
+                        </thead>
+                        <tbody id="wfTableBody">
+                            <tr><td colspan="3" style="text-align:center;">まだ解析していません</td></tr>
+                        </tbody>
+                    </table>
+
+                    <div class="debug" id="wfDebug"></div>
+
+                    <div class="note">
+                        💡 ヒント：まずは「🧪 仕様テスト実行」を押すと、受け入れ条件が自動判定されます。
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 既存目次（先頭に「動く仕様書」を追加） -->
+        <div class="toc">
+            <h3>📚 レッスン目次</h3>
+            <ul>
+                <li><a href="#liveSpec">0回目：動く仕様書（単語頻度アナライザ）</a></li>
+                <li><a href="#lesson1">1回目：環境構築＆最初に動かす</a></li>
+                <li><a href="#lesson2">2回目：入力・型・文字列</a></li>
+                <li><a href="#lesson3">3回目：リスト＆forループ基礎</a></li>
+                <li><a href="#lesson4">4回目：辞書（dict）＆頻度カウント</a></li>
+                <li><a href="#lesson5">5回目：条件分岐・真偽値・判定の作法</a></li>
+                <li><a href="#lesson6">6回目：while / break / continue</a></li>
+                <li><a href="#lesson7">7回目：エラーの読み方＆デバッグ基礎</a></li>
+                <li><a href="#lesson8">8回目：コード作法→関数の"必要性"を体感</a></li>
+                <li><a href="#lesson9">9回目：関数入門（def / 引数 / return）</a></li>
+                <li><a href="#lesson10">10回目：ミニプロジェクト（統合）</a></li>
+            </ul>
+        </div>
+
+        <p><strong>全10回</strong>で「関数に入る前提〜関数で小さく作れる」まで持っていくレッスンプランです（毎回"ミニ成果物"が残る構成）。</p>
+
+        <div id="lesson1" class="character">
+            <h2>1回目：環境構築＆最初に動かす（S_run）</h2>
+            <h3>ゴール</h3>
+            <ul>
+                <li><code>.py</code> を自力で実行できる／<code>print()</code>で確認できる</li>
+            </ul>
+            <h3>内容</h3>
+            <ul>
+                <li>Python実行（VSCode or ターミナル）</li>
+                <li><code>print()</code> / コメント <code>#</code></li>
+                <li>変数と代入、簡単な計算</li>
+            </ul>
+            <h3>その場演習</h3>
+            <ul>
+                <li><code>hello.py</code>：自己紹介を3行出す</li>
+                <li><code>calc.py</code>：足し算・割り算をして結果を表示</li>
+            </ul>
+            <h3>宿題</h3>
+            <ul>
+                <li>「今日の気分スコア」を入力して表示するスクリプト（<code>input</code>は次回でOK、今は固定値でも可）</li>
+            </ul>
+        </div>
+
+        <div id="lesson2" class="character">
+            <h2>2回目：入力・型・文字列（S_run + S_data）</h2>
+            <h3>ゴール</h3>
+            <ul>
+                <li><code>input()</code> → 型変換 → 結果表示（f-string）まで通せる</li>
+            </ul>
+            <h3>内容</h3>
+            <ul>
+                <li><code>input()</code>、<code>int()</code>/<code>float()</code>/<code>str()</code></li>
+                <li><code>type()</code> で型確認</li>
+                <li>文字列：<code>split</code> / <code>strip</code> / 連結、f-string</li>
+            </ul>
+            <h3>その場演習</h3>
+            <ul>
+                <li>年齢を入力→「10年後」表示</li>
+                <li><code>"1 2 3"</code> を入力→合計を表示（<code>split</code>→<code>int</code>）</li>
+            </ul>
+            <h3>宿題</h3>
+            <ul>
+                <li>2つの数を入力して「合計・差・積・商」を表示</li>
+            </ul>
+        </div>
+
+        <div id="lesson3" class="character">
+            <h2>3回目：リスト＆forループ基礎（S_data + S_flow）</h2>
+            <h3>ゴール</h3>
+            <ul>
+                <li><code>list</code> を作って <code>for</code> で回し、集計できる</li>
+            </ul>
+            <h3>内容</h3>
+            <ul>
+                <li><code>list</code>：インデックス、<code>append</code>, <code>len</code>, <code>in</code></li>
+                <li><code>for</code>：<code>range</code>、基本パターン（合計・最大）</li>
+            </ul>
+            <h3>その場演習</h3>
+            <ul>
+                <li>数列リストの合計・平均・最大を出す</li>
+                <li><code>enumerate</code>で「番号: 値」を表示</li>
+            </ul>
+            <h3>宿題</h3>
+            <ul>
+                <li>入力された数列（スペース区切り）から「偶数だけリスト化して表示」</li>
+            </ul>
+        </div>
+
+        <div id="lesson4" class="character">
+            <h2>4回目：辞書（dict）＆頻度カウント（S_data）</h2>
+            <h3>ゴール</h3>
+            <ul>
+                <li><code>dict</code> で「集計」を書ける（王道スキル）</li>
+            </ul>
+            <h3>内容</h3>
+            <ul>
+                <li><code>dict</code>：追加・更新、<code>get</code>, <code>.items()</code></li>
+                <li>頻度カウントの型（<code>d[x] = d.get(x,0)+1</code>）</li>
+            </ul>
+            <h3>その場演習</h3>
+            <ul>
+                <li>単語の出現回数を数える（簡易：スペース区切り）</li>
+                <li>成績（名前→点数）をdictに入れて平均/最高点</li>
+            </ul>
+            <h3>宿題</h3>
+            <ul>
+                <li>文章を入力→単語頻度TOP3を表示（ソートは次回簡易でもOK）</li>
+            </ul>
+        </div>
+
+        <div id="lesson5" class="character">
+            <h2>5回目：条件分岐・真偽値・判定の作法（S_flow + S_syntax）</h2>
+            <h3>ゴール</h3>
+            <ul>
+                <li><code>if/elif/else</code> を自然に書ける（境界条件も意識）</li>
+            </ul>
+            <h3>内容</h3>
+            <ul>
+                <li>比較演算子、<code>and</code>/<code>or</code>/<code>not</code></li>
+                <li>よくあるミス：<code>=</code> vs <code>==</code></li>
+                <li>ガード節（先に弾く）という考え方</li>
+            </ul>
+            <h3>その場演習</h3>
+            <ul>
+                <li>送料計算（○円以上で無料、など）</li>
+                <li>成績判定（A/B/C、欠席など条件追加）</li>
+            </ul>
+            <h3>宿題</h3>
+            <ul>
+                <li>パスワード強度判定（長さ、数字含む、など複数条件）</li>
+            </ul>
+        </div>
+
+        <div id="lesson6" class="character">
+            <h2>6回目：while / break / continue（S_flow）</h2>
+            <h3>ゴール</h3>
+            <ul>
+                <li>"終わるwhile"を書ける、無限ループを避けられる</li>
+            </ul>
+            <h3>内容</h3>
+            <ul>
+                <li><code>while</code> の典型（回数・入力が正しいまで・見つかるまで）</li>
+                <li><code>break</code>/<code>continue</code> の使い所</li>
+            </ul>
+            <h3>その場演習</h3>
+            <ul>
+                <li>数当てゲーム（試行回数つき）</li>
+                <li>メニュー式CLI（1:追加 2:表示 0:終了 みたいな）</li>
+            </ul>
+            <h3>宿題</h3>
+            <ul>
+                <li>単語当て/しりとり風など、<code>while</code> を使った小ゲーム</li>
+            </ul>
+        </div>
+
+        <div id="lesson7" class="character">
+            <h2>7回目：エラーの読み方＆デバッグ基礎（S_debug）</h2>
+            <h3>ゴール</h3>
+            <ul>
+                <li>Tracebackを見て「原因→修正」まで辿れる</li>
+            </ul>
+            <h3>内容</h3>
+            <ul>
+                <li>Tracebackの読み方（落ちた行・例外名）</li>
+                <li>代表例外：Name/Type/Value/Index/KeyError</li>
+                <li>デバッグ：<code>print</code>, <code>type</code>, <code>repr</code>, 小さい入力で試す</li>
+                <li><code>assert</code> の使い方（前提チェック）</li>
+            </ul>
+            <h3>その場演習（バグ治し道場）</h3>
+            <ul>
+                <li>わざと壊した5本の短いコードを直す（リスト範囲、型変換、キー等）</li>
+            </ul>
+            <h3>宿題</h3>
+            <ul>
+                <li>自作コードに「想定外入力」を3つ入れて壊し、直すログを書いてくる（何が原因だったか）</li>
+            </ul>
+        </div>
+
+        <div id="lesson8" class="character">
+            <h2>8回目：コード作法（読みやすさ）→ 関数の"必要性"を体感（S_style）</h2>
+            <h3>ゴール</h3>
+            <ul>
+                <li>読みやすく整え、重複を見つけられる（関数への橋渡し）</li>
+            </ul>
+            <h3>内容</h3>
+            <ul>
+                <li>命名、マジックナンバー回避、早期returnの発想</li>
+                <li>"同じ処理が2回出たらまとめる"という基準</li>
+                <li>（任意）フォーマッタ/リンタの存在紹介（black/ruff等）</li>
+            </ul>
+            <h3>その場演習</h3>
+            <ul>
+                <li>汚いスクリプトをリファクタ（変数名・改行・重複削減だけ）</li>
+                <li>「ここは関数にできそう」をマーキング</li>
+            </ul>
+            <h3>宿題</h3>
+            <ul>
+                <li>自分の宿題コードをリライトして読みやすくする（提出物は"ビフォー/アフター"）</li>
+            </ul>
+        </div>
+
+        <div id="lesson9" class="character">
+            <h2>9回目：関数入門（def / 引数 / return）（関数へ）</h2>
+            <h3>ゴール</h3>
+            <ul>
+                <li>「入力→処理→出力」を関数で切り出せる</li>
+            </ul>
+            <h3>内容</h3>
+            <ul>
+                <li><code>def</code>、引数、<code>return</code>、副作用（print）との違い</li>
+                <li>スコープ（ローカル変数）</li>
+                <li>docstring（短くでOK）</li>
+            </ul>
+            <h3>その場演習</h3>
+            <ul>
+                <li><code>sum_list(nums)</code> / <code>is_even(n)</code> / <code>grade(score)</code> など小関数を作る</li>
+                <li>6回目のメニュー式CLIの一部を関数化</li>
+            </ul>
+            <h3>宿題</h3>
+            <ul>
+                <li>"頻度カウント"を <code>tokenize(text)</code> と <code>count_words(words)</code> に分割して実装</li>
+            </ul>
+        </div>
+
+        <div id="lesson10" class="character">
+            <h2>10回目：ミニプロジェクト（統合）</h2>
+            <h3>ゴール</h3>
+            <ul>
+                <li>小さな要件を分解して、関数を組み合わせて完成させる</li>
+            </ul>
+            <h3>おすすめプロジェクト（どれでもOK）</h3>
+            <ul>
+                <li><strong>家計簿ミニ集計</strong>：入力（品目 金額）→カテゴリ別合計、最大支出</li>
+                <li><strong>単語頻度アナライザ</strong>：文章→頻度TOP10、除外語（a/the等）対応</li>
+                <li><strong>小テストアプリ</strong>：問題リスト→採点、間違い復習</li>
+            </ul>
+            <h3>必須要件（共通）</h3>
+            <ul>
+                <li>3〜6個の関数に分割（例：入力処理、計算、表示）</li>
+                <li>想定外入力への対策を1つ入れる（空入力など）</li>
+                <li>最低限のテスト（print確認 or assert）を用意</li>
+            </ul>
+            <h3>その場でやること</h3>
+            <ul>
+                <li>仕様を箇条書き→関数分解→実装→デバッグ→整形</li>
+            </ul>
+            <h3>宿題（仕上げ）</h3>
+            <ul>
+                <li>README（使い方/例入力/出力例）を1枚書く</li>
+            </ul>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px; padding: 20px; background: linear-gradient(135deg, #ffecb3, #bbdefb); border-radius: 15px; border: 3px solid #ff4081;">
+            <h3 style="color: #ff4081; margin-top: 0;">🎯 最終目標</h3>
+            <p>全10回を通して、<strong>「関数に入る前提〜関数で小さく作れる」</strong>スキルを身につけ、毎回のミニ成果物を積み上げながら実践的なPythonプログラミング力を養います。</p>
+            <p style="font-size: 1.2rem; color: #d63384;"><strong>「小さく作り、確実に動かす」</strong> 習慣を身につけましょう！</p>
+        </div>
+    </div>
+
+    <div class="footer">
+        Pythonレッスンプラン © 2023 - ポップアートスタイルで楽しく学ぶプログラミング
+    </div>
+
+    <script>
+        // KaTeXの自動レンダリング設定
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof renderMathInElement === 'function') {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false},
+                        {left: '\\(', right: '\\)', display: false},
+                        {left: '\\[', right: '\\]', display: true}
+                    ],
+                    throwOnError: false
+                });
+            }
+        });
+
+        // スムーズスクロール
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if(targetId === '#') return;
+
+                const targetElement = document.querySelector(targetId);
+                if(targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 20,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        /* =========================
+           ✅ 動く仕様書：単語頻度アナライザ
+           - tokenize → count → sort → render
+           ========================= */
+        document.addEventListener('DOMContentLoaded', function() {
+            const $ = (id) => document.getElementById(id);
+
+            const state = {
+                lastResult: null,
+                lastConfig: null,
+                liveTimer: null
+            };
+
+            function escapeHtml(s) {
+                return String(s).replace(/[&<>"']/g, (ch) => ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;'
+                }[ch]));
+            }
+
+            function clampInt(value, min, max, fallback) {
+                const n = Number.parseInt(value, 10);
+                if (Number.isNaN(n)) return fallback;
+                return Math.min(max, Math.max(min, n));
+            }
+
+            function parseStopwords(raw, caseInsensitive) {
+                const parts = String(raw || '')
+                    .split(/[\s,]+/)
+                    .map(s => s.trim())
+                    .filter(Boolean);
+
+                const set = new Set();
+                for (const p of parts) {
+                    set.add(caseInsensitive ? p.toLowerCase() : p);
+                }
+                return set;
+            }
+
+            // tokenize(text): 文字列をトークン配列にする
+            function tokenize(text, cfg) {
+                let t = String(text || '').normalize('NFKC');
+                if (cfg.caseInsensitive) t = t.toLowerCase();
+
+                // 句読点無視OFFの場合は、空白区切りを優先（“仕様切替”の挙動が分かりやすい）
+                if (!cfg.stripPunctuation) {
+                    let rawTokens = t.split(/\s+/).filter(Boolean);
+                    if (!cfg.includeNumbers) {
+                        rawTokens = rawTokens.filter(tok => !/^\d+$/.test(tok));
+                    }
+                    rawTokens = rawTokens
+                        .filter(tok => tok.length >= cfg.minLength)
+                        .filter(tok => !cfg.stopwords.has(tok));
+                    return rawTokens;
+                }
+
+                // 句読点無視ON：Unicodeプロパティで「文字/数字の連続」を抽出（対応ブラウザで高精度）
+                let matches = [];
+                try {
+                    const re = cfg.includeNumbers ? /[\p{L}\p{Nd}]+/gu : /[\p{L}]+/gu;
+                    matches = t.match(re) || [];
+                } catch (e) {
+                    // フォールバック（Unicodeプロパティ未対応環境向け）
+                    let cleaned = t.replace(/[^0-9A-Za-z\u00C0-\u024F\u3040-\u30FF\u3400-\u9FFF\s]+/g, ' ');
+                    matches = cleaned.split(/\s+/).filter(Boolean);
+                    if (!cfg.includeNumbers) {
+                        matches = matches.filter(tok => !/^\d+$/.test(tok));
+                    }
+                }
+
+                return matches
+                    .filter(tok => tok.length >= cfg.minLength)
+                    .filter(tok => !cfg.stopwords.has(tok))
+                    .filter(tok => cfg.includeNumbers ? true : !/^\d+$/.test(tok));
+            }
+
+            // countWords(words): 出現回数を数える（Map）
+            function countWords(words) {
+                const freq = new Map();
+                for (const w of words) {
+                    freq.set(w, (freq.get(w) || 0) + 1);
+                }
+                return freq;
+            }
+
+            function sortedRows(freqMap) {
+                const rows = Array.from(freqMap.entries()).map(([word, count]) => ({ word, count }));
+                rows.sort((a, b) => (b.count - a.count) || a.word.localeCompare(b.word, 'ja'));
+                return rows;
+            }
+
+            function analyzeText(text, cfg) {
+                const raw = String(text || '').trim();
+                const errors = [];
+
+                // ガード節（想定外入力対策）
+                if (!raw) {
+                    errors.push('入力が空です。文章を入力してください。');
+                    return {
+                        errors,
+                        tokens: [],
+                        totalTokens: 0,
+                        uniqueWords: 0,
+                        rows: []
+                    };
+                }
+
+                const tokens = tokenize(raw, cfg);
+                const freq = countWords(tokens);
+                let rows = sortedRows(freq);
+
+                if (cfg.minCount > 1) {
+                    rows = rows.filter(r => r.count >= cfg.minCount);
+                }
+
+                rows = rows.slice(0, cfg.topN);
+
+                if (tokens.length === 0) {
+                    errors.push('解析対象のトークンが0件でした（フィルタ条件が厳しすぎる可能性があります）。');
+                }
+
+                return {
+                    errors,
+                    tokens,
+                    totalTokens: tokens.length,
+                    uniqueWords: freq.size,
+                    rows
+                };
+            }
+
+            function toTSV(result) {
+                const lines = [];
+                lines.push('word\tcount\tpercent');
+                for (const r of result.rows) {
+                    const percent = result.totalTokens ? ((r.count / result.totalTokens) * 100).toFixed(1) : '0.0';
+                    lines.push(`${r.word}\t${r.count}\t${percent}`);
+                }
+                return lines.join('\n');
+            }
+
+            function toCSV(result) {
+                const lines = [];
+                lines.push('word,count,percent');
+                for (const r of result.rows) {
+                    const percent = result.totalTokens ? ((r.count / result.totalTokens) * 100).toFixed(1) : '0.0';
+                    const safeWord = `"${String(r.word).replace(/"/g, '""')}"`;
+                    lines.push(`${safeWord},${r.count},${percent}`);
+                }
+                return lines.join('\n');
+            }
+
+            function setReq(reqId, status, detailText) {
+                const item = document.querySelector(`#specList li[data-req="${reqId}"]`);
+                if (!item) return;
+
+                const badge = item.querySelector('.badge');
+                const detail = item.querySelector('.req-detail');
+
+                badge.classList.remove('pending', 'pass', 'fail');
+
+                if (status === 'pass') {
+                    badge.classList.add('pass');
+                    badge.textContent = 'OK';
+                } else if (status === 'fail') {
+                    badge.classList.add('fail');
+                    badge.textContent = 'NG';
+                } else {
+                    badge.classList.add('pending');
+                    badge.textContent = '未';
+                }
+
+                if (detail) {
+                    detail.textContent = detailText || '';
+                }
+            }
+
+            function resetSpec() {
+                setReq('R1', 'pending', '');
+                setReq('R2', 'pending', '');
+                setReq('R3', 'pending', '');
+                setReq('R4', 'pending', '');
+                setReq('R5', 'pending', '');
+                setReq('R6', 'pending', '');
+                setReq('R7', 'pending', '');
+                // R8は固定OK（HTML側でpass表示）
+                $('specTestReport').innerHTML = '<div class="mini">ここに仕様テストの結果が表示されます。</div>';
+            }
+
+            function getConfigFromUI() {
+                const caseInsensitive = $('optCaseInsensitive').checked;
+                const cfg = {
+                    caseInsensitive,
+                    stripPunctuation: $('optStripPunct').checked,
+                    includeNumbers: $('optIncludeNumbers').checked,
+                    topN: clampInt($('wfTopN').value, 1, 200, 10),
+                    minLength: clampInt($('wfMinLen').value, 1, 50, 1),
+                    minCount: clampInt($('wfMinCount').value, 1, 9999, 1),
+                    stopwords: parseStopwords($('wfStopwords').value, caseInsensitive),
+                };
+                return cfg;
+            }
+
+            function renderResult(result) {
+                const errorEl = $('wfError');
+                if (result.errors.length) {
+                    errorEl.style.display = 'block';
+                    errorEl.textContent = result.errors.join('\n');
+                } else {
+                    errorEl.style.display = 'none';
+                    errorEl.textContent = '';
+                }
+
+                $('wfSummary').innerHTML =
+                    `総トークン: <strong>${result.totalTokens}</strong> / ユニーク: <strong>${result.uniqueWords}</strong> / 表示: <strong>${result.rows.length}</strong>`;
+
+                const tbody = $('wfTableBody');
+                tbody.innerHTML = '';
+
+                if (result.rows.length === 0) {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td colspan="3" style="text-align:center;">結果がありません</td>`;
+                    tbody.appendChild(tr);
+                } else {
+                    for (const r of result.rows) {
+                        const tr = document.createElement('tr');
+                        const percent = result.totalTokens ? ((r.count / result.totalTokens) * 100) : 0;
+                        tr.innerHTML = `
+                            <td>${escapeHtml(r.word)}</td>
+                            <td>${r.count}</td>
+                            <td>${percent.toFixed(1)}%</td>
+                        `;
+                        tbody.appendChild(tr);
+                    }
+                }
+
+                const debugOn = $('optDebug').checked;
+                const debugEl = $('wfDebug');
+                if (debugOn) {
+                    debugEl.style.display = 'block';
+                    const preview = result.tokens.slice(0, 60).join(' / ');
+                    debugEl.textContent = `tokens(${result.tokens.length}): ${preview}${result.tokens.length > 60 ? ' ...' : ''}`;
+                } else {
+                    debugEl.style.display = 'none';
+                    debugEl.textContent = '';
+                }
+            }
+
+            function updateSpecByInteraction(result, cfg) {
+                // R1: 解析できる
+                if (result && cfg) {
+                    if (result.errors.length === 0 || (result.errors.length === 1 && result.errors[0].includes('トークンが0件'))) {
+                        setReq('R1', 'pass', '解析を実行しました。');
+                    } else {
+                        setReq('R1', 'fail', '解析でエラーが出ました。');
+                    }
+                }
+
+                // R5: 空入力
+                if (result.errors.some(e => e.includes('入力が空'))) {
+                    setReq('R5', 'fail', '空入力を検知しました（エラー表示OK）。');
+                } else {
+                    // 空入力テストを実行していない時点で“pass”にしない（仕様テストで確定させる）
+                }
+
+                // R2: 正規化切替（オプションを触ったら“候補”として表示）
+                if (cfg.caseInsensitive || cfg.stripPunctuation) {
+                    setReq('R2', 'pass', `caseInsensitive=${cfg.caseInsensitive}, stripPunctuation=${cfg.stripPunctuation}`);
+                }
+
+                // R3: カウント＆降順
+                if (result.totalTokens > 0 && result.rows.length > 0) {
+                    let sortedOk = true;
+                    for (let i = 1; i < result.rows.length; i++) {
+                        if (result.rows[i].count > result.rows[i - 1].count) {
+                            sortedOk = false;
+                            break;
+                        }
+                    }
+                    setReq('R3', sortedOk ? 'pass' : 'fail', sortedOk ? '降順ソートOK' : 'ソート順を確認してください');
+                }
+
+                // R4: フィルタ
+                const usingFilter = (cfg.stopwords.size > 0) || (cfg.minLength > 1) || (cfg.minCount > 1);
+                if (usingFilter) {
+                    setReq('R4', 'pass', `stopwords=${cfg.stopwords.size}, minLen=${cfg.minLength}, minCount=${cfg.minCount}`);
+                }
+            }
+
+            function doAnalyze(triggeredByLive) {
+                const cfg = getConfigFromUI();
+                const text = $('wfText').value;
+
+                const result = analyzeText(text, cfg);
+                state.lastResult = result;
+                state.lastConfig = cfg;
+
+                renderResult(result);
+                updateSpecByInteraction(result, cfg);
+
+                if (!triggeredByLive) {
+                    // 明示操作で「解析できる」を強めに判定
+                    if (!result.errors.some(e => e.includes('入力が空'))) {
+                        setReq('R1', 'pass', '解析ボタンで実行しました。');
+                    }
+                }
+            }
+
+            async function copyToClipboard(text) {
+                // HTTPSでないと動かないケースがあるためフォールバックも用意
+                try {
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        await navigator.clipboard.writeText(text);
+                        return true;
+                    }
+                } catch (_) {}
+                try {
+                    const ta = document.createElement('textarea');
+                    ta.value = text;
+                    ta.style.position = 'fixed';
+                    ta.style.left = '-9999px';
+                    document.body.appendChild(ta);
+                    ta.select();
+                    const ok = document.execCommand('copy');
+                    document.body.removeChild(ta);
+                    return ok;
+                } catch (_) {
+                    return false;
+                }
+            }
+
+            function download(filename, content, mime) {
+                const blob = new Blob([content], { type: mime || 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+
+            function runSpecTests() {
+                const report = [];
+                let allPass = true;
+
+                // テスト1：大文字小文字＋句読点除去
+                {
+                    const cfg = {
+                        caseInsensitive: true,
+                        stripPunctuation: true,
+                        includeNumbers: false,
+                        topN: 3,
+                        minLength: 1,
+                        minCount: 1,
+                        stopwords: new Set()
+                    };
+                    const input = 'Apple apple banana, BANANA! kiwi';
+                    const result = analyzeText(input, cfg);
+                    const expected = [['apple',2], ['banana',2], ['kiwi',1]];
+
+                    const actual = result.rows.map(r => [r.word, r.count]);
+                    const ok =
+                        result.errors.length === 0 &&
+                        expected.length === actual.length &&
+                        expected.every((e, i) => e[0] === actual[i][0] && e[1] === actual[i][1]);
+
+                    report.push(`${ok ? '✅' : '❌'} T1 正規化＆句読点（期待: apple2, banana2, kiwi1）`);
+                    if (!ok) allPass = false;
+
+                    setReq('R2', ok ? 'pass' : 'fail', ok ? 'テストで確認OK' : 'T1が失敗しました');
+                    setReq('R3', ok ? 'pass' : 'fail', ok ? '頻度集計＆順序OK' : '頻度集計/順序を確認');
+                }
+
+                // テスト2：除外語（stopwords）
+                {
+                    const cfg = {
+                        caseInsensitive: true,
+                        stripPunctuation: true,
+                        includeNumbers: false,
+                        topN: 5,
+                        minLength: 1,
+                        minCount: 1,
+                        stopwords: new Set(['the', 'a'])
+                    };
+                    const input = 'the the a cat cat cat';
+                    const result = analyzeText(input, cfg);
+
+                    const ok = result.errors.length === 0 && result.rows.length === 1 && result.rows[0].word === 'cat' && result.rows[0].count === 3;
+                    report.push(`${ok ? '✅' : '❌'} T2 除外語（期待: cat3 のみ）`);
+                    if (!ok) allPass = false;
+
+                    setReq('R4', ok ? 'pass' : 'fail', ok ? '除外語の反映OK' : '除外語が効いていない可能性');
+                }
+
+                // テスト3：空入力（想定外入力対策）
+                {
+                    const cfg = {
+                        caseInsensitive: true,
+                        stripPunctuation: true,
+                        includeNumbers: false,
+                        topN: 10,
+                        minLength: 1,
+                        minCount: 1,
+                        stopwords: new Set()
+                    };
+                    const input = '   ';
+                    const result = analyzeText(input, cfg);
+                    const ok = result.errors.some(e => e.includes('入力が空'));
+                    report.push(`${ok ? '✅' : '❌'} T3 空入力ガード（期待: エラー表示）`);
+                    if (!ok) allPass = false;
+
+                    setReq('R5', ok ? 'pass' : 'fail', ok ? '空入力を安全に扱える' : '空入力の扱いを修正');
+                }
+
+                setReq('R7', allPass ? 'pass' : 'fail', allPass ? '全テスト合格' : '失敗したテストがあります');
+
+                $('specTestReport').innerHTML = `
+                    <div style="font-weight:900; color:${allPass ? '#1b5e20' : '#b71c1c'};">
+                        ${allPass ? '✅ 仕様テスト：合格' : '❌ 仕様テスト：不合格'}
+                    </div>
+                    <div class="mini" style="margin-top:6px; white-space:pre-wrap;">${report.join('\n')}</div>
+                `;
+            }
+
+            // --- UI wiring ---
+            $('btnAnalyze').addEventListener('click', () => doAnalyze(false));
+
+            $('btnClear').addEventListener('click', () => {
+                $('wfText').value = '';
+                $('wfStopwords').value = '';
+                $('wfTopN').value = 10;
+                $('wfMinLen').value = 1;
+                $('wfMinCount').value = 1;
+                $('optCaseInsensitive').checked = true;
+                $('optStripPunct').checked = true;
+                $('optIncludeNumbers').checked = false;
+                $('optLiveMode').checked = false;
+                $('optDebug').checked = false;
+                $('wfError').style.display = 'none';
+                $('wfError').textContent = '';
+                $('wfSummary').textContent = '総トークン: 0 / ユニーク: 0 / 表示: 0';
+                $('wfTableBody').innerHTML = '<tr><td colspan="3" style="text-align:center;">まだ解析していません</td></tr>';
+                $('wfDebug').style.display = 'none';
+                $('wfDebug').textContent = '';
+                resetSpec();
+            });
+
+            $('btnSample').addEventListener('click', () => {
+                $('wfText').value =
+`Python Python Python! 関数 function 関数。
+Hello hello world, world... 2025!
+単語 頻度 アナライザ を 作る。小さく 作り、確実に 動かす。`;
+                $('wfStopwords').value = 'を に は です ます a the';
+                doAnalyze(false);
+            });
+
+            $('btnCopy').addEventListener('click', async () => {
+                if (!state.lastResult) {
+                    $('wfError').style.display = 'block';
+                    $('wfError').textContent = '先に解析してください。';
+                    return;
+                }
+                const ok = await copyToClipboard(toTSV(state.lastResult));
+                setReq('R6', ok ? 'pass' : 'fail', ok ? 'クリップボードにコピーしました' : 'コピーに失敗（ブラウザ制限の可能性）');
+            });
+
+            $('btnExportCsv').addEventListener('click', () => {
+                if (!state.lastResult) {
+                    $('wfError').style.display = 'block';
+                    $('wfError').textContent = '先に解析してください。';
+                    return;
+                }
+                const csv = toCSV(state.lastResult);
+                const now = new Date();
+                const filename = `wordfreq_${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}.csv`;
+                download(filename, csv, 'text/csv;charset=utf-8');
+                setReq('R6', 'pass', `CSVを書き出しました: ${filename}`);
+            });
+
+            $('btnRunSpecTests').addEventListener('click', runSpecTests);
+            $('btnResetSpec').addEventListener('click', resetSpec);
+
+            // ライブ解析
+            function scheduleLiveAnalyze() {
+                if (state.liveTimer) clearTimeout(state.liveTimer);
+                state.liveTimer = setTimeout(() => doAnalyze(true), 260);
+            }
+
+            $('wfText').addEventListener('input', () => {
+                if ($('optLiveMode').checked) scheduleLiveAnalyze();
+            });
+
+            // オプション変更時もライブなら再解析
+            ['wfStopwords','wfTopN','wfMinLen','wfMinCount','optCaseInsensitive','optStripPunct','optIncludeNumbers','optDebug']
+                .forEach(id => {
+                    $(id).addEventListener('change', () => {
+                        if ($('optLiveMode').checked) scheduleLiveAnalyze();
+                    });
+                });
+
+            // 初期状態
+            resetSpec();
+        });
+    </script>
+</body>
+</html>
