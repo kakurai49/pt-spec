@@ -1,0 +1,1668 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>共通IR→Backendコード生成方式 テスト自動化設計ガイドライン v1.1（Draft）</title>
+
+  <!-- ================================
+       pop3_style.css（添付CSS）を使用
+       ================================ -->
+  <style>
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #ffdd57; /* Bold pop art colors */
+    color: #333;
+}
+
+header {
+    background-color: #ff4081;
+    color: white;
+    padding: 10px 0;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 2.5rem;
+    animation: glow 1.5s infinite alternate;
+}
+
+@media (max-width: 768px) {
+    header {
+        font-size: 1.8rem; /* Smaller font for mobile devices */
+    }
+}
+
+@keyframes glow {
+    from {
+        text-shadow: 0 0 10px #ff4081, 0 0 20px #ff4081;
+    }
+    to {
+        text-shadow: 0 0 30px #ff4081, 0 0 40px #ff4081;
+    }
+}
+
+.container {
+    max-width: 1000px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    animation: popEffect 1s ease-in-out;
+}
+
+@keyframes popEffect {
+    0% {
+        transform: scale(0.8);
+        opacity: 0.6;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+h2 {
+    color: #ff4081;
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+a {
+    text-decoration: none;
+    color: #1e90ff;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+a:hover {
+    text-decoration: underline;
+    color: #ff4081;
+    text-shadow: 0 0 5px #ff4081;
+}
+
+img {
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+    display: block;
+    margin: 10px auto;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th, td {
+    border: 2px solid black;
+    padding: 8px;
+    text-align: left;
+}
+
+pre {
+    background-color: #f4f4f4;
+    padding: 10px;
+    border-radius: 5px;
+    overflow-x: auto; /* Allow horizontal scrolling */
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: 'Courier New', Courier, monospace;
+    max-width: 100%; /* Ensure it fits within the container */
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
+.footer {
+    text-align: center;
+    padding: 10px;
+    background-color: #ff4081;
+    color: white;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+.character {
+    margin-bottom: 30px;
+    border: 3px solid #ff4081;
+    padding: 20px;
+    border-radius: 10px;
+    background: #ffdd57;
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.character:hover {
+    transform: scale(1.05);
+    background-color: #ffcc00;
+    box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+    .container {
+        width: 90%;
+    }
+}
+
+/* KaTeXの数式がはみ出ないようにするためのスタイル */
+.katex {
+    font-size: 1.1em !important; /* 数式のフォントサイズを調整 */
+    overflow-x: auto; /* 横スクロールを許可 */
+    overflow-y: hidden; /* 縦スクロールは不要 */
+    max-width: 100%; /* コンテナ幅に合わせる */
+    white-space: nowrap; /* 数式が折り返されないようにする */
+}
+
+.katex-display {
+    margin: 0.5em 0; /* 数式の上下の余白を調整 */
+    overflow-x: auto; /* 横スクロールを許可 */
+    max-width: 100%; /* コンテナ幅に合わせる */
+}
+  </style>
+
+  <!-- ================================
+       KaTeX（数式表示）
+       ※ $...$ を使うと JSON Schema の $schema 等と衝突するため、
+          本HTMLでは \(...\), \[...\] のみを有効化します。
+       ================================ -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+
+  <!-- ================================
+       Markdown レンダラ（本文は “削除なし” で埋め込み → HTML化）
+       ================================ -->
+  <script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" crossorigin="anonymous"></script>
+
+  <!-- ================================
+       追加CSS（コントラスト強化 + カラフル最適化 + バグ修正）
+       ================================ -->
+  <style>
+    :root{
+      --ink: #101010;
+      --paper: #ffffff;
+      --pink: #ff4081;
+      --blue: #1e90ff;
+      --yellow: #ffdd57;
+      --orange: #ff6d00;
+      --green: #00c853;
+      --purple: #7c4dff;
+      --black: #000000;
+      --soft: rgba(0,0,0,0.08);
+      --soft2: rgba(0,0,0,0.16);
+    }
+
+    /* 背景と文字色のコントラスト強化（pop感は維持） */
+    body{
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 18px 18px, rgba(0,0,0,0.18) 2px, transparent 3px) 0 0/22px 22px,
+        radial-gradient(circle at 10px 10px, rgba(255,255,255,0.22) 2px, transparent 3px) 0 0/20px 20px,
+        linear-gradient(135deg, var(--yellow) 0%, #ffe77a 26%, #ff7fb3 58%, #7ec8ff 100%);
+      background-attachment: fixed;
+    }
+
+    header{
+      background: linear-gradient(90deg, var(--pink), var(--purple), var(--blue));
+      border-bottom: 6px solid var(--black);
+      letter-spacing: 0.04em;
+    }
+
+    .container{
+      border: 6px solid var(--black);
+      box-shadow:
+        0 0 0 6px rgba(255,255,255,0.65),
+        0 18px 0 rgba(0,0,0,0.12),
+        0 0 30px rgba(0,0,0,0.25);
+      padding-bottom: 70px; /* fixed footer 対策 */
+    }
+
+    /* 目次 */
+    .toc{
+      border: 4px solid var(--black);
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.85));
+      padding: 14px 16px;
+      margin: 16px 0 22px;
+      box-shadow: 10px 10px 0 rgba(0,0,0,0.10);
+    }
+    .toc h2{
+      margin: 0 0 8px;
+    }
+    .toc ul{
+      margin: 0;
+      padding-left: 18px;
+    }
+    .toc a{
+      color: var(--blue);
+    }
+    .toc a:hover{
+      color: var(--pink);
+    }
+
+    /* Markdown本文エリア */
+    .doc{
+      line-height: 1.8;
+      font-size: 1rem;
+    }
+
+    /* h1/h3 等も pop3_style.css に加えて整える */
+    .doc h1{
+      font-size: 2.1rem;
+      margin: 14px 0 12px;
+      color: var(--black);
+      text-shadow: 3px 3px 0 rgba(255,64,129,0.30);
+      border-bottom: 6px solid var(--black);
+      padding-bottom: 6px;
+    }
+    .doc h2{
+      border-left: 12px solid var(--pink);
+      padding-left: 10px;
+      background: linear-gradient(90deg, rgba(255,64,129,0.14), transparent);
+      border-radius: 10px;
+    }
+    .doc h3{
+      color: var(--black);
+      margin-top: 18px;
+      padding: 8px 10px;
+      border: 3px solid var(--black);
+      border-radius: 12px;
+      background: linear-gradient(90deg, rgba(30,144,255,0.16), rgba(255,221,87,0.20));
+      box-shadow: 8px 8px 0 rgba(0,0,0,0.08);
+    }
+    .doc h4{
+      color: var(--black);
+      margin-top: 14px;
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 2px solid var(--black);
+      background: rgba(255,221,87,0.55);
+    }
+
+    .doc p{
+      color: var(--ink);
+    }
+
+    /* 強調（MUST/SHOULD/MAY等が映える） */
+    .doc strong{
+      color: var(--black);
+      background: linear-gradient(90deg, rgba(255,221,87,0.75), rgba(255,64,129,0.18));
+      padding: 1px 6px;
+      border-radius: 8px;
+      border: 2px solid rgba(0,0,0,0.25);
+    }
+
+    /* 引用（>） */
+    .doc blockquote{
+      margin: 14px 0;
+      padding: 12px 14px;
+      border-left: 12px solid var(--blue);
+      background: rgba(30,144,255,0.12);
+      border-radius: 12px;
+      box-shadow: 10px 10px 0 rgba(0,0,0,0.08);
+      color: var(--ink);
+    }
+
+    /* 罫線 */
+    .doc hr{
+      border: none;
+      height: 8px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--pink), var(--yellow), var(--blue));
+      margin: 18px 0;
+    }
+
+    /* リンク */
+    .doc a{
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    /* テーブル（コントラスト強化 + 派手さ） */
+    .doc table{
+      border: 4px solid var(--black);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 10px 10px 0 rgba(0,0,0,0.10);
+      margin: 12px 0 18px;
+    }
+    .doc thead th{
+      background: var(--black);
+      color: #fff;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+    .doc tbody tr:nth-child(odd) td{
+      background: rgba(255,221,87,0.22);
+    }
+    .doc tbody tr:nth-child(even) td{
+      background: rgba(255,255,255,0.95);
+    }
+    .doc td, .doc th{
+      border: 2px solid var(--black);
+    }
+
+    /* ==========================
+       重要：pre / code のバグ修正
+       「白背景に白文字で見えない」問題を潰す
+       + 二重枠タイルを “見える” デザインに
+       ========================== */
+
+    /* code（インライン） */
+    .doc code{
+      color: var(--black) !important;
+      background: rgba(0,0,0,0.06);
+      border: 2px solid rgba(0,0,0,0.25);
+      border-radius: 8px;
+      padding: 0.1em 0.35em;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      font-weight: 700;
+    }
+
+    /* pre（ブロック） */
+    .doc pre{
+      position: relative;
+      background: #ffffff !important;         /* ← 白背景 */
+      color: #111111 !important;              /* ← 黒文字（白×白のバグ回避） */
+      border: 4px solid var(--black);         /* 外枠 */
+      border-radius: 14px;
+      padding: 14px 16px;
+      box-shadow: 12px 12px 0 rgba(0,0,0,0.10);
+      overflow-x: auto;
+      white-space: pre;
+      line-height: 1.5;
+    }
+
+    /* “二重の枠パーツ”：内枠（点線） */
+    .doc pre::before{
+      content: "";
+      position: absolute;
+      inset: 9px;
+      border: 3px dashed var(--blue);
+      border-radius: 10px;
+      pointer-events: none;
+      opacity: 0.85;
+    }
+
+    /* pre内のcodeは透明背景＋確実に黒文字 */
+    .doc pre code{
+      background: transparent !important;
+      border: none !important;
+      color: #111111 !important;              /* ← 強制（白×白バグ対策） */
+      font-weight: 600;
+      display: block;
+      white-space: pre;
+    }
+
+    /* KaTeXがpre内に来ても見えるように */
+    .doc pre .katex, .doc pre .katex *{
+      color: #111111 !important;
+    }
+
+    /* details（原文表示など） */
+    details{
+      border: 4px solid var(--black);
+      border-radius: 14px;
+      padding: 10px 12px;
+      background: rgba(255,255,255,0.85);
+      box-shadow: 10px 10px 0 rgba(0,0,0,0.08);
+      margin-top: 18px;
+    }
+    details summary{
+      cursor: pointer;
+      font-weight: 800;
+      color: var(--black);
+      background: linear-gradient(90deg, rgba(255,64,129,0.18), rgba(255,221,87,0.35));
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 2px solid rgba(0,0,0,0.25);
+      list-style: none;
+    }
+    details summary::-webkit-details-marker{
+      display: none;
+    }
+
+    /* フッター（固定）に重ならないよう補助 */
+    .footer{
+      border-top: 6px solid var(--black);
+      background: linear-gradient(90deg, var(--pink), var(--purple), var(--blue));
+      font-weight: 800;
+      letter-spacing: 0.03em;
+    }
+  </style>
+</head>
+
+<body>
+  <header>COMMON IR → BACKEND CODEGEN v1.1</header>
+
+  <div class="container">
+    <div class="toc" id="toc">
+      <h2>目次 <span class="badge" style="font-size:0.85rem;background:#000;color:#fff;padding:2px 10px;border-radius:999px;border:2px solid #fff;">TOC</span></h2>
+      <ul id="tocList"></ul>
+      <div style="margin-top:10px;font-size:0.92rem;color:#333;">
+        ※ 本文は下部の「原文（削除なし）」を<strong>一字一句削除せず</strong>埋め込み、HTMLへレイアウトしています。数式は KaTeX（\(...\), \[...\]）で描画します。
+      </div>
+    </div>
+
+    <!-- ここに Markdown→HTML を描画 -->
+    <article id="content" class="doc"></article>
+
+    <!-- 原文（削除なし）も保持して表示 -->
+    <details>
+      <summary>原文（削除なし）</summary>
+      <pre id="rawSource" class="doc" style="margin-top:12px;"></pre>
+    </details>
+  </div>
+
+  <div class="footer">POP × CONTRAST × KaTeX READY</div>
+
+  <!-- ================================
+       ここに “全文（削除なし）” をそのまま埋め込み
+       ================================ -->
+  <script type="text/plain" id="mdSource">
+これまでの「共通 IR → Backend でコード生成」方式を **正式な設計ガイドライン（発行可能な仕様書形式）**として v1.1 に改訂した全文を、**このチャット上にそのまま表示**します。
+ご要望の追加点（機械可読な規格化：JSON Schema / OpenAPI、準拠条件：Core StepKind 実装数、未対応Stepの診断レベル、文字列エスケープ要件、互換性）を**すべて盛り込み済み**です。
+
+---
+
+# 共通IR→Backendコード生成方式 テスト自動化設計ガイドライン v1.1（Draft）
+
+**Document ID**: CIRBG-GL-1.1-DRAFT
+**作成日**: 2025-12-17
+**状態**: Draft（ドラフト）
+**対象読者**: テスト自動化アーキテクト、QAエンジニア、テスト基盤エンジニア、開発リード
+**目的**: 多種のテスト実行フレームワーク（Playwright / CodeceptJS / Selenium / Appium / WinAppDriver / MagicPod 等）に対し、**単一の共通 IR（Intermediate Representation: 中間表現）**から **Backend（生成器）**を差し替えることで、実行可能なテスト資産（コード、JSON、設定）を生成するための設計規約を定める。
+
+---
+
+## 0. 規約語（Normative Keywords）
+
+本ガイドラインでは以下の規約語を用いる。
+
+* **MUST**: 必須。満たさない実装は本ガイドラインに準拠しない
+* **SHOULD**: 強く推奨。正当な理由がない限り満たすべき
+* **MAY**: 任意。採用してもしなくてもよい
+
+---
+
+## 1. 背景と位置づけ（理論 → 実装）
+
+本方式は、テスト設計を「世界（W）と評価基準（E）から、観点（S）と離散テスト条件集合（A(S)）を導出する写像」と捉える枠組みに対し、実装面では次を提供する：
+
+* **共通 IR**: 観点（S）とテスト条件（A(S)）の「実行可能な表現」
+* **Backend**: IR を特定の実行系（Playwright等）へ「射影（コード生成）」する実装
+* **Compiler**: IR 検証・診断・生成の統制（バージョン互換・エスケープ・未対応処理）
+
+本ガイドラインは「**S→IR**」の生成（LLMや人手、設計ツール）が多様であることを許容しつつ、「**IR→実行資産**」を規格化し、再現性と拡張性を担保する。
+
+---
+
+## 2. スコープ
+
+### 2.1 本ガイドラインが扱うもの（IN）
+
+* 共通 IR（JSON）仕様と互換性規約
+* Backend の責務（生成ルール、診断、エスケープ）
+* 準拠条件（Compliance）定義
+* 機械可読仕様（JSON Schema / OpenAPI）
+* 役割分担（Codex / ChatGPT）
+
+### 2.2 扱わないもの（OUT）
+
+* 個別アプリの要件定義、テスト観点（S）の妥当性保証
+* 全バグ検出保証（カバレッジ達成と検出力は別問題）
+* 具体的なCI/CD運用手順（ただし要件は規定する）
+
+---
+
+## 3. 参照アーキテクチャ（Reference Architecture）
+
+```
+仕様 / 要求 / リスク (E)
+        │
+        │  S 設計（人 / LLM / ルール）
+        ▼
+   テスト観点 S, 条件 A(S)
+        │
+        │  IR化（S→IR）
+        ▼
+  共通 IR（JSON, v1.x）
+        │
+        ├─(validate)→ JSON Schema 検証
+        │
+        ├─(compile)→ Backend差し替え
+        ▼
+  実行資産（例）
+   - Playwright TS
+   - CodeceptJS
+   - Selenium Python
+   - Appium Python
+   - WinAppDriver Python
+   - MagicPod用JSON/手順
+        │
+        ▼
+  Runner（CI / ローカル / クラウド）
+```
+
+---
+
+## 4. 共通 IR（Test IR）仕様：概要
+
+### 4.1 設計原則
+
+* IR は**フレームワーク非依存**であること（MUST）
+* IR は**機械検証可能**であること（MUST）
+* IR は**拡張可能**であること（MUST）
+* Backend は IR を**安全に**コード化すること（MUST：エスケープ要件）
+* 未対応機能は**診断（Diagnostics）**で明示すること（MUST）
+
+### 4.2 IR の最上位構造
+
+IR は **IRDocument**（JSONオブジェクト）で表現する（MUST）。
+
+* `irVersion`: IR仕様バージョン（SemVer文字列）
+* `suites`: テストスイート配列（1以上）
+* `meta`: 任意メタ情報（生成元、作成者、リンク等）
+
+---
+
+## 5. StepKind（命令セット）の標準化
+
+本方式は「Step（ステップ）＝最小の実行単位」という命令セットを中心に設計する。
+
+### 5.1 StepKind の分類
+
+* **Core StepKind**（共通・最小核）
+  → 多くの UI 自動化（Web/モバイル/Windows）に共通化しやすい操作・検証
+
+* **Platform StepKind**（プラットフォーム拡張）
+  → 例：WebのURL遷移、モバイルのスワイプ、Windowsのウィンドウ切替 等
+
+* **Vendor StepKind**（ベンダ/組織拡張）
+  → `x-` プレフィックスで定義する（MUST）
+
+### 5.2 Core StepKind（v1.1）
+
+以下を **Core StepKind** とする。
+
+| kind              | 意味（抽象）       | 必須フィールド（概念）               |
+| ----------------- | ------------ | ------------------------- |
+| `click`           | 要素をクリック/タップ  | `target`                  |
+| `input_text`      | 要素へ文字列入力     | `target`, `text`          |
+| `expect_text`     | 要素テキスト検証     | `target`, `text`, `match` |
+| `expect_visible`  | 要素が表示される     | `target`                  |
+| `expect_hidden`   | 要素が非表示/存在しない | `target`                  |
+| `expect_enabled`  | 操作可能         | `target`                  |
+| `expect_disabled` | 操作不可         | `target`                  |
+| `wait`            | 待機（時間 or 条件） | `waitMs`（v1.1では時間のみ必須）    |
+| `loop`            | 反復（生成時に展開可能） | `times`, `body`           |
+
+> 注：`loop` は Backend がランタイムでループを生成してもよいし、**Compiler がコンパイル時に展開（unroll）**してもよい（MAY）。
+> ただし展開戦略は診断として記録すること（SHOULD）。
+
+### 5.3 Platform StepKind（v1.1）
+
+| kind               | 対象      | 意味                            |
+| ------------------ | ------- | ----------------------------- |
+| `goto`             | Web     | URLへ遷移（baseUrlと結合可）           |
+| `stub_math_random` | Web     | `Math.random` を固定列に差し替え（決定性）  |
+| `swipe`            | Mobile  | スワイプ操作                        |
+| `press_key`        | Mobile  | キー操作（back/home等）              |
+| `switch_context`   | Mobile  | コンテキスト切替（NATIVE_APP/WEBVIEW等） |
+| `switch_window`    | Windows | ウィンドウ/ハンドル切替                  |
+
+### 5.4 Vendor StepKind（拡張）
+
+* 組織固有の step kind を追加する場合、`kind` は **`x-...`** 形式で定義すること（MUST）。
+* `x-` step は `params` に任意の構造を持たせてよい（MAY）。
+* Backend は未知の `x-` step を無視してはならない（MUST）。少なくとも診断を出す。
+
+---
+
+## 6. Locator（要素参照）の標準化
+
+### 6.1 Locator 形式
+
+`target` は以下のいずれか（MUST）：
+
+* LocatorObject（推奨）
+* LocatorString（後方互換・簡易）
+
+#### LocatorObject（推奨）
+
+* `strategy`: 文字列（enum）
+* `value`: 文字列
+* `index`: 任意（同一マッチ複数時のインデックス）
+
+推奨 strategy（v1.1）：
+
+* `css`, `xpath`, `id`, `accessibility_id`, `name`, `class_name`,
+  `android_uiautomator`, `ios_predicate`, `ios_class_chain`
+
+#### LocatorString（簡易）
+
+* 文字列のみ。Web では `css` として解釈するのが推奨（SHOULD）。
+* 非Web環境で LocatorString を使う場合、Backend の解釈を明記した診断を出す（SHOULD）。
+
+---
+
+## 7. 互換性（Compatibility）とバージョニング
+
+### 7.1 `irVersion` と SemVer
+
+* `irVersion` は **SemVer（MAJOR.MINOR.PATCH）**に従う（MUST）
+* 互換性方針：
+
+  * MAJOR が変わる変更：破壊的（互換なし）
+  * MINOR：後方互換の追加（StepKind追加、フィールド追加等）
+  * PATCH：誤記修正・明確化（意味不変）
+
+### 7.2 互換性ルール（Consumer/Compiler）
+
+* Compiler/Backend は **対応できない MAJOR** の IR を受理してはならない（MUST：ERROR）。
+* 同一 MAJOR の新しい MINOR について：
+
+  * 未知の `x-` 拡張は無視可能だが診断を出す（SHOULD）
+  * 未知の標準 StepKind は未対応として診断し、原則 ERROR（後述の準拠条件に従う）
+
+---
+
+## 8. 診断（Diagnostics）仕様
+
+### 8.1 診断レベル（Severity）
+
+以下の severity を標準化する（MUST）：
+
+* `ERROR`: コンパイル不能／テストの意味を保証できない
+* `WARNING`: コンパイル継続可能だが、期待された意味から逸脱する可能性
+* `INFO`: 参考情報（自動補完や推論、最適化の通知）
+
+### 8.2 診断の必須フィールド
+
+* `severity`（enum）
+* `code`（例：`E_SCHEMA_INVALID`, `E_UNSUPPORTED_STEP`）
+* `message`（人間可読）
+* `location`（JSON Pointer 形式で IR 上の位置を指すこと：SHOULD）
+
+---
+
+## 9. 文字列エスケープ要件（Security / Correctness）
+
+Backend/Compiler は **IR 由来の文字列**（locator/value/text/url 等）を **信頼してはならない**（MUST）。
+コード生成時に、生成言語の文字列リテラルとして常に安全に埋め込むこと（MUST）。
+
+### 9.1 JavaScript/TypeScript（単引用符 `'`）の最小要件
+
+出力が `'...'` リテラルの場合、少なくとも以下をエスケープする（MUST）：
+
+* `\` → `\\`
+* `'` → `\'`
+* 改行 `\n` → `\\n`
+* 復帰 `\r` → `\\r`
+* タブ `\t` → `\\t`
+* U+2028, U+2029 → `\\u2028`, `\\u2029`
+
+### 9.2 Python の最小要件
+
+Python の `'...'` または `"..."` に埋め込む場合、少なくとも以下をエスケープする（MUST）：
+
+* `\`、クォート、改行・制御文字
+* **推奨**：Python側の安全関数（例：`json.dumps(s, ensure_ascii=False)` を流用してクォート付与する等）を使い、実装ミスを避ける（SHOULD）
+
+### 9.3 エスケープ要件の検証
+
+Backend はエスケープ関数に対する**ゴールデンテスト**（入力→期待出力）を持つこと（MUST）。
+少なくとも以下の入力を含める（MUST）：
+
+* `"a'b"`
+* `"a\\b"`
+* `"a\nb"`
+* `"日本語テキスト"`
+
+---
+
+## 10. 機械可読な規格化
+
+本章の JSON Schema と OpenAPI は **ノルム（規範）**であり、実装はこれに従うこと（MUST）。
+
+---
+
+# 付録A：JSON Schema（IR v1.1）
+
+> 目的：IR の必須フィールド、型、enum、互換性（拡張ルール）を機械検証する。
+
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/schemas/test-ir-1.1.schema.json",
+  "title": "Common Test IR Document v1.1",
+  "type": "object",
+  "required": ["irVersion", "suites"],
+  "additionalProperties": false,
+  "properties": {
+    "irVersion": {
+      "type": "string",
+      "description": "SemVer string. Consumers MUST reject unsupported MAJOR versions.",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$"
+    },
+    "meta": {
+      "type": "object",
+      "description": "Optional metadata (generator, authors, links).",
+      "additionalProperties": true
+    },
+    "suites": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/Suite" }
+    }
+  },
+  "$defs": {
+    "Suite": {
+      "type": "object",
+      "required": ["id", "platform", "cases"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "name": { "type": "string" },
+        "platform": {
+          "type": "string",
+          "enum": ["web", "android", "ios", "windows", "generic"]
+        },
+        "baseUrl": {
+          "type": "string",
+          "description": "Used by goto (web). May be omitted.",
+          "minLength": 1
+        },
+        "serverUrl": {
+          "type": "string",
+          "description": "Remote driver server URL (e.g., Appium/WinAppDriver).",
+          "minLength": 1
+        },
+        "capabilities": {
+          "type": "object",
+          "description": "Desired capabilities (Appium/WinAppDriver) or runner options.",
+          "additionalProperties": true
+        },
+        "vars": {
+          "type": "object",
+          "description": "Variables for interpolation.",
+          "additionalProperties": {
+            "type": ["string", "number", "boolean", "null"]
+          }
+        },
+        "cases": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/Case" }
+        },
+        "ext": {
+          "type": "object",
+          "description": "Extension object. Unknown keys MUST be ignored by consumers.",
+          "additionalProperties": true
+        }
+      }
+    },
+
+    "Case": {
+      "type": "object",
+      "required": ["id", "steps"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/Step" }
+        },
+        "ext": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+
+    "Target": {
+      "description": "Target can be a LocatorObject (recommended) or a locator string (legacy).",
+      "oneOf": [
+        { "$ref": "#/$defs/LocatorObject" },
+        { "$ref": "#/$defs/LocatorString" }
+      ]
+    },
+
+    "LocatorString": {
+      "type": "string",
+      "minLength": 1
+    },
+
+    "LocatorObject": {
+      "type": "object",
+      "required": ["strategy", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "strategy": {
+          "type": "string",
+          "anyOf": [
+            {
+              "enum": [
+                "css",
+                "xpath",
+                "id",
+                "accessibility_id",
+                "name",
+                "class_name",
+                "android_uiautomator",
+                "ios_predicate",
+                "ios_class_chain"
+              ]
+            },
+            { "pattern": "^x-[a-z0-9_]+$" }
+          ]
+        },
+        "value": { "type": "string", "minLength": 1 },
+        "index": { "type": "integer", "minimum": 0 }
+      }
+    },
+
+    "Step": {
+      "description": "A Step is discriminated by 'kind'. Custom kinds MUST use x- prefix.",
+      "oneOf": [
+        { "$ref": "#/$defs/ClickStep" },
+        { "$ref": "#/$defs/InputTextStep" },
+        { "$ref": "#/$defs/ExpectTextStep" },
+        { "$ref": "#/$defs/ExpectVisibleStep" },
+        { "$ref": "#/$defs/ExpectHiddenStep" },
+        { "$ref": "#/$defs/ExpectEnabledStep" },
+        { "$ref": "#/$defs/ExpectDisabledStep" },
+        { "$ref": "#/$defs/WaitStep" },
+        { "$ref": "#/$defs/LoopStep" },
+
+        { "$ref": "#/$defs/GotoStep" },
+        { "$ref": "#/$defs/StubMathRandomStep" },
+        { "$ref": "#/$defs/SwipeStep" },
+        { "$ref": "#/$defs/PressKeyStep" },
+        { "$ref": "#/$defs/SwitchContextStep" },
+        { "$ref": "#/$defs/SwitchWindowStep" },
+
+        { "$ref": "#/$defs/CustomStep" }
+      ]
+    },
+
+    "BaseStepFields": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "comment": { "type": "string" },
+        "timeoutMs": { "type": "integer", "minimum": 0 },
+        "ext": { "type": "object", "additionalProperties": true }
+      }
+    },
+
+    "ClickStep": {
+      "allOf": [
+        { "$ref": "#/$defs/BaseStepFields" },
+        {
+          "type": "object",
+          "required": ["kind", "target"],
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "click" },
+            "target": { "$ref": "#/$defs/Target" },
+            "id": { "type": "string" },
+            "comment": { "type": "string" },
+            "timeoutMs": { "type": "integer", "minimum": 0 },
+            "ext": { "type": "object", "additionalProperties": true }
+          }
+        }
+      ]
+    },
+
+    "InputTextStep": {
+      "allOf": [
+        { "$ref": "#/$defs/BaseStepFields" },
+        {
+          "type": "object",
+          "required": ["kind", "target", "text"],
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "input_text" },
+            "target": { "$ref": "#/$defs/Target" },
+            "text": { "type": "string" },
+            "clearFirst": { "type": "boolean", "default": true },
+            "id": { "type": "string" },
+            "comment": { "type": "string" },
+            "timeoutMs": { "type": "integer", "minimum": 0 },
+            "ext": { "type": "object", "additionalProperties": true }
+          }
+        }
+      ]
+    },
+
+    "ExpectTextStep": {
+      "allOf": [
+        { "$ref": "#/$defs/BaseStepFields" },
+        {
+          "type": "object",
+          "required": ["kind", "target", "text", "match"],
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "expect_text" },
+            "target": { "$ref": "#/$defs/Target" },
+            "text": { "type": "string" },
+            "match": {
+              "type": "string",
+              "enum": ["equals", "contains", "regex"]
+            },
+            "regexFlags": { "type": "string" },
+            "id": { "type": "string" },
+            "comment": { "type": "string" },
+            "timeoutMs": { "type": "integer", "minimum": 0 },
+            "ext": { "type": "object", "additionalProperties": true }
+          }
+        }
+      ]
+    },
+
+    "ExpectVisibleStep": {
+      "allOf": [
+        { "$ref": "#/$defs/BaseStepFields" },
+        {
+          "type": "object",
+          "required": ["kind", "target"],
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "expect_visible" },
+            "target": { "$ref": "#/$defs/Target" },
+            "id": { "type": "string" },
+            "comment": { "type": "string" },
+            "timeoutMs": { "type": "integer", "minimum": 0 },
+            "ext": { "type": "object", "additionalProperties": true }
+          }
+        }
+      ]
+    },
+
+    "ExpectHiddenStep": {
+      "allOf": [
+        { "$ref": "#/$defs/BaseStepFields" },
+        {
+          "type": "object",
+          "required": ["kind", "target"],
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "expect_hidden" },
+            "target": { "$ref": "#/$defs/Target" },
+            "id": { "type": "string" },
+            "comment": { "type": "string" },
+            "timeoutMs": { "type": "integer", "minimum": 0 },
+            "ext": { "type": "object", "additionalProperties": true }
+          }
+        }
+      ]
+    },
+
+    "ExpectEnabledStep": {
+      "allOf": [
+        { "$ref": "#/$defs/BaseStepFields" },
+        {
+          "type": "object",
+          "required": ["kind", "target"],
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "expect_enabled" },
+            "target": { "$ref": "#/$defs/Target" },
+            "id": { "type": "string" },
+            "comment": { "type": "string" },
+            "timeoutMs": { "type": "integer", "minimum": 0 },
+            "ext": { "type": "object", "additionalProperties": true }
+          }
+        }
+      ]
+    },
+
+    "ExpectDisabledStep": {
+      "allOf": [
+        { "$ref": "#/$defs/BaseStepFields" },
+        {
+          "type": "object",
+          "required": ["kind", "target"],
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "expect_disabled" },
+            "target": { "$ref": "#/$defs/Target" },
+            "id": { "type": "string" },
+            "comment": { "type": "string" },
+            "timeoutMs": { "type": "integer", "minimum": 0 },
+            "ext": { "type": "object", "additionalProperties": true }
+          }
+        }
+      ]
+    },
+
+    "WaitStep": {
+      "allOf": [
+        { "$ref": "#/$defs/BaseStepFields" },
+        {
+          "type": "object",
+          "required": ["kind", "waitMs"],
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "wait" },
+            "waitMs": { "type": "integer", "minimum": 0 },
+            "id": { "type": "string" },
+            "comment": { "type": "string" },
+            "timeoutMs": { "type": "integer", "minimum": 0 },
+            "ext": { "type": "object", "additionalProperties": true }
+          }
+        }
+      ]
+    },
+
+    "LoopStep": {
+      "allOf": [
+        { "$ref": "#/$defs/BaseStepFields" },
+        {
+          "type": "object",
+          "required": ["kind", "times", "body"],
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "loop" },
+            "times": { "type": "integer", "minimum": 1 },
+            "body": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "$ref": "#/$defs/Step" }
+            },
+            "id": { "type": "string" },
+            "comment": { "type": "string" },
+            "timeoutMs": { "type": "integer", "minimum": 0 },
+            "ext": { "type": "object", "additionalProperties": true }
+          }
+        }
+      ]
+    },
+
+    "GotoStep": {
+      "allOf": [
+        { "$ref": "#/$defs/BaseStepFields" },
+        {
+          "type": "object",
+          "required": ["kind", "url"],
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "goto" },
+            "url": { "type": "string", "minLength": 1 },
+            "id": { "type": "string" },
+            "comment": { "type": "string" },
+            "timeoutMs": { "type": "integer", "minimum": 0 },
+            "ext": { "type": "object", "additionalProperties": true }
+          }
+        }
+      ]
+    },
+
+    "StubMathRandomStep": {
+      "allOf": [
+        { "$ref": "#/$defs/BaseStepFields" },
+        {
+          "type": "object",
+          "required": ["kind", "values"],
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "stub_math_random" },
+            "values": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "number",
+                "minimum": 0,
+                "exclusiveMaximum": 1
+              }
+            },
+            "id": { "type": "string" },
+            "comment": { "type": "string" },
+            "timeoutMs": { "type": "integer", "minimum": 0 },
+            "ext": { "type": "object", "additionalProperties": true }
+          }
+        }
+      ]
+    },
+
+    "SwipeStep": {
+      "allOf": [
+        { "$ref": "#/$defs/BaseStepFields" },
+        {
+          "type": "object",
+          "required": ["kind", "from", "to"],
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "swipe" },
+            "from": {
+              "type": "object",
+              "required": ["x", "y"],
+              "additionalProperties": false,
+              "properties": { "x": { "type": "number" }, "y": { "type": "number" } }
+            },
+            "to": {
+              "type": "object",
+              "required": ["x", "y"],
+              "additionalProperties": false,
+              "properties": { "x": { "type": "number" }, "y": { "type": "number" } }
+            },
+            "durationMs": { "type": "integer", "minimum": 0 },
+            "id": { "type": "string" },
+            "comment": { "type": "string" },
+            "timeoutMs": { "type": "integer", "minimum": 0 },
+            "ext": { "type": "object", "additionalProperties": true }
+          }
+        }
+      ]
+    },
+
+    "PressKeyStep": {
+      "allOf": [
+        { "$ref": "#/$defs/BaseStepFields" },
+        {
+          "type": "object",
+          "required": ["kind", "key"],
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "press_key" },
+            "key": {
+              "type": "string",
+              "description": "e.g., back, home, enter, escape, etc."
+            },
+            "id": { "type": "string" },
+            "comment": { "type": "string" },
+            "timeoutMs": { "type": "integer", "minimum": 0 },
+            "ext": { "type": "object", "additionalProperties": true }
+          }
+        }
+      ]
+    },
+
+    "SwitchContextStep": {
+      "allOf": [
+        { "$ref": "#/$defs/BaseStepFields" },
+        {
+          "type": "object",
+          "required": ["kind", "name"],
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "switch_context" },
+            "name": { "type": "string", "minLength": 1 },
+            "id": { "type": "string" },
+            "comment": { "type": "string" },
+            "timeoutMs": { "type": "integer", "minimum": 0 },
+            "ext": { "type": "object", "additionalProperties": true }
+          }
+        }
+      ]
+    },
+
+    "SwitchWindowStep": {
+      "allOf": [
+        { "$ref": "#/$defs/BaseStepFields" },
+        {
+          "type": "object",
+          "required": ["kind", "handle"],
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "switch_window" },
+            "handle": { "type": "string", "minLength": 1 },
+            "id": { "type": "string" },
+            "comment": { "type": "string" },
+            "timeoutMs": { "type": "integer", "minimum": 0 },
+            "ext": { "type": "object", "additionalProperties": true }
+          }
+        }
+      ]
+    },
+
+    "CustomStep": {
+      "type": "object",
+      "required": ["kind", "params"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "pattern": "^x-[a-z0-9_]+$"
+        },
+        "params": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "id": { "type": "string" },
+        "comment": { "type": "string" },
+        "timeoutMs": { "type": "integer", "minimum": 0 },
+        "ext": { "type": "object", "additionalProperties": true }
+      }
+    }
+  }
+}
+```
+
+---
+
+# 付録B：OpenAPI（Compiler API v1.1）
+
+> 目的：IR を受け取り、指定 Backend に対する生成結果（コード/資産）と診断を返す標準API。
+
+```yaml
+openapi: 3.1.0
+info:
+  title: Common IR Compiler API
+  version: 1.1.0
+  description: |
+    Validates and compiles Common Test IR into executable test assets.
+
+servers:
+  - url: https://compiler.example.invalid
+
+paths:
+  /validate:
+    post:
+      summary: Validate IR against JSON Schema and report diagnostics
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IRDocument'
+      responses:
+        '200':
+          description: Validation result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationResult'
+
+  /compile:
+    post:
+      summary: Compile IR into target assets
+      parameters:
+        - name: target
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - playwright_ts
+              - codeceptjs
+              - selenium_py
+              - appium_py
+              - winappdriver_py
+              - magicpod_json
+        - name: profile
+          in: query
+          required: false
+          schema:
+            type: string
+            description: Claimed compliance profile for compilation
+            enum:
+              - core
+              - web
+              - web_deterministic
+              - mobile
+              - windows
+        - name: onUnsupported
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [error, warning, skip]
+          description: |
+            How to handle unsupported optional steps.
+            Mandatory unsupported steps MUST still be ERROR.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IRDocument'
+      responses:
+        '200':
+          description: Compilation result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompileResult'
+
+components:
+  schemas:
+    IRDocument:
+      description: Common Test IR Document (see JSON Schema in Appendix A)
+      type: object
+
+    Diagnostic:
+      type: object
+      required: [severity, code, message]
+      properties:
+        severity:
+          type: string
+          enum: [ERROR, WARNING, INFO]
+        code:
+          type: string
+        message:
+          type: string
+        location:
+          type: string
+          description: JSON Pointer to IR location
+        details:
+          type: object
+          additionalProperties: true
+
+    ValidationResult:
+      type: object
+      required: [valid, diagnostics]
+      properties:
+        valid:
+          type: boolean
+        diagnostics:
+          type: array
+          items:
+            $ref: '#/components/schemas/Diagnostic'
+
+    CompileAsset:
+      type: object
+      required: [path, content]
+      properties:
+        path:
+          type: string
+          description: Relative path of generated file (e.g., tests/janken.spec.ts)
+        content:
+          type: string
+          description: UTF-8 text file content
+
+    CompileResult:
+      type: object
+      required: [success, diagnostics, assets]
+      properties:
+        success:
+          type: boolean
+        diagnostics:
+          type: array
+          items:
+            $ref: '#/components/schemas/Diagnostic'
+        assets:
+          type: array
+          items:
+            $ref: '#/components/schemas/CompileAsset'
+```
+
+---
+
+# 付録C：準拠条件（Compliance）
+
+## C.1 準拠対象の分類
+
+本方式の準拠は、役割ごとに分けて主張する（MUST）。
+
+1. **IR Producer 準拠**（S→IR を作る側：LLM/人/ツール）
+2. **Compiler 準拠**（IR検証・診断・生成統制）
+3. **Backend 準拠**（特定ターゲットへの生成器：Playwright等）
+
+---
+
+## C.2 IR Producer 準拠条件（必須）
+
+Producer は次を満たす（MUST）：
+
+* IR は付録Aの JSON Schema に **合格**する
+* `irVersion` を必ず付与する
+* 標準外 StepKind は `x-` プレフィックスを用いる
+* 拡張フィールドは `ext` 内に閉じ込める（typo混入防止）
+
+---
+
+## C.3 Compiler 準拠条件（必須）
+
+Compiler は次を満たす（MUST）：
+
+* スキーマ検証（Schema Validate）を**コンパイル前に必ず実施**する
+* 非対応 MAJOR の `irVersion` を受理しない（ERROR）
+* 生成物は UTF-8（テキスト）として出力する（MUST）
+* Diagnostics を必ず返す（success でも INFO を返してよい）
+
+---
+
+## C.4 Backend 準拠条件：プロファイルと「Core StepKind 実装数」
+
+Backend は、実装可能な範囲を **プロファイル**として宣言し、そのプロファイルの必須 StepKind をすべて実装すること（MUST）。
+ここでユーザ要望の「何個実装したら準拠か」は **プロファイルごとの必須数**として定義する。
+
+### プロファイル定義（v1.1）
+
+| プロファイル              | 必須 StepKind                                                                                                |     必須実装数 |
+| ------------------- | ---------------------------------------------------------------------------------------------------------- | --------: |
+| `core`              | click, input_text, expect_text, expect_visible, expect_hidden, expect_enabled, expect_disabled, wait, loop |   **9/9** |
+| `web`               | core + goto                                                                                                | **10/10** |
+| `web_deterministic` | web + stub_math_random                                                                                     | **11/11** |
+| `mobile`            | core + swipe + press_key + switch_context                                                                  | **12/12** |
+| `windows`           | core + switch_window                                                                                       | **10/10** |
+
+> 重要：必須セットのうち 1 つでも未実装なら、そのプロファイルを名乗ってはならない（MUST）。
+
+---
+
+## C.5 未対応 Step の診断レベル（Severity）ルール
+
+Backend/Compiler は、未対応 Step に対して次のルールで診断を出す（MUST）。
+
+1. **必須 StepKind（宣言プロファイルに含まれる）**が未対応
+
+* `ERROR`（E_UNSUPPORTED_STEP）
+* 原則、コンパイル失敗（success=false）
+
+2. **任意 StepKind（プロファイル外、または x- 拡張）**が未対応
+
+* デフォルトは `ERROR`（E_UNSUPPORTED_STEP）
+* ただし `onUnsupported=warning|skip` が指定されている場合は以下を許可（MAY）
+
+  * `warning`: WARNING を出し、生成物には「コメント化」または「安全な no-op」へ置換
+  * `skip`: WARNING を出し、その Step をスキップ（※ただしテスト意味は弱くなる）
+
+3. **未知の ext**
+
+* `INFO` または `WARNING`（実装方針による）
+* ext は原則無視してよいが、診断で「無視した」ことを通知する（SHOULD）
+
+---
+
+# 付録D：Codex と ChatGPT の最適役割分担（実装体制）
+
+## D.1 役割の原則
+
+* **ChatGPT**：仕様策定・整合・レビュー・例外設計・ドキュメント化
+* **Codex**：実装量産・型/テスト/CI の反復改善・リファクタ・差分適用
+
+## D.2 RACI（推奨）
+
+| 作業                                                    | ChatGPT | Codex     |
+| ----------------------------------------------------- | ------- | --------- |
+| IR仕様（StepKind定義、互換性、準拠条件）                             | A/R     | C         |
+| JSON Schema / OpenAPI の整合確認                           | A/R     | R（実装側で検証） |
+| Backend設計（マッピング方針、テンプレート設計）                           | A/R     | R         |
+| Backend実装（Playwright/CodeceptJS/Appium/WinAppDriver等） | C       | A/R       |
+| エスケープ関数・診断機構の実装                                       | C       | A/R       |
+| ゴールデンテスト（生成結果スナップショット）                                | C       | A/R       |
+| 仕様変更時の影響分析（互換性判断）                                     | A/R     | C         |
+| README/設計ガイドの更新                                       | A/R     | C（実装差分反映） |
+
+---
+
+# 付録E：最小サンプル IR（v1.1）
+
+> 実行系例：web（goto使用）、決定性（stub_math_random使用）
+
+```json
+{
+  "irVersion": "1.1.0",
+  "meta": { "generator": "manual", "note": "sample" },
+  "suites": [
+    {
+      "id": "janken_web",
+      "platform": "web",
+      "baseUrl": "http://localhost:3000",
+      "cases": [
+        {
+          "id": "initial_state",
+          "name": "初期状態",
+          "steps": [
+            { "kind": "goto", "url": "/janken.html" },
+            { "kind": "expect_text", "target": { "strategy": "css", "value": "#roundCount" }, "text": "0", "match": "equals" },
+            { "kind": "expect_hidden", "target": { "strategy": "css", "value": "#finalResult" } }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+---
+
+## 改訂履歴（v1.1で追加した点）
+
+* 機械可読規格（JSON Schema / OpenAPI）を付録として追加
+* 準拠条件（Compliance）をプロファイル化し、「Core StepKind 実装数」を明確化
+* 未対応 Step の診断ルール（Severity と onUnsupported）を規定
+* 文字列エスケープ要件と最小テスト要件を規定
+* 互換性（SemVer）方針を明確化
+
+---
+
+以上が改訂版（v1.1 Draft）の全文です。
+
+もし次に「**本当に発行物（v1.1.0 Release）**」にするなら、さらに精度を上げるために **次の2点だけ追加**すると強いです（必要なら私がこの本文に追記して完成版にします）：
+
+1. **StepKindごとのセマンティクスをより形式化**（例：expect_hidden は “DOM非存在” を許すか、 “display:none” を要求するか）
+2. **各 Backend の適合マッピング表**（Playwright / CodeceptJS / Appium / WinAppDriver それぞれの対応APIの規定）
+  </script>
+
+  <!-- ================================
+       レンダリング/KaTeX/目次生成
+       ================================ -->
+  <script>
+    // Marked の設定（GFMテーブル、改行など）
+    function setupMarked(){
+      if (!window.marked) return;
+      marked.setOptions({
+        gfm: true,
+        breaks: true,
+        mangle: false,
+        headerIds: false
+      });
+    }
+
+    // KaTeX 用：本文中の数式っぽい表現を \(...\) に包む
+    // 注意：通常テキストでは Markdown のエスケープで "\" が消えるため、
+    //       コード外は "\\(" の形（=Markdownで\\(→HTMLで\(））を生成し、
+    //       コード内は "\(" の形（=そのまま）を生成する。
+    function injectKaTeXDelimiters(md){
+      const parts = md.split("```"); // even: code外, odd: code内
+      const replaceIn = (text, isCode) => {
+        const L = isCode ? "\\(" : "\\\\(";
+        const R = isCode ? "\\)" : "\\\\)";
+        const TEXT = isCode ? "\\text{" : "\\\\text{";
+
+        const wrap = (s) => `${L}${s}${R}`;
+        const wrapText = (s) => wrap(`${TEXT}${s}}`);
+
+        // 最小限の“数式”対象（要件に合わせて追加可能）
+        return text
+          .replaceAll("（W）", `（${wrap("W")}）`)
+          .replaceAll("（E）", `（${wrap("E")}）`)
+          .replaceAll("（S）", `（${wrap("S")}）`)
+          .replaceAll("A(S)", wrap("A(S)"))
+          .replaceAll("S→IR", wrapText("S→IR"))
+          .replaceAll("IR→実行資産", wrapText("IR→実行資産"))
+          .replaceAll("（MAJOR.MINOR.PATCH）", `（${wrapText("MAJOR.MINOR.PATCH")}）`);
+      };
+
+      for (let i = 0; i < parts.length; i++){
+        const isCode = (i % 2 === 1);
+        parts[i] = replaceIn(parts[i], isCode);
+      }
+      return parts.join("```");
+    }
+
+    // 目次生成
+    function buildTOC(root){
+      const tocList = document.getElementById("tocList");
+      tocList.innerHTML = "";
+
+      const headings = root.querySelectorAll("h1, h2, h3");
+      const used = new Map();
+
+      const slugify = (s) => {
+        const base = s
+          .trim()
+          .toLowerCase()
+          .replace(/[^\p{L}\p{N}]+/gu, "-")
+          .replace(/(^-|-$)/g, "");
+        const count = used.get(base) || 0;
+        used.set(base, count + 1);
+        return count === 0 ? base : `${base}-${count+1}`;
+      };
+
+      headings.forEach(h => {
+        const text = h.textContent || "";
+        const id = slugify(text);
+        h.id = id;
+
+        const li = document.createElement("li");
+        li.style.margin = "4px 0";
+        li.style.listStyleType = "disc";
+        li.style.marginLeft = h.tagName === "H1" ? "0" : (h.tagName === "H2" ? "12px" : "22px");
+
+        const a = document.createElement("a");
+        a.href = `#${id}`;
+        a.textContent = text;
+        li.appendChild(a);
+        tocList.appendChild(li);
+      });
+    }
+
+    // KaTeXレンダリング（pre/codeも対象に含める）
+    function renderKaTeX(root){
+      if (!window.renderMathInElement) return;
+      renderMathInElement(root, {
+        delimiters: [
+          { left: "\\[", right: "\\]", display: true },
+          { left: "\\(", right: "\\)", display: false }
+        ],
+        ignoredTags: ["script", "noscript", "style", "textarea"], // pre/codeは除外しない
+        throwOnError: false
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      setupMarked();
+
+      const raw = document.getElementById("mdSource").textContent;
+      document.getElementById("rawSource").textContent = raw;
+
+      let md = injectKaTeXDelimiters(raw);
+
+      const content = document.getElementById("content");
+      content.innerHTML = marked.parse(md);
+
+      buildTOC(content);
+      renderKaTeX(content);
+    });
+  </script>
+</body>
+</html>
