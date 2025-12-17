@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codex活用ガイド - ポップアートスタイル</title>
+    <link rel="stylesheet" href="pop3_style.css">
+    <!-- KaTeXのCSSとJSを追加 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"
+        onload="renderMathInElement(document.body);"></script>
+    <style>
+        /* 追加のカラフルスタイルとコントラスト強化 */
+        body {
+            background: linear-gradient(135deg, #ffdd57 0%, #ff9966 50%, #ff4081 100%);
+            color: #222;
+            line-height: 1.7;
+        }
+        .container {
+            background: linear-gradient(to bottom, #ffffff, #fff9e6);
+            border: 5px solid #ff4081;
+        }
+        h2 {
+            background-color: #1e90ff;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            display: inline-block;
+            box-shadow: 0 5px 15px rgba(30, 144, 255, 0.4);
+        }
+        h3 {
+            color: #ff4081;
+            border-left: 6px solid #ff4081;
+            padding-left: 10px;
+            margin-top: 25px;
+        }
+        pre, code {
+            background-color: #222 !important;
+            color: #f8f8f8 !important;
+            border: 2px solid #ff4081 !important;
+            font-weight: bold;
+            border-radius: 8px;
+        }
+        pre {
+            padding: 15px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .route-card {
+            background: linear-gradient(145deg, #e6fffa, #b2f5ea);
+            border: 3px solid #00b894;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 10px 20px rgba(0, 184, 148, 0.3);
+            transition: transform 0.3s ease;
+        }
+        .route-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 184, 148, 0.5);
+        }
+        .route-card h4 {
+            color: #00695c;
+            margin-top: 0;
+        }
+        .highlight {
+            background-color: #ffdd57;
+            color: #d50000;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .footer {
+            background-color: #1e90ff;
+            font-weight: bold;
+            font-size: 1.1rem;
+            box-shadow: 0 -5px 15px rgba(30, 144, 255, 0.5);
+        }
+        .note {
+            background-color: #fffacd;
+            border-left: 6px solid #ffd700;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 10px 10px 0;
+        }
+        a {
+            color: #d5006d;
+            font-weight: bold;
+            text-decoration: none;
+            border-bottom: 2px dotted #ff4081;
+        }
+        a:hover {
+            color: #1e90ff;
+            border-bottom: 2px solid #1e90ff;
+            text-shadow: 0 0 8px rgba(30, 144, 255, 0.7);
+        }
+        ul, ol {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px 20px 20px 40px;
+            border-radius: 10px;
+            border: 2px dashed #ff4081;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        strong {
+            color: #ff4081;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        🚀 Codex活用完全ガイド - ポップアートスタイルで学ぶ
+    </header>
+
+    <div class="container">
+        <h2>Codexの3つの使い方ルート</h2>
+        <p>いい流れです。<strong>「Issueにやりたいことを書く → Codexに実装させる → 自分でレビュー → push」</strong>は、まさにCodexの得意パターンです。</p>
+        <p>Codexの使い方は大きく <strong>3ルート</strong>あります（どれもOK）。 <a href="https://openai.com/index/introducing-codex/?utm_source=chatgpt.com" target="_blank">[OpenAI][1]</a></p>
+
+        <div class="route-card">
+            <h4>ルートA（おすすめ）：Codex CLIで「ローカルで編集→自分がpush」</h4>
+            <p>あなたの今の環境（Linuxでgitしてる）だと一番自然です。 <a href="https://developers.openai.com/codex/cli/?utm_source=chatgpt.com" target="_blank">[OpenAI Developers][2]</a></p>
+            <h3>手順</h3>
+            <ol>
+                <li><strong>Issueを書く（GitHubで）</strong><br>
+                    例：<code>#3 pushを1コマンドにする</code><br>
+                    本文に「目的 / やること / 完了条件」を箇条書きで。</li>
+                <li><strong>ローカルでリポジトリへ移動</strong>
+                    <pre><code>cd ~/dev/repos/pt-spec   # 例</code></pre>
+                </li>
+                <li><strong>Codex CLIを入れて起動</strong><br>
+                    Codex CLIは <code>@openai/codex</code> を入れて <code>codex</code> で起動する流れです。 <a href="https://developers.openai.com/codex/cli/?utm_source=chatgpt.com" target="_blank">[OpenAI Developers][2]</a></li>
+                <li><strong>Codexに“Issueをコピペ”して実装させる</strong><br>
+                    Codexにこう投げるのがコツです：
+                    <ul>
+                        <li>「Issue #3 の内容を実装して」</li>
+                        <li>「変更ファイルの一覧を出して」</li>
+                        <li>「テスト/動作確認コマンドを提案して（実行もして）」</li>
+                    </ul>
+                    Codexはリポジトリを読んで編集・コマンド実行までできます。 <a href="https://help.openai.com/en/articles/11369540-using-codex-with-your-chatgpt-plan?utm_source=chatgpt.com" target="_blank">[OpenAI Help Center][3]</a>
+                </li>
+                <li><strong>あなたがレビューしてコミット</strong>
+                    <pre><code>git diff
+git status
+git add -A
+git commit -m "refs #3"
+git push</code></pre>
+                    （完了なら <code>fixes #3</code> でIssue自動クローズ）
+                </li>
+            </ol>
+        </div>
+
+        <div class="route-card">
+            <h4>ルートB：ChatGPTのCodex画面（クラウド）で作業 → ローカルに反映</h4>
+            <p>ChatGPT側にCodexがある場合、<strong>サイドバーからCodexを開いてタスクを投げる</strong>やり方です。 <a href="https://openai.com/index/introducing-codex/?utm_source=chatgpt.com" target="_blank">[OpenAI][1]</a><br>
+            ただし「どうやってあなたのrepoを見せるか」が鍵で、次が必要です。</p>
+            <h3>事前準備：GitHubをChatGPTに接続</h3>
+            <p>ChatGPTの <strong>Settings → Connectors → GitHub</strong> から接続して、アクセス許可するリポジトリを選びます。 <a href="https://help.openai.com/en/articles/11145903-connecting-github-to-chatgpt-deep-research?utm_source=chatgpt.com" target="_blank">[OpenAI Help Center][4]</a></p>
+            <p>この接続ができると、ChatGPT/Codex側でリポジトリ参照がしやすくなります（プランや画面は時期で変わるので、まずここを済ませるのが確実です）。 <a href="https://help.openai.com/en/articles/11145903-connecting-github-to-chatgpt-deep-research?utm_source=chatgpt.com" target="_blank">[OpenAI Help Center][4]</a></p>
+        </div>
+
+        <div class="route-card">
+            <h4>ルートC：GitHub上で「@codex」を使う（PRコメント等）</h4>
+            <p>OpenAIの案内では、PRで <code>@codex</code> を使う流れも説明されています。 <a href="https://developers.openai.com/codex/quickstart/?utm_source=chatgpt.com" target="_blank">[OpenAI Developers][5]</a><br>
+            ただ、あなたの「Issue→実装→pushトレーニング」には、まず <strong>ルートA（CLI）</strong> が一番分かりやすいです。</p>
+        </div>
+
+        <h2>具体的な「トレーニング手順」（あなた向け最短）</h2>
+        <ol>
+            <li>pt-spec（本命）で Issue を1つ作る
+                <ul>
+                    <li>目的</li>
+                    <li>やること（チェックリスト）</li>
+                    <li>完了条件</li>
+                </ul>
+            </li>
+            <li>ローカルで <code>codex</code> を起動して、Issue本文をそのまま貼る</li>
+            <li>Codexが直した差分を <code>git diff</code> で確認</li>
+            <li><code>git commit -m "refs #番号"</code> → <code>git push</code></li>
+            <li>完了したら <code>git commit -m "fixes #番号"</code> でIssueを閉じる</li>
+        </ol>
+
+        <h2>まず最初の課題（おすすめ）</h2>
+        <div class="note">
+            <p>いきなり大物より、<strong>小さく成功</strong>がおすすめです。</p>
+            <ul>
+                <li>Issue例：<code>READMEを整える（目的、使い方、構成を書く）</code></li>
+                <li>Codexにやらせる：README編集だけ</li>
+                <li>pushまで練習</li>
+            </ul>
+        </div>
+
+        <h3>環境設定に関する質問</h3>
+        <p>もし「Codex CLIを入れるところ」から一緒にやるなら、あなたの環境（Linux）だと <strong>npm版かHomebrew版</strong>のどちらで入れたいですか？（すでにNode.js/npmが入ってるかどうかで最短手順が変わります） <a href="https://developers.openai.com/codex/cli/?utm_source=chatgpt.com" target="_blank">[OpenAI Developers][2]</a></p>
+
+        <h2>参考文献リンク</h2>
+        <ul>
+            <li>[1]: <a href="https://openai.com/index/introducing-codex/?utm_source=chatgpt.com">Introducing Codex</a></li>
+            <li>[2]: <a href="https://developers.openai.com/codex/cli/?utm_source=chatgpt.com">Codex CLI</a></li>
+            <li>[3]: <a href="https://help.openai.com/en/articles/11369540-using-codex-with-your-chatgpt-plan?utm_source=chatgpt.com">Using Codex with your ChatGPT plan</a></li>
+            <li>[4]: <a href="https://help.openai.com/en/articles/11145903-connecting-github-to-chatgpt-deep-research?utm_source=chatgpt.com">Connecting GitHub to ChatGPT</a></li>
+            <li>[5]: <a href="https://developers.openai.com/codex/quickstart/?utm_source=chatgpt.com">Quickstart</a></li>
+        </ul>
+    </div>
+
+    <div class="footer">
+        🎨 ポップアートスタイルで学ぶ Codex活用ガイド | コントラスト強化 & KaTeX対応
+    </div>
+
+    <script>
+        // KaTeXの自動レンダリングを有効化（既にauto-render.jsで実行）
+        document.addEventListener('DOMContentLoaded', function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false},
+                    {left: '\\(', right: '\\)', display: false},
+                    {left: '\\[', right: '\\]', display: true}
+                ],
+                throwOnError: false
+            });
+        });
+    </script>
+</body>
+</html>

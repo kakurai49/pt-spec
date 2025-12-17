@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codex & ChatGPT ベストプラクティス - POPアートスタイル</title>
+    <link rel="stylesheet" href="pop3_style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+    <style>
+        /* 追加のカラフルなスタイル */
+        :root {
+            --pop-yellow: #ffdd57;
+            --pop-pink: #ff4081;
+            --pop-blue: #1e90ff;
+            --pop-green: #00ff88;
+            --pop-purple: #aa00ff;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--pop-yellow), var(--pop-green), var(--pop-blue));
+            background-attachment: fixed;
+            color: #222;
+            line-height: 1.6;
+        }
+        
+        .container {
+            background: linear-gradient(to bottom, white, #f8f8f8);
+            border: 5px solid var(--pop-pink);
+            position: relative;
+        }
+        
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: linear-gradient(45deg, var(--pop-pink), var(--pop-purple), var(--pop-blue));
+            z-index: -1;
+            border-radius: 20px;
+            opacity: 0.3;
+        }
+        
+        h1, h2, h3, h4 {
+            font-family: 'Impact', 'Arial Black', sans-serif;
+            letter-spacing: 1px;
+        }
+        
+        h2 {
+            background: linear-gradient(to right, var(--pop-pink), var(--pop-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+            padding: 10px 0;
+            border-bottom: 4px dashed var(--pop-pink);
+        }
+        
+        /* preタグ内のバグ修正 - 二重枠パーツの修正 */
+        pre {
+            background: linear-gradient(135deg, #1a1a1a, #2a2a2a) !important;
+            color: #00ff88 !important;
+            border: 3px solid var(--pop-blue) !important;
+            border-left: 8px solid var(--pop-green) !important;
+            font-weight: bold;
+            box-shadow: 5px 5px 0px rgba(255, 64, 129, 0.5) !important;
+            position: relative;
+            overflow-x: auto;
+        }
+        
+        pre::before {
+            content: 'コード';
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: var(--pop-pink);
+            color: white;
+            padding: 2px 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            border-radius: 10px 10px 0 0;
+        }
+        
+        /* テーブルのカラフルなスタイル */
+        table {
+            border: 4px solid var(--pop-purple);
+            background: white;
+            box-shadow: 5px 5px 0px rgba(170, 0, 255, 0.2);
+        }
+        
+        th {
+            background: linear-gradient(to right, var(--pop-purple), var(--pop-blue));
+            color: white;
+            text-transform: uppercase;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        td {
+            background: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s;
+        }
+        
+        tr:nth-child(even) td {
+            background: rgba(255, 221, 87, 0.2);
+        }
+        
+        tr:hover td {
+            background: rgba(255, 64, 129, 0.1);
+            transform: scale(1.01);
+        }
+        
+        /* カラフルなリストスタイル */
+        ul, ol {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px 20px 20px 40px;
+            border-radius: 10px;
+            border-left: 8px solid var(--pop-blue);
+        }
+        
+        li {
+            margin: 10px 0;
+            padding-left: 5px;
+        }
+        
+        li::marker {
+            color: var(--pop-pink);
+            font-weight: bold;
+        }
+        
+        /* リンクのポップなスタイル */
+        a {
+            background: linear-gradient(to right, var(--pop-blue), var(--pop-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: bold;
+            padding: 2px 5px;
+            border-radius: 3px;
+            transition: all 0.3s;
+            text-decoration: none;
+            border-bottom: 2px solid transparent;
+        }
+        
+        a:hover {
+            background: linear-gradient(to right, var(--pop-pink), var(--pop-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            border-bottom: 2px solid var(--pop-pink);
+            text-shadow: 0 0 10px rgba(255, 64, 129, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        /* 引用やメモのスタイル */
+        blockquote {
+            border-left: 6px solid var(--pop-green);
+            background: rgba(0, 255, 136, 0.1);
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 10px 10px 0;
+            font-style: italic;
+            position: relative;
+        }
+        
+        blockquote::before {
+            content: "💡";
+            position: absolute;
+            left: -30px;
+            top: 10px;
+            font-size: 1.5rem;
+        }
+        
+        /* セクション区切りのスタイル */
+        .section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            margin: 30px 0;
+            border-radius: 15px;
+            border: 3px solid;
+            border-image: linear-gradient(45deg, var(--pop-pink), var(--pop-blue)) 1;
+            box-shadow: 10px 10px 0px rgba(255, 64, 129, 0.1);
+            transition: all 0.3s;
+        }
+        
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 15px 15px 0px rgba(255, 64, 129, 0.2);
+        }
+        
+        /* 数式コンテナのスタイル */
+        .math-container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            border: 3px solid var(--pop-purple);
+            overflow-x: auto;
+            text-align: center;
+        }
+        
+        /* レスポンシブ調整 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+                margin: 10px;
+            }
+            
+            .section {
+                padding: 15px;
+                margin: 20px 0;
+            }
+            
+            pre {
+                font-size: 0.9rem;
+            }
+        }
+        
+        /* カスタムスクロールバー */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 221, 87, 0.3);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, var(--pop-pink), var(--pop-purple));
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(to bottom, var(--pop-purple), var(--pop-blue));
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🎨 Codex & ChatGPT ベストプラクティス</h1>
+        <p>LLMとPythonの切り分けによる確率的・決定的テスト設計</p>
+    </header>
+    
+    <div class="container">
+        <div class="section" style="border-color: var(--pop-pink);">
+            <h2>🎯 概要：画像を貼れない環境での強力なアプローチ</h2>
+            <p>できます。むしろ、<strong>画像を貼れない環境ほど「テキスト仕様に落としてからCodexに渡す」</strong>のが強いです。</p>
+            <p>あなたのケース（資料の「LLM（＝Fθ）とPython（＝G_alg）の切り分け」のうち、Python側を作りたい）だと、特に相性が良いです。理由は、LLMは曖昧になりやすい一方、<strong>Python側は"決定的でテスト可能"に設計できる</strong>からです。</p>
+        </div>
+        
+        <div class="section" style="border-color: var(--pop-blue);">
+            <h2>1️⃣ まず結論：GitHub Issue化 → Codexに貼る、は有効です</h2>
+            <p>はい、<strong>「GitHub issueを書かせる」→「そのissue本文をCodexに貼る」</strong>は、かなり良いやり方です。</p>
+            <p>特にCodexは、<strong>"プロンプト/仕様から、リポジトリを読み、編集し、コマンドを実行して検証まで回す"</strong>タイプのコーディングエージェントなので、Issue形式の「目的・制約・受け入れ条件・テスト手順」がハマります。</p>
+            
+            <div class="math-container">
+                <p>アーキテクチャの数学的表現：</p>
+                <div class="katex">
+                    F_θ: \text{Spec/Logs} \rightarrow M \quad\text{(確率的変換)}
+                </div>
+                <div class="katex">
+                    G_{\text{alg}}: M \rightarrow A(S) \quad\text{(決定的変換)}
+                </div>
+                <p>ここで \(M\) は中間テストモデル、\(A(S)\) は観点 \(S\) に基づくテスト要求</p>
+            </div>
+            
+            <p>さらに、Codexは<strong>AGENTS.md</strong>で「このリポジトリではこう動いてほしい（コマンド、規約、注意点）」を永続的に読ませられるので、Issue＋AGENTS.mdの組み合わせが強いです。</p>
+        </div>
+        
+        <div class="section" style="border-color: var(--pop-green);">
+            <h2>2️⃣ 「画像を貼れない」問題の解き方（＝仕様をテキストに落とすコツ）</h2>
+            <p>画像の中身って、だいたい以下のどれかです：</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>画像の種類</th>
+                        <th>テキスト変換方法</th>
+                        <th>例</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>表</strong></td>
+                        <td>Markdown表 or JSONサンプル</td>
+                        <td>パラメータ一覧、境界値、条件分岐</td>
+                    </tr>
+                    <tr>
+                        <td><strong>図</strong></td>
+                        <td>Mermaid / PlantUML / 箇条書き</td>
+                        <td>状態遷移図、アーキテクチャ図</td>
+                    </tr>
+                    <tr>
+                        <td><strong>画面</strong></td>
+                        <td>入力制約・期待エラー・遷移を箇条書き</td>
+                        <td>UIフロー、入力制約</td>
+                    </tr>
+                    <tr>
+                        <td><strong>例</strong></td>
+                        <td>そのまま貼る</td>
+                        <td>入出力例、ログ例</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>📊 表 → Markdown表の例</h3>
+            <pre><code class="language-md">| name | type | domain | valid | boundaries | notes |
+|---|---|---|---|---|---|
+| quantity | int | 1..999 | yes | 1,2,998,999 | 0以下はINVALID |
+| coupon | enum | NONE/WELCOME10/BF | yes | - | 未知値はINVALID |</code></pre>
+            
+            <h3>📈 図 → Mermaidの例</h3>
+            <pre><code class="language-mermaid">stateDiagram-v2
+  [*] --> Created
+  Created --> Paid: pay
+  Paid --> Shipped: ship
+  Created --> Cancelled: cancel</code></pre>
+            
+            <blockquote>
+                <strong>Codexプロンプティングのコツ：</strong> Codexは<strong>スタックトレースやログなど"grepできる情報"があると探し方が速くなる</strong>ので、具体例はそのまま貼るのが効果的です。
+            </blockquote>
+        </div>
+        
+        <div class="section" style="border-color: var(--pop-purple);">
+            <h2>3️⃣ あなた（ChatGPT）とCodexの使い分け：どっちが必要？</h2>
+            
+            <div style="display: flex; flex-wrap: wrap; gap: 20px; margin: 20px 0;">
+                <div style="flex: 1; min-width: 300px; background: rgba(255, 64, 129, 0.1); padding: 20px; border-radius: 10px; border: 2px solid var(--pop-pink);">
+                    <h3 style="color: var(--pop-pink);">🤖 ChatGPT（ここでやると強いこと）</h3>
+                    <ul>
+                        <li>仕様が曖昧・画像中心・論文/資料中心のときに、<strong>テキスト仕様へ再構成</strong></li>
+                        <li>アーキテクチャ設計（責務分割、データモデル、API、テスト戦略）</li>
+                        <li>「Issue（＝Codex投入文）」の作成、受け入れ条件の設計</li>
+                        <li>エッジケース洗い出し、データモデルの穴埋め</li>
+                        <li>"LLMがやる部分"と"決定的アルゴリズムがやる部分"の境界設計</li>
+                    </ul>
+                </div>
+                
+                <div style="flex: 1; min-width: 300px; background: rgba(30, 144, 255, 0.1); padding: 20px; border-radius: 10px; border: 2px solid var(--pop-blue);">
+                    <h3 style="color: var(--pop-blue);">⚡ Codex（任せると強いこと）</h3>
+                    <ul>
+                        <li>リポジトリを読んで、必要なファイルを特定して実装</li>
+                        <li>変更を加え、<strong>テスト/リンタ/型チェック等を実行</strong>して直す</li>
+                        <li>PR作成やレビュー（GitHub上で <code>@codex review</code> など）</li>
+                        <li>反復作業（リファクタ、移行、細かい修正）</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <p>Codexは「コードを書く」だけでなく、<strong>リポジトリ内で編集・実行・検証までできる</strong>のが特徴なので、実装フェーズはCodexが向きます。</p>
+        </div>
+        
+        <div class="section" style="border-color: var(--pop-pink);">
+            <h2>4️⃣ Codexに渡す文章（Issue/Spec）のベストプラクティス</h2>
+            <p>OpenAI公式のCodexプロンプト指針は、かなり実務的で、要点は次の4つです：</p>
+            
+            <ol>
+                <li><strong>コードの手がかりを明確に</strong>（ファイル名、識別子、ログ、grepできる情報）</li>
+                <li><strong>検証手順を必ず書く</strong>（どう再現し、何を実行し、何が成功か）</li>
+                <li><strong>大きい仕事は分割</strong>（小タスクの方が成功率とレビュー効率が上がる）</li>
+                <li><strong>永続ルールはAGENTS.mdに</strong>（毎回同じ注意をpromptに書かない）</li>
+            </ol>
+            
+            <p>加えて、安全面では「ネットワーク無効がデフォルト」「承認モードがある」など、運用上の注意も公式にまとまっています。</p>
+        </div>
+        
+        <div class="section" style="border-color: var(--pop-blue);">
+            <h2>5️⃣ あなたの資料に沿った「Python側（G_alg）」アーキテクチャ案</h2>
+            
+            <div class="math-container">
+                <p>あなたの資料の核となる数式モデル：</p>
+                <div class="katex">
+                    \text{LLM}: \text{仕様・ログ} \xrightarrow{F_θ} \text{共通テストモデル } M
+                </div>
+                <div class="katex">
+                    \text{Python}: M \xrightarrow{G_{\text{alg}}} \text{テスト条件/要求 } A(S) + \text{テストスイート選択}
+                </div>
+            </div>
+            
+            <p>この分離が超重要で、Python側は <strong>"決定的・再現可能・単体テストしやすい"</strong> 形に作るのが勝ち筋です。</p>
+            
+            <h3>🎯 推奨するPython側の責務分割（3層）</h3>
+            
+            <pre><code class="language-python"># 1. Model層：中間表現Mのスキーマ（JSON⇄Python）
+class TestModel:
+    parameters: List[Parameter]
+    rules: List[Rule]
+    state_machines: List[StateMachine]
+    # validation（必須項目・型・範囲）を厳密に
+    
+# 2. Obligation生成層：観点Sごとの要求（A(S)）を生成
+def generate_obligations(model: TestModel, viewpoint: str) -> List[Obligation]:
+    # EP（同値分割）、BVA（境界値）、Decision Table、Pairwise...
+    # 出力は「テストケース」ではなく「テスト要求（obligation）」
+    
+# 3. Suite選択層（任意）：候補テスト集合から set cover / hitting set
+def select_test_suite(obligations: List[Obligation]) -> TestSuite:
+    # Greedyアルゴリズムなどで最小テストスイートを選択</code></pre>
+            
+            <blockquote>
+                <strong>重要：</strong> いきなり「テストケースの具体値生成」に突っ込まない。最初はobligation生成（何をカバーしたいか）を決定的に固め、具体値は「単純なドメインだけ」or「後でZ3等を差し替え」が安全です。
+            </blockquote>
+        </div>
+        
+        <div class="section" style="border-color: var(--pop-green);">
+            <h2>6️⃣ そのままCodexに貼れるIssue例</h2>
+            
+            <pre><code class="language-md">Title: Implement deterministic test-design generator (G_alg) from intermediate model M (JSON)
+
+Background
+- We split responsibilities:
+  - LLM: spec/logs -> intermediate common test model M (probabilistic F_θ)
+  - Python: M -> test obligations A(S) and (optional) suite selection (deterministic G_alg)
+- This task implements ONLY the Python deterministic side.
+
+Goal
+- Create a Python package that:
+  1) Loads/validates an intermediate test model M from JSON
+  2) Generates test obligations A(S) for selected viewpoints S:
+     - EP (equivalence partitioning)
+     - BVA (boundary value analysis)
+     - DT (decision table rules as obligations)  [Phase 2 if too heavy]
+     - SM (state/transition coverage)           [Phase 2 if too heavy]
+     - Pairwise (2-wise combinations)           [Phase 2 if too heavy]
+  3) Exports obligations to JSON with stable ordering (deterministic output)
+
+Non-goals (explicitly out of scope for this issue)
+- Calling an LLM / implementing F_θ
+- Executing tests against a real SUT
+- Full constraint solving for complex rule expressions (keep rule DSL minimal first)
+
+Deliverables
+1) `src/testgen/model.py`
+   - dataclasses or pydantic models defining schema M
+   - JSON load/dump
+   - strict validation (types, ranges, required fields)
+   - schema_version field
+
+2) `src/testgen/obligations/base.py`
+   - `Obligation` type:
+     - id: str
+     - viewpoint: str  (e.g., "EP", "BVA")
+     - description: str
+     - selectors: dict  (constraints / tags)
+   - stable sort key rules
+
+3) `src/testgen/generators/ep.py`
+   - For each parameter, generate equivalence classes:
+     - valid class(es)
+     - invalid class(es) where definable (e.g., <min, >max, unknown enum)
+   - Output: list[Obligation]
+
+4) `src/testgen/generators/bva.py`
+   - For numeric parameters with min/max, generate boundary obligations:
+     - min-1, min, min+1, max-1, max, max+1 (when meaningful)
+   - Output: list[Obligation]
+
+5) CLI
+   - `python -m testgen generate --model examples/model.json --viewpoints EP,BVA --out out/obligations.json`
+   - CLI must exit non-zero on validation error
+
+6) Tests
+   - `tests/test_ep.py`, `tests/test_bva.py`, `tests/test_cli.py`
+   - Include at least one example model JSON under `examples/`
+   - Golden file test recommended: obligations output must match expected JSON exactly
+
+Verification steps (Codex must run these)
+- `python -m pytest -q`
+- If formatting/linting is configured, run it too (otherwise skip)
+
+Constraints / conventions
+- Python >= 3.11
+- Keep dependencies minimal. If adding a new dependency, explain why.
+- Deterministic behavior:
+  - same input JSON -> same output JSON ordering
+  - no random unless seeded
+- Error messages should be actionable (which field failed, why)
+
+Example model (create under examples/model.json)
+- Include:
+  - at least 2 parameters: one numeric range, one enum
+  - optional: simple rule list (strings) but ok to ignore in Phase 1
+
+Phase plan
+- Phase 1: implement model + EP/BVA + CLI + tests
+- Phase 2 (separate issue): DT/SM/Pairwise + suite selection (set cover)</code></pre>
+        </div>
+        
+        <div class="section" style="border-color: var(--pop-purple);">
+            <h2>7️⃣ AGENTS.mdの例（Codexを"飼い慣らす"）</h2>
+            
+            <pre><code class="language-md"># AGENTS.md
+
+## Working agreements
+- Prefer deterministic output (stable ordering, no randomness unless seeded).
+- Do not introduce new dependencies without explaining why.
+- Always add/adjust tests for changes.
+
+## Commands
+- Run tests: python -m pytest -q
+
+## Project layout
+- Source code under: src/testgen/
+- Tests under: tests/
+- Example inputs under: examples/
+- Output artifacts under: out/
+
+## Coding style
+- Use type hints.
+- Keep functions small and pure where possible.
+- Raise ValueError with clear field paths on validation failures.</code></pre>
+            
+            <p>AGENTS.mdは「グローバル」と「プロジェクト/サブディレクトリ」で階層的に効かせられるので、パッケージごとに細かいルールを置く運用もできます。</p>
+        </div>
+        
+        <div class="section" style="border-color: var(--pop-pink);">
+            <h2>8️⃣ 次のステップ：すぐに進めるための提案</h2>
+            
+            <p>あなたが今すぐ進めたいなら、次の順で進めるのが最短です。</p>
+            
+            <ol>
+                <li><strong>仕様の具体化：</strong> 資料の特定部分（例：6.1〜6.4）を、MのJSONスキーマ＋EP/BVA要件に落とし、Issueを完成させる</li>
+                <li><strong>Codexへの投入：</strong> 公式推奨どおり「検証手順付き」でIssueを渡す</li>
+                <li><strong>成果物レビュー：</strong>
+                    <ul>
+                        <li>schemaが実務で使えるか</li>
+                        <li>obligationが安定したID/順序で出るか</li>
+                        <li>テストが"壊れにくい"形か（golden test）</li>
+                    </ul>
+                </li>
+                <li><strong>Phase 2の計画：</strong> Decision Table / State Machine / Pairwise / set coverは別Issueで</li>
+            </ol>
+            
+            <blockquote>
+                <strong>必要なら：</strong> あなたの資料（このmdの6章）を前提にして、<strong>「MのJSONスキーマ案」「EP/BVAの生成ルール詳細」「最初のexamples/model.json」「golden期待値」まで含んだ"より実装直結のIssue"</strong>に落とし込みもできます。
+            </blockquote>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>🎨 POPアートスタイルで表現された Codex & ChatGPT ベストプラクティス | 数式表示: KaTeX | スタイル: カスタムPOP3</p>
+    </div>
+
+    <!-- KaTeXのスクリプト -->
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false},
+                    {left: "\\(", right: "\\)", display: false},
+                    {left: "\\[", right: "\\]", display: true}
+                ],
+                throwOnError: false
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ガイド集（下から7件）｜Codex / ChatGPT</title>
+  <meta name="description" content="フォルダー内のHTML（ls -tr の出力の下から7件）へのリンク集。iPhoneターミナル、ベストプラクティス、協業パイプライン、協調開発、LLMとPythonの役割分担など。" />
+
+  <style>
+    :root{
+      --bg0:#f7f8fb;
+      --bg1:#ffffff;
+      --text:#111827;
+      --muted:#6b7280;
+      --border:rgba(17,24,39,.12);
+      --shadow: 0 10px 30px rgba(17,24,39,.08);
+      --shadowHover: 0 14px 40px rgba(17,24,39,.12);
+      --accent:#2563eb;
+      --accentSoft: rgba(37,99,235,.12);
+      --card: rgba(255,255,255,.78);
+      --card2: rgba(255,255,255,.92);
+      --glass: saturate(140%) blur(10px);
+    }
+
+    @media (prefers-color-scheme: dark){
+      :root{
+        --bg0:#0b1020;
+        --bg1:#0f172a;
+        --text:#e5e7eb;
+        --muted:#9ca3af;
+        --border:rgba(229,231,235,.14);
+        --shadow: 0 10px 30px rgba(0,0,0,.35);
+        --shadowHover: 0 14px 40px rgba(0,0,0,.45);
+        --accent:#60a5fa;
+        --accentSoft: rgba(96,165,250,.16);
+        --card: rgba(15,23,42,.62);
+        --card2: rgba(15,23,42,.86);
+        --glass: saturate(140%) blur(12px);
+      }
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      color:var(--text);
+      font-family: system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 800px at 15% 10%, rgba(37,99,235,.10), transparent 60%),
+        radial-gradient(900px 700px at 85% 15%, rgba(236,72,153,.10), transparent 55%),
+        radial-gradient(1000px 700px at 50% 90%, rgba(16,185,129,.10), transparent 60%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      line-height: 1.6;
+    }
+
+    a{ color:inherit; text-decoration:none; }
+
+    .container{
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 22px 18px 36px;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      padding: 10px 2px 16px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      min-width: 0;
+    }
+    .logo{
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), rgba(236,72,153,.85));
+      box-shadow: var(--shadow);
+      flex: 0 0 auto;
+    }
+    .brand-text{
+      min-width:0;
+    }
+    .brand-text .title{
+      font-weight: 800;
+      letter-spacing: .2px;
+      margin:0;
+      font-size: 16px;
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .brand-text .subtitle{
+      margin:2px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      backdrop-filter: var(--glass);
+      -webkit-backdrop-filter: var(--glass);
+      font-size: 12px;
+      color: var(--muted);
+      flex: 0 0 auto;
+      box-shadow: 0 6px 18px rgba(17,24,39,.06);
+    }
+
+    .hero{
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px 16px;
+      background: var(--card);
+      backdrop-filter: var(--glass);
+      -webkit-backdrop-filter: var(--glass);
+      box-shadow: var(--shadow);
+    }
+
+    .hero h1{
+      margin: 0 0 6px;
+      font-size: clamp(22px, 3.2vw, 36px);
+      line-height: 1.2;
+      letter-spacing: .2px;
+    }
+    .hero p{
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .controls{
+      margin-top: 14px;
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .search{
+      flex: 1 1 260px;
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--card2);
+      box-shadow: 0 8px 22px rgba(17,24,39,.06);
+    }
+    .search svg{
+      width:18px;height:18px;
+      color: var(--muted);
+      flex: 0 0 auto;
+    }
+    .search input{
+      width: 100%;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--text);
+      font-size: 14px;
+    }
+    .search input::placeholder{ color: rgba(107,114,128,.9); }
+
+    .count{
+      flex: 0 0 auto;
+      font-size: 12px;
+      color: var(--muted);
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      backdrop-filter: var(--glass);
+      -webkit-backdrop-filter: var(--glass);
+    }
+
+    .grid{
+      margin-top: 14px;
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+    }
+
+    .card{
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: var(--card);
+      backdrop-filter: var(--glass);
+      -webkit-backdrop-filter: var(--glass);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+    }
+    .card:hover{
+      transform: translateY(-2px);
+      box-shadow: var(--shadowHover);
+      border-color: rgba(37,99,235,.28);
+    }
+
+    .card a{
+      display:flex;
+      flex-direction: column;
+      gap: 10px;
+      height: 100%;
+      padding: 16px 16px 14px;
+    }
+
+    .row{
+      display:flex;
+      align-items:flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .badges{
+      display:flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap: 6px;
+      font-size: 12px;
+      line-height: 1;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.35);
+    }
+    @media (prefers-color-scheme: dark){
+      .badge{ background: rgba(255,255,255,.06); }
+    }
+
+    .badge.accent{
+      border-color: rgba(37,99,235,.28);
+      background: var(--accentSoft);
+      color: var(--text);
+    }
+
+    .card h2{
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.35;
+      letter-spacing: .1px;
+    }
+
+    .card p{
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta{
+      margin-top: auto;
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 10px;
+      padding-top: 4px;
+    }
+
+    .filename{
+      min-width: 0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .open{
+      flex: 0 0 auto;
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      padding: 9px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(37,99,235,.30);
+      background: rgba(37,99,235,.10);
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: .1px;
+    }
+    .open span{ display:inline-block; }
+    .open svg{ width: 16px; height: 16px; }
+
+    /* Focus visibility */
+    .card a:focus-visible,
+    .search input:focus-visible{
+      outline: 3px solid rgba(37,99,235,.55);
+      outline-offset: 3px;
+      border-radius: 14px;
+    }
+
+    /* Utilities */
+    .sr-only{
+      position:absolute !important;
+      width:1px;height:1px;
+      padding:0;margin:-1px;
+      overflow:hidden;clip:rect(0,0,0,0);
+      white-space:nowrap;border:0;
+    }
+    .hidden{ display:none !important; }
+
+    footer{
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px dashed var(--border);
+      color: var(--muted);
+      font-size: 12px;
+    }
+    footer .hint{
+      display:flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items:center;
+      justify-content: space-between;
+    }
+    footer code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      padding: 2px 6px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.35);
+    }
+    @media (prefers-color-scheme: dark){
+      footer code{ background: rgba(255,255,255,.06); }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="topbar" role="banner">
+      <div class="brand" aria-label="サイト情報">
+        <div class="logo" aria-hidden="true"></div>
+        <div class="brand-text">
+          <p class="title">Codex / ChatGPT ガイド集</p>
+          <p class="subtitle">ls -tr の出力「下から7件」をリンク</p>
+        </div>
+      </div>
+      <div class="chip" aria-label="ヒント">
+        <span aria-hidden="true">📱</span>
+        <span>スマホ対応（レスポンシブ）</span>
+      </div>
+    </div>
+
+    <section class="hero" aria-label="概要">
+      <h1>リンク一覧（最新側 7ページ）</h1>
+      <p>
+        フォルダーに保存されたホームページから、<strong>下から7つ</strong>をピックアップしたリンク集です。
+        タイトル名をもとに、各ページの内容がひと目で分かるように短い説明を付けています。
+      </p>
+
+      <div class="controls" aria-label="検索と件数">
+        <div class="search" role="search" aria-label="ページ検索">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M10.5 18.5a8 8 0 1 1 0-16 8 8 0 0 1 0 16Z" stroke="currentColor" stroke-width="2"/>
+            <path d="M21 21l-4.2-4.2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <label class="sr-only" for="q">検索</label>
+          <input id="q" type="search" placeholder="検索（例：iPhone / ベストプラクティス / Python / 協業）" autocomplete="off" />
+        </div>
+        <div class="count" id="count" aria-live="polite">表示: 7 / 7</div>
+      </div>
+    </section>
+
+    <main aria-label="リンクカード一覧">
+      <div class="grid" id="grid">
+
+        <!-- 1 -->
+        <article class="card"
+          data-title="Codex & iPhone ターミナル使用ガイド"
+          data-file="Codex & iPhone ターミナル使用ガイド.html"
+          data-text="iPhone ターミナル モバイル 手順 セットアップ コマンド">
+          <a href="Codex &amp; iPhone ターミナル使用ガイド.html">
+            <div class="row">
+              <div class="badges" aria-label="タグ">
+                <span class="badge accent">iPhone</span>
+                <span class="badge">Terminal</span>
+                <span class="badge">環境構築</span>
+              </div>
+            </div>
+            <h2>Codex &amp; iPhone ターミナル使用ガイド</h2>
+            <p>
+              iPhone上でターミナルを扱いながら、Codexと連携して作業するための基本手順や使いどころをまとめたガイドです。
+            </p>
+            <div class="meta">
+              <div class="filename">Codex &amp; iPhone ターミナル使用ガイド.html</div>
+              <div class="open" aria-label="ページを開く">
+                <span>開く</span>
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M7 17L17 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M10 7h7v7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </div>
+          </a>
+        </article>
+
+        <!-- 2 -->
+        <article class="card"
+          data-title="Codex & ChatGPT ベストプラクティス - POPアートスタイル"
+          data-file="Codex & ChatGPT ベストプラクティス - POPアートスタイル.html"
+          data-text="Codex ChatGPT ベストプラクティス 使い方 提示 依頼 レビュー POP">
+          <a href="Codex &amp; ChatGPT ベストプラクティス - POPアートスタイル.html">
+            <div class="row">
+              <div class="badges" aria-label="タグ">
+                <span class="badge accent">ベストプラクティス</span>
+                <span class="badge">Codex</span>
+                <span class="badge">ChatGPT</span>
+              </div>
+            </div>
+            <h2>Codex &amp; ChatGPT ベストプラクティス（POPアートスタイル）</h2>
+            <p>
+              CodexとChatGPTを併用するときの「頼み方・切り分け・レビュー」のコツを、読みやすいスタイルで整理したページです。
+            </p>
+            <div class="meta">
+              <div class="filename">Codex &amp; ChatGPT ベストプラクティス - POPアートスタイル.html</div>
+              <div class="open" aria-label="ページを開く">
+                <span>開く</span>
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M7 17L17 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M10 7h7v7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </div>
+          </a>
+        </article>
+
+        <!-- 3 -->
+        <article class="card"
+          data-title="Codex & ChatGPT ベストプラクティス - POPアートスタイル_1"
+          data-file="Codex & ChatGPT ベストプラクティス - POPアートスタイル_1.html"
+          data-text="Codex ChatGPT ベストプラクティス バージョン1 追加版 手順">
+          <a href="Codex &amp; ChatGPT ベストプラクティス - POPアートスタイル_1.html">
+            <div class="row">
+              <div class="badges" aria-label="タグ">
+                <span class="badge accent">別バージョン</span>
+                <span class="badge">ベストプラクティス</span>
+                <span class="badge">_1</span>
+              </div>
+            </div>
+            <h2>Codex &amp; ChatGPT ベストプラクティス（POPアートスタイル / _1）</h2>
+            <p>
+              同テーマの別バージョン（_1）。状況に応じた進め方や、例示・補足が増えた版として参照できます。
+            </p>
+            <div class="meta">
+              <div class="filename">Codex &amp; ChatGPT ベストプラクティス - POPアートスタイル_1.html</div>
+              <div class="open" aria-label="ページを開く">
+                <span>開く</span>
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M7 17L17 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M10 7h7v7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </div>
+          </a>
+        </article>
+
+        <!-- 4 -->
+        <article class="card"
+          data-title="Codex & ChatGPT ベストプラクティス - POPアートスタイル_2"
+          data-file="Codex & ChatGPT ベストプラクティス - POPアートスタイル_2.html"
+          data-text="Codex ChatGPT ベストプラクティス バージョン2 応用 パターン">
+          <a href="Codex &amp; ChatGPT ベストプラクティス - POPアートスタイル_2.html">
+            <div class="row">
+              <div class="badges" aria-label="タグ">
+                <span class="badge accent">別バージョン</span>
+                <span class="badge">応用</span>
+                <span class="badge">_2</span>
+              </div>
+            </div>
+            <h2>Codex &amp; ChatGPT ベストプラクティス（POPアートスタイル / _2）</h2>
+            <p>
+              同テーマの別バージョン（_2）。使い分けのパターンや実運用に寄せた観点を確認したいときに便利です。
+            </p>
+            <div class="meta">
+              <div class="filename">Codex &amp; ChatGPT ベストプラクティス - POPアートスタイル_2.html</div>
+              <div class="open" aria-label="ページを開く">
+                <span>開く</span>
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M7 17L17 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M10 7h7v7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </div>
+          </a>
+        </article>
+
+        <!-- 5 -->
+        <article class="card"
+          data-title="CodexとChatGPTの協業パイプライン完全ガイド"
+          data-file="CodexとChatGPTの協業パイプライン完全ガイド.html"
+          data-text="協業 パイプライン 設計 実装 テスト レビュー 運用 手順">
+          <a href="CodexとChatGPTの協業パイプライン完全ガイド.html">
+            <div class="row">
+              <div class="badges" aria-label="タグ">
+                <span class="badge accent">協業</span>
+                <span class="badge">ワークフロー</span>
+                <span class="badge">完全ガイド</span>
+              </div>
+            </div>
+            <h2>CodexとChatGPTの協業パイプライン完全ガイド</h2>
+            <p>
+              企画→設計→実装→テスト→レビューまで、CodexとChatGPTをどう組み合わせて進めるかを通しで整理した“全体設計”のガイドです。
+            </p>
+            <div class="meta">
+              <div class="filename">CodexとChatGPTの協業パイプライン完全ガイド.html</div>
+              <div class="open" aria-label="ページを開く">
+                <span>開く</span>
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M7 17L17 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M10 7h7v7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </div>
+          </a>
+        </article>
+
+        <!-- 6 -->
+        <article class="card"
+          data-title="Codex & ChatGPT 協調開発ガイド - ポップアートスタイル"
+          data-file="Codex & ChatGPT 協調開発ガイド - ポップアートスタイル.html"
+          data-text="協調開発 チーム開発 分担 レビュー PR 進め方 ポップアート">
+          <a href="Codex &amp; ChatGPT 協調開発ガイド - ポップアートスタイル.html">
+            <div class="row">
+              <div class="badges" aria-label="タグ">
+                <span class="badge accent">協調開発</span>
+                <span class="badge">進め方</span>
+                <span class="badge">ポップアート</span>
+              </div>
+            </div>
+            <h2>Codex &amp; ChatGPT 協調開発ガイド（ポップアートスタイル）</h2>
+            <p>
+              “一緒に作る”視点で、役割分担・やり取り・レビューの流れをまとめた協調開発のガイドです（スタイル違い版）。
+            </p>
+            <div class="meta">
+              <div class="filename">Codex &amp; ChatGPT 協調開発ガイド - ポップアートスタイル.html</div>
+              <div class="open" aria-label="ページを開く">
+                <span>開く</span>
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M7 17L17 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M10 7h7v7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </div>
+          </a>
+        </article>
+
+        <!-- 7 -->
+        <article class="card"
+          data-title="Codex活用ガイド - LLMとPythonの役割分担"
+          data-file="Codex活用ガイド - LLMとPythonの役割分担.html"
+          data-text="LLM Python 役割分担 計算 検証 自動化 再現性">
+          <a href="Codex活用ガイド - LLMとPythonの役割分担.html">
+            <div class="row">
+              <div class="badges" aria-label="タグ">
+                <span class="badge accent">LLM × Python</span>
+                <span class="badge">役割分担</span>
+                <span class="badge">再現性</span>
+              </div>
+            </div>
+            <h2>Codex活用ガイド：LLMとPythonの役割分担</h2>
+            <p>
+              発想・文章化が得意なLLMと、計算・検証・自動化が得意なPythonをどう分担して品質を上げるかを整理したガイドです。
+            </p>
+            <div class="meta">
+              <div class="filename">Codex活用ガイド - LLMとPythonの役割分担.html</div>
+              <div class="open" aria-label="ページを開く">
+                <span>開く</span>
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M7 17L17 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M10 7h7v7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </div>
+          </a>
+        </article>
+
+      </div>
+    </main>
+
+    <footer aria-label="フッター">
+      <div class="hint">
+        <div>
+          検索はタイトル・ファイル名・キーワードに対応。<code>Ctrl</code> + <code>F</code> でもOK（スマホは検索ボックス推奨）。
+        </div>
+        <div>© Link Hub</div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    (() => {
+      const input = document.getElementById('q');
+      const cards = Array.from(document.querySelectorAll('.card'));
+      const count = document.getElementById('count');
+
+      const normalize = (s) => (s || '').toLowerCase();
+
+      function update() {
+        const q = normalize(input.value.trim());
+        let visible = 0;
+
+        for (const card of cards) {
+          const hay =
+            normalize(card.dataset.title) + " " +
+            normalize(card.dataset.file) + " " +
+            normalize(card.dataset.text);
+
+          const hit = !q || hay.includes(q);
+          card.classList.toggle('hidden', !hit);
+          if (hit) visible++;
+        }
+
+        count.textContent = `表示: ${visible} / ${cards.length}`;
+      }
+
+      input.addEventListener('input', update);
+      update();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codex活用ガイド - LLMとPythonの役割分担</title>
+    <link rel="stylesheet" href="pop3_style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"
+        onload="renderMathInElement(document.body);"></script>
+    <style>
+        /* 追加のカラフルなスタイル */
+        .section-title {
+            background: linear-gradient(90deg, #ff4081, #1e90ff);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin: 25px 0 15px 0;
+            font-size: 1.8rem;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .highlight-box {
+            background-color: #e6f7ff;
+            border-left: 5px solid #1e90ff;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .warning-box {
+            background-color: #fff8e1;
+            border-left: 5px solid #ffcc00;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .success-box {
+            background-color: #f1f8e9;
+            border-left: 5px solid #8bc34a;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .code-block {
+            background-color: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 15px 0;
+            border: 3px solid #ff4081;
+            box-shadow: 0 0 10px rgba(255, 64, 129, 0.3);
+        }
+        
+        .colorful-list li {
+            padding: 8px 0;
+            border-bottom: 1px dashed #ff4081;
+            margin-left: 20px;
+        }
+        
+        .colorful-list li:before {
+            content: "• ";
+            color: #ff4081;
+            font-weight: bold;
+            font-size: 1.5rem;
+            margin-right: 8px;
+        }
+        
+        .architecture-diagram {
+            background: linear-gradient(135deg, #ffdd57, #ffcc00);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+            border: 3px solid #ff4081;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        pre code {
+            color: #333 !important;
+            background-color: transparent !important;
+        }
+        
+        /* preタグ内のコード表示修正 */
+        pre {
+            background-color: #2d2d2d !important;
+            color: #f8f8f2 !important;
+            border: 2px solid #ff4081 !important;
+        }
+        
+        /* 数式表示の調整 */
+        .katex-display {
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 10px;
+            background-color: #f8f8f8;
+            border-radius: 5px;
+            margin: 15px 0;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        Codex活用ガイド: LLMとPythonの役割分担
+    </header>
+    
+    <div class="container">
+        <h2 class="section-title">概要: 画像を貼れない環境での最適なアプローチ</h2>
+        
+        <div class="highlight-box">
+            <p>できます。むしろ、<strong>画像を貼れない環境ほど「テキスト仕様に落としてからCodexに渡す」</strong>のが強いです。</p>
+            <p>あなたのケース（資料の「LLM（＝Fθ）とPython（＝G_alg）の切り分け」のうち、Python側を作りたい）だと、特に相性が良いです。理由は、LLMは曖昧になりやすい一方、<strong>Python側は"決定的でテスト可能"に設計できる</strong>からです。</p>
+        </div>
+        
+        <h2 class="section-title">1. 結論: GitHub Issue化 → Codexに貼る、は有効です</h2>
+        
+        <p>はい、<strong>「GitHub issueを書かせる」→「そのissue本文をCodexに貼る」</strong>は、かなり良いやり方です。</p>
+        <p>特にCodexは、<strong>"プロンプト/仕様から、リポジトリを読み、編集し、コマンドを実行して検証まで回す"</strong>タイプのコーディングエージェントなので、Issue形式の「目的・制約・受け入れ条件・テスト手順」がハマります。</p>
+        
+        <div class="architecture-diagram">
+            <h3>アーキテクチャの数式表現</h3>
+            <div class="katex-display">
+                \[
+                \text{LLM}: \text{Spec/Logs} \xrightarrow{F_\theta} M \quad \text{Python}: M \xrightarrow{G_{\text{alg}}} A(S) + \text{Test Suite}
+                \]
+            </div>
+            <p>ここで \(F_\theta\) は確率的変換、\(G_{\text{alg}}\) は決定的アルゴリズム</p>
+        </div>
+        
+        <h2 class="section-title">2. 「画像を貼れない」問題の解き方（＝仕様をテキストに落とすコツ）</h2>
+        
+        <p>画像の中身って、だいたい以下のどれかです：</p>
+        
+        <ol class="colorful-list">
+            <li><strong>表</strong>（パラメータ一覧、境界値、条件分岐一覧）</li>
+            <li><strong>図</strong>（状態遷移図、アーキ図、データフロー）</li>
+            <li><strong>画面</strong>（UIフロー、入力制約、エラーメッセージ）</li>
+            <li><strong>例</strong>（入出力例、ログ例）</li>
+        </ol>
+        
+        <h3>表 → Markdown表 or JSONサンプル</h3>
+        <p>例（入力パラメータ表）：</p>
+        
+        <div class="code-block">
+<pre>| name | type | domain | valid | boundaries | notes |
+|---|---|---|---|---|---|
+| quantity | int | 1..999 | yes | 1,2,998,999 | 0以下はINVALID |
+| coupon | enum | NONE/WELCOME10/BF | yes | - | 未知値はINVALID |</pre>
+        </div>
+        
+        <h3>図 → Mermaid / PlantUML / 箇条書き</h3>
+        <p>状態遷移図ならMermaidが特に便利です（Codexにも伝わりやすい）：</p>
+        
+        <div class="code-block">
+<pre>```mermaid
+stateDiagram-v2
+  [*] --> Created
+  Created --> Paid: pay
+  Paid --> Shipped: ship
+  Created --> Cancelled: cancel
+```</pre>
+        </div>
+        
+        <h2 class="section-title">3. ChatGPTとCodexの使い分け：どっちが必要？</h2>
+        
+        <div class="warning-box">
+            <h3>ChatGPT（ここでやると強いこと）</h3>
+            <ul>
+                <li>仕様が曖昧・画像中心・論文/資料中心のときに、<strong>テキスト仕様へ再構成</strong></li>
+                <li>アーキテクチャ設計（責務分割、データモデル、API、テスト戦略）</li>
+                <li>「Issue（＝Codex投入文）」の作成、受け入れ条件の設計</li>
+                <li>エッジケース洗い出し、データモデルの穴埋め</li>
+                <li>"LLMがやる部分"と"決定的アルゴリズムがやる部分"の境界設計</li>
+            </ul>
+        </div>
+        
+        <div class="success-box">
+            <h3>Codex（任せると強いこと）</h3>
+            <ul>
+                <li>リポジトリを読んで、必要なファイルを特定して実装</li>
+                <li>変更を加え、<strong>テスト/リンタ/型チェック等を実行</strong>して直す</li>
+                <li>PR作成やレビュー（GitHub上で <code>@codex review</code> など）</li>
+                <li>反復作業（リファクタ、移行、細かい修正）</li>
+            </ul>
+        </div>
+        
+        <h2 class="section-title">4. あなたの資料に沿った「Python側（G_alg）」アーキテクチャ案</h2>
+        
+        <p>あなたの資料の核はここです：</p>
+        
+        <div class="highlight-box">
+            <p>
+                \[
+                \text{LLM}: \text{仕様・ログ} \rightarrow \text{共通テストモデル } M \text{（確率的変換 } F_\theta \text{）}
+                \]
+                \[
+                \text{Python}: M \rightarrow \text{テスト条件/要求 } A(S) + \text{（必要なら）テストスイート選択（決定的変換 } G_{\text{alg}} \text{）}
+                \]
+            </p>
+        </div>
+        
+        <p>この分離が超重要で、Python側は <strong>"決定的・再現可能・単体テストしやすい"</strong> 形に作るのが勝ち筋です。</p>
+        
+        <h3>推奨するPython側の責務分割（3層）</h3>
+        
+        <table>
+            <tr>
+                <th>層</th>
+                <th>責務</th>
+                <th>例</th>
+            </tr>
+            <tr>
+                <td><strong>Model層</strong></td>
+                <td>中間表現Mのスキーマ（JSON⇄Python）</td>
+                <td><code>TestModel</code>, <code>Parameter</code>, <code>Rule</code>, <code>StateMachine</code></td>
+            </tr>
+            <tr>
+                <td><strong>Obligation生成層</strong></td>
+                <td>観点Sごとの要求（A(S)）を生成</td>
+                <td>EP（同値分割）、BVA（境界値）、Decision Table</td>
+            </tr>
+            <tr>
+                <td><strong>Suite選択層</strong>（任意）</td>
+                <td>候補テスト集合から set cover / hitting set</td>
+                <td>Greedyアルゴリズム、プラガブル設計</td>
+            </tr>
+        </table>
+        
+        <h2 class="section-title">5. そのままCodexに貼れるIssue例</h2>
+        
+        <div class="code-block">
+<pre>Title: Implement deterministic test-design generator (G_alg) from intermediate model M (JSON)
+
+Background
+- We split responsibilities:
+  - LLM: spec/logs -> intermediate common test model M (probabilistic F_θ)
+  - Python: M -> test obligations A(S) and (optional) suite selection (deterministic G_alg)
+- This task implements ONLY the Python deterministic side.
+
+Goal
+- Create a Python package that:
+  1) Loads/validates an intermediate test model M from JSON
+  2) Generates test obligations A(S) for selected viewpoints S:
+     - EP (equivalence partitioning)
+     - BVA (boundary value analysis)
+     - DT (decision table rules as obligations)  [Phase 2 if too heavy]
+     - SM (state/transition coverage)           [Phase 2 if too heavy]
+     - Pairwise (2-wise combinations)           [Phase 2 if too heavy]
+  3) Exports obligations to JSON with stable ordering (deterministic output)
+
+Non-goals (explicitly out of scope for this issue)
+- Calling an LLM / implementing F_θ
+- Executing tests against a real SUT
+- Full constraint solving for complex rule expressions (keep rule DSL minimal first)
+
+Deliverables
+1) `src/testgen/model.py`
+   - dataclasses or pydantic models defining schema M
+   - JSON load/dump
+   - strict validation (types, ranges, required fields)
+   - schema_version field
+
+2) `src/testgen/obligations/base.py`
+   - `Obligation` type:
+     - id: str
+     - viewpoint: str  (e.g., "EP", "BVA")
+     - description: str
+     - selectors: dict  (constraints / tags)
+   - stable sort key rules
+
+3) `src/testgen/generators/ep.py`
+   - For each parameter, generate equivalence classes:
+     - valid class(es)
+     - invalid class(es) where definable (e.g., <min, >max, unknown enum)
+   - Output: list[Obligation]
+
+4) `src/testgen/generators/bva.py`
+   - For numeric parameters with min/max, generate boundary obligations:
+     - min-1, min, min+1, max-1, max, max+1 (when meaningful)
+   - Output: list[Obligation]
+
+5) CLI
+   - `python -m testgen generate --model examples/model.json --viewpoints EP,BVA --out out/obligations.json`
+   - CLI must exit non-zero on validation error
+
+6) Tests
+   - `tests/test_ep.py`, `tests/test_bva.py`, `tests/test_cli.py`
+   - Include at least one example model JSON under `examples/`
+   - Golden file test recommended: obligations output must match expected JSON exactly
+
+Verification steps (Codex must run these)
+- `python -m pytest -q`
+- If formatting/linting is configured, run it too (otherwise skip)
+
+Constraints / conventions
+- Python >= 3.11
+- Keep dependencies minimal. If adding a new dependency, explain why.
+- Deterministic behavior:
+  - same input JSON -> same output JSON ordering
+  - no random unless seeded
+- Error messages should be actionable (which field failed, why)
+
+Example model (create under examples/model.json)
+- Include:
+  - at least 2 parameters: one numeric range, one enum
+  - optional: simple rule list (strings) but ok to ignore in Phase 1
+
+Phase plan
+- Phase 1: implement model + EP/BVA + CLI + tests
+- Phase 2 (separate issue): DT/SM/Pairwise + suite selection (set cover)</pre>
+        </div>
+        
+        <h2 class="section-title">6. AGENTS.mdの例（Codexを"飼い慣らす"）</h2>
+        
+        <div class="code-block">
+<pre># AGENTS.md
+
+## Working agreements
+- Prefer deterministic output (stable ordering, no randomness unless seeded).
+- Do not introduce new dependencies without explaining why.
+- Always add/adjust tests for changes.
+
+## Commands
+- Run tests: python -m pytest -q
+
+## Project layout
+- Source code under: src/testgen/
+- Tests under: tests/
+- Example inputs under: examples/
+- Output artifacts under: out/
+
+## Coding style
+- Use type hints.
+- Keep functions small and pure where possible.
+- Raise ValueError with clear field paths on validation failures.</pre>
+        </div>
+        
+        <h2 class="section-title">7. 数学的基礎: テスト生成の形式的表現</h2>
+        
+        <div class="highlight-box">
+            <p>テスト生成プロセスは形式的に以下のように表現できます：</p>
+            <div class="katex-display">
+                \[
+                G_{\text{alg}}(M) = \{A(S_1), A(S_2), \dots, A(S_n)\}
+                \]
+            </div>
+            <p>ここで、各 \(A(S_i)\) は観点 \(S_i\) に対するテスト要求の集合です。</p>
+            <p>同値分割の場合：</p>
+            <div class="katex-display">
+                \[
+                A(\text{EP}) = \bigcup_{p \in P} \left( \bigcup_{c \in \text{EC}(p)} \{(p, c)\} \right)
+                \]
+            </div>
+            <p>ここで \(P\) はパラメータ集合、\(\text{EC}(p)\) はパラメータ \(p\) の同値クラス集合です。</p>
+        </div>
+        
+        <h2 class="section-title">8. 実装の重要な注意点</h2>
+        
+        <div class="warning-box">
+            <h3>重要：いきなり「テストケースの具体値生成」に突っ込まない</h3>
+            <p>Decision tableや複雑ルールの"具体値を満たす入力"を作るのは、制約解決が必要になりがちです。</p>
+            <p>最初は：</p>
+            <ol>
+                <li><strong>(A)</strong> obligation生成（何をカバーしたいか）を決定的に固める</li>
+                <li><strong>(B)</strong> 具体値は「単純なドメインだけ」or「後でZ3等を差し替え」が安全です。</li>
+            </ol>
+        </div>
+        
+        <p>このガイドに従うことで、画像がなくても明確な仕様を作成し、Codexに効果的に実装を任せることができます。Python側の決定的な部分を確実に実装することで、LLMの確率的な性質とうまく組み合わせた堅牢なテスト生成システムを構築できます。</p>
+    </div>
+    
+    <div class="footer">
+        Codex活用ガイド - LLMとPythonの役割分担 | 最終更新: 2024年
+    </div>
+
+    <script>
+        // KaTeXの自動レンダリング設定
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false},
+                    {left: "\\[", right: "\\]", display: true},
+                    {left: "\\(", right: "\\)", display: false}
+                ],
+                throwOnError: false
+            });
+        });
+    </script>
+</body>
+</html>

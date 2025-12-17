@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codex & ChatGPT 協調開発ガイド - ポップアートスタイル</title>
+    <link rel="stylesheet" href="pop3_style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+    <style>
+        /* 追加のカラフルなスタイル */
+        body {
+            background: linear-gradient(45deg, #ffdd57 25%, #ff4081 25%, #ff4081 50%, #ffdd57 50%, #ffdd57 75%, #ff4081 75%, #ff4081 100%);
+            background-size: 40px 40px;
+            animation: backgroundShift 4s linear infinite;
+        }
+        
+        @keyframes backgroundShift {
+            0% { background-position: 0 0; }
+            100% { background-position: 40px 40px; }
+        }
+        
+        .container {
+            border: 8px solid #00ff00;
+            border-image: linear-gradient(45deg, #ff4081, #1e90ff, #00ff00) 1;
+            position: relative;
+            background-color: white !important;
+        }
+        
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: linear-gradient(45deg, #ff4081, #1e90ff, #00ff00, #ffdd57);
+            z-index: -1;
+            border-radius: 20px;
+            opacity: 0.5;
+        }
+        
+        h1, h2, h3 {
+            text-shadow: 3px 3px 0 #00ff00, 6px 6px 0 #ff4081;
+            position: relative;
+            display: inline-block;
+        }
+        
+        h2 {
+            background: linear-gradient(90deg, #ff4081, #1e90ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        pre {
+            background: linear-gradient(135deg, #1a1a2e, #16213e) !important;
+            color: #00ff00 !important;
+            border: 3px solid #ff4081 !important;
+            border-radius: 15px !important;
+            position: relative;
+            overflow: visible !important;
+        }
+        
+        pre::before {
+            content: 'コード';
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            background: #ff4081;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 10px 10px 0 0;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        table {
+            border: 4px solid #1e90ff !important;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        th {
+            background: linear-gradient(90deg, #ff4081, #1e90ff);
+            color: white !important;
+            text-align: center !important;
+            font-size: 1.2rem;
+        }
+        
+        td {
+            border-color: #1e90ff !important;
+            transition: all 0.3s ease;
+        }
+        
+        tr:nth-child(even) {
+            background-color: rgba(30, 144, 255, 0.1);
+        }
+        
+        tr:hover td {
+            background-color: rgba(255, 64, 129, 0.2);
+            transform: scale(1.02);
+        }
+        
+        .highlight-box {
+            background: linear-gradient(135deg, #ffdd57, #ffcc00);
+            border: 5px dashed #ff4081;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .step-box {
+            background: white;
+            border-left: 10px solid #00ff00;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 10px 10px 0;
+            box-shadow: 5px 5px 0 #ff4081;
+        }
+        
+        .math-inline {
+            background: rgba(30, 144, 255, 0.1);
+            padding: 2px 8px;
+            border-radius: 5px;
+            border: 1px solid #1e90ff;
+        }
+        
+        .katex {
+            font-size: 1.2em !important;
+        }
+        
+        /* 修正: pre内のコード表示を改善 */
+        pre code {
+            color: #00ff00 !important;
+            background: transparent !important;
+            text-shadow: 0 0 5px #00ff00;
+        }
+        
+        /* 修正: pre内の白背景・白文字問題を解決 */
+        pre .hljs,
+        pre .language-* {
+            background-color: #1a1a2e !important;
+            color: #00ff00 !important;
+        }
+        
+        /* ポップアート風のバッジ */
+        .badge {
+            display: inline-block;
+            background: #ff4081;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            margin: 0 5px;
+            font-weight: bold;
+            transform: rotate(-5deg);
+            box-shadow: 3px 3px 0 #1e90ff;
+        }
+        
+        .note {
+            background: linear-gradient(135deg, #1e90ff, #00bfff);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px #1e90ff;
+        }
+        
+        .warning {
+            background: linear-gradient(135deg, #ff4081, #ff0066);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px #ff4081;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 3px #ff4081; }
+            50% { box-shadow: 0 0 0 6px rgba(255, 64, 129, 0.5); }
+            100% { box-shadow: 0 0 0 3px #ff4081; }
+        }
+        
+        .character {
+            border-width: 5px !important;
+            border-style: dashed !important;
+        }
+        
+        .footer {
+            background: linear-gradient(90deg, #ff4081, #1e90ff) !important;
+            font-weight: bold;
+            text-shadow: 2px 2px 0 #000;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div>🎨 Codex × ChatGPT 協調開発ガイド 🚀</div>
+    </header>
+
+    <div class="container">
+        <div class="highlight-box">
+            <h1>人間 → ChatGPT → Codex の分業モデル</h1>
+            <p>このガイドでは、<span class="badge">人間</span>、<span class="badge">ChatGPT</span>、<span class="badge">Codex</span>の協調作業による効率的な開発プロセスを解説します。</p>
+        </div>
+
+        <h2>🎯 結論：GitHub Issue形式の「実装仕様書」手法</h2>
+        <p><strong>「GitHub Issue形式の"実装仕様書"をChatGPTに作らせて、それをCodexに貼る」</strong>は極めて有効な方法です。</p>
+        <div class="step-box">
+            <h3>📝 効率的なIssue作成のポイント</h3>
+            <ul>
+                <li>Issueを<em>「お願い文」ではなく「実装仕様書」</em>として作成</li>
+                <li>Codexが解釈しやすい粒度に仕様を分解</li>
+                <li>検証手順と期待される動作を明確に定義</li>
+                <li>具体的な入力・出力例を必ず含める</li>
+            </ul>
+        </div>
+
+        <h2>🔧 画像が貼れない場合の仕様伝達法</h2>
+        
+        <div class="warning">
+            <strong>⚠️ 重要：画像は「テキスト資産」に変換せよ</strong>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>画像タイプ</th>
+                    <th>変換方法</th>
+                    <th>出力形式</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>アーキテクチャ図</strong></td>
+                    <td>Mermaid記法でフローチャート化</td>
+                    <td><code>flowchart TD; A --> B;</code></td>
+                </tr>
+                <tr>
+                    <td><strong>状態遷移図</strong></td>
+                    <td>状態と遷移のJSONリスト化</td>
+                    <td><code>{"states":[], "transitions":[]}</code></td>
+                </tr>
+                <tr>
+                    <td><strong>UIワイヤーフレーム</strong></td>
+                    <td>画面要素ツリーの列挙</td>
+                    <td>Markdownリスト形式</td>
+                </tr>
+                <tr>
+                    <td><strong>ルール/条件分岐</strong></td>
+                    <td>決定表（真理値表）作成</td>
+                    <td>Markdown表またはJSON</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>🤖 ChatGPT vs Codex：役割分担</h2>
+        
+        <div class="character">
+            <h3>💡 ChatGPT（私）が担当すべき領域</h3>
+            <ul>
+                <li>曖昧な仕様の整理と構造化</li>
+                <li>画像・資料のテキスト仕様（JSON/表/DSL）への変換</li>
+                <li>アーキテクチャ設計とデータモデル策定</li>
+                <li>Codex用Issue/設計書/テスト計画の作成</li>
+                <li>実装結果のレビューと改善指示</li>
+            </ul>
+        </div>
+        
+        <div class="character">
+            <h3>⚡ Codexが担当すべき領域</h3>
+            <ul>
+                <li>リポジトリ横断的な編集と実装</li>
+                <li>複数ファイルの同時変更とリファクタリング</li>
+                <li>実際のコード実行とテスト自動化</li>
+                <li>エラーログに基づくデバッグ</li>
+                <li>PR単位での反復的開発</li>
+            </ul>
+        </div>
+
+        <h2>🧩 数学的モデル：LLMとPythonの切り分け</h2>
+        
+        <p>研究資料のセクション6に基づく形式化：</p>
+        
+        <div class="note">
+            <h3>📐 確率的変換 vs 決定的変換</h3>
+            
+            <p><strong>LLM側（確率的）</strong>：</p>
+            <p class="math-inline">仕様・運用データ → 共通テストモデル M への変換（\(F_θ\))</p>
+            
+            <p><strong>Python側（決定的）</strong>：</p>
+            <p class="math-inline">モデル M → 観点Sごとのテスト条件集合 A(S) の生成＋選択最適化（\(G_{alg}\))</p>
+        </div>
+
+        <h2>📊 Python側アーキテクチャ設計（\(G_{alg}\)実装）</h2>
+        
+        <pre><code class="language-mermaid">
+flowchart LR
+  A[Model JSON (M)\n※LLMまたは手書き] --> B[Model Loader/Validator]
+  B --> C[Directives (S)\nどの観点・技法を使うか]
+  C --> D[Condition Generators\nEP/BVA/DT/Pairwise/State...]
+  D --> E[TestConditions A(S)\n= cover items + predicates]
+  B --> F[Candidate Test Producer\n値候補/組合せ/パス候補]
+  F --> G[Coverage Evaluator\ncandidateがどの条件を満たすか]
+  E --> H[Suite Optimizer\n(set cover / hitting set)]
+  G --> H
+  H --> I[Exporters\nJSON/CSV/pytest/gherkin...]
+        </code></pre>
+
+        <h2>📋 Codex用「そのまま使える」Issueテンプレート</h2>
+        
+        <pre><code>Title: Implement deterministic Python core (G_alg) for automated test design from common test model (M)
+
+## Background
+We separate the pipeline into:
+- Probabilistic extraction (LLM): spec/logs → common test model M (out of scope for this issue)
+- Deterministic algorithms (Python): M → test conditions A(S) and optimized test suite (this issue)
+
+We want a Python library + CLI that:
+1) Loads/validates a common test model (M) from JSON
+2) Generates test conditions A(S) for multiple techniques (EP/BVA/DecisionTable/Pairwise/StateTransition)
+3) Produces candidate tests and evaluates coverage
+4) Selects a minimal/risk-aware suite via greedy set cover
+5) Exports results as JSON (MVP), optionally CSV/pytest later
+
+## Goals
+- Deterministic output: same input JSON ⇒ same outputs (stable ordering)
+- Extensible architecture: generator plugins per technique
+- Safe predicate evaluation (NO python eval)
+
+## Non-goals (MVP)
+- No actual LLM calls
+- No full constraint solver (Z3) required in MVP
+- No integration with external test management tools yet
+
+## Inputs
+A single `model.json` representing M. Provide Pydantic schema or dataclass validation.
+
+### Model JSON (MVP schema)
+- parameters: list of {name, type, domain, boundary_candidates?}
+- rules: list of {id, when, then, description?}
+- state_machines: list of {name, states[], transitions[]}
+- nfrs: list of {id, metric, comparator, threshold}
+- risks: list of {id, severity, note, targets?}
+- scenarios: list of {id, persona?, goal?, steps[]}
+- observations: list of {id, metric/log, slo?}
+
+### Expression DSL
+Use a safe JSON-based expression DSL (JsonLogic-like).
+Example:
+{"and":[{"&lt;=":[{"var":"age"},0]},{"==":[{"var":"country"},"JP"]}]}
+
+## Outputs
+- `conditions.json`: list[TestCondition]
+- `suite.json`: list[TestCase] with coverage mapping
+
+### TestCondition shape
+- id: str
+- technique: str
+- description: str
+- predicate: JSON (expression DSL)
+- covers: list[str]   # coverage item ids
+- risk_weight: float? # optional
+
+### TestCase shape
+- id: str
+- inputs: object (param→value) OR trace (for state-machine paths)
+- covers: list[str]  # condition ids covered
+- cost: float? (default 1.0)
+
+## Architecture / Modules
+Create package `testgen/`:
+
+testgen/
+  model.py            # Pydantic models + validation
+  expr.py             # expression DSL evaluator (safe)
+  directives.py       # Directive (S)
+  conditions.py       # TestCondition, CoverageItem
+  candidates.py       # Candidate representation + producer(s)
+  generators/
+    base.py           # ConditionGenerator interface
+    bva.py            # boundary value analysis generator
+    ep.py             # equivalence partitioning generator (basic)
+    decision_table.py # decision table generator (basic)
+    pairwise.py       # pairwise/t-wise generator (MVP: pairwise only)
+    state.py          # state transition coverage generator (MVP: state+transition)
+  evaluator.py        # evaluate candidate vs condition predicates
+  optimizer.py        # greedy set cover
+  export.py           # exporters (json)
+  cli.py              # CLI entrypoint
+
+## CLI
+Command: `python -m testgen --model model.json --out out/ --techniques bva,ep,dt,pairwise,state`
+
+Expected files:
+- out/conditions.json
+- out/suite.json
+
+## Acceptance criteria
+- [ ] `python -m testgen --help` works
+- [ ] Loading invalid model JSON fails with clear error messages
+- [ ] Each generator returns deterministic, stable-ordered conditions
+- [ ] Greedy optimizer returns a suite that covers all conditions (unless impossible)
+- [ ] Unit tests cover: expr evaluator, each generator, optimizer
+- [ ] No use of `eval`, `exec`, or unsafe AST evaluation
+
+## Verification steps (must pass)
+- `python -m pytest -q`
+- `python -m testgen --model examples/min_model.json --out /tmp/out --techniques bva,ep`
+
+## Example fixture
+Create `examples/min_model.json` with:
+- numeric param with min/max and thresholds
+- enum param
+- at least 2 boolean conditions for decision table
+- simple state machine with 2 states, 1 transition
+Then ensure conditions/suite are generated.
+
+## Notes
+Please add AGENTS.md with repo conventions:
+- Python 3.11+
+- black/ruff/mypy settings (if you add them, wire into tests)
+- deterministic ordering rules (sort keys, stable ids)</code></pre>
+
+        <h2>📝 AGENTS.md テンプレート（Codex常時ルール）</h2>
+        
+        <pre><code># AGENTS.md
+## Working agreements
+- Always keep outputs deterministic (stable sorting, stable IDs).
+- Never use python eval/exec for expression evaluation.
+- Add/extend unit tests for every new module.
+- After changes, run: `python -m pytest -q`.
+- Prefer small, reviewable commits and avoid large refactors unless requested.</code></pre>
+
+        <h2>🚀 次のステップ：現実的支援オプション</h2>
+        
+        <div class="step-box">
+            <h3>オプション1: 現在の資料ベースでMVP実装</h3>
+            <p>→ 上記IssueをそのままCodexに渡して開発開始</p>
+        </div>
+        
+        <div class="step-box">
+            <h3>オプション2: 対象システムに基づく詳細設計</h3>
+            <p>→ 実際のシステム仕様を提供すれば、ChatGPTが <code>model.json</code>（共通テストモデルM）を作成し、Codex用に整形</p>
+        </div>
+
+        <div class="highlight-box">
+            <h3>💎 最終まとめ：黄金のワークフロー</h3>
+            <ol>
+                <li><strong>ChatGPT</strong>: 資料→テキスト化→アーキテクチャ→Issue（実装仕様書）作成</li>
+                <li><strong>Codex</strong>: Issue仕様に基づき実装→テスト→PR作成</li>
+                <li><strong>ChatGPT</strong>: PR/差分のレビュー、改善指示をIssue追記</li>
+                <li><strong>Codex</strong>: 追記分を反映して最終収束</li>
+            </ol>
+            <p class="math-inline">人間（仕様化） → ChatGPT（設計・仕様書化） → Codex（実装・実行・修正）</p>
+            <p>この分業モデルは相互の強みを最大限に活用できる相補的アプローチです。</p>
+        </div>
+        
+        <div class="note">
+            <h3>📚 参考文献</h3>
+            <ul>
+                <li><a href="https://developers.openai.com/codex/cli/">Codex CLI</a></li>
+                <li><a href="https://developers.openai.com/codex/prompting/">Prompting guide</a></li>
+                <li><a href="https://developers.openai.com/codex/guides/agents-md">Custom instructions with AGENTS.md</a></li>
+                <li><a href="https://developers.openai.com/codex/quickstart/">Quickstart</a></li>
+                <li><a href="https://platform.openai.com/docs/guides/code-generation">Code generation | OpenAI API</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>🎨 ポップアートスタイル協調開発ガイド | ChatGPT × Codex 最適化ワークフロー | © 2023</p>
+    </div>
+
+    <!-- KaTeX JavaScript (数式レンダリング用) -->
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false},
+                    {left: '\\(', right: '\\)', display: false},
+                    {left: '\\[', right: '\\]', display: true}
+                ],
+                throwOnError: false
+            });
+        });
+    </script>
+</body>
+</html>
