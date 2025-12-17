@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ホラー船内 | file5</title>
+<style>
+:root{--a:255 106 138}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif;color:#eaf0ff;overflow-x:hidden}
+a,button{color:inherit;font:inherit}
+.stars,.stars2,.vignette{position:fixed;inset:0;pointer-events:none}
+.stars{z-index:-3;opacity:.85;background-image:
+radial-gradient(1px 1px at 10% 20%,rgba(255,255,255,.9) 50%,transparent 51%),
+radial-gradient(1px 1px at 30% 80%,rgba(255,255,255,.7) 50%,transparent 51%),
+radial-gradient(1px 1px at 70% 30%,rgba(255,255,255,.8) 50%,transparent 51%),
+radial-gradient(2px 2px at 90% 60%,rgba(255,255,255,.5) 50%,transparent 51%),
+radial-gradient(1px 1px at 40% 40%,rgba(255,255,255,.6) 50%,transparent 51%),
+radial-gradient(1px 1px at 15% 55%,rgba(255,255,255,.6) 50%,transparent 51%);
+background-size:260px 260px;animation:d1 90s linear infinite}
+.stars2{z-index:-4;opacity:.55;filter:blur(.3px);background-image:
+radial-gradient(1px 1px at 12% 72%,rgba(255,255,255,.7) 50%,transparent 51%),
+radial-gradient(2px 2px at 52% 10%,rgba(255,255,255,.45) 50%,transparent 51%),
+radial-gradient(1px 1px at 82% 42%,rgba(255,255,255,.65) 50%,transparent 51%),
+radial-gradient(1px 1px at 35% 35%,rgba(255,255,255,.55) 50%,transparent 51%);
+background-size:520px 520px;animation:d2 180s linear infinite}
+.vignette{z-index:-2;background:
+radial-gradient(circle at 50% 35%,rgba(190,60,80,.18),rgba(0,0,0,1) 65%),
+radial-gradient(circle at 50% 35%,rgba(0,0,0,0) 0 55%,rgba(0,0,0,.88) 85%)}
+@keyframes d1{to{transform:translate3d(-260px,260px,0)}}
+@keyframes d2{to{transform:translate3d(-520px,520px,0)}}
+@media (prefers-reduced-motion:reduce){.stars,.stars2{animation:none}}
+header{position:sticky;top:0;backdrop-filter:blur(10px);background:rgba(0,0,25,.60);border-bottom:1px solid rgba(150,180,255,.18);z-index:10}
+.wrap{max-width:980px;margin:0 auto;padding:14px 16px}
+.brand{display:flex;gap:12px;align-items:center}
+.logo{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:rgb(var(--a)/.14);border:1px solid rgb(var(--a)/.42);box-shadow:0 0 30px rgb(var(--a)/.10)}
+.brand h1{margin:0;font-size:1.08rem;letter-spacing:.06em}
+.brand p{margin:2px 0 0;opacity:.85;font-size:.92rem}
+nav{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(150,180,255,.25);text-decoration:none}
+.btn.primary{background:rgb(var(--a)/.14);border-color:rgb(var(--a)/.42)}
+.btn:active{transform:translateY(1px)}
+main{padding:18px 16px 40px}
+h2{margin:0 0 10px;font-size:1.15rem}
+p{margin:0 0 12px;opacity:.92;line-height:1.65}
+.panel{border:1px solid rgba(150,180,255,.22);background:rgba(0,0,0,.40);border-radius:18px;padding:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.pill{padding:6px 10px;border-radius:999px;border:1px solid rgba(150,180,255,.22);background:rgba(0,0,0,.22);font-size:.9rem;opacity:.92}
+#console{white-space:pre-wrap;line-height:1.55;opacity:.92;min-height:140px}
+small{opacity:.8;line-height:1.5}
+#darkness{position:fixed;inset:0;pointer-events:none;z-index:999;opacity:0;transition:opacity .15s ease;
+background:radial-gradient(circle 140px at var(--x,50%) var(--y,50%), rgba(0,0,0,0) 0, rgba(0,0,0,.93) 170px)}
+body.flash #darkness{opacity:1}
+.glitch{display:inline-block;letter-spacing:.08em}
+body:not(.safe) .glitch{animation:gl 2.2s infinite}
+@keyframes gl{
+  0%,100%{transform:translate(0,0);filter:none;opacity:1}
+  25%{transform:translate(-1px,0);filter:blur(.4px);opacity:.92}
+  55%{transform:translate(1px,-1px);filter:contrast(1.2);opacity:.86}
+  75%{transform:translate(0,1px);filter:blur(.6px);opacity:.9}
+}
+.hiddenMsg{opacity:.18}
+body.flash .hiddenMsg{opacity:.9}
+</style>
+</head>
+<body class="safe">
+<div class="stars" aria-hidden="true"></div>
+<div class="stars2" aria-hidden="true"></div>
+<div class="vignette" aria-hidden="true"></div>
+<div id="darkness" aria-hidden="true"></div>
+
+<header>
+  <div class="wrap">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">👻</div>
+      <div>
+        <h1>file5.html｜ホラーでこわい船内</h1>
+        <p>懐中電灯モードで暗闇を照らす</p>
+      </div>
+    </div>
+    <nav aria-label="file5 navigation">
+      <a class="btn" href="file4.html">← 前</a>
+      <a class="btn" href="index.html">index</a>
+      <a class="btn primary" href="file5_sub.html">孫ページ：自由おえかき</a>
+      <a class="btn" href="file6.html">次 →</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <h2>船内ログ：<span class="glitch">SIGNAL LOST</span></h2>
+  <p>
+    <strong>懐中電灯</strong>をONにして画面を動かすと、暗闇の中の文字が見えます。<br>
+    こわいのが苦手なら <strong>安心モード</strong> をONのままにしてください（初期ON）。
+  </p>
+
+  <section class="panel">
+    <div class="row">
+      <button id="flash" class="btn primary" type="button">懐中電灯：OFF</button>
+      <button id="safe" class="btn" type="button">安心モード：ON</button>
+      <button id="heart" class="btn" type="button">鼓動(音)：OFF</button>
+      <span class="pill" id="status">状態: 静寂</span>
+    </div>
+
+    <p class="hiddenMsg" style="margin-top:10px">
+      ……見えている？　<span class="glitch">ここ</span> だよ。<br>
+      端の方に、何かが…（懐中電灯で探して）
+    </p>
+
+    <div class="pill">コンソール</div>
+    <div id="console" style="margin-top:8px">[boot] ……………
+[sys] 船内灯: OFF
+[sys] 通信: 不安定
+</div>
+
+    <small>※ 音はブラウザ仕様で「鼓動(音)」を押してから鳴ります。</small>
+  </section>
+</main>
+
+<script>
+(()=> {
+  const flashBtn=document.getElementById('flash');
+  const safeBtn=document.getElementById('safe');
+  const heartBtn=document.getElementById('heart');
+  const statusEl=document.getElementById('status');
+  const consoleEl=document.getElementById('console');
+
+  let flash=false, safe=true, heart=false;
+  let ac=null, heartTimer=null;
+
+  const linesSafe=[
+    "[sys] 微弱なノイズ…",
+    "[nav] 進路: 不明",
+    "[log] ……誰かいる？",
+    "[sys] 光が必要だ。",
+  ];
+  const linesSpicy=[
+    "[warn] 後ろにいる",
+    "[warn] いま みた",
+    "[err] だれ",
+    "[warn] 目を合わせるな",
+  ];
+
+  function write(line){
+    consoleEl.textContent = line + "\n" + consoleEl.textContent;
+  }
+
+  function setStatus(t){ statusEl.textContent="状態: " + t; }
+
+  function toggleFlash(){
+    flash=!flash;
+    document.body.classList.toggle('flash', flash);
+    flashBtn.textContent="懐中電灯：" + (flash?"ON":"OFF");
+    setStatus(flash?"探索":"静寂");
+  }
+
+  function toggleSafe(){
+    safe=!safe;
+    document.body.classList.toggle('safe', safe);
+    safeBtn.textContent="安心モード：" + (safe?"ON":"OFF");
+    write("[sys] safe=" + (safe?"ON":"OFF"));
+  }
+
+  function ensureAudio(){
+    if(ac) return;
+    ac=new (window.AudioContext||window.webkitAudioContext)();
+  }
+
+  async function toggleHeart(){
+    heart=!heart;
+    heartBtn.textContent="鼓動(音)：" + (heart?"ON":"OFF");
+    if(!heart){
+      if(heartTimer) clearInterval(heartTimer);
+      heartTimer=null;
+      return;
+    }
+    ensureAudio();
+    try{ if(ac.state==='suspended') await ac.resume(); }catch(e){}
+    heartTimer=setInterval(()=>thump(), 900);
+    thump();
+  }
+
+  function thump(){
+    if(!ac) return;
+    const t=ac.currentTime;
+    const o=ac.createOscillator();
+    const g=ac.createGain();
+    o.type='sine';
+    o.frequency.setValueAtTime(80, t);
+    o.frequency.exponentialRampToValueAtTime(45, t+0.12);
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.18, t+0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t+0.16);
+    o.connect(g).connect(ac.destination);
+    o.start(t);
+    o.stop(t+0.18);
+  }
+
+  function loop(){
+    const pool = safe ? linesSafe : linesSafe.concat(linesSpicy);
+    const pick = pool[Math.floor(Math.random()*pool.length)];
+    if(!safe && Math.random()<0.25) setStatus("警告");
+    else setStatus(flash?"探索":"静寂");
+    write(pick);
+    setTimeout(loop, safe ? 1600 : 900);
+  }
+
+  function onMove(e){
+    document.documentElement.style.setProperty('--x', e.clientX + 'px');
+    document.documentElement.style.setProperty('--y', e.clientY + 'px');
+  }
+
+  addEventListener('pointermove', onMove, {passive:true});
+  addEventListener('pointerdown', onMove, {passive:true});
+
+  flashBtn.addEventListener('click', toggleFlash);
+  safeBtn.addEventListener('click', toggleSafe);
+  heartBtn.addEventListener('click', toggleHeart);
+
+  loop();
+})();
+</script>
+</body>
+</html>

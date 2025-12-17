@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>限定ジャンケン | file3</title>
+<style>
+:root{--a:139 255 176}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif;color:#eaf0ff;overflow-x:hidden}
+a,button{color:inherit;font:inherit}
+.stars,.stars2,.vignette{position:fixed;inset:0;pointer-events:none}
+.stars{z-index:-3;opacity:.85;background-image:
+radial-gradient(1px 1px at 10% 20%,rgba(255,255,255,.9) 50%,transparent 51%),
+radial-gradient(1px 1px at 30% 80%,rgba(255,255,255,.7) 50%,transparent 51%),
+radial-gradient(1px 1px at 70% 30%,rgba(255,255,255,.8) 50%,transparent 51%),
+radial-gradient(2px 2px at 90% 60%,rgba(255,255,255,.5) 50%,transparent 51%),
+radial-gradient(1px 1px at 40% 40%,rgba(255,255,255,.6) 50%,transparent 51%),
+radial-gradient(1px 1px at 15% 55%,rgba(255,255,255,.6) 50%,transparent 51%);
+background-size:260px 260px;animation:d1 90s linear infinite}
+.stars2{z-index:-4;opacity:.55;filter:blur(.3px);background-image:
+radial-gradient(1px 1px at 12% 72%,rgba(255,255,255,.7) 50%,transparent 51%),
+radial-gradient(2px 2px at 52% 10%,rgba(255,255,255,.45) 50%,transparent 51%),
+radial-gradient(1px 1px at 82% 42%,rgba(255,255,255,.65) 50%,transparent 51%),
+radial-gradient(1px 1px at 35% 35%,rgba(255,255,255,.55) 50%,transparent 51%);
+background-size:520px 520px;animation:d2 180s linear infinite}
+.vignette{z-index:-2;background:
+radial-gradient(circle at 50% 35%,rgba(60,160,110,.18),rgba(0,0,0,1) 65%),
+radial-gradient(circle at 50% 35%,rgba(0,0,0,0) 0 55%,rgba(0,0,0,.88) 85%)}
+@keyframes d1{to{transform:translate3d(-260px,260px,0)}}
+@keyframes d2{to{transform:translate3d(-520px,520px,0)}}
+@media (prefers-reduced-motion:reduce){.stars,.stars2{animation:none}}
+header{position:sticky;top:0;backdrop-filter:blur(10px);background:rgba(0,0,25,.55);border-bottom:1px solid rgba(150,180,255,.18);z-index:10}
+.wrap{max-width:980px;margin:0 auto;padding:14px 16px}
+.brand{display:flex;gap:12px;align-items:center}
+.logo{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:rgb(var(--a)/.14);border:1px solid rgb(var(--a)/.42);box-shadow:0 0 30px rgb(var(--a)/.10)}
+.brand h1{margin:0;font-size:1.08rem;letter-spacing:.06em}
+.brand p{margin:2px 0 0;opacity:.85;font-size:.92rem}
+nav{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(150,180,255,.25);text-decoration:none}
+.btn.primary{background:rgb(var(--a)/.14);border-color:rgb(var(--a)/.42)}
+.btn:active{transform:translateY(1px)}
+main{padding:18px 16px 40px}
+h2{margin:0 0 10px;font-size:1.15rem}
+p{margin:0 0 12px;opacity:.92;line-height:1.65}
+.panel{border:1px solid rgba(150,180,255,.22);background:rgba(0,0,0,.35);border-radius:18px;padding:14px}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.pill{padding:6px 10px;border-radius:999px;border:1px solid rgba(150,180,255,.22);background:rgba(0,0,0,.22);font-size:.9rem;opacity:.92}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.big{font-size:2.1rem;line-height:1}
+#log{white-space:pre-wrap;line-height:1.55;opacity:.9}
+small{opacity:.8;line-height:1.5}
+.handBtn{flex:1 1 140px}
+</style>
+</head>
+<body>
+<div class="stars" aria-hidden="true"></div>
+<div class="stars2" aria-hidden="true"></div>
+<div class="vignette" aria-hidden="true"></div>
+
+<header>
+  <div class="wrap">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">✊✌️✋</div>
+      <div>
+        <h1>file3.html｜限定ジャンケン（風）</h1>
+        <p>手の回数が“有限”な読み合い</p>
+      </div>
+    </div>
+    <nav aria-label="file3 navigation">
+      <a class="btn" href="file2.html">← 前</a>
+      <a class="btn" href="index.html">index</a>
+      <a class="btn primary" href="file3_sub.html">孫ページ：自由おえかき</a>
+      <a class="btn" href="file4.html">次 →</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <h2>限定ジャンケン</h2>
+  <p>あなたも相手も、出せる手の回数が限られています。先読みして勝ちを拾ってください。</p>
+
+  <section class="panel">
+    <div class="row" style="margin-bottom:10px">
+      <div class="pill" id="round">ROUND: 0</div>
+      <div class="pill" id="score">SCORE: 0</div>
+      <div class="pill" id="state">状態: 進行中</div>
+    </div>
+
+    <div class="grid" aria-label="hand buttons">
+      <button class="btn primary handBtn" id="btnR" type="button">✊ グー <span id="cR"></span></button>
+      <button class="btn primary handBtn" id="btnS" type="button">✌️ チョキ <span id="cS"></span></button>
+      <button class="btn primary handBtn" id="btnP" type="button">✋ パー <span id="cP"></span></button>
+    </div>
+
+    <hr style="border:0;border-top:1px solid rgba(150,180,255,.16);margin:14px 0">
+
+    <div class="row" style="align-items:flex-start">
+      <div style="flex:1 1 280px">
+        <div class="pill">あなた: <span class="big" id="you">…</span></div>
+      </div>
+      <div style="flex:1 1 280px">
+        <div class="pill">相手: <span class="big" id="enemy">…</span></div>
+      </div>
+    </div>
+
+    <div style="margin-top:12px" class="pill">ログ</div>
+    <div id="log" style="margin-top:8px">準備OK。手を選んでください。</div>
+
+    <div class="row" style="margin-top:12px">
+      <button id="reset" class="btn" type="button">リセット</button>
+      <div class="pill" id="remain"></div>
+    </div>
+
+    <small>ルール：勝ち=+1、負け=-1、引き分け=0。両者の手が尽きたら終了。</small>
+  </section>
+</main>
+
+<script>
+(()=> {
+  const init=4;
+  let p={r:init,s:init,p:init};
+  let o={r:init,s:init,p:init};
+  let round=0, score=0, ended=false;
+
+  const $=id=>document.getElementById(id);
+  const roundEl=$('round'), scoreEl=$('score'), stateEl=$('state'), logEl=$('log');
+  const youEl=$('you'), enemyEl=$('enemy'), remainEl=$('remain');
+  const cR=$('cR'), cS=$('cS'), cP=$('cP');
+
+  const emoji=k=>k==='r'?'✊':k==='s'?'✌️':'✋';
+  const name=k=>k==='r'?'グー':k==='s'?'チョキ':'パー';
+
+  function judge(a,b){
+    if(a===b) return 'draw';
+    if((a==='r'&&b==='s')||(a==='s'&&b==='p')||(a==='p'&&b==='r')) return 'win';
+    return 'lose';
+  }
+
+  function available(handObj){
+    return Object.entries(handObj).filter(([,v])=>v>0).map(([k])=>k);
+  }
+
+  function update(){
+    cR.textContent=`(${p.r})`;
+    cS.textContent=`(${p.s})`;
+    cP.textContent=`(${p.p})`;
+    roundEl.textContent=`ROUND: ${round}`;
+    scoreEl.textContent=`SCORE: ${score}`;
+    stateEl.textContent=`状態: ${ended?'終了':'進行中'}`;
+    remainEl.textContent=`あなた残り: ${p.r+p.s+p.p} / 相手残り: ${o.r+o.s+o.p}`;
+    $('btnR').disabled=ended||p.r<=0;
+    $('btnS').disabled=ended||p.s<=0;
+    $('btnP').disabled=ended||p.p<=0;
+  }
+
+  function endIf(){
+    if((p.r+p.s+p.p)===0 || (o.r+o.s+o.p)===0){
+      ended=true;
+      logEl.textContent += `\n\n--- 終了 ---\n最終SCORE: ${score}\n`;
+    }
+    update();
+  }
+
+  function play(hand){
+    if(ended || p[hand]<=0) return;
+    const opts=available(o);
+    if(!opts.length){ ended=true; update(); return; }
+
+    const enemy=opts[Math.floor(Math.random()*opts.length)];
+    p[hand]--; o[enemy]--;
+    round++;
+
+    const res=judge(hand,enemy);
+    youEl.textContent=emoji(hand);
+    enemyEl.textContent=emoji(enemy);
+
+    let line=`#${round} あなた ${name(hand)} vs 相手 ${name(enemy)} → `;
+    if(res==='win'){ score++; line+='勝ち (+1)'; }
+    else if(res==='lose'){ score--; line+='負け (-1)'; }
+    else { line+='引き分け (0)'; }
+
+    logEl.textContent = line + '\n' + logEl.textContent;
+    endIf();
+  }
+
+  $('btnR').addEventListener('click', ()=>play('r'));
+  $('btnS').addEventListener('click', ()=>play('s'));
+  $('btnP').addEventListener('click', ()=>play('p'));
+  $('reset').addEventListener('click', ()=>{
+    p={r:init,s:init,p:init}; o={r:init,s:init,p:init};
+    round=0; score=0; ended=false;
+    youEl.textContent='…'; enemyEl.textContent='…';
+    logEl.textContent='準備OK。手を選んでください。';
+    update();
+  });
+
+  update();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>太陽と花 | file6</title>
+<style>
+:root{--a:255 184 107}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif;color:#eaf0ff;overflow-x:hidden}
+a,button{color:inherit;font:inherit}
+.stars,.stars2,.vignette{position:fixed;inset:0;pointer-events:none}
+.stars{z-index:-3;opacity:.85;background-image:
+radial-gradient(1px 1px at 10% 20%,rgba(255,255,255,.9) 50%,transparent 51%),
+radial-gradient(1px 1px at 30% 80%,rgba(255,255,255,.7) 50%,transparent 51%),
+radial-gradient(1px 1px at 70% 30%,rgba(255,255,255,.8) 50%,transparent 51%),
+radial-gradient(2px 2px at 90% 60%,rgba(255,255,255,.5) 50%,transparent 51%),
+radial-gradient(1px 1px at 40% 40%,rgba(255,255,255,.6) 50%,transparent 51%),
+radial-gradient(1px 1px at 15% 55%,rgba(255,255,255,.6) 50%,transparent 51%);
+background-size:260px 260px;animation:d1 90s linear infinite}
+.stars2{z-index:-4;opacity:.55;filter:blur(.3px);background-image:
+radial-gradient(1px 1px at 12% 72%,rgba(255,255,255,.7) 50%,transparent 51%),
+radial-gradient(2px 2px at 52% 10%,rgba(255,255,255,.45) 50%,transparent 51%),
+radial-gradient(1px 1px at 82% 42%,rgba(255,255,255,.65) 50%,transparent 51%),
+radial-gradient(1px 1px at 35% 35%,rgba(255,255,255,.55) 50%,transparent 51%);
+background-size:520px 520px;animation:d2 180s linear infinite}
+.vignette{z-index:-2;background:
+radial-gradient(circle at 50% 35%,rgba(190,120,60,.20),rgba(0,0,0,1) 65%),
+radial-gradient(circle at 50% 35%,rgba(0,0,0,0) 0 55%,rgba(0,0,0,.88) 85%)}
+@keyframes d1{to{transform:translate3d(-260px,260px,0)}}
+@keyframes d2{to{transform:translate3d(-520px,520px,0)}}
+@media (prefers-reduced-motion:reduce){.stars,.stars2{animation:none}}
+header{position:sticky;top:0;backdrop-filter:blur(10px);background:rgba(0,0,25,.55);border-bottom:1px solid rgba(150,180,255,.18);z-index:10}
+.wrap{max-width:980px;margin:0 auto;padding:14px 16px}
+.brand{display:flex;gap:12px;align-items:center}
+.logo{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:rgb(var(--a)/.14);border:1px solid rgb(var(--a)/.42);box-shadow:0 0 30px rgb(var(--a)/.10)}
+.brand h1{margin:0;font-size:1.08rem;letter-spacing:.06em}
+.brand p{margin:2px 0 0;opacity:.85;font-size:.92rem}
+nav{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(150,180,255,.25);text-decoration:none}
+.btn.primary{background:rgb(var(--a)/.14);border-color:rgb(var(--a)/.42)}
+.btn:active{transform:translateY(1px)}
+main{padding:18px 16px 40px}
+h2{margin:0 0 10px;font-size:1.15rem}
+p{margin:0 0 12px;opacity:.92;line-height:1.65}
+.panel{border:1px solid rgba(150,180,255,.22);background:rgba(0,0,0,.35);border-radius:18px;padding:14px}
+.canvas{width:100%;height:min(58vw,440px);display:block;border-radius:14px;background:#070a18;border:1px solid rgba(150,180,255,.18);touch-action:none}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.pill{padding:6px 10px;border-radius:999px;border:1px solid rgba(150,180,255,.22);background:rgba(0,0,0,.22);font-size:.9rem;opacity:.92}
+.bar{flex:1 1 260px;height:12px;border-radius:999px;border:1px solid rgba(150,180,255,.22);background:rgba(0,0,0,.25);overflow:hidden}
+#fill{height:100%;width:0%;background:rgb(var(--a)/.65)}
+small{opacity:.8;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="stars" aria-hidden="true"></div>
+<div class="stars2" aria-hidden="true"></div>
+<div class="vignette" aria-hidden="true"></div>
+
+<header>
+  <div class="wrap">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">☀️🌸</div>
+      <div>
+        <h1>file6.html｜太陽で花が咲きみだれる惑星</h1>
+        <p>太陽の光（エネルギー）で花がどんどん開花</p>
+      </div>
+    </div>
+    <nav aria-label="file6 navigation">
+      <a class="btn" href="file5.html">← 前</a>
+      <a class="btn" href="index.html">index</a>
+      <a class="btn primary" href="file6_sub.html">孫ページ：自由おえかき</a>
+      <a class="btn" href="file1.html">最初へ →</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <h2>太陽と花</h2>
+  <p>キャンバスの<strong>太陽付近をタップ</strong>するとエネルギーが増え、花が咲きます。地面をタップすると種をまけます。</p>
+
+  <section class="panel">
+    <canvas id="garden" class="canvas" aria-label="太陽と花のキャンバス"></canvas>
+
+    <div class="row">
+      <button id="shine" class="btn primary" type="button">☀️ 光をためる</button>
+      <button id="seed" class="btn" type="button">🌱 種をまく</button>
+      <div class="pill" id="energyText">ENERGY: 0</div>
+      <div class="bar" aria-label="energy bar"><div id="fill"></div></div>
+    </div>
+
+    <small>※ 何度も光をためると花が増えます。放置すると少しずつしぼみます。</small>
+  </section>
+</main>
+
+<script>
+(()=> {
+  const canvas=document.getElementById('garden');
+  const ctx=canvas.getContext('2d');
+  const fill=document.getElementById('fill');
+  const energyText=document.getElementById('energyText');
+  const shineBtn=document.getElementById('shine');
+  const seedBtn=document.getElementById('seed');
+
+  let dpr=1,w=0,h=0;
+  let energy=0;
+  let flowers=[];
+  let wind=0;
+
+  function fit(){
+    dpr=Math.min(2,devicePixelRatio||1);
+    w=canvas.clientWidth; h=canvas.clientHeight;
+    canvas.width=w*dpr; canvas.height=h*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+
+  function addFlower(x){
+    const ground=h*0.82;
+    flowers.push({
+      x,
+      y:ground,
+      grow:0,
+      bloom:0,
+      hue:Math.floor(Math.random()*360),
+      sway:Math.random()*Math.PI*2,
+      tall: (Math.random()*0.35+0.35) * (h*0.55),
+    });
+  }
+
+  function seedRandom(n=3){
+    for(let i=0;i<n;i++){
+      addFlower(Math.random()*w);
+    }
+  }
+
+  function clamp(v,a,b){ return Math.max(a, Math.min(b,v)); }
+
+  function drawSun(t){
+    const r=Math.min(w,h)*0.085;
+    const sx=w*0.82 + Math.cos(t*0.0002)*w*0.04;
+    const sy=h*0.18 + Math.sin(t*0.00025)*h*0.03;
+
+    const g=ctx.createRadialGradient(sx,sy,r*0.2,sx,sy,r*2.2);
+    g.addColorStop(0,'rgba(255,240,180,0.95)');
+    g.addColorStop(1,'rgba(255,190,90,0.02)');
+    ctx.fillStyle=g;
+    ctx.beginPath(); ctx.arc(sx,sy,r*2.2,0,Math.PI*2); ctx.fill();
+
+    ctx.fillStyle='rgba(255,230,150,0.95)';
+    ctx.beginPath(); ctx.arc(sx,sy,r,0,Math.PI*2); ctx.fill();
+
+    // rays
+    ctx.strokeStyle='rgba(255,210,120,0.35)';
+    ctx.lineWidth=2;
+    for(let i=0;i<10;i++){
+      const a=t*0.001 + i*(Math.PI*2/10);
+      ctx.beginPath();
+      ctx.moveTo(sx+Math.cos(a)*r*1.2, sy+Math.sin(a)*r*1.2);
+      ctx.lineTo(sx+Math.cos(a)*r*1.9, sy+Math.sin(a)*r*1.9);
+      ctx.stroke();
+    }
+    return {sx,sy,r};
+  }
+
+  function drawFlower(f){
+    const baseY=f.y;
+    const bend=Math.sin(wind+f.sway)*8;
+    const topY=baseY - f.tall*f.grow;
+    const x=f.x + bend*(f.grow);
+
+    // stem
+    ctx.strokeStyle='rgba(120,220,150,0.9)';
+    ctx.lineWidth=4;
+    ctx.beginPath();
+    ctx.moveTo(f.x, baseY);
+    ctx.quadraticCurveTo(f.x+ bend*0.6, (baseY+topY)/2, x, topY);
+    ctx.stroke();
+
+    // leaves
+    ctx.strokeStyle='rgba(120,220,150,0.55)';
+    ctx.lineWidth=3;
+    ctx.beginPath();
+    ctx.moveTo(f.x+ bend*0.2, baseY - f.tall*f.grow*0.45);
+    ctx.quadraticCurveTo(f.x+20, baseY - f.tall*f.grow*0.55, f.x+8, baseY - f.tall*f.grow*0.65);
+    ctx.stroke();
+
+    // bloom
+    const b=f.bloom;
+    if(b<=0) return;
+    const pr=10 + 18*b;
+    const cx=x, cy=topY;
+    ctx.fillStyle=`hsla(${f.hue} 85% 65% / ${0.9})`;
+    for(let i=0;i<8;i++){
+      const a=i*(Math.PI*2/8);
+      const px=cx+Math.cos(a)*pr*0.9;
+      const py=cy+Math.sin(a)*pr*0.9;
+      ctx.beginPath();
+      ctx.ellipse(px,py,pr*0.55,pr*0.28,a,0,Math.PI*2);
+      ctx.fill();
+    }
+    ctx.fillStyle='rgba(255,230,140,0.95)';
+    ctx.beginPath(); ctx.arc(cx,cy,pr*0.35,0,Math.PI*2); ctx.fill();
+  }
+
+  function draw(t){
+    // sky
+    const sky=ctx.createLinearGradient(0,0,0,h);
+    sky.addColorStop(0,'rgba(40,70,150,0.35)');
+    sky.addColorStop(1,'rgba(0,0,0,1)');
+    ctx.fillStyle=sky;
+    ctx.fillRect(0,0,w,h);
+
+    // ground
+    ctx.fillStyle='rgba(20,50,30,0.85)';
+    ctx.fillRect(0,h*0.82,w,h*0.18);
+
+    const sun=drawSun(t);
+
+    // update energy + flowers
+    energy = clamp(energy - 0.05, 0, 100);
+    const power=energy/100;
+
+    wind += 0.02;
+
+    for(const f of flowers){
+      const targetGrow = clamp(power*1.2, 0, 1);
+      f.grow += (targetGrow - f.grow) * 0.02;
+      const targetBloom = clamp((power - 0.15) / 0.85, 0, 1);
+      f.bloom += (targetBloom - f.bloom) * 0.03;
+      drawFlower(f);
+    }
+
+    // occasional new flowers
+    if(power>0.65 && flowers.length<40 && Math.random()<0.02){
+      addFlower(Math.random()*w);
+    }
+
+    // UI
+    fill.style.width = `${energy.toFixed(0)}%`;
+    energyText.textContent = `ENERGY: ${energy.toFixed(0)}`;
+    requestAnimationFrame(draw);
+  }
+
+  function charge(n=10){
+    energy = clamp(energy + n, 0, 100);
+  }
+
+  function pointer(e){
+    const r=canvas.getBoundingClientRect();
+    return {x:e.clientX-r.left, y:e.clientY-r.top};
+  }
+
+  canvas.addEventListener('pointerdown', (e)=>{
+    const p=pointer(e);
+    // sun hit test (approx)
+    const sx=w*0.82, sy=h*0.18;
+    const dx=p.x-sx, dy=p.y-sy;
+    const rr=Math.min(w,h)*0.11;
+    if(dx*dx+dy*dy < rr*rr){
+      charge(14);
+    }else if(p.y>h*0.72){
+      addFlower(p.x);
+      charge(3);
+    }else{
+      charge(6);
+    }
+  });
+
+  shineBtn.addEventListener('click', ()=>charge(14));
+  seedBtn.addEventListener('click', ()=>{
+    addFlower(Math.random()*w);
+    charge(3);
+  });
+
+  addEventListener('resize', ()=>{ fit(); }, {passive:true});
+
+  fit();
+  seedRandom(10);
+  requestAnimationFrame(draw);
+})();
+</script>
+</body>
+</html>

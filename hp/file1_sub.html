@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>自由おえかき（file1の孫）</title>
+<style>
+:root{--a:185 163 255}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif;color:#eaf0ff;background:
+radial-gradient(circle at 50% 30%,rgba(120,80,190,.22),rgba(0,0,0,1) 70%);overflow-x:hidden}
+a,button{color:inherit;font:inherit}
+.wrap{max-width:980px;margin:0 auto;padding:14px 16px}
+header{position:sticky;top:0;backdrop-filter:blur(10px);background:rgba(0,0,25,.60);border-bottom:1px solid rgba(150,180,255,.18);z-index:10}
+.brand{display:flex;gap:12px;align-items:center}
+.logo{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:rgb(var(--a)/.14);border:1px solid rgb(var(--a)/.42)}
+.brand h1{margin:0;font-size:1.05rem}
+.brand p{margin:2px 0 0;opacity:.85;font-size:.92rem}
+nav{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(150,180,255,.25);text-decoration:none}
+.btn.primary{background:rgb(var(--a)/.14);border-color:rgb(var(--a)/.42)}
+main{padding:18px 16px 40px}
+.panel{border:1px solid rgba(150,180,255,.22);background:rgba(0,0,0,.35);border-radius:18px;padding:14px}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.toolbar>*{flex:1 1 160px}
+label{font-size:.9rem;opacity:.9}
+input[type="range"]{width:100%}
+.canvas{width:100%;height:min(70vh,560px);display:block;border-radius:14px;background:#070b18;border:1px solid rgba(150,180,255,.18);touch-action:none;margin-top:12px}
+#preview{width:100%;margin-top:12px;border-radius:14px;border:1px solid rgba(150,180,255,.18)}
+small{opacity:.8;line-height:1.5}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">🖍️</div>
+      <div>
+        <h1>file1 の孫ページ｜自由おえかき</h1>
+        <p>指で描けます（アプリっぽい）</p>
+      </div>
+    </div>
+    <nav>
+      <a class="btn" href="file1.html">← file1へ戻る</a>
+      <a class="btn" href="index.html">index</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="panel">
+    <div class="toolbar">
+      <div>
+        <label>色</label>
+        <input id="color" type="color" value="#ffffff">
+      </div>
+      <div>
+        <label>太さ</label>
+        <input id="size" type="range" min="2" max="26" value="6">
+      </div>
+      <div style="flex:1 1 220px">
+        <label><input id="eraser" type="checkbox"> 消しゴム</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+          <button id="undo" class="btn" type="button">Undo</button>
+          <button id="clear" class="btn" type="button">全消し</button>
+          <button id="open" class="btn primary" type="button">PNGで開く</button>
+        </div>
+      </div>
+    </div>
+
+    <canvas id="draw" class="canvas" aria-label="おえかきキャンバス"></canvas>
+
+    <small>※ PNGを押すとプレビュー表示＋新しいタブで画像を開きます。スマホは画像を長押し保存できます。</small>
+    <img id="preview" alt="出力プレビュー" hidden>
+  </section>
+</main>
+
+<script>
+(()=> {
+  const canvas=document.getElementById('draw');
+  const ctx=canvas.getContext('2d');
+  const color=document.getElementById('color');
+  const size=document.getElementById('size');
+  const eraser=document.getElementById('eraser');
+  const undoBtn=document.getElementById('undo');
+  const clearBtn=document.getElementById('clear');
+  const openBtn=document.getElementById('open');
+  const preview=document.getElementById('preview');
+
+  const bg='#070b18';
+  let dpr=1,w=0,h=0,drawing=false,last=null;
+  const history=[];
+
+  function fit(keep=true){
+    const keepUrl = keep ? canvas.toDataURL('image/png') : null;
+    dpr=Math.min(2,devicePixelRatio||1);
+    w=canvas.clientWidth; h=canvas.clientHeight;
+    canvas.width=w*dpr; canvas.height=h*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.lineCap='round'; ctx.lineJoin='round';
+    if(keep && keepUrl){
+      const img=new Image();
+      img.onload=()=>{ ctx.clearRect(0,0,w,h); ctx.drawImage(img,0,0,w,h); };
+      img.src=keepUrl;
+    }else{
+      ctx.fillStyle=bg; ctx.fillRect(0,0,w,h);
+    }
+  }
+
+  function pos(e){
+    const r=canvas.getBoundingClientRect();
+    return {x:e.clientX-r.left, y:e.clientY-r.top};
+  }
+
+  function snap(){
+    if(history.length>=3) history.shift();
+    history.push(canvas.toDataURL('image/png'));
+    undoBtn.disabled=false;
+  }
+
+  function stroke(a,b){
+    ctx.strokeStyle = eraser.checked ? bg : color.value;
+    ctx.lineWidth = Number(size.value);
+    ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+  }
+
+  canvas.addEventListener('pointerdown', e=>{
+    canvas.setPointerCapture(e.pointerId);
+    drawing=true; last=pos(e); snap();
+  });
+  canvas.addEventListener('pointermove', e=>{
+    if(!drawing) return;
+    const p=pos(e);
+    stroke(last,p);
+    last=p;
+  });
+  canvas.addEventListener('pointerup', ()=>drawing=false);
+  canvas.addEventListener('pointercancel', ()=>drawing=false);
+
+  clearBtn.addEventListener('click', ()=>{
+    snap();
+    ctx.fillStyle=bg; ctx.fillRect(0,0,w,h);
+  });
+
+  undoBtn.addEventListener('click', ()=>{
+    const url=history.pop();
+    if(!url){ undoBtn.disabled=true; return; }
+    const img=new Image();
+    img.onload=()=>{ ctx.clearRect(0,0,w,h); ctx.drawImage(img,0,0,w,h); };
+    img.src=url;
+    if(history.length===0) undoBtn.disabled=true;
+  });
+
+  openBtn.addEventListener('click', ()=>{
+    const url=canvas.toDataURL('image/png');
+    preview.src=url; preview.hidden=false;
+    window.open(url,'_blank');
+  });
+
+  addEventListener('resize', ()=>fit(true), {passive:true});
+  undoBtn.disabled=true;
+  fit(false);
+})();
+</script>
+</body>
+</html>

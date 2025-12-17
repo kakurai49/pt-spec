@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SPACE ADVENTURE | index</title>
+<style>
+:root{--a:122 215 255}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif;color:#eaf0ff;overflow-x:hidden}
+a,button{color:inherit;font:inherit}
+.stars,.stars2,.vignette{position:fixed;inset:0;pointer-events:none}
+.stars{z-index:-3;opacity:.85;background-image:
+radial-gradient(1px 1px at 10% 20%,rgba(255,255,255,.9) 50%,transparent 51%),
+radial-gradient(1px 1px at 30% 80%,rgba(255,255,255,.7) 50%,transparent 51%),
+radial-gradient(1px 1px at 70% 30%,rgba(255,255,255,.8) 50%,transparent 51%),
+radial-gradient(2px 2px at 90% 60%,rgba(255,255,255,.5) 50%,transparent 51%),
+radial-gradient(1px 1px at 40% 40%,rgba(255,255,255,.6) 50%,transparent 51%),
+radial-gradient(1px 1px at 15% 55%,rgba(255,255,255,.6) 50%,transparent 51%);
+background-size:260px 260px;animation:d1 90s linear infinite}
+.stars2{z-index:-4;opacity:.55;filter:blur(.3px);background-image:
+radial-gradient(1px 1px at 12% 72%,rgba(255,255,255,.7) 50%,transparent 51%),
+radial-gradient(2px 2px at 52% 10%,rgba(255,255,255,.45) 50%,transparent 51%),
+radial-gradient(1px 1px at 82% 42%,rgba(255,255,255,.65) 50%,transparent 51%),
+radial-gradient(1px 1px at 35% 35%,rgba(255,255,255,.55) 50%,transparent 51%);
+background-size:520px 520px;animation:d2 180s linear infinite}
+.vignette{z-index:-2;background:
+radial-gradient(circle at 50% 35%,rgba(60,100,190,.28),rgba(0,0,0,1) 65%),
+radial-gradient(circle at 50% 35%,rgba(0,0,0,0) 0 55%,rgba(0,0,0,.88) 85%)}
+@keyframes d1{to{transform:translate3d(-260px,260px,0)}}
+@keyframes d2{to{transform:translate3d(-520px,520px,0)}}
+@media (prefers-reduced-motion:reduce){.stars,.stars2{animation:none}}
+header{position:sticky;top:0;backdrop-filter:blur(10px);background:rgba(0,0,25,.55);border-bottom:1px solid rgba(150,180,255,.18);z-index:10}
+.wrap{max-width:980px;margin:0 auto;padding:14px 16px}
+.brand{display:flex;gap:12px;align-items:center}
+.logo{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:rgb(var(--a)/.14);border:1px solid rgb(var(--a)/.42);box-shadow:0 0 30px rgb(var(--a)/.10)}
+.brand h1{margin:0;font-size:1.15rem;letter-spacing:.06em}
+.brand p{margin:2px 0 0;opacity:.85;font-size:.92rem}
+nav{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(150,180,255,.25);text-decoration:none}
+.btn.primary{background:rgb(var(--a)/.14);border-color:rgb(var(--a)/.42)}
+.btn:active{transform:translateY(1px)}
+main{padding:18px 16px 40px}
+h2{margin:0 0 10px;font-size:1.1rem}
+.lead{margin:0 0 16px;opacity:.92;line-height:1.65}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.card{display:block;padding:14px;border-radius:18px;border:1px solid rgba(150,180,255,.22);background:rgba(0,0,0,.38);text-decoration:none;min-height:110px}
+.card h3{margin:0 0 6px;font-size:1.03rem}
+.card p{margin:0;opacity:.9;line-height:1.55}
+.badge{display:inline-block;margin-top:10px;font-size:.85rem;opacity:.9;padding:4px 10px;border-radius:999px;border:1px solid rgba(150,180,255,.22);background:rgba(0,0,0,.22)}
+footer{margin-top:18px;opacity:.8;font-size:.92rem;line-height:1.6}
+.kbd{padding:2px 8px;border:1px solid rgba(150,180,255,.28);border-bottom-width:2px;border-radius:8px;background:rgba(0,0,0,.25);font-size:.85rem}
+</style>
+</head>
+<body>
+<div class="stars" aria-hidden="true"></div>
+<div class="stars2" aria-hidden="true"></div>
+<div class="vignette" aria-hidden="true"></div>
+
+<header>
+  <div class="wrap">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">🪐</div>
+      <div>
+        <h1>SPACE ADVENTURE</h1>
+        <p>プラネタリウムみたいなトップ → 6つの宇宙異世界へ</p>
+      </div>
+    </div>
+    <nav aria-label="index navigation">
+      <a class="btn primary" href="#links">6つのリンクへ</a>
+      <span class="btn" role="note">スマホOK / レスポンシブ対応</span>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" id="links">
+  <h2>入口（index.html）</h2>
+  <p class="lead">
+    ここから <strong>file1〜file6</strong> へ移動します。各ページにはさらに
+    <strong>孫ページ（自由おえかき）</strong> へのリンクがあります。
+  </p>
+
+  <section class="grid" aria-label="six links">
+    <a class="card" href="file1.html">
+      <h3>01 宇宙の画廊</h3>
+      <p>自動生成される宇宙アート。タップで流れ星。</p>
+      <span class="badge">file1.html</span>
+    </a>
+    <a class="card" href="file2.html">
+      <h3>02 音が出る動くボタン</h3>
+      <p>動くボタンが壁に当たると「ピコッ」。音はONで有効化。</p>
+      <span class="badge">file2.html</span>
+    </a>
+    <a class="card" href="file3.html">
+      <h3>03 限定ジャンケン</h3>
+      <p>出せる手の回数が限られている、制限付きじゃんけん。</p>
+      <span class="badge">file3.html</span>
+    </a>
+    <a class="card" href="file4.html">
+      <h3>04 Eカード風ゲーム</h3>
+      <p>皇帝・市民・奴隷の読み合い（簡易版）。</p>
+      <span class="badge">file4.html</span>
+    </a>
+    <a class="card" href="file5.html">
+      <h3>05 ホラーでこわい船内</h3>
+      <p>懐中電灯モードで暗闇を照らす。安心モードもあり。</p>
+      <span class="badge">file5.html</span>
+    </a>
+    <a class="card" href="file6.html">
+      <h3>06 太陽と花が咲く惑星</h3>
+      <p>太陽をタップして光を集めると、花が咲きみだれる。</p>
+      <span class="badge">file6.html</span>
+    </a>
+  </section>
+
+  <footer>
+    <div>📝 メモ：音が出るページはブラウザ仕様で、最初に<strong>「音をON」</strong>を押してから鳴ります。</div>
+    <div>© space adventure（課題用）</div>
+  </footer>
+</main>
+</body>
+</html>
