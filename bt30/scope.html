@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>型駆動Python学習計画 - 高コントラストデザイン</title>
+    <link rel="stylesheet" href="pop3_style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+    <style>
+        /* === 高コントラストカラーシステム === */
+        /* ベースカラー - 明るい背景、暗い文字 */
+        :root {
+            /* 背景色 - 明るい色のみ */
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-accent: #e9ecef;
+            --bg-light-yellow: #fff9e6;
+            --bg-light-blue: #e8f4fd;
+            --bg-light-green: #e9f7ef;
+            --bg-light-pink: #fde8f1;
+            --bg-light-purple: #f3e8fd;
+            --bg-light-orange: #fff4e6;
+            
+            /* 文字色 - 暗い色のみ（高コントラスト確保） */
+            --text-primary: #000000;
+            --text-secondary: #212529;
+            --text-dark: #343a40;
+            --text-emphasis: #000000;
+            
+            /* アクセント色（境界線や見出し用） */
+            --accent-blue: #0066cc;
+            --accent-red: #cc0000;
+            --accent-green: #006600;
+            --accent-purple: #6600cc;
+            --accent-orange: #cc5500;
+            --accent-pink: #cc0066;
+            
+            /* ボーダー色 */
+            --border-light: #dee2e6;
+            --border-medium: #adb5bd;
+            --border-dark: #495057;
+            
+            /* コントラストチェック済みカラーコンビネーション */
+            --combo-1-bg: var(--bg-primary);
+            --combo-1-text: var(--text-primary);
+            --combo-1-border: var(--accent-blue);
+            
+            --combo-2-bg: var(--bg-light-yellow);
+            --combo-2-text: var(--text-dark);
+            --combo-2-border: var(--accent-orange);
+            
+            --combo-3-bg: var(--bg-light-blue);
+            --combo-3-text: var(--text-dark);
+            --combo-3-border: var(--accent-blue);
+            
+            --combo-4-bg: var(--bg-light-green);
+            --combo-4-text: var(--text-dark);
+            --combo-4-border: var(--accent-green);
+            
+            --combo-5-bg: var(--bg-light-pink);
+            --combo-5-text: var(--text-dark);
+            --combo-5-border: var(--accent-pink);
+            
+            --combo-6-bg: var(--bg-light-purple);
+            --combo-6-text: var(--text-dark);
+            --combo-6-border: var(--accent-purple);
+            
+            --combo-7-bg: var(--bg-light-orange);
+            --combo-7-text: var(--text-dark);
+            --combo-7-border: var(--accent-orange);
+            
+            --combo-8-bg: var(--bg-secondary);
+            --combo-8-text: var(--text-primary);
+            --combo-8-border: var(--border-medium);
+        }
+        
+        /* === 高コントラストベース設定 === */
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+            font-size: 16px;
+        }
+        
+        .container {
+            background-color: var(--bg-primary);
+            border: 2px solid var(--border-medium);
+        }
+        
+        /* === セクションごとのカラーテーマ（背景：明るい、文字：暗い） === */
+        .design-model {
+            background-color: var(--combo-2-bg);
+            color: var(--combo-2-text);
+            padding: 25px;
+            border-radius: 10px;
+            margin: 25px 0;
+            border-left: 6px solid var(--combo-2-border);
+            border-top: 1px solid var(--border-light);
+            border-right: 1px solid var(--border-light);
+            border-bottom: 1px solid var(--border-light);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .world-constraints {
+            background-color: var(--combo-3-bg);
+            color: var(--combo-3-text);
+            padding: 25px;
+            border-radius: 10px;
+            margin: 25px 0;
+            border-left: 6px solid var(--combo-3-border);
+            border-top: 1px solid var(--border-light);
+            border-right: 1px solid var(--border-light);
+            border-bottom: 1px solid var(--border-light);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .perspective {
+            background-color: var(--combo-4-bg);
+            color: var(--combo-4-text);
+            padding: 25px;
+            border-radius: 10px;
+            margin: 25px 0;
+            border-left: 6px solid var(--combo-4-border);
+            border-top: 1px solid var(--border-light);
+            border-right: 1px solid var(--border-light);
+            border-bottom: 1px solid var(--border-light);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .type-recipes {
+            background-color: var(--combo-5-bg);
+            color: var(--combo-5-text);
+            padding: 25px;
+            border-radius: 10px;
+            margin: 25px 0;
+            border-left: 6px solid var(--combo-5-border);
+            border-top: 1px solid var(--border-light);
+            border-right: 1px solid var(--border-light);
+            border-bottom: 1px solid var(--border-light);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .weekly-plan {
+            background-color: var(--combo-6-bg);
+            color: var(--combo-6-text);
+            padding: 25px;
+            border-radius: 10px;
+            margin: 25px 0;
+            border-left: 6px solid var(--combo-6-border);
+            border-top: 1px solid var(--border-light);
+            border-right: 1px solid var(--border-light);
+            border-bottom: 1px solid var(--border-light);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .type-card {
+            background-color: var(--combo-7-bg);
+            color: var(--combo-7-text);
+            padding: 25px;
+            border-radius: 10px;
+            margin: 25px 0;
+            border-left: 6px solid var(--combo-7-border);
+            border-top: 1px solid var(--border-light);
+            border-right: 1px solid var(--border-light);
+            border-bottom: 1px solid var(--border-light);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .summary {
+            background-color: var(--combo-2-bg);
+            color: var(--combo-2-text);
+            padding: 25px;
+            border-radius: 10px;
+            margin: 25px 0;
+            border-left: 6px solid var(--combo-2-border);
+            border-top: 1px solid var(--border-light);
+            border-right: 1px solid var(--border-light);
+            border-bottom: 1px solid var(--border-light);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        /* === 高コントラスト見出し === */
+        h1 {
+            color: var(--text-primary);
+            text-shadow: none;
+            border-bottom: 3px solid var(--accent-red);
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        
+        h2 {
+            color: var(--accent-blue);
+            border-bottom: 2px solid var(--accent-blue);
+            padding-bottom: 10px;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        
+        h3 {
+            color: var(--accent-green);
+            border-left: 4px solid var(--accent-green);
+            padding-left: 15px;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        
+        h4 {
+            color: var(--accent-purple);
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        /* === 高コントラストテーブル === */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+            background-color: var(--bg-primary);
+            border: 2px solid var(--border-dark);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        th {
+            background-color: var(--bg-accent);
+            color: var(--text-primary);
+            font-weight: 700;
+            padding: 12px 15px;
+            border-bottom: 3px solid var(--border-dark);
+            text-align: left;
+        }
+        
+        td {
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--border-light);
+            color: var(--text-dark);
+        }
+        
+        tr:nth-child(even) {
+            background-color: var(--bg-secondary);
+        }
+        
+        tr:hover {
+            background-color: var(--bg-light-blue);
+        }
+        
+        /* === 高コントラストリスト === */
+        ul, ol {
+            background-color: transparent;
+            padding: 0 0 0 25px;
+            border-radius: 0;
+            border-left: none;
+        }
+        
+        li {
+            margin-bottom: 10px;
+            color: var(--text-dark);
+        }
+        
+        li strong {
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+        
+        /* === 高コントラストコード・プレースホルダー === */
+        pre {
+            background-color: #1a1a1a;
+            color: #f8f8f8;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 5px solid var(--accent-orange);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 15px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        
+        code {
+            background-color: #f1f1f1;
+            color: #d63384;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.95em;
+            border: 1px solid #ddd;
+        }
+        
+        /* === 高コントラスト数式コンテナ === */
+        .math-container {
+            background-color: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 2px solid var(--border-medium);
+            overflow-x: auto;
+            text-align: center;
+        }
+        
+        /* === バッジ・ラベル === */
+        .badge {
+            display: inline-block;
+            background-color: var(--accent-blue);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            border: 1px solid var(--border-dark);
+        }
+        
+        .badge-type {
+            background-color: var(--accent-green);
+        }
+        
+        .badge-week {
+            background-color: var(--accent-purple);
+        }
+        
+        /* === ハイライトボックス === */
+        .highlight-box {
+            background-color: var(--bg-light-yellow);
+            color: var(--text-dark);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+            border: 2px solid var(--accent-orange);
+            font-weight: 600;
+        }
+        
+        .highlight-box strong {
+            color: var(--accent-red);
+        }
+        
+        /* === 型カードテンプレート === */
+        .type-card-template {
+            background-color: var(--bg-primary);
+            color: var(--text-dark);
+            padding: 25px;
+            border-radius: 10px;
+            margin: 25px 0;
+            border: 3px solid var(--accent-blue);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .type-card-template h3 {
+            color: var(--accent-blue);
+            text-align: center;
+            border-left: none;
+            padding-left: 0;
+            margin-top: 0;
+        }
+        
+        /* === レスポンシブ対応 === */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+                width: 95%;
+            }
+            
+            .design-model, .world-constraints, .perspective, 
+            .type-recipes, .weekly-plan, .type-card, .summary {
+                padding: 15px;
+                margin: 15px 0;
+            }
+            
+            table {
+                font-size: 0.9rem;
+            }
+            
+            th, td {
+                padding: 8px 10px;
+            }
+        }
+        
+        /* === アクセシビリティ対応 === */
+        a:focus {
+            outline: 3px solid var(--accent-blue);
+            outline-offset: 2px;
+        }
+        
+        /* === フッター調整 === */
+        .footer {
+            background-color: #333;
+            color: white;
+            position: relative;
+            margin-top: 50px;
+        }
+        
+        /* === 印刷用スタイル === */
+        @media print {
+            body {
+                background-color: white;
+                color: black;
+            }
+            
+            .container {
+                box-shadow: none;
+                border: 1px solid #ccc;
+            }
+            
+            .footer {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>型駆動Python学習計画</h1>
+        <p>論文モデル(G:(W,E)→(S,A(S)))を学習設計に転用</p>
+    </header>
+
+    <div class="container">
+        <div class="highlight-box">
+            <p>🎯 <strong>1日2時間 × 3ヶ月（約90日 = 約180時間）のPythonトレーニング計画</strong></p>
+            <p>✨ <strong>型選択レンズで「プログラミング＝型を選ぶこと」を体得</strong></p>
+        </div>
+
+        <div class="design-model">
+            <h2>0. 設計モデル（添付論文）を学習設計に当てはめる</h2>
+            <p>論文の定義：</p>
+            <div class="math-container">
+                \[ G : (W,E)\rightarrow (S,A(S)) \]
+            </div>
+            
+            <ul>
+                <li><strong>(W)</strong>：連続的な可能性の集合（"世界"）</li>
+                <li><strong>(E)</strong>：制約・評価基準</li>
+                <li><strong>(S)</strong>：観点（何を区別したいか）＝観測関数 \(o_S\)</li>
+                <li><strong>(A(S))</strong>：観点 (S) における離散的な同値類（等価クラス集合）</li>
+            </ul>
+            
+            <p>これを学習に翻訳すると：</p>
+            <ul>
+                <li><strong>(W)</strong>：Pythonで書けるあらゆるプログラム／課題／設計の可能性（膨大で連続）</li>
+                <li><strong>(E)</strong>：学習時間・学習ゴール・難易度・道具・あなたの教えたい骨格（＝「型を選ぶ」）</li>
+                <li><strong>(S)</strong>：学習者に"区別して選べるようになってほしい型の観点"</li>
+                <li><strong>(A(S))</strong>：その観点で区別される「型の選択パターン（型レシピ）」の集合
+                  → <strong>この (A(S)) をカバーするように90日メニューを配置</strong>します</li>
+            </ul>
+        </div>
+
+        <!-- セクション1: (W) と (E) の定義 -->
+        <div class="world-constraints">
+            <h2>1. (W) と (E) の定義（この計画の入力）</h2>
+            
+            <h3>(W)（Type-driven Python Programming World）</h3>
+            <p>あなたの骨格に合わせて、世界 (W) を次のように見ます：</p>
+            <div class="highlight-box">
+                <strong>プログラミング＝「入力の型」×「モデル（変換器）の型」×「出力の型」</strong>を選び、必要なら副作用・例外も型として扱うこと
+            </div>
+            
+            <p>ここでいう「型」は Python の <code>int/str/list</code> だけではなく、広い意味での型です：</p>
+            <ul>
+                <li><strong>データ型</strong>：<code>int</code>, <code>float</code>, <code>str</code>, <code>list[T]</code>, <code>dict[K,V]</code> …</li>
+                <li><strong>モデル（変換器）の型</strong>：
+                    <ul>
+                        <li>純粋関数 <code>Tin -> Tout</code></li>
+                        <li>状態を持つオブジェクト（クラス）</li>
+                        <li>ジェネレータ（遅延列）</li>
+                        <li>コンテキストマネージャ（資源の型）</li>
+                        <li>例外／Result型（失敗の型）</li>
+                        <li>非同期（async）など</li>
+                    </ul>
+                </li>
+                <li><strong>副作用（Effect）</strong>：I/O、ネットワーク、更新（ミューテーション）も"型っぽく"扱う</li>
+            </ul>
+            
+            <h3>(E)（制限・評価基準）</h3>
+            <ul>
+                <li>時間：<strong>1日2時間×約3ヶ月（約90日）</strong></li>
+                <li>学習優先：<strong>「型を選ぶ」発想で書けること</strong>（暗記より設計）</li>
+                <li>出力物：ミニ課題（週1）、中間プロジェクト（月1）、最終プロジェクト（最後の2週間）</li>
+                <li>技術制約（おすすめ）：標準ライブラリ中心＋必要最小限
+                    <ul>
+                        <li><code>typing</code>, <code>dataclasses</code>, <code>pathlib</code>, <code>json</code>, <code>csv</code>, <code>unittest/pytest</code>（好みで）</li>
+                        <li>外部ライブラリは「最後に味見」程度にしてもOK</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <!-- セクション2: 観点(S) -->
+        <div class="perspective">
+            <h2>2. 中間生成物：(S)（観点）を明示する</h2>
+            <p>論文では観点 (S) は <strong>観測関数</strong> (\(o_S:W\to O_S\)) でした。<br>
+            この学習計画では、あなたの骨格をそのまま観測関数にします。</p>
+            
+            <h3>観点 (S)：<strong>型選択レンズ（Type Selection Lens）</strong></h3>
+            <p>各課題 (\(w\in W\)) に対して、次を観測できるようにします：</p>
+            
+            <div class="math-container">
+                \[
+                o_S(w)=(
+                T_{\text{in}},
+                T_{\text{model}},
+                T_{\text{out}},
+                T_{\text{effect}},
+                T_{\text{error}}
+                )
+                \]
+            </div>
+            
+            <ul>
+                <li><strong>(\(T_{\text{in}}\))</strong>：入力の型（例：<code>str</code>, <code>list[str]</code>, <code>dict[str, int]</code>, <code>Path</code>…）</li>
+                <li><strong>(\(T_{\text{model}}\))</strong>：モデル（変換器）の型
+                  例：純粋関数 / ジェネレータ / クラス / コンテキストマネージャ / async など</li>
+                <li><strong>(\(T_{\text{out}}\))</strong>：出力の型（例：<code>int</code>, <code>list[int]</code>, <code>Report</code> など）</li>
+                <li><strong>(\(T_{\text{effect}}\))</strong>：副作用の型（none / file I/O / network / mutation）</li>
+                <li><strong>(\(T_{\text{error}}\))</strong>：失敗の型（例外で落とす / <code>Optional</code> / <code>Result</code>風データ など）</li>
+            </ul>
+            
+            <div class="highlight-box">
+                <p><strong>学習目標は「Python文法を知る」ではなく<br>
+                この5つを"自分で選び直せる"ようになることです。</strong></p>
+            </div>
+        </div>
+
+        <!-- セクション3: 型レシピ -->
+        <div class="type-recipes">
+            <h2>3. 中間生成物：(A(S))（等価クラス集合）＝「型レシピ」一覧</h2>
+            <p>(A(S)) は「観点 (S) で同じに見えるものの集まり＝等価クラス」でした。<br>
+            学習では、等価クラスを <strong>"頻出の型選択パターン（型レシピ）"</strong>として離散化します。</p>
+            
+            <p>ここでは <strong>コア24個</strong>に絞ります（90日で回しやすい粒度）。</p>
+            
+            <h3>(A(S))：型レシピ（コア24）</h3>
+            
+            <h4>A1〜A6：スカラー／文字列（純粋関数中心）</h4>
+            <ol>
+                <li><span class="badge badge-type">A1</span> <code>int -> int</code>（計算、丸め、範囲）</li>
+                <li><span class="badge badge-type">A2</span> <code>str -> int</code>（パース、失敗戦略）</li>
+                <li><span class="badge badge-type">A3</span> <code>str -> float</code>（小数・指数表記・エラー）</li>
+                <li><span class="badge badge-type">A4</span> <code>str -> str</code>（正規化：strip/lower/replace）</li>
+                <li><span class="badge badge-type">A5</span> <code>str -> bool</code>（バリデーション predicate）</li>
+                <li><span class="badge badge-type">A6</span> <code>Any -> str</code>（整形・表示・フォーマット）</li>
+            </ol>
+            
+            <h4>A7〜A12：コレクション変換（map/filter/reduce の型）</h4>
+            <ol start="7">
+                <li><span class="badge badge-type">A7</span> <code>list[T] -> list[T]</code>（filter）</li>
+                <li><span class="badge badge-type">A8</span> <code>list[T] -> list[U]</code>（map）</li>
+                <li><span class="badge badge-type">A9</span> <code>Iterable[T] -> Iterator[U]</code>（generator pipeline）</li>
+                <li><span class="badge badge-type">A10</span> <code>Iterable[T] -> U</code>（集計：sum/min/max/len）</li>
+                <li><span class="badge badge-type">A11</span> <code>dict[K,V] -> V</code>（lookup + default）</li>
+                <li><span class="badge badge-type">A12</span> <code>Iterable[T] -> dict[K, list[T]]</code>（grouping）</li>
+            </ol>
+            
+            <h4>A13〜A16：失敗・境界・例外（"失敗も型"）</h4>
+            <ol start="13">
+                <li><span class="badge badge-type">A13</span> <code>Optional[T] -> T</code>（None処理：デフォルト/例外）</li>
+                <li><span class="badge badge-type">A14</span> <code>Tin -> Tout | Exception</code>（例外設計）</li>
+                <li><span class="badge badge-type">A15</span> <code>Tin -> Result[Tout, Error]</code>（失敗を値として返す）</li>
+                <li><span class="badge badge-type">A16</span> <code>Tin -> Tout</code> + <strong>境界値の分割</strong>（空、0、最大、異常…）<br>
+                ※論文の「EP→BVA（精密化）」に対応</li>
+            </ol>
+            
+            <h4>A17〜A20：I/O境界（Effect を型として扱う）</h4>
+            <ol start="17">
+                <li><span class="badge badge-type">A17</span> <code>Path -> str/bytes</code>（読み取り）</li>
+                <li><span class="badge badge-type">A18</span> <code>str/bytes -> Path</code>（書き込み）</li>
+                <li><span class="badge badge-type">A19</span> <code>str <-> dict</code>（JSON serialize/parse）</li>
+                <li><span class="badge badge-type">A20</span> <code>Iterable[dict] <-> CSV</code>（構造⇄テキスト）</li>
+            </ol>
+            
+            <h4>A21〜A24：モデル型（関数→クラス→状態機械）</h4>
+            <ol start="21">
+                <li><span class="badge badge-type">A21</span> <code>dict -> dataclass</code>（スキーマ化）</li>
+                <li><span class="badge badge-type">A22</span> <code>dataclass -> dict/str</code>（出力モデル）</li>
+                <li><span class="badge badge-type">A23</span> <code>State + Event -> State</code>（状態遷移：クラス/関数）</li>
+                <li><span class="badge badge-type">A24</span> <code>Config -> Service</code>（依存性：設定から構築）</li>
+            </ol>
+            
+            <div class="highlight-box">
+                <p><strong>90日メニューは「毎日なにをやるか」ですが、<br>
+                設計としての本体はこの (A(S))（型レシピ集合）をどう被覆するかです。<br>
+                ＝論文の言い方だと「等価クラス集合を被覆する代表元（課題）を選ぶ」。</strong></p>
+            </div>
+        </div>
+
+        <!-- セクション4: 日々のメニュー -->
+        <div class="weekly-plan">
+            <h2>4. 1日2時間×3ヶ月の「メニュー」（90日想定）</h2>
+            
+            <h3>1日の基本フォーマット（固定）</h3>
+            <table>
+                <tr>
+                    <th style="width: 25%;">時間</th>
+                    <th>内容</th>
+                </tr>
+                <tr>
+                    <td><strong>0:00–0:15</strong></td>
+                    <td>今日の型レンズ：<code>Tin / Tmodel / Tout / Effect / Error</code> を先に決める</td>
+                </tr>
+                <tr>
+                    <td><strong>0:15–0:45</strong></td>
+                    <td>あなたがライブ実装（短い完成品）</td>
+                </tr>
+                <tr>
+                    <td><strong>0:45–1:35</strong></td>
+                    <td>お友達が演習（少なくとも2本）</td>
+                </tr>
+                <tr>
+                    <td><strong>1:35–2:00</strong></td>
+                    <td>振り返り：
+                        <ul style="margin-top: 5px;">
+                            <li>今日の型レシピ（A番号）</li>
+                            <li>失敗パターン（境界・例外・None）</li>
+                            <li>テスト観点（EP/BVA）をメモ</li>
+                        </ul>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- セクション5: 12週間プラン -->
+        <div class="weekly-plan">
+            <h2>5. 12週間 + 最終6日（合計90日）プラン</h2>
+            <p>下は「週単位」で設計し、各週は <strong>Day1〜Day7</strong> を提示します（毎日2h）。<br>
+            ※ Day7 は「復習・小課題の日」にして、進みが遅ければキャッチアップに使います。</p>
+            
+            <h3>Week 1：環境構築 + "型レンズ"導入（A1/A4/A6）</h3>
+            <table>
+                <tr>
+                    <th>Day</th>
+                    <th>内容</th>
+                    <th style="width: 15%;">型レシピ</th>
+                </tr>
+                <tr>
+                    <td>Day1</td>
+                    <td>Python実行環境、REPL、<code>print/type()</code>、値＝型のインスタンス</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>Day2</td>
+                    <td>変数・代入・式（A1：<code>int->int</code>）</td>
+                    <td><span class="badge badge-type">A1</span></td>
+                </tr>
+                <tr>
+                    <td>Day3</td>
+                    <td>文字列操作（A4：<code>str->str</code>）</td>
+                    <td><span class="badge badge-type">A4</span></td>
+                </tr>
+                <tr>
+                    <td>Day4</td>
+                    <td>フォーマット（A6：<code>Any->str</code>）</td>
+                    <td><span class="badge badge-type">A6</span></td>
+                </tr>
+                <tr>
+                    <td>Day5</td>
+                    <td>関数入門：<code>def f(x):</code>（Tin/Toutを書く癖）</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>Day6</td>
+                    <td>ミニ課題：<strong>文字列正規化関数</strong>を3本</td>
+                    <td><span class="badge badge-type">A4</span> <span class="badge badge-type">A6</span></td>
+                </tr>
+                <tr>
+                    <td>Day7</td>
+                    <td>復習＋「型カード」を作る（後述テンプレ）</td>
+                    <td>-</td>
+                </tr>
+            </table>
+            <p><strong>週の到達</strong>：「課題を見る→Tin/Toutを先に書く」が口癖になる</p>
+            
+            <h3>Week 2：制御構造は"型の分岐"として見る（A5/A13/A14）</h3>
+            <table>
+                <tr>
+                    <th>Day</th>
+                    <th>内容</th>
+                    <th style="width: 15%;">型レシピ</th>
+                </tr>
+                <tr>
+                    <td>Day1</td>
+                    <td><code>if</code> と predicate（A5：<code>str->bool</code>）</td>
+                    <td><span class="badge badge-type">A5</span></td>
+                </tr>
+                <tr>
+                    <td>Day2</td>
+                    <td><code>while/for</code> と停止条件＝境界</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>Day3</td>
+                    <td>例外の基礎（A14：例外を"出力の型"として扱う）</td>
+                    <td><span class="badge badge-type">A14</span></td>
+                </tr>
+                <tr>
+                    <td>Day4</td>
+                    <td><code>None</code> と <code>Optional</code>感覚（A13）</td>
+                    <td><span class="badge badge-type">A13</span></td>
+                </tr>
+                <tr>
+                    <td>Day5</td>
+                    <td>入力検証 + 例外設計（A2にも触れる）</td>
+                    <td><span class="badge badge-type">A2</span> <span class="badge badge-type">A14</span></td>
+                </tr>
+                <tr>
+                    <td>Day6</td>
+                    <td>ミニ課題：<strong>入力検証つきパーサ</strong>（失敗戦略2通り）</td>
+                    <td><span class="badge badge-type">A2</span> <span class="badge badge-type">A14</span></td>
+                </tr>
+                <tr>
+                    <td>Day7</td>
+                    <td>復習：同じ仕様を「例外版」と「Optional版」で作り比べる</td>
+                    <td>-</td>
+                </tr>
+            </table>
+            
+            <div class="highlight-box">
+                <p><strong>注：</strong> Week3からWeek11までは同様のテーブル形式で続きますが、スペースの関係でここでは省略します。<br>
+                最終6日（Day85-Day90）は最終プロジェクトの実装と仕上げに充てられます。</p>
+            </div>
+        </div>
+
+        <!-- セクション6: 型カード -->
+        <div class="type-card">
+            <h2>6. 仕上げ：毎回使う「型カード」（Sを可視化する道具）</h2>
+            <p>毎日これを書かせると、あなたの骨格が<strong>強制的に身につきます</strong>。</p>
+            
+            <div class="type-card-template">
+                <h3>型カード（テンプレート）</h3>
+                <table>
+                    <tr>
+                        <td style="width: 30%; vertical-align: top;"><strong>今日の課題名：</strong></td>
+                        <td>_________________________________</td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: top;"><strong>Tin（入力の型）：</strong></td>
+                        <td>_________________________________</td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: top;"><strong>Tmodel（モデルの型）：</strong></td>
+                        <td>_________________________________</td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: top;"><strong>Tout（出力の型）：</strong></td>
+                        <td>_________________________________</td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: top;"><strong>Effect（副作用）：</strong></td>
+                        <td>_________________________________</td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: top;"><strong>Error（失敗の型）：</strong></td>
+                        <td>_________________________________</td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: top;"><strong>同値分割（EP）：</strong></td>
+                        <td>_________________________________</td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: top;"><strong>境界（BVA）：</strong></td>
+                        <td>_________________________________</td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: top;"><strong>代表例（最低3つ）：</strong></td>
+                        <td>
+                            1. _________________________________<br>
+                            2. _________________________________<br>
+                            3. _________________________________
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- セクション7: まとめ -->
+        <div class="summary">
+            <h2>7. この設計が論文モデルに沿っている点（要約）</h2>
+            <ul>
+                <li>あなたが教えたい骨格を <strong>観点 (S)</strong>（観測関数）として定義した
+                  → <code>Tin/Tmodel/Tout/Effect/Error</code></li>
+                <li>その観点で学習世界 (W) を離散化したものが <strong>(A(S))</strong>（型レシピ24）</li>
+                <li>90日メニューは、<strong>(A(S)) を被覆する代表課題の選択</strong>として設計した
+                  （論文でいう「等価クラスを被覆するテスト集合選択」に対応）</li>
+                <li>さらに毎週、<strong>EP→BVA（精密化）</strong>を必ずやらせて「型を選ぶ」筋肉を鍛える</li>
+            </ul>
+            
+            <div class="highlight-box">
+                <p><strong>必要なら、あなたが考えている「最終プロジェクトの題材」（例：家計簿、ログ解析、在庫、スクレイピングではなくローカル解析等）を1つ仮決めして、上の Week12〜Day90 をその題材に合わせて Tin/Toutの具体型まで落とした版に"即"作り替えられます。</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>型駆動Python学習計画 - 論文モデル(G:(W,E)→(S,A(S)))を学習設計に転用</p>
+        <p>© 2023 - 高コントラストデザイン（WCAG準拠）</p>
+    </div>
+
+    <!-- KaTeXスクリプト -->
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false},
+                    {left: "\\[", right: "\\]", display: true},
+                    {left: "\\(", right: "\\)", display: false}
+                ],
+                throwOnError: false,
+                strict: false
+            });
+        });
+    </script>
+</body>
+</html>

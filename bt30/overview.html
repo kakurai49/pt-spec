@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BEATを作る楽器 - 3ヶ月学習計画</title>
+    <link rel="stylesheet" href="pop3_style.css">
+    <!-- KaTeX for Math Rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+    <style>
+        /* カラフルなカラーパレットをCSS変数で定義 */
+        :root {
+            --color-primary: #FF4081;
+            --color-secondary: #1E90FF;
+            --color-accent-1: #FFDD57;
+            --color-accent-2: #9C27B0;
+            --color-accent-3: #4CAF50;
+            --color-accent-4: #FF9800;
+            --color-dark: #222222;
+            --color-light: #FFFFFF;
+            --color-gray: #F4F4F4;
+            --shadow-pop: 5px 5px 0px var(--color-dark);
+            --shadow-glow: 0 0 15px currentColor;
+        }
+
+        /* カラー管理アーキテクチャ：背景と文字色を強制コントラスト */
+        .bg-primary { background-color: var(--color-primary); color: var(--color-light); }
+        .bg-secondary { background-color: var(--color-secondary); color: var(--color-light); }
+        .bg-accent1 { background-color: var(--color-accent-1); color: var(--color-dark); }
+        .bg-accent2 { background-color: var(--color-accent-2); color: var(--color-light); }
+        .bg-accent3 { background-color: var(--color-accent-3); color: var(--color-light); }
+        .bg-accent4 { background-color: var(--color-accent-4); color: var(--color-dark); }
+        .bg-dark { background-color: var(--color-dark); color: var(--color-light); }
+        .bg-light { background-color: var(--color-light); color: var(--color-dark); }
+        .bg-gray { background-color: var(--color-gray); color: var(--color-dark); }
+
+        /* カラフルなセクション見出し */
+        .section-title {
+            border-left: 10px solid;
+            padding-left: 15px;
+            margin-top: 40px;
+            font-size: 1.8rem;
+            text-transform: uppercase;
+            font-weight: bold;
+            border-radius: 0 10px 10px 0;
+            box-shadow: var(--shadow-pop);
+        }
+
+        .section-1 { border-color: var(--color-primary); }
+        .section-2 { border-color: var(--color-secondary); }
+        .section-3 { border-color: var(--color-accent-2); }
+        .section-4 { border-color: var(--color-accent-3); }
+        .section-5 { border-color: var(--color-accent-4); }
+
+        /* 型レシピカード */
+        .recipe-card {
+            display: inline-block;
+            margin: 10px;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: bold;
+            box-shadow: var(--shadow-pop);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: default;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .recipe-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        /* 週間メニューカード */
+        .week-card {
+            border: 3px solid;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            background: var(--color-light);
+            box-shadow: var(--shadow-pop);
+            transition: all 0.3s ease;
+        }
+
+        .week-card:hover {
+            transform: scale(1.02);
+            box-shadow: 10px 10px 0px var(--color-dark);
+        }
+
+        .week-number {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        /* 型カード */
+        .type-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .type-card h3 {
+            margin-top: 0;
+            text-align: center;
+            font-size: 1.5rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        /* ポップアート風リスト */
+        .pop-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .pop-list li {
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            position: relative;
+            padding-left: 50px;
+            font-weight: bold;
+            box-shadow: 3px 3px 0px rgba(0,0,0,0.1);
+        }
+
+        .pop-list li:before {
+            content: "♪";
+            position: absolute;
+            left: 15px;
+            font-size: 1.5rem;
+        }
+
+        /* パターン表示 */
+        .pattern-display {
+            font-family: 'Courier New', monospace;
+            background: var(--color-dark);
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow-x: auto;
+            border: 2px solid var(--color-accent-3);
+            box-shadow: inset 0 0 10px rgba(0,255,0,0.2);
+        }
+
+        /* ハイライト */
+        .highlight {
+            background: linear-gradient(transparent 60%, var(--color-accent-1) 60%);
+            padding: 0 5px;
+            font-weight: bold;
+        }
+
+        /* レスポンシブ調整 */
+        @media (max-width: 768px) {
+            .recipe-card {
+                min-width: 150px;
+                padding: 10px;
+                font-size: 0.9rem;
+            }
+            
+            .week-card {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="bg-primary">
+        <h1>BEATを作る楽器<br>3ヶ月学習計画</h1>
+        <p>簡易ドラムマシン／ステップシーケンサ開発ロードマップ</p>
+    </header>
+
+    <div class="container">
+        <!-- 導入セクション -->
+        <section>
+            <h2 class="section-title section-1">コンセプト: 型レンズによる学習設計</h2>
+            <p>この計画は、論文の枠組み <span class="katex">G:(W,E)\rightarrow(S,A(S))</span> に基づいて設計されています。</p>
+            
+            <div class="character">
+                <h3>世界 (W): Beat-Instrument Programming World</h3>
+                <p>「BEATを作る楽器」を以下のパイプラインとして定義:</p>
+                <div class="pattern-display">
+                    Pattern（パターン） → Events（イベント列） → AudioBuffer（音の配列） → WAVファイル/再生
+                </div>
+            </div>
+
+            <div class="character">
+                <h3>制約 (E): 学習条件</h3>
+                <ul class="pop-list">
+                    <li class="bg-accent1">学習時間: 1日2時間 × 3ヶ月（約90日）</li>
+                    <li class="bg-accent2">プログラミング骨格: 型を選ぶ（入力型／モデル型／出力型）</li>
+                    <li class="bg-accent3">技術制約: 標準ライブラリ中心 (dataclasses, typing, pathlib, waveなど)</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 型レンズセクション -->
+        <section>
+            <h2 class="section-title section-2">観点 (S): 型レンズの定義</h2>
+            <p>任意の作業 <span class="katex">w \in W</span> に対し、観測関数:</p>
+            
+            <div class="type-card">
+                <h3>型レンズ観測関数</h3>
+                <div class="katex-display">o_S(w) = (T_{\text{in}}, T_{\text{model}}, T_{\text{out}}, T_{\text{effect}}, T_{\text{error}})</div>
+                <ul class="pop-list">
+                    <li class="bg-gray"><strong>T<sub>in</sub></strong>: 入力の型（例: strのパターン、Pattern、list[Event]）</li>
+                    <li class="bg-gray"><strong>T<sub>model</sub></strong>: モデル型（純粋関数、ジェネレータ、クラス）</li>
+                    <li class="bg-gray"><strong>T<sub>out</sub></strong>: 出力の型（Pattern、Iterator[Event]、AudioBuffer）</li>
+                    <li class="bg-gray"><strong>T<sub>effect</sub></strong>: 副作用の型（なし／ファイルI/O／再生）</li>
+                    <li class="bg-gray"><strong>T<sub>error</sub></strong>: 失敗の型（例外／Optional／Result風）</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 型レシピセクション -->
+        <section>
+            <h2 class="section-title section-3">中間生成物 (A(S)): 型レシピ24個</h2>
+            <p>BEAT楽器に特化した「型レシピ」集合（等価クラス代表元）:</p>
+            
+            <div style="text-align: center;">
+                <div class="recipe-card bg-primary">A1: bpm → sec_per_beat</div>
+                <div class="recipe-card bg-secondary">A2: bpm → sec_per_step</div>
+                <div class="recipe-card bg-accent2">A3: step_index → time_sec</div>
+                <div class="recipe-card bg-accent3">A4: time_sec → sample_index</div>
+                <div class="recipe-card bg-accent4">A5: duration_sec → n_samples</div>
+                <div class="recipe-card bg-primary">A6: swing → timing_adjust</div>
+                
+                <div class="recipe-card bg-secondary">A7: track_line → list[int]</div>
+                <div class="recipe-card bg-accent2">A8: pattern_text → Pattern</div>
+                <div class="recipe-card bg-accent3">A9: Pattern → Iterator[Event]</div>
+                <div class="recipe-card bg-accent4">A10: Event → Hit</div>
+                <div class="recipe-card bg-primary">A11: Pattern → Pattern</div>
+                <div class="recipe-card bg-secondary">A12: list[Event] → dict[track, list]</div>
+                
+                <div class="recipe-card bg-accent2">A13: InstrumentSpec → Sample</div>
+                <div class="recipe-card bg-accent3">A14: Hit + Sample → AudioBuffer</div>
+                <div class="recipe-card bg-accent4">A15: list[AudioBuffer] → AudioBuffer</div>
+                <div class="recipe-card bg-primary">A16: AudioBuffer → AudioBuffer</div>
+                <div class="recipe-card bg-secondary">A17: AudioBuffer → bytes(pcm16)</div>
+                <div class="recipe-card bg-accent2">A18: bytes → Path(.wav)</div>
+                
+                <div class="recipe-card bg-accent3">A19: dict/json ↔ Pattern</div>
+                <div class="recipe-card bg-accent4">A20: Config → BeatMachine</div>
+                <div class="recipe-card bg-primary">A21: BeatMachine.render → AudioBuffer</div>
+                <div class="recipe-card bg-secondary">A22: State + Command → State</div>
+                <div class="recipe-card bg-accent2">A23: Song → Iterator[Event]</div>
+                <div class="recipe-card bg-accent3">A24: エラー戦略の型設計</div>
+            </div>
+        </section>
+
+        <!-- 90日メニューセクション -->
+        <section>
+            <h2 class="section-title section-4">90日メニュー (12週間 + 最終6日)</h2>
+            
+            <!-- Week 1 -->
+            <div class="week-card" style="border-color: var(--color-primary);">
+                <div class="week-number bg-primary">Week 1: テンポ＝型（A1–A3）</div>
+                <ul class="pop-list">
+                    <li class="bg-gray">Day1: int/float と bpm（A1）</li>
+                    <li class="bg-gray">Day2: ステップ長計算（A2）</li>
+                    <li class="bg-gray">Day3: step→秒（A3）と丸めの注意</li>
+                    <li class="bg-gray">Day4: 入力検証とError型の導入</li>
+                    <li class="bg-gray">Day5: 小関数を合成して「クリックの予定表」</li>
+                    <li class="bg-gray">Day6: ミニ課題: bpm=90/120/180で1小節時刻表</li>
+                    <li class="bg-gray">Day7: 境界テスト（BVA）作成（A24）</li>
+                </ul>
+            </div>
+
+            <!-- Week 2-6 -->
+            <div class="week-card" style="border-color: var(--color-secondary);">
+                <div class="week-number bg-secondary">Week 2: パターン文字列を型にする（A7/A8）</div>
+                <p>トラック文字列変換、Pattern dataclass化、エラー処理</p>
+            </div>
+
+            <div class="week-card" style="border-color: var(--color-accent-2);">
+                <div class="week-number bg-accent2">Week 3: コレクション変換（A11/A12）</div>
+                <p>パターンのシフト、ミュート、グルーピング</p>
+            </div>
+
+            <div class="week-card" style="border-color: var(--color-accent-3);">
+                <div class="week-number bg-accent3">Week 4: イベント生成＝ジェネレータ（A9/A10）</div>
+                <p>Event dataclass、イテレータ、パイプライン完成</p>
+            </div>
+
+            <div class="week-card" style="border-color: var(--color-accent-4);">
+                <div class="week-number bg-accent4">Week 5: 失敗を型として固定（A24中心）</div>
+                <p>例外設計、Result型、EP→BVAテスト自動化</p>
+            </div>
+
+            <div class="week-card" style="border-color: var(--color-primary);">
+                <div class="week-number bg-primary">Week 6: モジュール化＆CLI（A20前段）</div>
+                <p>モジュール分割、CLI引数、Config dataclass</p>
+            </div>
+
+            <!-- Week 7-12 -->
+            <div class="week-card" style="border-color: var(--color-secondary);">
+                <div class="week-number bg-secondary">Week 7: 音の最小単位（A13/A17）</div>
+                <p>AudioBuffer型、サイン波合成、WAV書き出し</p>
+            </div>
+
+            <div class="week-card" style="border-color: var(--color-accent-2);">
+                <div class="week-number bg-accent2">Week 8: ドラム音合成（A13/A16）</div>
+                <p>Kick/Snare/HiHat合成、正規化/クリップ戦略</p>
+            </div>
+
+            <div class="week-card" style="border-color: var(--color-accent-3);">
+                <div class="week-number bg-accent3">Week 9: Hit配置とミックス（A14/A15）</div>
+                <p>Hit配置、複数トラックレンダリング、ミックス</p>
+            </div>
+
+            <div class="week-card" style="border-color: var(--color-accent-4);">
+                <div class="week-number bg-accent4">Week 10: 保存と再利用（A19/A11）</div>
+                <p>JSON保存/復元、パターン変換、アレンジ基礎</p>
+            </div>
+
+            <div class="week-card" style="border-color: var(--color-primary);">
+                <div class="week-number bg-primary">Week 11: BeatMachine（A20/A21）</div>
+                <p>BeatMachineクラス、依存性注入、統合テスト</p>
+            </div>
+
+            <div class="week-card" style="border-color: var(--color-secondary);">
+                <div class="week-number bg-secondary">Week 12: 最終プロジェクト設計（A22/A23/A6）</div>
+                <p>Song定義、Swing導入、編集コマンド状態機械</p>
+            </div>
+
+            <div class="week-card" style="border-color: #FF5722;">
+                <div class="week-number" style="background: #FF5722;">最終6日: 磨き・提出物化</div>
+                <ul class="pop-list">
+                    <li class="bg-gray">Day85: アレンジ完成（A23）</li>
+                    <li class="bg-gray">Day86: Swing/Accent調整（A6）</li>
+                    <li class="bg-gray">Day87: 境界テスト総ざらい（A24）</li>
+                    <li class="bg-gray">Day88: リファクタ（I/O境界を薄く）</li>
+                    <li class="bg-gray">Day89: README＋サンプル作成</li>
+                    <li class="bg-gray">Day90: デモ: 「入力型→モデル型→出力型」説明</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 型カードセクション -->
+        <section>
+            <h2 class="section-title section-5">毎日使う「型カード」（Beat版）</h2>
+            
+            <div class="type-card">
+                <h3>今日の型カード例: Patternパース</h3>
+                <table>
+                    <tr>
+                        <th class="bg-accent1">項目</th>
+                        <th class="bg-accent1">例</th>
+                    </tr>
+                    <tr>
+                        <td><strong>T<sub>in</sub></strong>（入力型）</td>
+                        <td><code>str(pattern_text)</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>T<sub>model</sub></strong>（モデル型）</td>
+                        <td>純粋関数</td>
+                    </tr>
+                    <tr>
+                        <td><strong>T<sub>out</sub></strong>（出力型）</td>
+                        <td><code>Pattern</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>T<sub>effect</sub></strong>（副作用）</td>
+                        <td>なし</td>
+                    </tr>
+                    <tr>
+                        <td><strong>T<sub>error</sub></strong>（失敗型）</td>
+                        <td><code>ValueError</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>EP（同値分割）</strong></td>
+                        <td>正常/空/不正文字/長さ不一致/トラック0</td>
+                    </tr>
+                    <tr>
+                        <td><strong>BVA（境界）</strong></td>
+                        <td>0,1,15,16,17... / bpm=0,1,39,40...</td>
+                    </tr>
+                </table>
+            </div>
+        </section>
+
+        <!-- 最終成果物セクション -->
+        <section>
+            <h2 class="section-title section-1">最終成果物: 完成する「BEATを作る楽器」</h2>
+            <div class="character">
+                <h3>3ヶ月後に狙う完成形</h3>
+                <ul class="pop-list">
+                    <li class="bg-accent1"><strong>入力</strong>: パターンテキスト or JSON（A8/A19）</li>
+                    <li class="bg-accent2"><strong>処理</strong>: パース→イベント生成→合成→ミックス→正規化（A9〜A16）</li>
+                    <li class="bg-accent3"><strong>出力</strong>: WAV書き出し（A17/A18）</li>
+                    <li class="bg-accent4"><strong>オプション</strong>: Swing、アレンジ、パターン編集</li>
+                </ul>
+                
+                <h4>サンプルパターン:</h4>
+                <div class="pattern-display">
+bpm=120<br>
+kick:  x---x---x---x---<br>
+snare: ----x-------x---<br>
+hihat: x-x-x-x-x-x-x-x-
+                </div>
+            </div>
+        </section>
+
+        <!-- 論文モデル整合性セクション -->
+        <section>
+            <h2 class="section-title section-2">論文モデルに沿っているポイント</h2>
+            <ul class="pop-list">
+                <li class="bg-accent1">観点 (S) を <strong>型レンズ</strong>（観測関数）として固定</li>
+                <li class="bg-accent2">Beat世界 (W) を、その観点で同値化して <strong>型レシピ集合 (A(S))</strong> に離散化</li>
+                <li class="bg-accent3">90日メニューは <strong>(A(S)) の被覆</strong>（代表元課題の選択）として配置</li>
+                <li class="bg-accent4">毎週EP→BVAで精密化し、境界・例外を型の一部として扱う</li>
+            </ul>
+            
+            <div class="katex-display">
+                \text{学習計画} = \bigcup_{i=1}^{90} \text{Day}_i \quad \text{where} \quad \forall a \in A(S), \exists \text{Day}_i \text{ that covers } a
+            </div>
+        </section>
+    </div>
+
+    <div class="footer">
+        <p>BEATを作る楽器 - 型レンズ学習計画 &copy; 2023 | 論文モデル: <span class="katex">G:(W,E)\rightarrow(S,A(S))</span></p>
+    </div>
+
+    <script>
+        // KaTeXの追加設定
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false},
+                    {left: "\\(", right: "\\)", display: false},
+                    {left: "\\[", right: "\\]", display: true}
+                ],
+                throwOnError: false
+            });
+        });
+
+        // ポップアート風のインタラクション
+        document.querySelectorAll('.recipe-card, .week-card, .character').forEach(element => {
+            element.addEventListener('mouseenter', function() {
+                this.style.zIndex = '10';
+            });
+            element.addEventListener('mouseleave', function() {
+                this.style.zIndex = '1';
+            });
+        });
+    </script>
+</body>
+</html>

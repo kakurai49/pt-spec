@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python学習メニュー設計 - 型選択工学による1週間カリキュラム</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+    <style>
+        /* ベースCSS - pop3_style.cssの内容 */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #ffdd57; /* Bold pop art colors */
+            color: #333;
+        }
+
+        header {
+            background-color: #ff4081;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            text-transform: uppercase;
+            font-weight: bold;
+            font-size: 2.5rem;
+            animation: glow 1.5s infinite alternate;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                font-size: 1.8rem; /* Smaller font for mobile devices */
+            }
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 10px #ff4081, 0 0 20px #ff4081;
+            }
+            to {
+                text-shadow: 0 0 30px #ff4081, 0 0 40px #ff4081;
+            }
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            animation: popEffect 1s ease-in-out;
+        }
+
+        @keyframes popEffect {
+            0% {
+                transform: scale(0.8);
+                opacity: 0.6;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        h2 {
+            color: #ff4081;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        a {
+            text-decoration: none;
+            color: #1e90ff;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        a:hover {
+            text-decoration: underline;
+            color: #ff4081;
+            text-shadow: 0 0 5px #ff4081;
+        }
+
+        img {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            display: block;
+            margin: 10px auto;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 2px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto; /* Allow horizontal scrolling */
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'Courier New', Courier, monospace;
+            max-width: 100%; /* Ensure it fits within the container */
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #ff4081;
+            color: white;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .character {
+            margin-bottom: 30px;
+            border: 3px solid #ff4081;
+            padding: 20px;
+            border-radius: 10px;
+            background: #ffdd57;
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .character:hover {
+            transform: scale(1.05);
+            background-color: #ffcc00;
+            box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                width: 90%;
+            }
+        }
+
+        /* KaTeXの数式がはみ出ないようにするためのスタイル */
+        .katex {
+            font-size: 1.1em !important; /* 数式のフォントサイズを調整 */
+            overflow-x: auto; /* 横スクロールを許可 */
+            overflow-y: hidden; /* 縦スクロールは不要 */
+            max-width: 100%; /* コンテナ幅に合わせる */
+            white-space: nowrap; /* 数式が折り返されないようにする */
+        }
+
+        .katex-display {
+            margin: 0.5em 0; /* 数式の上下の余白を調整 */
+            overflow-x: auto; /* 横スクロールを許可 */
+            max-width: 100%; /* コンテナ幅に合わせる */
+        }
+
+        /* 追加のカラフルなスタイル - 色管理アーキテクチャ */
+        :root {
+            --primary-bg: #ffdd57;
+            --secondary-bg: #ff4081;
+            --accent-1: #1e90ff;
+            --accent-2: #32cd32;
+            --accent-3: #ff6347;
+            --text-dark: #333333;
+            --text-light: #ffffff;
+            --card-bg: #ffffff;
+            --shadow-color: rgba(0, 0, 0, 0.2);
+        }
+
+        /* セクションごとの色分け */
+        .section-1 { background-color: rgba(255, 105, 180, 0.1); border-left: 5px solid #ff69b4; padding: 15px; margin: 20px 0; border-radius: 0 10px 10px 0; }
+        .section-2 { background-color: rgba(30, 144, 255, 0.1); border-left: 5px solid #1e90ff; padding: 15px; margin: 20px 0; border-radius: 0 10px 10px 0; }
+        .section-3 { background-color: rgba(50, 205, 50, 0.1); border-left: 5px solid #32cd32; padding: 15px; margin: 20px 0; border-radius: 0 10px 10px 0; }
+        .section-4 { background-color: rgba(255, 99, 71, 0.1); border-left: 5px solid #ff6347; padding: 15px; margin: 20px 0; border-radius: 0 10px 10px 0; }
+        .section-5 { background-color: rgba(138, 43, 226, 0.1); border-left: 5px solid #8a2be2; padding: 15px; margin: 20px 0; border-radius: 0 10px 10px 0; }
+
+        /* テーブルスタイルの強化 */
+        th {
+            background-color: var(--secondary-bg);
+            color: var(--text-light);
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: rgba(255, 64, 129, 0.1);
+        }
+
+        tr:nth-child(odd) {
+            background-color: rgba(255, 221, 87, 0.2);
+        }
+
+        /* コードブロックのスタイル強化 */
+        pre code {
+            display: block;
+            padding: 15px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: bold;
+        }
+
+        /* 数式コンテナのスタイル */
+        .math-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border: 2px dashed var(--accent-1);
+            text-align: center;
+        }
+
+        /* 日別カリキュラムのスタイル */
+        .day-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 8px 16px var(--shadow-color);
+            border-top: 8px solid;
+            transition: transform 0.3s ease;
+        }
+
+        .day-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .day-1 { border-top-color: #ff4081; }
+        .day-2 { border-top-color: #1e90ff; }
+        .day-3 { border-top-color: #32cd32; }
+        .day-4 { border-top-color: #ff6347; }
+        .day-5 { border-top-color: #8a2be2; }
+        .day-6 { border-top-color: #ffa500; }
+        .day-7 { border-top-color: #00ced1; }
+
+        .time-slot {
+            background-color: rgba(255, 64, 129, 0.2);
+            padding: 8px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-weight: bold;
+            color: var(--text-dark);
+        }
+
+        /* ヘッダーナビゲーション */
+        .nav-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .nav-btn {
+            padding: 10px 20px;
+            background-color: var(--accent-1);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background-color: var(--secondary-bg);
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        Python学習メニュー設計 - 型選択工学による1週間カリキュラム
+    </header>
+
+    <div class="container">
+        <div class="section-1">
+            <h2>論文の枠組みをPython学習に応用</h2>
+            <p>以下では、添付論文の枠組み</p>
+            <div class="math-container">
+                \[ G : (W, E) \rightarrow (S, A(S)) \]
+            </div>
+            <p>（世界 \((W)\) と制約 \((E)\) から、観点 \((S)\) と離散条件 \((A(S))\) を設計する）を、<strong>「Python学習メニュー設計」</strong>にそのまま当てはめて、1日1時間×1週間のトレーニング計画を作ります。</p>
+        </div>
+
+        <div class="section-2">
+            <h2>1. 設計対象を論文の記号で定義する</h2>
+            
+            <h3>世界 \((W)\)：この1週間で扱う「Pythonプログラミング世界」</h3>
+            <p>あなたの骨格「プログラミング＝型を選択する工学」に沿って、世界 \((W)\) を次のように置きます。</p>
+            
+            <ul>
+                <li>1つのプログラム／関数は <strong>型付き変換</strong> とみなす</li>
+            </ul>
+            
+            <div class="math-container">
+                \[ \text{Program} \approx (T_{\text{in}} \xrightarrow{\ \text{processing/model}\ } T_{\text{out}}) \]
+            </div>
+            
+            <p>processing/model には、あなたが言うレイヤ（モデル型・クラス・アーキテクチャ・システム・ビジネスモデル）を含める例：</p>
+            
+            <ul>
+                <li><strong>関数モデル</strong>（純粋関数／副作用あり）</li>
+                <li><strong>データモデル</strong>（list/dict/dataclass）</li>
+                <li><strong>クラスモデル</strong>（状態とメソッド）</li>
+                <li><strong>小さなアーキテクチャ</strong>（分割：parse → transform → report）</li>
+                <li><strong>システム</strong>（ファイル入力、CLI、エラー設計）</li>
+                <li><strong>ビジネスモデル</strong>（売上合計・カテゴリ集計などの意味づけ）</li>
+            </ul>
+            
+            <p>この \((W)\) は本来"無限に近い可能性"ですが、論文の考え方通り <strong>観点 \((S)\)</strong> を選ぶことで離散化します。</p>
+            
+            <h3>制限 \((E)\)：今回の制約・評価基準</h3>
+            <p>ユーザー指定を中心に、学習設計に必要な範囲だけ明示します。</p>
+            
+            <ul>
+                <li>初心者</li>
+                <li>1日1時間 × 7日（合計7時間）</li>
+                <li>「型を選ぶ」骨格を最優先（文法丸暗記ではなく、型と変換の設計）</li>
+                <li>道具は <strong>Python標準機能中心</strong>（REPL / VSCode / JupyterのどれでもOK）</li>
+                <li>目標：
+                    <ul>
+                        <li>入力型を定義できる</li>
+                        <li>処理モデル（関数／データ構造／クラス／分割設計）を選べる</li>
+                        <li>出力型を設計し、テスト（assert）で確認できる</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <div class="section-3">
+            <h2>2. 中間生成物①：観点 \((S)\) を設計する（何を区別したいか）</h2>
+            <p>論文では観点 \((S)\) を「観測関数 \((o_S: W \to O_S)\)」として扱います。
+            ここでは <strong>学習者が書いた小さなプログラム</strong> \((w \in W)\) を観測して、</p>
+            <blockquote>そのプログラムが「どんな型選択のパターン」なのか</blockquote>
+            <p>で分類する観点を採用します。</p>
+            
+            <h3>✅ 今回の観点 \((S)\)（あなたの骨格に直結する4軸）</h3>
+            <p>観点 \((S)\) を、次の4軸（＝観測値）として定義します。</p>
+            
+            <div class="math-container">
+                \[ o_S(w) = (\text{InputType},\ \text{ModelType},\ \text{ProcessType},\ \text{OutputType}) \]
+            </div>
+            
+            <ul>
+                <li><strong>InputType（入力型）</strong>：何が入ってくるか<br>
+                    例：<code>str</code>（1行）、<code>list[str]</code>（複数行）、<code>dict</code>、ファイルなど</li>
+                <li><strong>ModelType（内部モデル型）</strong>：中でどう表現するか（データモデル／クラス）<br>
+                    例：<code>list[tuple]</code> / <code>dict[str, int]</code> / <code>dataclass</code> など</li>
+                <li><strong>ProcessType（処理の型）</strong>：どう変換するか（アルゴリズム・設計）<br>
+                    例：parse、filter、aggregate、stateful、pipeline分割</li>
+                <li><strong>OutputType（出力型）</strong>：最終的に何の形で返すか<br>
+                    例：<code>int</code>、<code>dict</code>、<code>str</code>（レポート）、ファイル出力</li>
+            </ul>
+            
+            <p>この \((S)\) はまさに「プログラミングとは型を選択する工学」を、観測可能な形に落としたものです。</p>
+        </div>
+
+        <div class="section-4">
+            <h2>3. 中間生成物②：\((A(S))\) を設計する（離散的な"学習条件"の集合）</h2>
+            <p>論文では</p>
+            <div class="math-container">
+                \[ A(S)=W/\sim_S \]
+            </div>
+            <p>で、観点 \((S)\) による同値類（等価クラス）＝離散条件を作ります。</p>
+            
+            <p>ここでは「同じ \(((InputType, ModelType, ProcessType, OutputType))\) を持つ課題は同値」とみなし、
+            <strong>代表課題（代表元）</strong>を1つずつ用意します。</p>
+            
+            <h3>✅ \((A(S))\)：この1週間で押さえる"型選択パターン"の等価クラス（10個）</h3>
+            <p>7時間なので、全部は無理です。初心者が「型選択の核」を掴める最小セットとして <strong>10クラス</strong>に絞ります。</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>InputType</th>
+                        <th>ModelType</th>
+                        <th>ProcessType</th>
+                        <th>OutputType</th>
+                        <th>代表課題（代表元）</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>A1</td>
+                        <td><code>str</code></td>
+                        <td><code>int</code></td>
+                        <td>parse</td>
+                        <td><code>int</code></td>
+                        <td><code>"123"</code> を <code>123</code> にする（失敗時の扱いも）</td>
+                    </tr>
+                    <tr>
+                        <td>A2</td>
+                        <td><code>str</code></td>
+                        <td><code>list[str]</code></td>
+                        <td>parse(split)</td>
+                        <td><code>list[str]</code></td>
+                        <td><code>"a,b,c"</code> → <code>["a","b","c"]</code></td>
+                    </tr>
+                    <tr>
+                        <td>A3</td>
+                        <td><code>list[str]</code></td>
+                        <td><code>list[int]</code></td>
+                        <td>map(+validate)</td>
+                        <td><code>list[int]</code></td>
+                        <td><code>["1","x","3"]</code> をどうする？</td>
+                    </tr>
+                    <tr>
+                        <td>A4</td>
+                        <td><code>list[int]</code></td>
+                        <td><code>int</code></td>
+                        <td>aggregate(sum/min/max)</td>
+                        <td><code>int</code></td>
+                        <td>合計・平均・最大を返す</td>
+                    </tr>
+                    <tr>
+                        <td>A5</td>
+                        <td><code>list[str]</code></td>
+                        <td><code>dict[str,int]</code></td>
+                        <td>aggregate(count)</td>
+                        <td><code>dict</code></td>
+                        <td>単語カウント（頻度辞書）</td>
+                    </tr>
+                    <tr>
+                        <td>A6</td>
+                        <td><code>list[record]</code></td>
+                        <td><code>dict[key, agg]</code></td>
+                        <td>groupby</td>
+                        <td><code>dict</code></td>
+                        <td>カテゴリ別売上集計</td>
+                    </tr>
+                    <tr>
+                        <td>A7</td>
+                        <td><code>dict</code></td>
+                        <td><code>str</code></td>
+                        <td>format/report</td>
+                        <td><code>str</code></td>
+                        <td>集計辞書→人間向けレポート文字列</td>
+                    </tr>
+                    <tr>
+                        <td>A8</td>
+                        <td><code>list[record]</code></td>
+                        <td><code>dataclass</code></td>
+                        <td>model(select fields)</td>
+                        <td><code>list[dataclass]</code></td>
+                        <td>レコードを <code>Transaction</code> にする</td>
+                    </tr>
+                    <tr>
+                        <td>A9</td>
+                        <td><code>file path</code></td>
+                        <td><code>list[Transaction]</code></td>
+                        <td>system IO + parse</td>
+                        <td><code>list[...]</code></td>
+                        <td>ファイル読み→構造化</td>
+                    </tr>
+                    <tr>
+                        <td>A10</td>
+                        <td><code>args + file</code></td>
+                        <td>pipeline modules</td>
+                        <td>architecture(pipeline)</td>
+                        <td><code>report file/str</code></td>
+                        <td>parse→validate→aggregate→report を分割実装</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <p>※ <code>record</code> は最初は <code>tuple</code> や <code>dict</code> でよいです。後で <code>dataclass</code> に昇格させます（これが「型を選ぶ」の練習）。</p>
+        </div>
+
+        <div class="section-5">
+            <h2>4. 1日1時間×1週間メニュー（A(S)を被覆する"代表演習集合"）</h2>
+            <p>論文の「テストスイート選択＝被覆問題」の発想に沿って言うと、</p>
+            
+            <ul>
+                <li>目的：A(S) のクラス（A1〜A10）を <strong>7時間でできるだけ被覆</strong></li>
+                <li>方法：1日1〜2クラスを代表演習でカバー（復習込みで回せる範囲）</li>
+            </ul>
+            
+            <p>ここからが具体メニューです。
+            （毎日「入力型→内部モデル→処理→出力型」を<strong>口に出して設計してから</strong>コードに入る形式にします）</p>
+            
+            <div class="day-card day-1">
+                <h3>Day1（1h）「型の言語化：入力→出力の契約」</h3>
+                <p><strong>カバーする (A(S))：A1, A2</strong></p>
+                
+                <div class="time-slot">0:00–0:10（10分）今日の型設計テンプレを固定</div>
+                <ul>
+                    <li>入力型は何？</li>
+                    <li>出力型は何？</li>
+                    <li>失敗はどう表す？（例外？<code>None</code>？エラー文字列？）</li>
+                </ul>
+                
+                <div class="time-slot">0:10–0:40（30分）ハンズオン</div>
+                <ul>
+                    <li>A1: <code>str -> int</code>（<code>int("123")</code>、失敗時の<code>try/except</code>）</li>
+                    <li>A2: <code>str -> list[str]</code>（<code>split</code>、空文字、末尾カンマ等）</li>
+                </ul>
+                
+                <div class="time-slot">0:40–0:55（15分）ミニ課題</div>
+                <ul>
+                    <li>入力 <code>"10,20,30"</code> を <code>list[int]</code> にする関数案を<strong>型から先に</strong>書く</li>
+                </ul>
+                
+                <div class="time-slot">0:55–1:00（5分）ふりかえり</div>
+                <ul>
+                    <li>今日の学びを「型の選択の言葉」でまとめる</li>
+                </ul>
+                
+                <p><strong>成果物</strong>：<code>parse_int(s: str) -> int</code>、<code>split_csv(s: str) -> list[str]</code></p>
+            </div>
+            
+            <div class="day-card day-2">
+                <h3>Day2（1h）「list を選ぶ：map と validate の型」</h3>
+                <p><strong>カバーする (A(S))：A3, A4（導入）</strong></p>
+                
+                <div class="time-slot">0:00–0:10</div>
+                <p><code>list[str]</code> と <code>list[int]</code> の差＝<strong>モデル型の差</strong></p>
+                
+                <div class="time-slot">0:10–0:40</div>
+                <ul>
+                    <li>A3: <code>list[str] -> list[int]</code>
+                        <ul>
+                            <li>"失敗値"をどう表すか：
+                                <ol>
+                                    <li>例外で止める</li>
+                                    <li>無効値はスキップ</li>
+                                    <li><code>None</code> を入れて後で処理</li>
+                                </ol>
+                            </li>
+                            <li>どれを選ぶか＝型設計</li>
+                        </ul>
+                    </li>
+                </ul>
+                
+                <div class="time-slot">0:40–0:55</div>
+                <ul>
+                    <li>A4（軽く）：<code>list[int] -> int</code>（sum/max）を関数化</li>
+                </ul>
+                
+                <div class="time-slot">0:55–1:00</div>
+                <p>明日以降の題材を決める：<strong>売上ログ</strong>（1行 = 1取引）にする</p>
+                
+                <p><strong>成果物</strong>：<code>to_int_list(xs: list[str]) -> list[int]</code>（方針を1つ選んで実装）</p>
+            </div>
+            
+            <div class="day-card day-3">
+                <h3>Day3（1h）「dict を選ぶ：集計＝型の発明」</h3>
+                <p><strong>カバーする (A(S))：A5, A6（導入）</strong></p>
+                
+                <div class="time-slot">0:00–0:10</div>
+                <p><code>dict[str,int]</code> は「キー→値」のビジネス意味を持つ（モデルの一種）</p>
+                
+                <div class="time-slot">0:10–0:40</div>
+                <ul>
+                    <li>A5: 単語カウント（<code>list[str] -> dict[str,int]</code>）
+                        <ul>
+                            <li><code>get</code> / <code>setdefault</code> / <code>collections.Counter</code>（紹介程度でもOK）</li>
+                        </ul>
+                    </li>
+                </ul>
+                
+                <div class="time-slot">0:40–0:55</div>
+                <ul>
+                    <li>A6（導入）：取引ログを「カテゴリ別売上」に
+                        <ul>
+                            <li>入力例：<code>"coffee,450"</code> のlist</li>
+                            <li>出力：<code>{"coffee": 900, ...}</code></li>
+                        </ul>
+                    </li>
+                </ul>
+                
+                <div class="time-slot">0:55–1:00</div>
+                <p>今日の型選択まとめ：「集計は dict を作ること」</p>
+                
+                <p><strong>成果物</strong>：<code>count_words(words: list[str]) -> dict[str,int]</code>、<code>sum_by_category(lines: list[str]) -> dict[str,int]</code>（簡易でOK）</p>
+            </div>
+            
+            <div class="day-card day-4">
+                <h3>Day4（1h）「関数モデル：型注釈とテスト（assert）」</h3>
+                <p><strong>カバーする (A(S))：A4（完成）, A7（導入）</strong></p>
+                
+                <div class="time-slot">0:00–0:10</div>
+                <p>関数 = "型付き変換器"
+                    <ul>
+                        <li>型注釈（<code>-></code>）は設計のメモであり契約</li>
+                    </ul>
+                </p>
+                
+                <div class="time-slot">0:10–0:35</div>
+                <ul>
+                    <li>A4: <code>list[int] -> int</code> を複数作る（sum/avg/max）</li>
+                    <li><code>assert</code> で確認（テスト観点の最小形）</li>
+                </ul>
+                
+                <div class="time-slot">0:35–0:55</div>
+                <ul>
+                    <li>A7導入：<code>dict -> str</code>（レポート文字列に整形）
+                        <ul>
+                            <li>出力型を <code>str</code> にする理由（人が読む）</li>
+                        </ul>
+                    </li>
+                </ul>
+                
+                <div class="time-slot">0:55–1:00</div>
+                <p>「入力→出力の型契約 + assert」で自己完結できる</p>
+                
+                <p><strong>成果物</strong>：<code>make_report(summary: dict[str,int]) -> str</code>（簡易）</p>
+            </div>
+            
+            <div class="day-card day-5">
+                <h3>Day5（1h）「クラス/データモデル：dataclass を選ぶ」</h3>
+                <p><strong>カバーする (A(S))：A8</strong></p>
+                
+                <div class="time-slot">0:00–0:10</div>
+                <p>"辞書で持つ" vs "クラスで持つ" の型選択
+                    <ul>
+                        <li>変更容易性・読みやすさ・誤りにくさ</li>
+                    </ul>
+                </p>
+                
+                <div class="time-slot">0:10–0:45</div>
+                <ul>
+                    <li>A8: <code>Transaction</code> を <code>@dataclass</code> で定義
+                        <ul>
+                            <li>例：<code>date: str</code>, <code>category: str</code>, <code>amount: int</code></li>
+                        </ul>
+                    </li>
+                    <li>取引1行文字列→<code>Transaction</code> に変換する関数</li>
+                </ul>
+                
+                <div class="time-slot">0:45–0:55</div>
+                <p><code>list[Transaction]</code> からカテゴリ別集計（Day3の集計を再利用）</p>
+                
+                <div class="time-slot">0:55–1:00</div>
+                <p>まとめ：「モデル型を選ぶ＝バグを減らす」</p>
+                
+                <p><strong>成果物</strong>：<code>parse_transaction(line: str) -> Transaction</code></p>
+            </div>
+            
+            <div class="day-card day-6">
+                <h3>Day6（1h）「システム型：ファイル入力→モデル→出力」</h3>
+                <p><strong>カバーする (A(S))：A9</strong></p>
+                
+                <div class="time-slot">0:00–0:10</div>
+                <p>システムになると入力型が「ファイル/外部」になる
+                    → 失敗（ファイル無し、形式不正）をどう扱うかが重要</p>
+                
+                <div class="time-slot">0:10–0:45</div>
+                <ul>
+                    <li>A9: ファイルを読み、<code>list[Transaction]</code> を作る
+                        <ul>
+                            <li><code>with open(...) as f:</code></li>
+                            <li><code>.strip()</code>、空行スキップ</li>
+                        </ul>
+                    </li>
+                </ul>
+                
+                <div class="time-slot">0:45–0:55</div>
+                <p><code>report = make_report(aggregate(...))</code> までつなぐ</p>
+                
+                <div class="time-slot">0:55–1:00</div>
+                <p>明日：分割（アーキテクチャ）で完成させる</p>
+                
+                <p><strong>成果物</strong>：<code>load_transactions(path: str) -> list[Transaction]</code></p>
+            </div>
+            
+            <div class="day-card day-7">
+                <h3>Day7（1h）「アーキテクチャ型：pipeline 分割で"型の設計"を完成」</h3>
+                <p><strong>カバーする (A(S))：A10（総仕上げ）</strong></p>
+                
+                <div class="time-slot">0:00–0:10</div>
+                <p>アーキテクチャ = 変換器の合成</p>
+                <div class="math-container">
+                    \[ \text{file} \to \text{list[Transaction]} \to \text{dict} \to \text{str} \]
+                </div>
+                
+                <div class="time-slot">0:10–0:40</div>
+                <ul>
+                    <li>A10: 4つの関数に分割して接続
+                        <ol>
+                            <li><code>load_transactions(path) -> list[Transaction]</code></li>
+                            <li><code>aggregate(transactions) -> dict[str,int]</code></li>
+                            <li><code>make_report(summary) -> str</code></li>
+                            <li><code>main()</code>（つなぐだけ）</li>
+                        </ol>
+                    </li>
+                </ul>
+                
+                <div class="time-slot">0:40–0:55</div>
+                <p>小さなテスト（assert）を3本書く（例：2取引を入れたら合計が合う）</p>
+                
+                <div class="time-slot">0:55–1:00</div>
+                <p>1週間の骨格を一言で固定：
+                <strong>「型を選び、変換の合成で作る」</strong></p>
+                
+                <p><strong>成果物</strong>：<code>sales_report.py</code>（小さな完成品）</p>
+            </div>
+        </div>
+
+        <div class="section-1">
+            <h2>5. まとめ：この設計が論文モデルに沿っている点（短く整理）</h2>
+            
+            <ul>
+                <li>\((W)\)：型付き変換としてのPythonプログラム全体（無数）</li>
+                <li>\((E)\)：初心者・7時間・型選択骨格などの制約</li>
+                <li>\((S)\)：観測関数 \((o_S(w)=(InputType,ModelType,ProcessType,OutputType))\)</li>
+                <li>\((A(S))\)：その観点で区別すべき「型選択パターン」等価クラス（A1〜A10）</li>
+                <li>1週間メニュー：A(S) を <strong>代表課題で被覆する</strong>ように選んだ（論文の"被覆/代表元選択"の考え方）</li>
+            </ul>
+        </div>
+
+        <div class="section-3">
+            <h2>追加提案</h2>
+            <p>もし、あなたが望むなら次の追加も作れます（質問は不要です、どちらでも続けられます）：</p>
+            
+            <ul>
+                <li>この1週間の各日で使う <strong>テンプレコード</strong>（空欄埋め式）</li>
+                <li>A(S) の各クラスに対する <strong>"よくある誤り"＝エラー推測（経験ベース）</strong> の観点追加（論文4.5のノリで）</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="footer">
+        Python学習メニュー設計 - 型選択工学による1週間カリキュラム © 2023
+    </div>
+
+    <script>
+        // KaTeXの自動レンダリング設定
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false},
+                    {left: "\\[", right: "\\]", display: true},
+                    {left: "\\(", right: "\\)", display: false}
+                ],
+                throwOnError: false
+            });
+        });
+    </script>
+</body>
+</html>
