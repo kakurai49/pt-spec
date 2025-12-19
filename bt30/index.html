@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Beat Instrument — 動く仕様書</title>
+  <style>
+    :root{
+      --bg:#0b0f14; --panel:#121a24; --text:#e8eef6; --muted:#a7b3c2;
+      --accent:#60a5fa; --on:#22c55e; --off:#2b3646;
+      --danger:#ef4444; --radius:14px; --shadow:0 10px 30px rgba(0,0,0,.35);
+      --cell: 40px; --gap: 8px;
+    }
+    *{ box-sizing:border-box; }
+
+    /* ★ 追加：ページ全体の横はみ出しを禁止（内部スクロールはOK） */
+    html, body{ height:100%; width:100%; overflow-x:hidden; }
+
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 20% -10%, rgba(96,165,250,.25), transparent 60%),
+        radial-gradient(800px 500px at 80% 0%, rgba(34,197,94,.15), transparent 55%),
+        var(--bg);
+      color:var(--text);
+    }
+    header{ padding:20px 16px 8px; max-width:1100px; margin:0 auto; }
+    header h1{ margin:0 0 6px; font-size:clamp(20px,4.5vw,32px); line-height:1.2; }
+    header p{ margin:0; color:var(--muted); font-size:clamp(12px,2.5vw,14px); }
+
+    main{
+      max-width:1100px;
+      width:100%;
+      margin:0 auto;
+      padding:12px 16px 28px;
+      display:grid;
+      gap:14px;
+    }
+
+    .panel{
+      background: rgba(18,26,36,.92);
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:14px;
+      max-width:100%;
+    }
+
+    .controls{ display:grid; gap:12px; }
+    .controls-top{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; }
+    .transport{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+
+    button, select, input[type="range"]{ font:inherit; }
+    .btn{
+      border:1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.04);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      min-height:44px;
+      max-width:100%;
+    }
+    .btn:active{ transform: translateY(1px); }
+    .btn.primary{ background: rgba(96,165,250,.18); border-color: rgba(96,165,250,.35); }
+    .btn.danger{ background: rgba(239,68,68,.12); border-color: rgba(239,68,68,.35); }
+    .btn.ghost{ background:transparent; }
+    .btn[disabled]{ opacity:.55; cursor:not-allowed; }
+
+    .badge{
+      padding:6px 10px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.03);
+      color:var(--muted); font-size:12px;
+      max-width:100%;
+    }
+
+    .kv{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .kv label{ color:var(--muted); font-size:12px; }
+    .kv .value{ font-variant-numeric: tabular-nums; }
+
+    .range{ display:grid; gap:6px; min-width: min(360px, 100%); }
+    .range-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    input[type="range"]{ width:100%; }
+    small.help{ color:var(--muted); }
+
+    .meta{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; margin-bottom:10px; }
+
+    textarea{
+      width:100%; min-height:160px;
+      border-radius:12px; padding:12px;
+      border:1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.03);
+      color:var(--text);
+      resize:vertical;
+      max-width:100%;
+    }
+
+    details{
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.08);
+      padding:10px 12px;
+      background: rgba(255,255,255,.02);
+      max-width:100%;
+    }
+    details summary{ cursor:pointer; font-weight:600; }
+    .spec-grid{ display:grid; gap:10px; margin-top:10px; }
+    .spec-grid code{ background: rgba(255,255,255,.06); padding:2px 6px; border-radius:8px; }
+
+    /* ★ 重要：横スクロールは “この中だけ” に閉じ込める */
+    .sequencer{ overflow:hidden; }
+    .sequencer .scroll{
+      max-width:100%;
+      overflow-x:auto;
+      overflow-y:hidden;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 8px;
+    }
+
+    /* ★ fit-contentだと一部端末で外側へ影響することがあるので max-content に */
+    .grid{
+      display:grid;
+      gap:var(--gap);
+      width:max-content;
+      max-width:none;
+    }
+
+    .grid-header, .grid-row{
+      display:grid;
+      grid-template-columns: 90px repeat(16, var(--cell));
+      gap: var(--gap);
+      align-items:center;
+    }
+    .track-label{
+      color:var(--muted); font-size:12px; padding-left:4px;
+      position: sticky; left: 0;
+      background: rgba(18,26,36,.98);
+      padding-right: 10px;
+      z-index: 2;
+    }
+    .step-label{ color: rgba(255,255,255,.35); font-size:10px; text-align:center; user-select:none; }
+    .step{
+      width:var(--cell); height:var(--cell);
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.08);
+      background: rgba(43,54,70,.35);
+      cursor:pointer;
+      touch-action: manipulation;
+    }
+    .step.on{ background: rgba(34,197,94,.25); border-color: rgba(34,197,94,.55); }
+
+    /* ★ 変更：outline は外側にはみ出して横スクロール原因になることがある → inset に変更 */
+    .step.playhead{
+      outline:none;
+      box-shadow: inset 0 0 0 2px rgba(96,165,250,.95);
+    }
+
+    .step:active{ transform: translateY(1px); }
+
+    footer{ max-width:1100px; margin:0 auto; padding:0 16px 22px; color:var(--muted); font-size:12px; }
+
+    .audio-gate{
+      position: fixed; inset:0; display:none;
+      align-items:center; justify-content:center;
+      padding:24px;
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(6px);
+      z-index: 50;
+    }
+    .audio-gate .card{
+      max-width:560px; width:100%;
+      background: rgba(18,26,36,.96);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius);
+      padding:16px; box-shadow:var(--shadow);
+    }
+    .audio-gate h2{ margin:0 0 8px; font-size:18px; }
+    .audio-gate p{ margin:0 0 12px; color:var(--muted); }
+
+    @media (min-width: 900px){
+      main{ grid-template-columns: 420px 1fr; align-items:start; }
+      .controls{ position: sticky; top: 10px; }
+    }
+    @media (max-width: 420px){
+      :root{ --cell: 36px; --gap: 6px; }
+      .grid-header, .grid-row{ grid-template-columns: 78px repeat(16, var(--cell)); }
+    }
+    @media (max-width: 360px){
+      :root{ --cell: 34px; --gap: 6px; }
+      .grid-header, .grid-row{ grid-template-columns: 72px repeat(16, var(--cell)); }
+      .btn{ padding:10px 10px; }
+    }
+
+    /* ===== スマホ用：下部固定バー ===== */
+    .mobile-bar{
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      display:none;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+      padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+      background: rgba(18,26,36,.96);
+      border-top: 1px solid rgba(255,255,255,.08);
+      z-index: 40;
+      backdrop-filter: blur(10px);
+      max-width:100%;
+    }
+    .mobile-bar .left, .mobile-bar .right{
+      display:flex; gap:10px; align-items:center;
+      max-width:100%;
+    }
+    .mobile-bar .btn{
+      min-height:46px;
+      padding:10px 12px;
+      max-width:100%;
+    }
+
+    @media (max-width: 899px){
+      .mobile-bar{ display:flex; }
+      main{ padding-bottom: 110px; }
+    }
+
+    /* ★ 追加：超狭い端末で右のステータスが押し出してはみ出すのを防ぐ */
+    @media (max-width: 360px){
+      .mobile-bar .right{ display:none; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Beat Instrument — 動く仕様書</h1>
+    <p>16-step ドラムマシン（Kick / Snare / HiHat）。スマホは <strong>Playタップで音声が有効化</strong>されます。音のON/OFFもあります。</p>
+  </header>
+
+  <main>
+    <section class="panel controls" aria-label="コントロール">
+      <div class="controls-top">
+        <div class="transport">
+          <button id="btnPlay" class="btn primary" type="button">▶︎ Play</button>
+          <button id="btnStop" class="btn" type="button" disabled>■ Stop</button>
+          <button id="btnMute" class="btn" type="button" aria-pressed="false">🔊 音ON</button>
+          <span id="status" class="badge">停止中</span>
+        </div>
+        <div class="transport">
+          <button id="btnClear" class="btn ghost" type="button">Clear</button>
+          <button id="btnRandom" class="btn ghost" type="button">Random</button>
+          <select id="preset" class="btn" aria-label="プリセット">
+            <option value="">Preset…</option>
+            <option value="basic">Basic (4つ打ち)</option>
+            <option value="break">Break (簡易)</option>
+            <option value="house">House (定番)</option>
+            <option value="trap">Trap-ish</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="range">
+        <div class="range-row">
+          <div class="kv">
+            <label for="bpm">BPM</label>
+            <span class="value" id="bpmVal">120</span>
+          </div>
+          <small class="help">40〜240</small>
+        </div>
+        <input id="bpm" type="range" min="40" max="240" value="120" step="1" />
+      </div>
+
+      <div class="range">
+        <div class="range-row">
+          <div class="kv">
+            <label for="swing">Swing</label>
+            <span class="value" id="swingVal">0.00</span>
+          </div>
+          <small class="help">0.00〜0.50</small>
+        </div>
+        <input id="swing" type="range" min="0" max="0.5" value="0" step="0.01" />
+        <small class="help">奇数ステップ（オフビート）を少し遅らせます。</small>
+      </div>
+
+      <div class="range">
+        <div class="range-row">
+          <div class="kv">
+            <label for="vol">Volume</label>
+            <span class="value" id="volVal">0.80</span>
+          </div>
+          <small class="help">0.00〜1.00</small>
+        </div>
+        <input id="vol" type="range" min="0" max="1" value="0.8" step="0.01" />
+        <small class="help">※ ミュート中でもスライダーは動きます（解除時に反映）。</small>
+      </div>
+
+      <details open>
+        <summary>このページは「動く仕様書」です（型レンズ：Tin / Tmodel / Tout / Effect / Error）</summary>
+        <div class="spec-grid">
+          <div>入力（Tin）: <code>Pattern</code>（Kick/Snare/HiHat の 16 step 配列）</div>
+          <div>モデル（Tmodel）: <code>scheduler()</code>（WebAudio先読み） + <code>Instrument</code>（音色）</div>
+          <div>出力（Tout）: 実音（ブラウザ再生）</div>
+          <div>副作用（Effect）: WebAudio（音を鳴らす）</div>
+          <div>失敗（Error）: タップなしで音が出ない端末がある → Play/Enable Audioで回避</div>
+          <div>追加仕様: <strong>音ON/OFF（ミュート）</strong>は masterGain を 0/Volume に切替</div>
+        </div>
+      </details>
+
+      <div class="panel" style="padding:12px;">
+        <div class="meta">
+          <strong>Pattern Text（仕様の“文字表現”）</strong>
+          <div class="transport">
+            <button id="btnCopy" class="btn" type="button">Copy</button>
+            <button id="btnImport" class="btn" type="button">Import</button>
+          </div>
+        </div>
+        <textarea id="patternText" spellcheck="false"></textarea>
+        <small class="help">Copyで共有／Importで貼り付けて反映できます（簡易フォーマット）。</small>
+      </div>
+    </section>
+
+    <section class="panel sequencer" aria-label="ステップシーケンサー">
+      <div class="meta">
+        <strong>Step Sequencer</strong>
+        <span class="badge">16 steps / 3 tracks</span>
+      </div>
+
+      <div class="scroll">
+        <div class="grid" id="grid"><!-- JSで生成 --></div>
+      </div>
+
+      <details>
+        <summary>使い方（スマホ）</summary>
+        <ul>
+          <li><strong>画面下のバー</strong>で Play / Stop / 音ON-OFF がいつでも操作できます。</li>
+          <li>マス（ステップ）をタップしてON/OFFします。</li>
+          <li>BPM/Swing/Volumeは再生中でも変更できます。</li>
+          <li>横幅が足りない場合、シーケンサ部分は横スクロールできます（ラベルは固定）。</li>
+        </ul>
+      </details>
+    </section>
+  </main>
+
+  <footer>
+    <p>注意: iOS Safari等では「ユーザー操作（タップ）」がないと音が出ません。Playボタンが“音声の解錠”も兼ねています。</p>
+  </footer>
+
+  <div class="mobile-bar" role="region" aria-label="再生コントロール（固定バー）">
+    <div class="left">
+      <button id="btnPlayMini" class="btn primary" type="button" aria-label="再生">▶︎</button>
+      <button id="btnStopMini" class="btn" type="button" aria-label="停止" disabled>■</button>
+      <button id="btnMuteMini" class="btn" type="button" aria-label="音のオンオフ" aria-pressed="false">🔊</button>
+    </div>
+    <div class="right">
+      <span id="statusMini" class="badge">停止中</span>
+    </div>
+  </div>
+
+  <div id="audioGate" class="audio-gate" role="dialog" aria-modal="true" aria-label="音声を有効化">
+    <div class="card">
+      <h2>音声を有効化します</h2>
+      <p>スマホブラウザでは、音を鳴らす前にユーザー操作が必要です。下のボタンをタップしてください。</p>
+      <button id="btnEnableAudio" class="btn primary" type="button" style="width:100%;">Enable Audio</button>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const TRACKS = [
+        { id: "kick",  name: "Kick"  },
+        { id: "snare", name: "Snare" },
+        { id: "hat",   name: "HiHat" },
+      ];
+      const STEPS = 16;
+
+      let pattern = TRACKS.map(() => Array.from({ length: STEPS }, () => false));
+
+      const elGrid = document.getElementById("grid");
+
+      const elPlay = document.getElementById("btnPlay");
+      const elStop = document.getElementById("btnStop");
+      const elMute = document.getElementById("btnMute");
+      const elStatus = document.getElementById("status");
+
+      const elPlayMini = document.getElementById("btnPlayMini");
+      const elStopMini = document.getElementById("btnStopMini");
+      const elMuteMini = document.getElementById("btnMuteMini");
+      const elStatusMini = document.getElementById("statusMini");
+
+      const elClear = document.getElementById("btnClear");
+      const elRandom = document.getElementById("btnRandom");
+      const elPreset = document.getElementById("preset");
+
+      const elBpm = document.getElementById("bpm");
+      const elBpmVal = document.getElementById("bpmVal");
+      const elSwing = document.getElementById("swing");
+      const elSwingVal = document.getElementById("swingVal");
+      const elVol = document.getElementById("vol");
+      const elVolVal = document.getElementById("volVal");
+
+      const elPatternText = document.getElementById("patternText");
+      const elCopy = document.getElementById("btnCopy");
+      const elImport = document.getElementById("btnImport");
+
+      const elGate = document.getElementById("audioGate");
+      const elEnableAudio = document.getElementById("btnEnableAudio");
+
+      let audioCtx = null;
+      let masterGain = null;
+
+      let isPlaying = false;
+      let schedulerTimer = null;
+      let uiRaf = null;
+
+      let isMuted = false;
+
+      const LOOKAHEAD_MS = 25;
+      const SCHEDULE_AHEAD_SEC = 0.50;
+      let nextStepTime = 0;
+      let currentStep = 0;
+      let playStartTime = 0;
+
+      let noiseBuffer = null;
+
+      const LS_KEY = "beat_instrument_pattern_v1";
+      const LS_MUTE_KEY = "beat_instrument_mute_v1";
+      const LS_VOL_KEY = "beat_instrument_vol_v1";
+
+      function saveToLocalStorage() {
+        try { localStorage.setItem(LS_KEY, JSON.stringify(pattern)); } catch (_) {}
+      }
+      function loadFromLocalStorage() {
+        try {
+          const raw = localStorage.getItem(LS_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed) && parsed.length === TRACKS.length) {
+              pattern = parsed.map(row => Array.isArray(row)
+                ? row.slice(0, STEPS).map(Boolean)
+                : Array(STEPS).fill(false)
+              );
+              for (let t = 0; t < TRACKS.length; t++) {
+                if (pattern[t].length < STEPS) {
+                  pattern[t] = pattern[t].concat(Array(STEPS - pattern[t].length).fill(false));
+                }
+              }
+            }
+          }
+
+          const muteRaw = localStorage.getItem(LS_MUTE_KEY);
+          if (muteRaw !== null) isMuted = (muteRaw === "1");
+
+          const volRaw = localStorage.getItem(LS_VOL_KEY);
+          if (volRaw !== null) {
+            const v = Number(volRaw);
+            if (Number.isFinite(v) && v >= 0 && v <= 1) elVol.value = String(v);
+          }
+        } catch (_) {}
+      }
+      function saveMuteVol() {
+        try {
+          localStorage.setItem(LS_MUTE_KEY, isMuted ? "1" : "0");
+          localStorage.setItem(LS_VOL_KEY, String(elVol.value));
+        } catch (_) {}
+      }
+
+      function buildGrid() {
+        elGrid.innerHTML = "";
+
+        const header = document.createElement("div");
+        header.className = "grid-header";
+        const blank = document.createElement("div");
+        blank.className = "track-label";
+        blank.textContent = "";
+        header.appendChild(blank);
+
+        for (let s = 0; s < STEPS; s++) {
+          const lab = document.createElement("div");
+          lab.className = "step-label";
+          lab.textContent = String(s + 1);
+          header.appendChild(lab);
+        }
+        elGrid.appendChild(header);
+
+        TRACKS.forEach((tr, ti) => {
+          const row = document.createElement("div");
+          row.className = "grid-row";
+
+          const label = document.createElement("div");
+          label.className = "track-label";
+          label.textContent = tr.name;
+          row.appendChild(label);
+
+          for (let si = 0; si < STEPS; si++) {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "step";
+            btn.dataset.track = String(ti);
+            btn.dataset.step = String(si);
+            btn.setAttribute("aria-label", `${tr.name} step ${si + 1}`);
+            btn.addEventListener("click", onStepToggle);
+            row.appendChild(btn);
+          }
+          elGrid.appendChild(row);
+        });
+
+        renderGrid();
+      }
+
+      function renderGrid(playheadStep = null) {
+        const buttons = elGrid.querySelectorAll(".step");
+        buttons.forEach(btn => {
+          const ti = Number(btn.dataset.track);
+          const si = Number(btn.dataset.step);
+          const on = !!pattern[ti][si];
+          btn.classList.toggle("on", on);
+          btn.classList.toggle("playhead", playheadStep === si);
+        });
+        elPatternText.value = serializePatternText();
+      }
+
+      function onStepToggle(ev) {
+        const btn = ev.currentTarget;
+        const ti = Number(btn.dataset.track);
+        const si = Number(btn.dataset.step);
+        pattern[ti][si] = !pattern[ti][si];
+        saveToLocalStorage();
+        renderGrid(getCurrentUiStep());
+      }
+
+      function serializePatternText() {
+        const bpm = Number(elBpm.value);
+        const swing = Number(elSwing.value);
+        const lines = [];
+        lines.push(`bpm=${bpm}`);
+        lines.push(`swing=${swing.toFixed(2)}`);
+        TRACKS.forEach((tr, ti) => {
+          const seq = pattern[ti].map(v => v ? "x" : "-").join("");
+          lines.push(`${tr.id}: ${seq}`);
+        });
+        return lines.join("\n");
+      }
+
+      function parsePatternText(text) {
+        const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+        const nextPattern = TRACKS.map(() => Array(STEPS).fill(false));
+
+        let bpm = Number(elBpm.value);
+        let swing = Number(elSwing.value);
+
+        for (const line of lines) {
+          const m = line.match(/^([a-zA-Z_]+)\s*=\s*(.+)$/);
+          if (m) {
+            const key = m[1].toLowerCase();
+            const val = m[2].trim();
+            if (key === "bpm") {
+              const n = Number(val);
+              if (Number.isFinite(n) && n >= 40 && n <= 240) bpm = n;
+            }
+            if (key === "swing") {
+              const n = Number(val);
+              if (Number.isFinite(n) && n >= 0 && n <= 0.5) swing = n;
+            }
+            continue;
+          }
+          const m2 = line.match(/^([a-zA-Z_]+)\s*:\s*([xX\-]{1,})$/);
+          if (m2) {
+            const trackId = m2[1].toLowerCase();
+            const seq = m2[2];
+            const ti = TRACKS.findIndex(t => t.id === trackId);
+            if (ti === -1) continue;
+            for (let i = 0; i < Math.min(seq.length, STEPS); i++) {
+              nextPattern[ti][i] = (seq[i].toLowerCase() === "x");
+            }
+          }
+        }
+
+        pattern = nextPattern;
+        elBpm.value = String(bpm);
+        elSwing.value = String(swing);
+        syncControlLabels();
+        saveToLocalStorage();
+        renderGrid(getCurrentUiStep());
+      }
+
+      function applyMasterGain() {
+        if (!masterGain) return;
+        const v = Number(elVol.value);
+        masterGain.gain.value = isMuted ? 0 : v;
+      }
+
+      function updateMuteUI() {
+        elMute.setAttribute("aria-pressed", String(isMuted));
+        elMute.textContent = isMuted ? "🔇 音OFF" : "🔊 音ON";
+
+        elMuteMini.setAttribute("aria-pressed", String(isMuted));
+        elMuteMini.textContent = isMuted ? "🔇" : "🔊";
+      }
+
+      function setTransportUI(playing) {
+        elPlay.disabled = playing;
+        elStop.disabled = !playing;
+        elPlayMini.disabled = playing;
+        elStopMini.disabled = !playing;
+
+        elStatus.textContent = playing ? "再生中" : "停止中";
+        elStatusMini.textContent = playing ? "再生中" : "停止中";
+      }
+
+      function syncControlLabels() {
+        elBpmVal.textContent = String(elBpm.value);
+        elSwingVal.textContent = Number(elSwing.value).toFixed(2);
+        elVolVal.textContent = Number(elVol.value).toFixed(2);
+        applyMasterGain();
+        saveMuteVol();
+      }
+
+      elBpm.addEventListener("input", () => { syncControlLabels(); elPatternText.value = serializePatternText(); });
+      elSwing.addEventListener("input", () => { syncControlLabels(); elPatternText.value = serializePatternText(); });
+      elVol.addEventListener("input", () => syncControlLabels());
+
+      function toggleMute() {
+        isMuted = !isMuted;
+        updateMuteUI();
+        applyMasterGain();
+        saveMuteVol();
+      }
+      elMute.addEventListener("click", toggleMute);
+      elMuteMini.addEventListener("click", toggleMute);
+
+      elClear.addEventListener("click", () => {
+        pattern = TRACKS.map(() => Array(STEPS).fill(false));
+        saveToLocalStorage();
+        renderGrid(getCurrentUiStep());
+      });
+
+      elRandom.addEventListener("click", () => {
+        pattern = TRACKS.map((_, ti) => Array.from({ length: STEPS }, () => {
+          const r = Math.random();
+          if (ti === 2) return r < 0.55;
+          if (ti === 0) return r < 0.22;
+          return r < 0.15;
+        }));
+        pattern[1][4] = true;
+        pattern[1][12] = true;
+        saveToLocalStorage();
+        renderGrid(getCurrentUiStep());
+      });
+
+      elPreset.addEventListener("change", () => {
+        const v = elPreset.value;
+        if (!v) return;
+        applyPreset(v);
+        elPreset.value = "";
+      });
+
+      elCopy.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(elPatternText.value);
+          elCopy.textContent = "Copied!";
+          setTimeout(() => (elCopy.textContent = "Copy"), 900);
+        } catch (_) {
+          alert("コピーに失敗しました。テキストを長押ししてコピーしてください。");
+        }
+      });
+
+      elImport.addEventListener("click", () => parsePatternText(elPatternText.value));
+
+      function applyPreset(name) {
+        const off = () => Array(STEPS).fill(false);
+        pattern = TRACKS.map(off);
+        const on = (ti, ...steps) => steps.forEach(s => pattern[ti][s] = true);
+
+        if (name === "basic") {
+          on(0, 0, 4, 8, 12);
+          on(1, 4, 12);
+          for (let s = 0; s < STEPS; s += 2) on(2, s);
+        } else if (name === "break") {
+          on(0, 0, 7, 8, 10, 12, 15);
+          on(1, 4, 12, 14);
+          for (let s = 0; s < STEPS; s++) if (s % 2 === 0 || s === 15) on(2, s);
+        } else if (name === "house") {
+          on(0, 0, 4, 8, 12);
+          on(1, 4, 12);
+          for (let s = 0; s < STEPS; s++) on(2, s);
+        } else if (name === "trap") {
+          on(0, 0, 6, 8, 11, 12);
+          on(1, 4, 12);
+          for (let s = 0; s < STEPS; s++) if (Math.random() < (s % 2 ? 0.7 : 0.25)) on(2, s);
+          elBpm.value = "140";
+          elSwing.value = "0.12";
+        }
+
+        syncControlLabels();
+        saveToLocalStorage();
+        renderGrid(getCurrentUiStep());
+      }
+
+      function showAudioGate(){ elGate.style.display = "flex"; }
+      function hideAudioGate(){ elGate.style.display = "none"; }
+
+      async function ensureAudio() {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          masterGain = audioCtx.createGain();
+          masterGain.connect(audioCtx.destination);
+
+          noiseBuffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 1.0, audioCtx.sampleRate);
+          const data = noiseBuffer.getChannelData(0);
+          for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+
+          applyMasterGain();
+        }
+
+        if (audioCtx.state === "suspended") {
+          try { await audioCtx.resume(); }
+          catch (_) { showAudioGate(); return false; }
+        }
+        return true;
+      }
+
+      elEnableAudio.addEventListener("click", async () => {
+        const ok = await ensureAudio();
+        if (ok) hideAudioGate();
+      });
+
+      function kick(atTime, velocity = 1.0) {
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.type = "sine";
+        o.frequency.setValueAtTime(140, atTime);
+        o.frequency.exponentialRampToValueAtTime(45, atTime + 0.12);
+
+        g.gain.setValueAtTime(0.0001, atTime);
+        g.gain.exponentialRampToValueAtTime(0.9 * velocity, atTime + 0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001, atTime + 0.25);
+
+        o.connect(g); g.connect(masterGain);
+        o.start(atTime); o.stop(atTime + 0.3);
+      }
+
+      function snare(atTime, velocity = 1.0) {
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = noiseBuffer;
+
+        const bp = audioCtx.createBiquadFilter();
+        bp.type = "bandpass";
+        bp.frequency.setValueAtTime(1800, atTime);
+        bp.Q.setValueAtTime(0.9, atTime);
+
+        const ng = audioCtx.createGain();
+        ng.gain.setValueAtTime(0.0001, atTime);
+        ng.gain.exponentialRampToValueAtTime(0.7 * velocity, atTime + 0.01);
+        ng.gain.exponentialRampToValueAtTime(0.0001, atTime + 0.14);
+
+        noise.connect(bp); bp.connect(ng);
+
+        const o = audioCtx.createOscillator();
+        o.type = "triangle";
+        o.frequency.setValueAtTime(220, atTime);
+
+        const tg = audioCtx.createGain();
+        tg.gain.setValueAtTime(0.0001, atTime);
+        tg.gain.exponentialRampToValueAtTime(0.18 * velocity, atTime + 0.01);
+        tg.gain.exponentialRampToValueAtTime(0.0001, atTime + 0.10);
+
+        o.connect(tg);
+
+        ng.connect(masterGain);
+        tg.connect(masterGain);
+
+        noise.start(atTime); noise.stop(atTime + 0.2);
+        o.start(atTime);     o.stop(atTime + 0.2);
+      }
+
+      function hat(atTime, velocity = 1.0) {
+        const src = audioCtx.createBufferSource();
+        src.buffer = noiseBuffer;
+
+        const hp = audioCtx.createBiquadFilter();
+        hp.type = "highpass";
+        hp.frequency.setValueAtTime(6500, atTime);
+        hp.Q.setValueAtTime(0.7, atTime);
+
+        const g = audioCtx.createGain();
+        g.gain.setValueAtTime(0.0001, atTime);
+        g.gain.exponentialRampToValueAtTime(0.28 * velocity, atTime + 0.005);
+        g.gain.exponentialRampToValueAtTime(0.0001, atTime + 0.05);
+
+        src.connect(hp); hp.connect(g); g.connect(masterGain);
+        src.start(atTime); src.stop(atTime + 0.08);
+      }
+
+      function secondsPerStep() {
+        const bpm = Number(elBpm.value);
+        const safeBpm = Math.max(1, bpm);
+        const beat = 60 / safeBpm;
+        return beat / 4;
+      }
+
+      function scheduleStep(stepIndex, time) {
+        const accent = (stepIndex % 4 === 0) ? 1.0 : 0.78;
+        if (pattern[0][stepIndex]) kick(time, 1.0 * accent);
+        if (pattern[1][stepIndex]) snare(time, 1.0 * accent);
+        if (pattern[2][stepIndex]) hat(time, 1.0 * accent);
+      }
+
+      function scheduler() {
+        if (!audioCtx) return;
+        const sp = secondsPerStep();
+        const swing = Number(elSwing.value);
+
+        while (nextStepTime < audioCtx.currentTime + SCHEDULE_AHEAD_SEC) {
+          const t = nextStepTime + ((currentStep % 2 === 1) ? (swing * sp) : 0);
+          scheduleStep(currentStep, t);
+
+          nextStepTime += sp;
+          currentStep = (currentStep + 1) % STEPS;
+        }
+      }
+
+      function getCurrentUiStep() {
+        if (!audioCtx || !isPlaying) return null;
+        const sp = secondsPerStep();
+        const elapsed = Math.max(0, audioCtx.currentTime - playStartTime);
+        return Math.floor(elapsed / sp) % STEPS;
+      }
+
+      function uiLoop() {
+        renderGrid(getCurrentUiStep());
+        uiRaf = requestAnimationFrame(uiLoop);
+      }
+
+      async function start() {
+        const ok = await ensureAudio();
+        if (!ok) return;
+
+        if (!audioCtx || audioCtx.state !== "running") {
+          showAudioGate();
+          return;
+        }
+        if (isPlaying) return;
+
+        isPlaying = true;
+        setTransportUI(true);
+
+        const startDelay = 0.05;
+        playStartTime = audioCtx.currentTime + startDelay;
+        nextStepTime = playStartTime;
+        currentStep = 0;
+
+        schedulerTimer = setInterval(scheduler, LOOKAHEAD_MS);
+        uiRaf = requestAnimationFrame(uiLoop);
+      }
+
+      function stop() {
+        isPlaying = false;
+        if (schedulerTimer) clearInterval(schedulerTimer);
+        schedulerTimer = null;
+        if (uiRaf) cancelAnimationFrame(uiRaf);
+        uiRaf = null;
+
+        setTransportUI(false);
+        renderGrid(null);
+      }
+
+      elPlay.addEventListener("click", start);
+      elStop.addEventListener("click", stop);
+      elPlayMini.addEventListener("click", start);
+      elStopMini.addEventListener("click", stop);
+
+      loadFromLocalStorage();
+      buildGrid();
+      syncControlLabels();
+      updateMuteUI();
+      setTransportUI(false);
+      renderGrid(null);
+
+    })();
+  </script>
+</body>
+</html>
