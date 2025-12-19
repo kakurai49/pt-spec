@@ -1,1098 +1,1445 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pythonトレーニング運用マニュアル（iPhone / Ubuntu 両対応）</title>
-    <!-- KaTeX CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
-    <!-- 提供されたスタイルシート -->
-    <link rel="stylesheet" href="pop3_style.css">
-    <!-- 追加スタイル（コントラスト強化・カラフル化・バグ修正） -->
-    <style>
-        /* 追加カラーパレット */
-        :root {
-            --pop-yellow: #ffdd57;
-            --pop-pink: #ff4081;
-            --pop-blue: #1e90ff;
-            --pop-green: #00cc66;
-            --pop-purple: #9b59b6;
-            --pop-orange: #ff9966;
-            --pop-cyan: #00cccc;
-            --pop-dark: #333333;
-            --pop-light: #ffffff;
-        }
-        
-        /* ボディの背景をより強烈に */
-        body {
-            background: linear-gradient(135deg, var(--pop-yellow) 0%, var(--pop-orange) 50%, var(--pop-pink) 100%);
-            color: var(--pop-dark);
-            line-height: 1.6;
-        }
-        
-        /* ヘッダー強化 */
-        header {
-            background: linear-gradient(90deg, var(--pop-pink) 0%, var(--pop-purple) 100%);
-            border-bottom: 5px solid var(--pop-blue);
-            padding: 15px 0;
-        }
-        
-        /* コンテナ強化 */
-        .container {
-            background: var(--pop-light);
-            border: 5px solid var(--pop-pink);
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-        
-        /* 見出しカラフル化 */
-        h1, h2, h3, h4, h5, h6 {
-            color: var(--pop-blue);
-            text-shadow: 2px 2px 0 var(--pop-yellow);
-            border-bottom: 3px solid var(--pop-green);
-            padding-bottom: 5px;
-        }
-        
-        h1 {
-            color: var(--pop-pink);
-            font-size: 2.8rem;
-        }
-        
-        h2 {
-            color: var(--pop-purple);
-            font-size: 2.2rem;
-        }
-        
-        /* リンク強化 */
-        a {
-            color: var(--pop-blue);
-            font-weight: bold;
-            padding: 2px 5px;
-            border-radius: 3px;
-            transition: all 0.3s ease;
-            background-color: rgba(30, 144, 255, 0.1);
-        }
-        
-        a:hover {
-            color: var(--pop-light);
-            background-color: var(--pop-pink);
-            text-decoration: none;
-            box-shadow: 0 0 10px var(--pop-pink);
-        }
-        
-        /* テーブル強化 */
-        table {
-            border: 3px solid var(--pop-purple);
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-        
-        th {
-            background: linear-gradient(90deg, var(--pop-blue) 0%, var(--pop-cyan) 100%);
-            color: white;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-        
-        td {
-            background-color: rgba(255, 255, 255, 0.9);
-            border-color: var(--pop-blue);
-        }
-        
-        tr:nth-child(even) td {
-            background-color: rgba(255, 221, 87, 0.2);
-        }
-        
-        /* pre/code バグ修正と強化 */
-        pre {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: #ffffff;
-            border: 3px solid var(--pop-cyan);
-            border-left: 10px solid var(--pop-cyan);
-            border-radius: 10px;
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5), 0 5px 15px rgba(0, 0, 0, 0.3);
-            padding: 20px;
-            overflow-x: auto;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            font-family: 'Courier New', Courier, monospace;
-            line-height: 1.5;
-        }
-        
-        pre code {
-            background: transparent !important;
-            color: inherit !important;
-            padding: 0 !important;
-            border: none !important;
-        }
-        
-        /* インラインコード */
-        code:not(pre code) {
-            background-color: var(--pop-yellow);
-            color: var(--pop-dark);
-            padding: 2px 6px;
-            border-radius: 4px;
-            border: 1px solid var(--pop-orange);
-            font-family: 'Courier New', Courier, monospace;
-            font-weight: bold;
-        }
-        
-        /* リスト強化 */
-        ul, ol {
-            background-color: rgba(255, 255, 255, 0.8);
-            border-radius: 10px;
-            padding: 20px 40px;
-            border-left: 10px solid var(--pop-green);
-        }
-        
-        li {
-            margin-bottom: 10px;
-            padding-left: 10px;
-        }
-        
-        li strong {
-            color: var(--pop-pink);
-        }
-        
-        /* フッター強化 */
-        .footer {
-            background: linear-gradient(90deg, var(--pop-pink) 0%, var(--pop-purple) 100%);
-            border-top: 5px solid var(--pop-blue);
-            font-weight: bold;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-        }
-        
-        /* キャラクターセクション強化 */
-        .character {
-            background: linear-gradient(135deg, var(--pop-yellow) 0%, var(--pop-orange) 100%);
-            border: 5px solid var(--pop-pink);
-            border-radius: 15px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-            transition: all 0.4s ease;
-        }
-        
-        .character:hover {
-            transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 20px 30px rgba(0, 0, 0, 0.4);
-            background: linear-gradient(135deg, var(--pop-orange) 0%, var(--pop-pink) 100%);
-        }
-        
-        /* チェックリスト */
-        .checklist {
-            background: linear-gradient(135deg, var(--pop-green) 0%, var(--pop-cyan) 100%);
-            border-radius: 15px;
-            padding: 20px;
-            color: white;
-            font-weight: bold;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-        }
-        
-        .checklist li {
-            background-color: rgba(255, 255, 255, 0.9);
-            color: var(--pop-dark);
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            border-left: 5px solid var(--pop-blue);
-        }
-        
-        /* 数式表示の強化 */
-        .katex {
-            font-size: 1.2em !important;
-            color: var(--pop-purple) !important;
-            background-color: rgba(155, 89, 182, 0.1);
-            padding: 5px 10px;
-            border-radius: 8px;
-            border: 2px solid var(--pop-purple);
-        }
-        
-        .katex-display {
-            background-color: rgba(255, 255, 255, 0.9);
-            padding: 20px;
-            border-radius: 15px;
-            border: 3px solid var(--pop-green);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            overflow-x: auto;
-            margin: 20px 0;
-        }
-        
-        /* レスポンシブ調整 */
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2rem;
-            }
-            h2 {
-                font-size: 1.8rem;
-            }
-            .container {
-                padding: 15px;
-                width: 95%;
-            }
-            pre {
-                padding: 10px;
-                font-size: 0.9em;
-            }
-        }
-        
-        /* アニメーション追加 */
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-            100% { transform: scale(1); }
-        }
-        
-        .pulse {
-            animation: pulse 2s infinite;
-        }
-        
-        /* ハイライトボックス */
-        .highlight {
-            background: linear-gradient(135deg, var(--pop-yellow) 0%, var(--pop-orange) 100%);
-            border: 3px solid var(--pop-pink);
-            border-radius: 10px;
-            padding: 15px;
-            margin: 15px 0;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-        
-        /* バッジスタイル */
-        .badge {
-            display: inline-block;
-            background-color: var(--pop-pink);
-            color: white;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 0.8em;
-            font-weight: bold;
-            margin-right: 5px;
-        }
-        
-        /* バッジの色バリエーション */
-        .badge-blue { background-color: var(--pop-blue); }
-        .badge-green { background-color: var(--pop-green); }
-        .badge-purple { background-color: var(--pop-purple); }
-        .badge-orange { background-color: var(--pop-orange); }
-        .badge-cyan { background-color: var(--pop-cyan); }
-        
-        /* 引用スタイル */
-        blockquote {
-            border-left: 10px solid var(--pop-purple);
-            background: linear-gradient(90deg, rgba(155, 89, 182, 0.1) 0%, rgba(255, 255, 255, 0.8) 100%);
-            padding: 15px 30px;
-            margin: 20px 0;
-            border-radius: 0 10px 10px 0;
-            font-style: italic;
-            position: relative;
-        }
-        
-        blockquote:before {
-            content: '"';
-            font-size: 4em;
-            color: var(--pop-purple);
-            opacity: 0.3;
-            position: absolute;
-            left: 10px;
-            top: -20px;
-        }
-        
-        /* 注意・警告ボックス */
-        .note {
-            background: linear-gradient(135deg, var(--pop-cyan) 0%, var(--pop-blue) 100%);
-            border: 3px solid var(--pop-blue);
-            border-radius: 10px;
-            padding: 15px;
-            margin: 15px 0;
-            color: white;
-        }
-        
-        .warning {
-            background: linear-gradient(135deg, var(--pop-orange) 0%, var(--pop-pink) 100%);
-            border: 3px solid var(--pop-pink);
-            border-radius: 10px;
-            padding: 15px;
-            margin: 15px 0;
-            color: white;
-        }
-        
-        .note:before, .warning:before {
-            font-weight: bold;
-            margin-right: 10px;
-        }
-        
-        .note:before {
-            content: "💡 注記: ";
-        }
-        
-        .warning:before {
-            content: "⚠️ 注意: ";
-        }
-        
-        /* ステップ表示 */
-        .step {
-            counter-increment: step-counter;
-            margin-bottom: 20px;
-            padding-left: 50px;
-            position: relative;
-        }
-        
-        .step:before {
-            content: counter(step-counter);
-            background-color: var(--pop-pink);
-            color: white;
-            font-weight: bold;
-            font-size: 1.2em;
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: absolute;
-            left: 0;
-            top: 0;
-        }
-        
-        /* セクション間のスペース */
-        section {
-            margin-bottom: 40px;
-            padding-bottom: 20px;
-            border-bottom: 2px dashed var(--pop-yellow);
-        }
-        
-        section:last-of-type {
-            border-bottom: none;
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <title>Python Training | Space Adventure</title>
+  <meta
+    name="description"
+    content="Training Course @Space Adventure — GitHub(PR)で進める、冒険感のあるPythonトレーニング。VEGA / ALTAIR の各コースへ最短でアクセス。"
+  />
+
+  <style>
+    :root{
+      --bg0:#06070c;
+      --bg1:#0b1024;
+      --bg2:#120b2a;
+      --card: rgba(255,255,255,.06);
+      --card2: rgba(255,255,255,.10);
+      --line: rgba(255,255,255,.16);
+      --text: rgba(255,255,255,.90);
+      --muted: rgba(255,255,255,.68);
+      --muted2: rgba(255,255,255,.52);
+      --accent: #7cf7ff;
+      --accent2:#a78bfa;
+      --hot: #ff5ea8;
+      --gold:#ffd36e;
+
+      --shadow: 0 16px 60px rgba(0,0,0,.55);
+      --r: 18px;
+      --max: 1120px;
+
+      --navH: 64px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", Meiryo, Arial, sans-serif;
+      color: var(--text);
+      background: radial-gradient(1200px 700px at 70% 10%, rgba(167,139,250,.20), transparent 55%),
+                  radial-gradient(900px 560px at 20% 25%, rgba(124,247,255,.16), transparent 55%),
+                  radial-gradient(760px 560px at 80% 60%, rgba(255,94,168,.10), transparent 60%),
+                  linear-gradient(180deg, var(--bg0), var(--bg1) 45%, var(--bg2));
+      overflow-x:hidden;
+    }
+
+    /* Star canvas sits behind everything */
+    #starfield{
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      opacity: .85;
+      filter: drop-shadow(0 0 10px rgba(124,247,255,.10));
+    }
+
+    /* subtle noise */
+    body::before{
+      content:"";
+      position: fixed;
+      inset:-40px;
+      z-index: 1;
+      pointer-events:none;
+      background-image:
+        radial-gradient(circle at 15% 25%, rgba(255,255,255,.04) 0 1px, transparent 2px),
+        radial-gradient(circle at 65% 55%, rgba(255,255,255,.035) 0 1px, transparent 2px),
+        radial-gradient(circle at 45% 85%, rgba(255,255,255,.03) 0 1px, transparent 2px);
+      background-size: 320px 320px, 420px 420px, 520px 520px;
+      opacity: .35;
+      mix-blend-mode: screen;
+      transform: translate3d(0,0,0);
+    }
+
+    a{ color: inherit; text-decoration: none; }
+    a:focus-visible, button:focus-visible{
+      outline: 2px solid rgba(124,247,255,.9);
+      outline-offset: 3px;
+      border-radius: 12px;
+    }
+
+    .wrap{
+      position: relative;
+      z-index: 2;
+      width: min(var(--max), calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    /* Skip link */
+    .skip{
+      position:absolute;
+      left:-999px;
+      top: 10px;
+      padding: 10px 12px;
+      background: rgba(0,0,0,.8);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      z-index: 9999;
+    }
+    .skip:focus{ left: 14px; }
+
+    /* NAV */
+    header{
+      position: sticky;
+      top:0;
+      z-index: 50;
+      backdrop-filter: blur(12px);
+      background: linear-gradient(180deg, rgba(6,7,12,.78), rgba(6,7,12,.35));
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    .nav{
+      height: var(--navH);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 14px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      min-width: 220px;
+    }
+    .logo{
+      width: 40px;
+      height: 40px;
+      border-radius: 14px;
+      background: radial-gradient(circle at 30% 20%, rgba(124,247,255,.9), rgba(167,139,250,.6) 40%, rgba(255,94,168,.35) 70%, rgba(0,0,0,.0) 100%),
+                  linear-gradient(135deg, rgba(255,255,255,.10), rgba(255,255,255,.00));
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+      position: relative;
+      overflow:hidden;
+    }
+    .logo::after{
+      content:"";
+      position:absolute;
+      inset:-40%;
+      background: conic-gradient(from 180deg, rgba(124,247,255,.0), rgba(124,247,255,.25), rgba(255,94,168,.18), rgba(124,247,255,.0));
+      animation: spin 6s linear infinite;
+      opacity:.85;
+    }
+    .brand h1{
+      font-size: 14px;
+      margin: 0;
+      letter-spacing: .06em;
+      line-height: 1.1;
+    }
+    .brand p{
+      margin: 2px 0 0 0;
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: .06em;
+    }
+
+    nav{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+    }
+    .navlinks{
+      display:flex;
+      align-items:center;
+      gap: 8px;
+    }
+    .navlinks a{
+      padding: 10px 12px;
+      border-radius: 999px;
+      color: var(--muted);
+      border: 1px solid transparent;
+      transition: .2s ease;
+      font-size: 13px;
+      letter-spacing: .04em;
+      white-space: nowrap;
+    }
+    .navlinks a:hover{
+      color: var(--text);
+      border-color: rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+    }
+
+    .cta{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+    }
+    .btn{
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 999px;
+      cursor:pointer;
+      font-weight: 650;
+      letter-spacing: .02em;
+      transition: transform .15s ease, background .2s ease, border-color .2s ease;
+      display:inline-flex;
+      align-items:center;
+      gap: 10px;
+      font-size: 13px;
+      user-select:none;
+      white-space: nowrap;
+    }
+    .btn:hover{
+      transform: translateY(-1px);
+      background: rgba(255,255,255,.09);
+      border-color: rgba(255,255,255,.22);
+    }
+    .btn.primary{
+      border-color: rgba(124,247,255,.30);
+      background: linear-gradient(135deg, rgba(124,247,255,.18), rgba(167,139,250,.14));
+      box-shadow: 0 16px 40px rgba(0,0,0,.35);
+    }
+    .btn.primary:hover{
+      border-color: rgba(124,247,255,.55);
+      background: linear-gradient(135deg, rgba(124,247,255,.22), rgba(167,139,250,.18));
+    }
+    .btn .dot{
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, var(--accent), rgba(124,247,255,.2));
+      box-shadow: 0 0 18px rgba(124,247,255,.45);
+    }
+
+    .hamburger{
+      display:none;
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      cursor:pointer;
+    }
+    .hamburger span{
+      display:block;
+      width: 18px;
+      height: 2px;
+      background: rgba(255,255,255,.85);
+      margin: 0 auto;
+      border-radius: 999px;
+      position: relative;
+    }
+    .hamburger span::before,
+    .hamburger span::after{
+      content:"";
+      position:absolute;
+      left:0;
+      width: 18px;
+      height: 2px;
+      background: rgba(255,255,255,.85);
+      border-radius: 999px;
+      transition: .2s ease;
+    }
+    .hamburger span::before{ top:-6px; }
+    .hamburger span::after{ top:6px; }
+
+    /* HERO */
+    .hero{
+      padding: 48px 0 18px;
+      position: relative;
+    }
+    .heroGrid{
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .panel{
+      border: 1px solid rgba(255,255,255,.12);
+      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.04));
+      border-radius: calc(var(--r) + 4px);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position: relative;
+    }
+    .panel::before{
+      content:"";
+      position:absolute;
+      inset:-60px;
+      background: radial-gradient(600px 260px at 30% 20%, rgba(124,247,255,.18), transparent 60%),
+                  radial-gradient(540px 240px at 70% 40%, rgba(167,139,250,.16), transparent 65%),
+                  radial-gradient(520px 240px at 60% 90%, rgba(255,94,168,.10), transparent 70%);
+      pointer-events:none;
+      opacity: .95;
+    }
+
+    .heroMain{
+      padding: 30px 26px 26px;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      position: relative;
+      z-index: 2;
+    }
+    .badge b{
+      color: rgba(255,255,255,.88);
+      letter-spacing: .10em;
+    }
+
+    .hero h2{
+      margin: 14px 0 10px;
+      font-size: clamp(28px, 3.5vw, 46px);
+      line-height: 1.05;
+      letter-spacing: .01em;
+      position: relative;
+      z-index: 2;
+    }
+
+    .grad{
+      background: linear-gradient(90deg, rgba(124,247,255,.95), rgba(167,139,250,.92) 45%, rgba(255,94,168,.92));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero p{
+      margin: 0 0 18px;
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 14.5px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .heroActions{
+      display:flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items:center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .mini{
+      display:flex;
+      gap: 10px;
+      align-items:center;
+      margin-top: 16px;
+      color: var(--muted2);
+      font-size: 12px;
+      position: relative;
+      z-index: 2;
+    }
+    .mini .pill{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.05);
+      white-space: nowrap;
+    }
+    .mini .spark{
+      width: 10px; height: 10px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, var(--gold), rgba(255,211,110,.18));
+      box-shadow: 0 0 18px rgba(255,211,110,.35);
+    }
+
+    .heroSide{
+      padding: 18px;
+      display:flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+    }
+    .sideCard{
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      border-radius: var(--r);
+      padding: 14px 14px 12px;
+      position: relative;
+      overflow:hidden;
+    }
+    .sideCard::before{
+      content:"";
+      position:absolute;
+      inset:-50px;
+      background: radial-gradient(420px 180px at 20% 20%, rgba(124,247,255,.14), transparent 60%),
+                  radial-gradient(420px 160px at 80% 70%, rgba(255,94,168,.10), transparent 62%);
+      opacity: .8;
+      pointer-events:none;
+    }
+
+    .sideCard h3{
+      margin: 0 0 8px;
+      font-size: 13px;
+      letter-spacing: .08em;
+      color: rgba(255,255,255,.86);
+      position: relative;
+      z-index: 2;
+      text-transform: uppercase;
+    }
+    .sideCard ul{
+      margin: 0;
+      padding: 0 0 0 18px;
+      position: relative;
+      z-index: 2;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 13px;
+    }
+    .sideCard li{ margin: 6px 0; }
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 12px;
+      padding: 2px 6px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.82);
+      white-space: nowrap;
+    }
+
+    /* Sections */
+    section{
+      padding: 26px 0;
+    }
+    .secTitle{
+      display:flex;
+      align-items:flex-end;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 0 0 12px;
+    }
+    .secTitle h3{
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: .04em;
+    }
+    .secTitle p{
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+      max-width: 56ch;
+    }
+
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .course{
+      padding: 18px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(0,0,0,.18));
+      border-radius: calc(var(--r) + 2px);
+      box-shadow: 0 18px 70px rgba(0,0,0,.40);
+      position: relative;
+      overflow:hidden;
+    }
+    .course::before{
+      content:"";
+      position:absolute;
+      inset:-70px;
+      background: radial-gradient(640px 280px at 20% 25%, rgba(124,247,255,.16), transparent 62%),
+                  radial-gradient(540px 260px at 80% 35%, rgba(167,139,250,.14), transparent 62%),
+                  radial-gradient(520px 220px at 55% 90%, rgba(255,94,168,.10), transparent 70%);
+      opacity: .95;
+      pointer-events:none;
+    }
+
+    .courseHead{
+      display:flex;
+      align-items:flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      position: relative;
+      z-index: 2;
+    }
+    .courseName{
+      display:flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+      font-size: 12px;
+      letter-spacing: .06em;
+      color: var(--muted);
+      width: fit-content;
+    }
+    .tag .chip{
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, var(--accent2), rgba(167,139,250,.20));
+      box-shadow: 0 0 18px rgba(167,139,250,.38);
+    }
+    .courseName h4{
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: .04em;
+    }
+    .courseName p{
+      margin: 0;
+      color: var(--muted);
+      font-size: 13.5px;
+      line-height: 1.7;
+      max-width: 58ch;
+    }
+
+    .courseMeta{
+      text-align:right;
+      color: var(--muted2);
+      font-size: 12px;
+      line-height: 1.7;
+      white-space: nowrap;
+    }
+    .courseMeta b{
+      color: rgba(255,255,255,.88);
+      font-size: 13px;
+    }
+
+    .links{
+      margin-top: 14px;
+      position: relative;
+      z-index: 2;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .linkCard{
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      border-radius: 16px;
+      padding: 12px 12px;
+      transition: transform .15s ease, border-color .2s ease, background .2s ease;
+      display:flex;
+      gap: 12px;
+      align-items: flex-start;
+      min-height: 86px;
+    }
+    .linkCard:hover{
+      transform: translateY(-2px);
+      border-color: rgba(124,247,255,.26);
+      background: rgba(255,255,255,.06);
+    }
+    .ico{
+      width: 34px;
+      height: 34px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: linear-gradient(135deg, rgba(124,247,255,.14), rgba(255,94,168,.08));
+      display:grid;
+      place-items:center;
+      flex: 0 0 34px;
+      box-shadow: 0 12px 30px rgba(0,0,0,.25);
+    }
+    .ico svg{ width: 18px; height: 18px; opacity: .95; }
+    .linkCard .t{
+      display:flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+    .linkCard .t b{
+      font-size: 13px;
+      letter-spacing: .04em;
+    }
+    .linkCard .t small{
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+      word-break: break-all;
+    }
+
+    .courseFoot{
+      margin-top: 12px;
+      position: relative;
+      z-index: 2;
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* Flow */
+    .flow{
+      border: 1px solid rgba(255,255,255,.12);
+      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(0,0,0,.18));
+      border-radius: calc(var(--r) + 2px);
+      padding: 18px;
+      position: relative;
+      overflow:hidden;
+      box-shadow: var(--shadow);
+    }
+    .flow::before{
+      content:"";
+      position:absolute;
+      inset:-60px;
+      background: radial-gradient(680px 280px at 15% 35%, rgba(124,247,255,.14), transparent 62%),
+                  radial-gradient(540px 260px at 75% 20%, rgba(255,94,168,.10), transparent 62%);
+      opacity: .9;
+      pointer-events:none;
+    }
+    .flowTop{
+      position: relative;
+      z-index: 2;
+      display:flex;
+      align-items:flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .flowTop p{
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 13.5px;
+      max-width: 70ch;
+    }
+
+    .steps{
+      margin-top: 14px;
+      position: relative;
+      z-index: 2;
+      display:grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      align-items: stretch;
+    }
+    .step{
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      border-radius: 16px;
+      padding: 12px;
+      display:flex;
+      flex-direction: column;
+      gap: 8px;
+      position: relative;
+      overflow:hidden;
+      min-height: 96px;
+    }
+    .step::before{
+      content:"";
+      position:absolute;
+      inset:-80px;
+      background: radial-gradient(420px 160px at 20% 15%, rgba(167,139,250,.16), transparent 58%);
+      opacity: .8;
+      pointer-events:none;
+    }
+    .step .n{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      color: rgba(255,255,255,.78);
+      font-size: 12px;
+      letter-spacing: .08em;
+      position: relative;
+      z-index: 2;
+    }
+    .step b{
+      font-size: 13px;
+      letter-spacing: .04em;
+      position: relative;
+      z-index: 2;
+    }
+    .step small{
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+      position: relative;
+      z-index: 2;
+    }
+    .arrow{
+      display:none;
+    }
+
+    /* About */
+    .aboutGrid{
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 14px;
+    }
+    .feature{
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      border-radius: calc(var(--r) + 2px);
+      padding: 16px;
+      box-shadow: 0 16px 50px rgba(0,0,0,.35);
+      position: relative;
+      overflow:hidden;
+    }
+    .feature::before{
+      content:"";
+      position:absolute;
+      inset:-80px;
+      background: radial-gradient(520px 220px at 20% 20%, rgba(124,247,255,.12), transparent 60%),
+                  radial-gradient(520px 220px at 80% 80%, rgba(255,211,110,.08), transparent 65%);
+      opacity:.9;
+      pointer-events:none;
+    }
+    .feature h4{
+      margin: 0 0 8px;
+      font-size: 14px;
+      letter-spacing: .06em;
+      position: relative;
+      z-index: 2;
+    }
+    .feature p{
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.75;
+      font-size: 13.5px;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* FAQ */
+    details{
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      border-radius: 16px;
+      padding: 12px 14px;
+      margin: 10px 0;
+      box-shadow: 0 16px 50px rgba(0,0,0,.25);
+    }
+    summary{
+      cursor:pointer;
+      list-style:none;
+      font-weight: 650;
+      letter-spacing: .03em;
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    summary::-webkit-details-marker{ display:none; }
+    details p{
+      margin: 10px 0 0;
+      color: var(--muted);
+      line-height: 1.75;
+      font-size: 13.5px;
+    }
+    .chev{
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      display:grid;
+      place-items:center;
+      flex: 0 0 22px;
+      transition: transform .2s ease;
+    }
+    details[open] .chev{ transform: rotate(180deg); }
+
+    /* Footer */
+    footer{
+      padding: 26px 0 40px;
+      color: var(--muted2);
+      font-size: 12px;
+      border-top: 1px solid rgba(255,255,255,.08);
+      margin-top: 18px;
+    }
+    .foot{
+      display:flex;
+      align-items:flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .foot a{
+      color: rgba(255,255,255,.80);
+      border-bottom: 1px dashed rgba(255,255,255,.26);
+    }
+    .foot a:hover{ border-bottom-color: rgba(124,247,255,.65); }
+
+    /* Back to top */
+    .top{
+      position: fixed;
+      right: 14px;
+      bottom: 14px;
+      z-index: 60;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: .2s ease;
+      pointer-events: none;
+    }
+    .top.show{
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    /* Responsive */
+    @media (max-width: 980px){
+      .heroGrid{ grid-template-columns: 1fr; }
+      .brand{ min-width: unset; }
+      .aboutGrid{ grid-template-columns: 1fr; }
+      .steps{ grid-template-columns: 1fr; }
+      .step{ min-height: unset; }
+      .links{ grid-template-columns: 1fr; }
+      .grid2{ grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 760px){
+      .navlinks, .cta{ display:none; }
+      .hamburger{ display:inline-grid; place-items:center; }
+      .mobile{
+        display:none;
+        position:absolute;
+        top: calc(var(--navH) + 8px);
+        right: 0;
+        left: 0;
+        padding: 10px;
+      }
+      .mobile.open{ display:block; }
+      .mobilePanel{
+        border: 1px solid rgba(255,255,255,.12);
+        background: rgba(6,7,12,.85);
+        backdrop-filter: blur(14px);
+        border-radius: 18px;
+        padding: 10px;
+        box-shadow: var(--shadow);
+      }
+      .mobilePanel a{
+        display:block;
+        padding: 12px 12px;
+        border-radius: 14px;
+        border: 1px solid transparent;
+        color: var(--muted);
+      }
+      .mobilePanel a:hover{
+        color: var(--text);
+        border-color: rgba(255,255,255,.12);
+        background: rgba(255,255,255,.06);
+      }
+      .mobilePanel .row{
+        display:flex;
+        gap: 10px;
+        padding: 8px 8px 2px;
+      }
+      .mobilePanel .row .btn{ width: 100%; justify-content:center; }
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      .logo::after{ animation: none; }
+      * { scroll-behavior: auto !important; }
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
 </head>
+
 <body>
-    <header class="pulse">
-        <h1>Pythonトレーニング運用マニュアル（iPhone / Ubuntu 両対応）</h1>
-        <p>Version: 2025-12-10</p>
-    </header>
-    
-    <div class="container">
-        <section>
-            <div class="character">
-                <h2>目的</h2>
-                <ul>
-                    <li>課題配布：<strong>GitHub Issues</strong></li>
-                    <li>提出：<strong>Pull Request</strong></li>
-                    <li>成功/失敗（Pass/Fail）：<strong>GitHub Actions（pytest）</strong></li>
-                    <li>進捗可視化：<strong>GitHub Projects</strong></li>
-                    <li>学習難易度の最適化：<strong>成功確率 p をベイズ更新</strong>し、<strong>Goldilocks帯（0.60〜0.75）</strong>に保つ</li>
-                </ul>
-            </div>
-        </section>
-        
-        <section>
-            <h2># 1. システム全体像（運用フロー）</h2>
-            <h3>1.1 役割とデータの流れ</h3>
-            <ol>
-                <li><strong>Issue（課題）作成</strong>：受講者・期限・ガイドLv・時間上限などを入力（Issue Form） (<a href="https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/syntax-for-issue-forms?utm_source=chatgpt.com" target="_blank">GitHub Docs</a>)</li>
-                <li>受講者は <strong>ブランチ作成→実装→PR作成</strong>（PRテンプレに所要時間・試行回数・Outcomeを記入） (<a href="https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/creating-a-pull-request-template-for-your-repository?utm_source=chatgpt.com" target="_blank">GitHub Docs</a>)</li>
-                <li>PR作成/更新で <strong>Actions（python-ci）がテスト実行</strong>（Pass/Fail） (<a href="https://docs.github.com/actions/guides/building-and-testing-python?utm_source=chatgpt.com" target="_blank">GitHub Docs</a>)</li>
-                <li>結果を使って <strong>p をベイズ更新</strong>し、次の <strong>ガイドLv</strong> を提案（Goldilocks帯維持）</li>
-                <li>Projectsで <strong>Backlog→Doing→Submitted→Review→Rework→Done</strong> を追跡（自動追加も可能） (<a href="https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/adding-items-automatically?utm_source=chatgpt.com" target="_blank">GitHub Docs</a>)</li>
-                <li>mainブランチは <strong>保護ルール</strong>で「テストが通らないとマージ不可」にする (<a href="https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/managing-a-branch-protection-rule?utm_source=chatgpt.com" target="_blank">GitHub Docs</a>)</li>
-            </ol>
-        </section>
-        
-        <section class="character">
-            <h2># 2. 共通：GitHub側の"初期セットアップ"（一度だけ）</h2>
-            <div class="highlight">
-                <p><strong>注意：</strong>最初のセットアップは <strong>Ubuntu（PC）から</strong>やると速いです（ファイル作成が多いため）。<br>
-                ただし、iPhone＋github.devでも可能です（後述）。</p>
-            </div>
-            
-            <h3>2.1 リポジトリ作成（推奨構成）</h3>
-            <ul>
-                <li>1つのリポジトリ（例：<code>python-training</code>）で5人を回す</li>
-                <li>mainブランチ：課題の雛形・テスト・ワークフロー（保護）</li>
-                <li>（推奨）<code>meta</code>ブランチ：pモデルなど運用データの保存先（保護しない）</li>
-            </ul>
-            
-            <h3>2.2 リポジトリ内の基本構成（例）</h3>
-            <pre><code>python-training/
-  src/
-  tests/
-  requirements.txt
+  <a class="skip" href="#main">本文へスキップ</a>
+  <canvas id="starfield" aria-hidden="true"></canvas>
 
-  metrics/
-    skill_model.json   ← 受講者ごとの (alpha,beta) など
+  <header>
+    <div class="wrap">
+      <div class="nav">
+        <div class="brand">
+          <div class="logo" aria-hidden="true"></div>
+          <div>
+            <h1>Python Training</h1>
+            <p>Training Course <span class="kbd">@Space Adventure</span></p>
+          </div>
+        </div>
 
-  tools/
-    skill_update.py    ← ベイズ更新スクリプト
+        <nav aria-label="グローバルナビゲーション">
+          <div class="navlinks">
+            <a href="#courses">コース</a>
+            <a href="#flow">進め方</a>
+            <a href="#about">コンセプト</a>
+            <a href="#faq">FAQ</a>
+          </div>
+          <div class="cta">
+            <a class="btn" href="#flow"><span class="dot" aria-hidden="true"></span>トレーニング方法</a>
+            <a class="btn primary" href="#courses"><span class="dot" aria-hidden="true"></span>コースへジャンプ</a>
+          </div>
+          <button class="hamburger" id="hamburger" aria-label="メニューを開く">
+            <span aria-hidden="true"></span>
+          </button>
+        </nav>
+      </div>
 
-  .github/
-    ISSUE_TEMPLATE/
-      assignment.yml   ← Issue Form
-    pull_request_template.md
-    workflows/
-      python-ci.yml
-      skill-update.yml</code></pre>
-            
-            <h3>2.3 Issue Form（課題入力フォーム）を入れる</h3>
-            <p>Issue Forms は <code>.github/ISSUE_TEMPLATE/</code> にYAMLを置くことで作れます。 (<a href="https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/syntax-for-issue-forms?utm_source=chatgpt.com" target="_blank">GitHub Docs</a>)</p>
-            
-            <p>例：<code>.github/ISSUE_TEMPLATE/assignment.yml</code></p>
-            <pre><code>name: 課題（Python）
-description: 新しい課題を登録
-title: "[Axx] "
-labels: ["assignment"]
-body:
-  - type: dropdown
-    id: learner
-    attributes:
-      label: 受講者
-      options: ["user1", "user2", "user3", "user4", "user5"]
-    validations:
-      required: true
-
-  - type: input
-    id: due
-    attributes:
-      label: 期限
-      placeholder: "2025-12-20"
-
-  - type: dropdown
-    id: guide_lv
-    attributes:
-      label: ガイドLv（初期）
-      options: ["Lv2", "Lv3", "Lv1", "Lv0"]
-    validations:
-      required: true
-
-  - type: input
-    id: time_cap_min
-    attributes:
-      label: 目安時間上限（分）
-      placeholder: "90"
-
-  - type: textarea
-    id: goal
-    attributes:
-      label: ゴール（できるようになること）
-    validations:
-      required: true
-
-  - type: textarea
-    id: deliverable
-    attributes:
-      label: 提出物（どこに何を置くか）
-      placeholder: "例: src/a12/main.py を実装し pytest を通す"
-    validations:
-      required: true
-
-  - type: textarea
-    id: hints
-    attributes:
-      label: ヒント（Lv2/Lv3用）
-      placeholder: "例: 使ってよい関数、等価クラスの考え方、境界値候補..."</code></pre>
-            
-            <div class="note">
-                <strong>注意：</strong> Issue/PRテンプレは<strong>デフォルトブランチに置かれている必要</strong>があります。 (<a href="https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/about-issue-and-pull-request-templates?utm_source=chatgpt.com" target="_blank">GitHub Docs</a>)
-            </div>
-            
-            <h3>2.4 PRテンプレを入れる（時間・試行回数・Outcome回収）</h3>
-            <p>PRテンプレは <code>pull_request_template.md</code>（root / docs / .github のいずれか）で有効化できます。 (<a href="https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/creating-a-pull-request-template-for-your-repository?utm_source=chatgpt.com" target="_blank">GitHub Docs</a>)</p>
-            
-            <p>例：<code>.github/pull_request_template.md</code></p>
-            <pre><code>## 関連Issue
-Fixes #
-
-## 変更内容
--
-
-## Actions結果
-- [ ] pytest が Pass
-- [ ] 失敗した場合はログを貼る
-
-## 学び（必須）
-つまずきポイント / 学び:
-
-所要時間（分）:
-試行回数:
-自己評価（1-5）:
-Outcome（自力/ヒントあり/解答見て理解/未完）:</code></pre>
-            
-            <h3>2.5 GitHub Actions（テスト自動判定）を入れる</h3>
-            <p>Pythonのビルド＆テストは <code>setup-python</code> を使うのが定石です。 (<a href="https://docs.github.com/actions/guides/building-and-testing-python?utm_source=chatgpt.com" target="_blank">GitHub Docs</a>)</p>
-            
-            <h4>2.5.1 <code>python-ci.yml</code>（PRが来たらpytest）</h4>
-            <p><code>.github/workflows/python-ci.yml</code></p>
-            <pre><code>name: python-ci
-on:
-  pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-      - run: python -m pip install -U pip
-      - run: pip install -r requirements.txt
-      - run: pytest -q
-
-      # skill-update側がPR番号を取れるようにartifactを残す（成功/失敗に関わらず）
-      - name: Save PR number
-        if: always()
-        run: |
-          mkdir -p pr
-          echo "${{ github.event.number }}" > pr/number.txt
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: pr_number
-          path: pr/number.txt</code></pre>
-            
-            <h4>2.5.2 <code>skill-update.yml</code>（workflow_runでp更新）</h4>
-            <p><code>workflow_run</code> は「前のワークフローが完了したら次を走らせる」用途で、<strong>前段が非特権でも後段はsecrets/書き込みトークンにアクセス可能</strong>という性質があり、集計・コメントなどに便利です。 (<a href="https://docs.github.com/actions/learn-github-actions/events-that-trigger-workflows" target="_blank">GitHub Docs</a>)<br>
-            （ただし"安全な設計"が必須。ここでは<strong>PRのコードを実行しない</strong>構成にします。）</p>
-            
-            <p><code>.github/workflows/skill-update.yml</code></p>
-            <pre><code>name: skill-update
-on:
-  workflow_run:
-    workflows: ["python-ci"]
-    types: [completed]
-
-jobs:
-  update:
-    runs-on: ubuntu-latest
-
-    # PRコメントやmetaブランチpushのために権限を付与
-    permissions:
-      contents: write
-      pull-requests: write
-      issues: write
-      actions: read
-
-    # 同時更新でskill_model.jsonが競合しないよう直列化
-    concurrency:
-      group: skill-model
-      cancel-in-progress: false
-
-    steps:
-      # main（スクリプト置き場）
-      - name: Checkout main
-        uses: actions/checkout@v4
-        with:
-          ref: main
-          path: main
-
-      # meta（データ置き場。無ければ作ってから運用）
-      - name: Checkout meta
-        uses: actions/checkout@v4
-        with:
-          ref: meta
-          path: meta
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      # workflow_runのrun_idからartifactを取得し、PR番号を読み出す（GitHub Docsの例に沿う）
-      - name: Download PR number artifact
-        uses: actions/github-script@v8
-        with:
-          script: |
-            const run_id = context.payload.workflow_run.id;
-            const { owner, repo } = context.repo;
-
-            const arts = await github.rest.actions.listWorkflowRunArtifacts({ owner, repo, run_id });
-            const match = arts.data.artifacts.find(a => a.name === "pr_number");
-            if (!match) core.setFailed("pr_number artifact not found");
-
-            const download = await github.rest.actions.downloadArtifact({
-              owner, repo, artifact_id: match.id, archive_format: "zip",
-            });
-
-            const fs = require("fs");
-            const path = require("path");
-            const zipPath = path.join(process.env.RUNNER_TEMP, "pr_number.zip");
-            fs.writeFileSync(zipPath, Buffer.from(download.data));
-
-            core.setOutput("zipPath", zipPath);
-
-      - name: Unzip artifact
-        run: |
-          mkdir -p "${{ runner.temp }}/pr"
-          unzip "${{ steps.download-pr-number.outputs.zipPath }}" -d "${{ runner.temp }}/pr"
-        env:
-          # github-scriptのoutput名と合わせるなら上のstepにidが必要、等
-          # 実運用では "id: download-pr-number" を付けて整える
-          DUMMY: "1"
-
-      - name: Read PR number
-        id: pr
-        run: |
-          PR_NUMBER=$(cat "${{ runner.temp }}/pr/number.txt" | tr -d '\n')
-          echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
-
-      - name: Update skill model (Bayes)
-        run: |
-          python main/tools/skill_update.py \
-            --repo "${{ github.repository }}" \
-            --pr "${{ steps.pr.outputs.pr_number }}" \
-            --conclusion "${{ github.event.workflow_run.conclusion }}" \
-            --model "meta/metrics/skill_model.json" \
-            --out "meta/metrics/skill_model.json"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Commit & push model to meta
-        run: |
-          cd meta
-          git config user.name  "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add metrics/skill_model.json
-          git commit -m "Update skill model (PR #${{ steps.pr.outputs.pr_number }})" || exit 0
-          git push
-
-      - name: Comment back to PR
-        uses: actions/github-script@v8
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const pr = Number("${{ steps.pr.outputs.pr_number }}");
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: pr,
-              body: "✅ skill-update: p を更新しました。PRコメントのテンプレ入力（所要時間/Outcome）も確認してください。"
-            });</code></pre>
-            
-            <div class="warning">
-                <strong>注：</strong> <code>workflow_run</code> は <strong>ワークフロー定義がデフォルトブランチに存在しないと発火しません</strong>。 (<a href="https://docs.github.com/actions/learn-github-actions/events-that-trigger-workflows" target="_blank">GitHub Docs</a>)<br>
-                また、チェーンは3段までの制限があります（本設計は2段なのでOK）。 (<a href="https://docs.github.com/actions/learn-github-actions/events-that-trigger-workflows" target="_blank">GitHub Docs</a>)
-            </div>
-            
-            <h3>2.6 Actionsの権限設定（重要）</h3>
-            <p>skill-update が <strong>pushやコメント</strong>をするには、リポジトリ設定で <code>GITHUB_TOKEN</code> の権限を <strong>Read and write</strong> にします。 (<a href="https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-github-actions-settings-for-a-repository?utm_source=chatgpt.com" target="_blank">GitHub Docs</a>)</p>
-            
-            <p>手順：</p>
-            <ol>
-                <li>GitHub（Web）→ リポジトリ → <strong>Settings</strong></li>
-                <li>左メニュー：<strong>Actions → General</strong></li>
-                <li>下の方：<strong>Workflow permissions</strong>
-                    <ul>
-                        <li><strong>Read and write permissions</strong> を選択</li>
-                        <li>Save (<a href="https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-github-actions-settings-for-a-repository?utm_source=chatgpt.com" target="_blank">GitHub Docs</a>)</li>
-                    </ul>
-                </li>
-            </ol>
-            
-            <h3>2.7 mainブランチ保護（テストが通るまでマージ不可）</h3>
-            <p>ブランチ保護で「Required status checks」を有効にすると、<strong>必要なチェックが通らないとマージ不可</strong>にできます。 (<a href="https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/managing-a-branch-protection-rule?utm_source=chatgpt.com" target="_blank">GitHub Docs</a>)</p>
-            
-            <p>手順：</p>
-            <ol>
-                <li>Settings → Branches → Branch protection rule を追加</li>
-                <li>対象ブランチ：<code>main</code></li>
-                <li><strong>Require status checks to pass before merging</strong> をON
-                    <ul>
-                        <li><code>python-ci</code>（のチェック名）をRequiredに追加 (<a href="https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/managing-a-branch-protection-rule?utm_source=chatgpt.com" target="_blank">GitHub Docs</a>)</li>
-                    </ul>
-                </li>
-            </ol>
-        </section>
-        
-        <section>
-            <h2># 3. 成功確率 p（ベイズ更新）とGoldilocks帯の運用仕様</h2>
-            <h3>3.1 成功/失敗の定義（0/1）</h3>
-            <p>PRごとに以下で y を決めます：</p>
-            <ul>
-                <li><strong>y = 1（成功）</strong>：Actionsが <strong>Pass</strong> かつ PRテンプレの <strong>所要時間（分） ≤ time_cap</strong></li>
-                <li><strong>y = 0（失敗）</strong>：それ以外（Fail、時間超過、Outcomeが未完など）</li>
-            </ul>
-            <p>（時間はPRテンプレから取得する想定）</p>
-            
-            <h3>3.2 ベイズ更新（Beta-Bernoulli）</h3>
-            <p>受講者ごとに Beta(α,β) を持ち、PR提出ごとに更新：</p>
-            <ul>
-                <li>事前：Beta(α,β)</li>
-                <li>観測：y ∈ {0,1}</li>
-                <li>事後：Beta(α+y, β+(1−y))</li>
-                <li>推定成功確率：<br>
-                    <span class="katex">\( p = \frac{\alpha}{\alpha + \beta} \)</span>
-                </li>
-            </ul>
-            <p>初期値の例（Lv2開始に合わせる）：</p>
-            <ul>
-                <li>α=6, β=3 → p=0.667（中心を0.67近辺に置く）</li>
-            </ul>
-            
-            <h3>3.3 Goldilocks帯とガイドLv調整ルール（あなたのルールを採用）</h3>
-            <ul>
-                <li>Goldilocks帯：<strong>0.60〜0.75</strong></li>
-                <li>調整：
-                    <ul>
-                        <li>p < 0.60 → <strong>ガイドを上げる / 課題を分割</strong></li>
-                        <li>p > 0.75 → <strong>ガイドを下げる / 制約を増やす</strong></li>
-                    </ul>
-                </li>
-            </ul>
-            <div class="highlight">
-                <p><strong>注：</strong>これは「最適点」ではなく「帯で回す」ための運用ルールです（継続性優先）。</p>
-            </div>
-        </section>
-        
-        <section class="character">
-            <h2># 4. iPhone運用：インストール & 操作手順（外出時）</h2>
-            
-            <h3>4.1 iPhoneに入れるもの</h3>
-            <p>必須：</p>
-            <ul>
-                <li><strong>GitHub Mobile（公式）</strong>
-                    <ul>
-                        <li>Issue/PRの閲覧・レビュー・コメントが可能 (<a href="https://docs.github.com/en/get-started/using-github/github-mobile?utm_source=chatgpt.com" target="_blank">GitHub Docs</a>)</li>
-                    </ul>
-                </li>
-                <li><strong>Safari（標準）</strong>
-                    <ul>
-                        <li>Projects（ボード）操作や設定系はWebの方が確実</li>
-                    </ul>
-                </li>
-                <li><strong>ChatGPT（あなたは導入済み）</strong>
-                    <ul>
-                        <li>エラーログ貼って原因分析・修正案づくり</li>
-                    </ul>
-                </li>
-            </ul>
-            
-            <p>推奨（iPhoneだけで軽い修正までしたい場合）：</p>
-            <ul>
-                <li><strong>github.dev（ブラウザ内エディタ）</strong>
-                    <ul>
-                        <li>リポジトリをブラウザで開き、編集→コミットが可能 (<a href="https://docs.github.com/en/codespaces/the-githubdev-web-based-editor?utm_source=chatgpt.com" target="_blank">GitHub Docs</a>)</li>
-                    </ul>
-                </li>
-            </ul>
-            
-            <h3>4.2 GitHub Mobileの初期設定</h3>
-            <ol>
-                <li>GitHub Mobileでログイン</li>
-                <li>通知（Notifications）をON</li>
-                <li>受講者5人は、リポジトリへコラボレーターとして招待（Webの方がやりやすい）</li>
-            </ol>
-            
-            <h3>4.3 iPhoneからの「制御」（日常運用）</h3>
-            
-            <h4>A) 課題配布（Issue作成）</h4>
-            <ol>
-                <li>GitHub Mobileでリポジトリ → <strong>Issues</strong> → New issue</li>
-                <li><strong>Issue Form（課題フォーム）</strong>を選ぶ</li>
-                <li>learner / due / guide_lv / time_cap / goal / deliverable を入力して作成 (<a href="https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/syntax-for-issue-forms?utm_source=chatgpt.com" target="_blank">GitHub Docs</a>)</li>
-                <li>Projectsがある場合、IssueをProjectに追加（または自動追加設定）</li>
-            </ol>
-            
-            <h4>B) 受講者の提出（PR）</h4>
-            <ul>
-                <li>受講者がPCでPRを出すのが基本（Ubuntu/Windows/mac）</li>
-                <li>ただし、iPhoneだけでも最低限の修正は可能：
-                    <ul>
-                        <li>PR画面から <strong>ファイル編集</strong>ができる（GitHub MobileはPR上の編集が可能） (<a href="https://docs.github.com/en/get-started/using-github/github-mobile?utm_source=chatgpt.com" target="_blank">GitHub Docs</a>)</li>
-                        <li>もしくは Safariで <code>github.dev</code> を使い、編集→コミット→PR (<a href="https://docs.github.com/en/codespaces/the-githubdev-web-based-editor?utm_source=chatgpt.com" target="_blank">GitHub Docs</a>)</li>
-                    </ul>
-                </li>
-            </ul>
-            
-            <h4>C) Actions結果の確認（Pass/Fail）</h4>
-            <ul>
-                <li>PR画面のChecks/Actions（またはWebでActions）で結果確認</li>
-                <li><strong>FailならログをコピーしてChatGPTへ</strong> → 修正案 → PRに反映</li>
-            </ul>
-            
-            <h4>D) マージ（合格時）</h4>
-            <ul>
-                <li>mainブランチ保護により、<strong>Checksが通らないとマージできない</strong>運用になります (<a href="https://docs.github.com/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches?utm_source=chatgpt.com" target="_blank">GitHub Docs</a>)</li>
-                <li>Passになったら、レビューしてマージ</li>
-            </ul>
-            
-            <h4>E) p更新と次課題の難易度決定</h4>
-            <ul>
-                <li>マージ後（またはCI完了後）に <strong>skill-updateのコメント</strong>が付く</li>
-                <li>そこで「pの更新」「次の推奨ガイドLv」を読み取り</li>
-                <li>次のIssueを作るときに <code>guide_lv</code> と <code>time_cap</code> を調整して配布</li>
-            </ul>
-        </section>
-        
-        <section>
-            <h2># 5. Ubuntu運用：インストール & 操作手順（オフィス）</h2>
-            
-            <h3>5.1 Ubuntuにインストールするもの（最小）</h3>
-            <ul>
-                <li>git</li>
-                <li>Python 3.x（推奨3.11系に寄せる）</li>
-                <li>GitHub CLI（gh）</li>
-                <li>（あると便利）curl, wget, jq</li>
-            </ul>
-            
-            <h3>5.2 GitHub CLI（gh）のインストール（Ubuntu/Debian公式手順）</h3>
-            <p>GitHub CLI公式のDebian/Ubuntu向けインストール手順（aptリポジトリ＋keyring）です。 (<a href="https://raw.githubusercontent.com/cli/cli/trunk/docs/install_linux.md" target="_blank">GitHub</a>)</p>
-            
-            <pre><code>(type -p wget >/dev/null || (sudo apt update && sudo apt install wget -y)) \
-  && sudo mkdir -p -m 755 /etc/apt/keyrings \
-  && out=$(mktemp) && wget -nv -O$out https://cli.github.com/packages/githubcli-archive-keyring.gpg \
-  && cat $out | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
-  && sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
-  && sudo mkdir -p -m 755 /etc/apt/sources.list.d \
-  && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
-    | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
-  && sudo apt update \
-  && sudo apt install gh -y</code></pre>
-            
-            <p>アップグレード：</p>
-            <pre><code>sudo apt update
-sudo apt install gh</code></pre>
-            
-            <p>(<a href="https://raw.githubusercontent.com/cli/cli/trunk/docs/install_linux.md" target="_blank">GitHub</a>)</p>
-            
-            <h3>5.3 ghのログイン（認証）</h3>
-            <pre><code>gh auth login</code></pre>
-            
-            <p>デフォルトはブラウザを使うログインフローです。 (<a href="https://cli.github.com/manual/gh_auth_login?utm_source=chatgpt.com" target="_blank">GitHub CLI</a>)</p>
-            
-            <h3>5.4 リポジトリ操作（Ubuntuからの制御）</h3>
-            
-            <h4>A) リポジトリを開く / clone</h4>
-            <pre><code>gh repo clone &lt;owner&gt;/&lt;repo&gt;
-cd &lt;repo&gt;</code></pre>
-            
-            <h4>B) Issue/PRの確認（監督側）</h4>
-            <pre><code>gh issue list
-gh pr list
-gh pr view &lt;PR番号&gt; --web</code></pre>
-            
-            <h4>C) PRレビュー・マージ（監督側）</h4>
-            <pre><code>gh pr review &lt;PR番号&gt; --comment -b "レビューコメント"
-gh pr merge &lt;PR番号&gt; --merge</code></pre>
-            
-            <h4>D) Actions実行状況を見る</h4>
-            <pre><code>gh run list
-gh run view &lt;run-id&gt; --log</code></pre>
-            
-            <h4>E) ProjectsをCLIで見る（任意）</h4>
-            <p>Projects操作にはトークンに <code>project</code> スコープが必要です。 (<a href="https://cli.github.com/manual/gh_project?utm_source=chatgpt.com" target="_blank">GitHub CLI</a>)</p>
-            
-            <pre><code>gh auth refresh -s project
-gh project list
-gh project view &lt;project-number&gt; --owner "@me" --web</code></pre>
-            
-            <p>(<a href="https://cli.github.com/manual/gh_project?utm_source=chatgpt.com" target="_blank">GitHub CLI</a>)</p>
-        </section>
-        
-        <section class="character">
-            <h2># 6. iPhoneだけで"Ubuntu相当の操作"をしたい場合（オプション）</h2>
-            <p>iPhoneでGitHub Mobile運用は可能ですが、<strong>CLIで一気に操作したい</strong>なら：</p>
-            <ul>
-                <li>iPhoneにSSHクライアント（例：一般的なSSHアプリ）を入れる</li>
-                <li>Ubuntu側でSSHを有効化し、<strong>鍵認証＋VPN（推奨）</strong>で接続</li>
-                <li>iPhone→UbuntuへSSH→ <code>gh</code> コマンドで操作</li>
-            </ul>
-            
-            <div class="warning">
-                ※この章はセキュリティ設計（VPN/ゼロトラスト等）が絡むので、社内規程に合わせてください。
-            </div>
-        </section>
-        
-        <section>
-            <h2># 7. Projects（進捗ボード）の設定手順（共通）</h2>
-            
-            <h3>7.1 Projectsを作る</h3>
-            <ul>
-                <li>GitHub → Projects → New Project</li>
-                <li>View：Table + Boardがおすすめ</li>
-                <li>ProjectsはGitHub上で作業を計画・追跡できる機能です (<a href="https://docs.github.com/issues/planning-and-tracking-with-projects/learning-about-projects/about-projects?utm_source=chatgpt.com" target="_blank">GitHub Docs</a>)</li>
-            </ul>
-            
-            <h3>7.2 カスタムフィールド（おすすめ）</h3>
-            <ul>
-                <li>Status：Backlog / Doing / Submitted / Review / Rework / Done</li>
-                <li>Result：Pass / Fail / Need Help</li>
-                <li>Outcome：自力 / ヒントあり / 解答見て理解 / 未完</li>
-                <li>Metrics：所要時間(分) / 試行回数 / 自己評価</li>
-                <li>p_before / p_after（数値）</li>
-                <li>guide_lv（Lv0-3）</li>
-            </ul>
-            
-            <h3>7.3 自動追加（Auto-add）</h3>
-            <p>ProjectsはIssue/PRを条件で自動追加できます。 (<a href="https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/adding-items-automatically?utm_source=chatgpt.com" target="_blank">GitHub Docs</a>)<br>
-            例：labelが<code>assignment</code>なら自動でProjectへ、など。</p>
-            
-            <h3>7.4 Built-in automation</h3>
-            <p>Statusを自動更新したり、クローズと連動させる"内蔵オートメーション"があります。 (<a href="https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/using-the-built-in-automations?utm_source=chatgpt.com" target="_blank">GitHub Docs</a>)</p>
-        </section>
-        
-        <section class="character">
-            <h2># 8. よくある詰まりポイント（トラブルシュート）</h2>
-            
-            <h3>8.1 Issue Formが出ない</h3>
-            <ul>
-                <li><code>.github/ISSUE_TEMPLATE/</code> 配下にYAMLがあるか (<a href="https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/syntax-for-issue-forms?utm_source=chatgpt.com" target="_blank">GitHub Docs</a>)</li>
-                <li>デフォルトブランチ（main）に入っているか (<a href="https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/about-issue-and-pull-request-templates?utm_source=chatgpt.com" target="_blank">GitHub Docs</a>)</li>
-            </ul>
-            
-            <h3>8.2 PRテンプレが反映されない</h3>
-            <ul>
-                <li>ファイル名と置き場所が正しいか（root/docs/.github） (<a href="https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/creating-a-pull-request-template-for-your-repository?utm_source=chatgpt.com" target="_blank">GitHub Docs</a>)</li>
-                <li>デフォルトブランチに入っているか (<a href="https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-request-templates/about-issue-and-pull-request-templates?utm_source=chatgpt.com" target="_blank">GitHub Docs</a>)</li>
-            </ul>
-            
-            <h3>8.3 skill-updateが動かない</h3>
-            <ul>
-                <li><code>workflow_run</code> は <strong>デフォルトブランチにワークフロー定義がないと発火しない</strong> (<a href="https://docs.github.com/actions/learn-github-actions/events-that-trigger-workflows" target="_blank">GitHub Docs</a>)</li>
-                <li><code>workflows: ["python-ci"]</code> の名前が一致しているか（<code>python-ci.yml</code> の <code>name:</code>） (<a href="https://docs.github.com/actions/learn-github-actions/events-that-trigger-workflows" target="_blank">GitHub Docs</a>)</li>
-                <li>workflow permissions が read/write になっているか (<a href="https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-github-actions-settings-for-a-repository?utm_source=chatgpt.com" target="_blank">GitHub Docs</a>)</li>
-            </ul>
-            
-            <h3>8.4 ghからIssue Formを使って作れない</h3>
-            <p>Issue Formsは"Webフォーム"が基本で、gh CLIが完全に同等対応していないケースがあります（現場ではWeb作成が確実）。 (<a href="https://github.com/cli/cli/issues/5865?utm_source=chatgpt.com" target="_blank">GitHub</a>)</p>
-        </section>
-        
-        <section>
-            <h2># 9. 最小運用チェックリスト（これだけ守れば回る）</h2>
-            <div class="checklist">
-                <ul>
-                    <li><input type="checkbox"> Issue Form（課題）を main に配置 (<a href="https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/syntax-for-issue-forms?utm_source=chatgpt.com" target="_blank">GitHub Docs</a>)</li>
-                    <li><input type="checkbox"> PRテンプレを main に配置 (<a href="https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/creating-a-pull-request-template-for-your-repository?utm_source=chatgpt.com" target="_blank">GitHub Docs</a>)</li>
-                    <li><input type="checkbox"> <code>python-ci</code> をPRトリガで動かす (<a href="https://docs.github.com/actions/guides/building-and-testing-python?utm_source=chatgpt.com" target="_blank">GitHub Docs</a>)</li>
-                    <li><input type="checkbox"> ブランチ保護で status check 必須化 (<a href="https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/managing-a-branch-protection-rule?utm_source=chatgpt.com" target="_blank">GitHub Docs</a>)</li>
-                    <li><input type="checkbox"> <code>skill-update</code>（workflow_run）でp更新 (<a href="https://docs.github.com/actions/learn-github-actions/events-that-trigger-workflows" target="_blank">GitHub Docs</a>)</li>
-                    <li><input type="checkbox"> ProjectsでStatusとResultを追う（auto-add推奨） (<a href="https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/adding-items-automatically?utm_source=chatgpt.com" target="_blank">GitHub Docs</a>)</li>
-                </ul>
-            </div>
-        </section>
-        
-        <section class="character">
-            <h2>次にやると良いこと（あなたの要望に合わせた"完成"のための提案）</h2>
-            <p>ここまでで「インストール〜制御」は可能です。<br>
-            システムとして完成度を上げるなら、次の2点を固めるのが最短です：</p>
-            
-            <ol>
-                <li><strong><code>tools/skill_update.py</code> の仕様確定</strong>
-                    <ul>
-                        <li>PRテンプレの"所要時間/Outcome"のパース規則</li>
-                        <li>time_cap と guide_lv のデフォルト表</li>
-                        <li>p更新後に「次の推奨Lv」をコメント文面で出す</li>
-                    </ul>
-                </li>
-                <li><strong>Projectsフィールドとskill-updateの連携</strong>（任意）
-                    <ul>
-                        <li>PR結果（Pass/Fail）と p_after を Projects の列に自動書き込み</li>
-                        <li>これは <code>gh project item-edit</code> やGraphQLを使うと実現できます (<a href="https://cli.github.com/manual/gh_project_item-edit?utm_source=chatgpt.com" target="_blank">GitHub CLI</a>)</li>
-                    </ul>
-                </li>
-            </ol>
-            
-            <div class="highlight">
-                <p>必要なら、あなたの現在の運用（課題の粒度、time_capの目安、Lv2/Lv3のひな形の量）に合わせて、<strong><code>skill_update.py</code> の完全版（ベイズ更新＋推奨Lv算出＋PRコメント出力まで）</strong>をこちらで"そのまま貼って動く形"で書き起こします。</p>
-            </div>
-        </section>
-        
-        <section>
-            <h2>参考リンク</h2>
-            <table>
-                <tr>
-                    <th>番号</th>
-                    <th>リンク先</th>
-                </tr>
-                <tr>
-                    <td>[1]</td>
-                    <td><a href="https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/syntax-for-issue-forms?utm_source=chatgpt.com">Syntax for issue forms</a></td>
-                </tr>
-                <tr>
-                    <td>[2]</td>
-                    <td><a href="https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/creating-a-pull-request-template-for-your-repository?utm_source=chatgpt.com">Creating a pull request template for your repository</a></td>
-                </tr>
-                <tr>
-                    <td>[3]</td>
-                    <td><a href="https://docs.github.com/actions/guides/building-and-testing-python?utm_source=chatgpt.com">Building and testing Python</a></td>
-                </tr>
-                <tr>
-                    <td>[4]</td>
-                    <td><a href="https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/adding-items-automatically?utm_source=chatgpt.com">Adding items automatically</a></td>
-                </tr>
-                <tr>
-                    <td>[5]</td>
-                    <td><a href="https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/managing-a-branch-protection-rule?utm_source=chatgpt.com">Managing a branch protection rule</a></td>
-                </tr>
-                <tr>
-                    <td>[6]</td>
-                    <td><a href="https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/about-issue-and-pull-request-templates?utm_source=chatgpt.com">About issue and pull request templates</a></td>
-                </tr>
-                <tr>
-                    <td>[7]</td>
-                    <td><a href="https://docs.github.com/actions/learn-github-actions/events-that-trigger-workflows">Events that trigger workflows - GitHub Docs</a></td>
-                </tr>
-                <tr>
-                    <td>[8]</td>
-                    <td><a href="https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-github-actions-settings-for-a-repository?utm_source=chatgpt.com">Managing GitHub Actions settings for a repository</a></td>
-                </tr>
-                <tr>
-                    <td>[9]</td>
-                    <td><a href="https://docs.github.com/en/get-started/using-github/github-mobile?utm_source=chatgpt.com">GitHub Mobile</a></td>
-                </tr>
-                <tr>
-                    <td>[10]</td>
-                    <td><a href="https://docs.github.com/en/codespaces/the-githubdev-web-based-editor?utm_source=chatgpt.com">The github.dev web-based editor</a></td>
-                </tr>
-                <tr>
-                    <td>[11]</td>
-                    <td><a href="https://docs.github.com/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches?utm_source=chatgpt.com">About protected branches</a></td>
-                </tr>
-                <tr>
-                    <td>[12]</td>
-                    <td><a href="https://raw.githubusercontent.com/cli/cli/trunk/docs/install_linux.md">raw.githubusercontent.com</a></td>
-                </tr>
-                <tr>
-                    <td>[13]</td>
-                    <td><a href="https://cli.github.com/manual/gh_auth_login?utm_source=chatgpt.com">gh auth login</a></td>
-                </tr>
-                <tr>
-                    <td>[14]</td>
-                    <td><a href="https://cli.github.com/manual/gh_project?utm_source=chatgpt.com">gh project</a></td>
-                </tr>
-                <tr>
-                    <td>[15]</td>
-                    <td><a href="https://docs.github.com/issues/planning-and-tracking-with-projects/learning-about-projects/about-projects?utm_source=chatgpt.com">About Projects - GitHub Docs</a></td>
-                </tr>
-                <tr>
-                    <td>[16]</td>
-                    <td><a href="https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/using-the-built-in-automations?utm_source=chatgpt.com">Using the built-in automations</a></td>
-                </tr>
-                <tr>
-                    <td>[17]</td>
-                    <td><a href="https://github.com/cli/cli/issues/5865?utm_source=chatgpt.com">Support for issue forms · Issue #5865 · cli/cli</a></td>
-                </tr>
-                <tr>
-                    <td>[18]</td>
-                    <td><a href="https://cli.github.com/manual/gh_project_item-edit?utm_source=chatgpt.com">gh project item-edit</a></td>
-                </tr>
-            </table>
-        </section>
+      <div class="mobile" id="mobile">
+        <div class="mobilePanel" role="dialog" aria-label="モバイルメニュー">
+          <a href="#courses">コース</a>
+          <a href="#flow">進め方</a>
+          <a href="#about">コンセプト</a>
+          <a href="#faq">FAQ</a>
+          <div class="row">
+            <a class="btn" href="#flow"><span class="dot" aria-hidden="true"></span>トレーニング方法</a>
+            <a class="btn primary" href="#courses"><span class="dot" aria-hidden="true"></span>コースへ</a>
+          </div>
+        </div>
+      </div>
     </div>
-    
-    <footer class="footer">
-        <p>Pythonトレーニング運用マニュアル © 2025 - iPhone/Ubuntu両対応</p>
-    </footer>
-    
-    <!-- KaTeX JS -->
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"
-        onload="renderMathInElement(document.body, {
-            delimiters: [
-                {left: '$$', right: '$$', display: true},
-                {left: '$', right: '$', display: false},
-                {left: '\\(', right: '\\)', display: false},
-                {left: '\\[', right: '\\]', display: true}
-            ],
-            throwOnError: false
-        });"></script>
+  </header>
+
+  <main id="main">
+    <div class="wrap">
+      <!-- HERO -->
+      <section class="hero" aria-label="ヒーロー">
+        <div class="heroGrid">
+          <div class="panel">
+            <div class="heroMain">
+              <div class="badge" aria-label="キャッチコピー">
+                <span aria-hidden="true">🚀</span>
+                <b>Training Course</b>
+                <span>@Space Adventure</span>
+              </div>
+
+              <h2>
+                宇宙海賊みたいに、<br />
+                <span class="grad">学んで、動かして、攻略する。</span>
+              </h2>
+
+              <p>
+                GitHubで課題を受け取り、PRで提出して、テスト採点で次へ進む。
+                <br />
+                「トレーニングしながら冒険を楽しむ」ための、活動感あるPythonトレーニングのホームです。
+                スマホでも見やすいレスポンシブ対応。
+              </p>
+
+              <div class="heroActions">
+                <a class="btn primary" href="#courses"><span class="dot" aria-hidden="true"></span>コース一覧へ</a>
+                <a class="btn" href="#flow"><span class="dot" aria-hidden="true"></span>進め方（GitHub/PR）</a>
+                <a class="btn" href="#faq"><span class="dot" aria-hidden="true"></span>よくある質問</a>
+              </div>
+
+              <div class="mini" aria-label="学習ペースの目安">
+                <span class="pill"><span class="spark" aria-hidden="true"></span>VEGA: <b>1日1時間 / 7日</b></span>
+                <span class="pill"><span class="spark" aria-hidden="true"></span>ALTAIR: <b>1日2時間 / 3ヶ月</b></span>
+              </div>
+            </div>
+          </div>
+
+          <aside class="panel heroSide" aria-label="クイックガイド">
+            <div class="sideCard">
+              <h3>Quick Start</h3>
+              <ul>
+                <li>課題は <span class="kbd">GitHub</span> で配布</li>
+                <li>作業は <span class="kbd">PR</span> を作成して提出</li>
+                <li>採点は <span class="kbd">テスト</span> で判定</li>
+                <li>次の課題へ、または終了</li>
+              </ul>
+            </div>
+            <div class="sideCard">
+              <h3>Shortcuts</h3>
+              <ul>
+                <li><span class="kbd">VEGA</span>：基礎〜全般を短期で攻略</li>
+                <li><span class="kbd">ALTAIR</span>：長期でじっくり鍛える</li>
+                <li>各コースは <span class="kbd">scope / index / overview / spec</span> へ</li>
+              </ul>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- COURSES -->
+      <section id="courses" aria-label="コース一覧">
+        <div class="secTitle">
+          <div>
+            <h3>コース</h3>
+            <p>画像メモにある構成（VEGA / ALTAIR）を、そのまま“かっこよく”整理してリンク化しています。</p>
+          </div>
+        </div>
+
+        <div class="grid2">
+          <!-- VEGA -->
+          <article class="course" aria-label="コース VEGA">
+            <div class="courseHead">
+              <div class="courseName">
+                <span class="tag"><span class="chip" aria-hidden="true"></span>コース VEGA</span>
+                <h4>VEGA</h4>
+                <p>
+                  基礎・全般を短期で駆け抜ける「ブースト」コース。
+                  まずは全体像（Scope）→手順（Index）→構成（Overview）→動く仕様（Spec）へ。
+                </p>
+              </div>
+
+              <div class="courseMeta">
+                <div><b>学習目安</b></div>
+                <div>1日1時間 / 7日</div>
+              </div>
+            </div>
+
+            <div class="links" role="list">
+              <a class="linkCard" role="listitem" href="bt7/scope.html">
+                <div class="ico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M8 7h8M8 11h8M8 15h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M6 3h12a2 2 0 0 1 2 2v14l-4-2-4 2-4-2-4 2V5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2" />
+                  </svg>
+                </div>
+                <div class="t">
+                  <b>基礎・全般（Scope）</b>
+                  <small>bt7/scope.html</small>
+                </div>
+              </a>
+
+              <a class="linkCard" role="listitem" href="bt7/index.html">
+                <div class="ico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M7 7h10M7 12h10M7 17h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M4 6a2 2 0 0 1 2-2h12v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6Z" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                </div>
+                <div class="t">
+                  <b>学習手順（Index）</b>
+                  <small>bt7/index.html</small>
+                </div>
+              </a>
+
+              <a class="linkCard" role="listitem" href="bt7/overview.html">
+                <div class="ico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M12 6v12M6 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M4 8c3-4 13-4 16 0M4 16c3 4 13 4 16 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <div class="t">
+                  <b>Beat / 構成（Overview）</b>
+                  <small>bt7/overview.html</small>
+                </div>
+              </a>
+
+              <a class="linkCard" role="listitem" href="bt7/spec.html">
+                <div class="ico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M8 12h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M12 8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                </div>
+                <div class="t">
+                  <b>動くイメージ（Spec）</b>
+                  <small>bt7/spec.html</small>
+                </div>
+              </a>
+            </div>
+
+            <div class="courseFoot">
+              <a class="btn" href="#flow"><span class="dot" aria-hidden="true"></span>提出フローを見る</a>
+              <a class="btn primary" href="bt7/index.html"><span class="dot" aria-hidden="true"></span>VEGAを開始</a>
+            </div>
+          </article>
+
+          <!-- ALTAIR -->
+          <article class="course" aria-label="コース ALTAIR">
+            <div class="courseHead">
+              <div class="courseName">
+                <span class="tag"><span class="chip" aria-hidden="true"></span>コース ALTAIR</span>
+                <h4>ALTAIR</h4>
+                <p>
+                  基礎・全般を長期で鍛え、確実に積み上げる「ロングラン」コース。
+                  チェックポイントは同じく Scope → Index → Overview → Spec。
+                </p>
+              </div>
+
+              <div class="courseMeta">
+                <div><b>学習目安</b></div>
+                <div>1日2時間 / 3ヶ月</div>
+              </div>
+            </div>
+
+            <div class="links" role="list">
+              <a class="linkCard" role="listitem" href="bt30/scope.html">
+                <div class="ico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M8 7h8M8 11h8M8 15h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M6 3h12a2 2 0 0 1 2 2v14l-4-2-4 2-4-2-4 2V5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2" />
+                  </svg>
+                </div>
+                <div class="t">
+                  <b>基礎・全般（Scope）</b>
+                  <small>bt30/scope.html</small>
+                </div>
+              </a>
+
+              <a class="linkCard" role="listitem" href="bt30/index.html">
+                <div class="ico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M7 7h10M7 12h10M7 17h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M4 6a2 2 0 0 1 2-2h12v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6Z" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                </div>
+                <div class="t">
+                  <b>学習手順（Index）</b>
+                  <small>bt30/index.html</small>
+                </div>
+              </a>
+
+              <a class="linkCard" role="listitem" href="bt30/overview.html">
+                <div class="ico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M12 6v12M6 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M4 8c3-4 13-4 16 0M4 16c3 4 13 4 16 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <div class="t">
+                  <b>Beat / 構成（Overview）</b>
+                  <small>bt30/overview.html</small>
+                </div>
+              </a>
+
+              <a class="linkCard" role="listitem" href="bt30/spec.html">
+                <div class="ico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M8 12h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M12 8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                </div>
+                <div class="t">
+                  <b>動くイメージ（Spec）</b>
+                  <small>bt30/spec.html</small>
+                </div>
+              </a>
+            </div>
+
+            <div class="courseFoot">
+              <a class="btn" href="#flow"><span class="dot" aria-hidden="true"></span>提出フローを見る</a>
+              <a class="btn primary" href="bt30/index.html"><span class="dot" aria-hidden="true"></span>ALTAIRを開始</a>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- FLOW -->
+      <section id="flow" aria-label="トレーニング方法">
+        <div class="secTitle">
+          <div>
+            <h3>トレーニング方法（GitHub運用）</h3>
+            <p>メモにある流れ：課題配布 → PR作成 → 提出 → テスト採点 → 次の課題配布（または終了）</p>
+          </div>
+        </div>
+
+        <div class="flow">
+          <div class="flowTop">
+            <p>
+              このトレーニングは「学習ログが残る」「レビューしやすい」「自動テストで公平に判断できる」運用を想定しています。
+              PRの粒度は小さめに、早く回して早く学ぶのがコツ。
+            </p>
+            <a class="btn primary" href="#courses"><span class="dot" aria-hidden="true"></span>コースを選ぶ</a>
+          </div>
+
+          <div class="steps" aria-label="進行ステップ">
+            <div class="step">
+              <div class="n">STEP 01</div>
+              <b>課題 配布</b>
+              <small>GitHubに課題（Issue/README等）を提示</small>
+            </div>
+            <div class="step">
+              <div class="n">STEP 02</div>
+              <b>PR作成</b>
+              <small>ブランチで作業 → Pull Requestを作成</small>
+            </div>
+            <div class="step">
+              <div class="n">STEP 03</div>
+              <b>提出</b>
+              <small>PRで提出。差分と意図を文章で残す</small>
+            </div>
+            <div class="step">
+              <div class="n">STEP 04</div>
+              <b>テスト / 採点</b>
+              <small>自動テスト＋レビューで判定</small>
+            </div>
+            <div class="step">
+              <div class="n">STEP 05</div>
+              <b>次の課題 配布</b>
+              <small>合格なら次へ。到達で終了（クリア！）</small>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ABOUT / CONCEPT -->
+      <section id="about" aria-label="コンセプト">
+        <div class="secTitle">
+          <div>
+            <h3>コンセプト</h3>
+            <p>「宇宙海賊感のある、きれいなイメージ」×「冒険を楽しむ」×「活動感」。</p>
+          </div>
+        </div>
+
+        <div class="aboutGrid">
+          <div class="feature">
+            <h4>綺麗め宇宙海賊デザイン</h4>
+            <p>
+              ダーク×ネオンのガラス表現、星空、光のにじみで“宇宙”を演出。
+              ただ怖くしない、クールで整った印象に。
+            </p>
+          </div>
+          <div class="feature">
+            <h4>トレーニング＝冒険</h4>
+            <p>
+              Scopeで地図を見て、Indexで航路を決め、Overviewで全景を把握し、
+              Specで“動くもの”を手に入れる。
+            </p>
+          </div>
+          <div class="feature">
+            <h4>スマホ対応（レスポンシブ）</h4>
+            <p>
+              小さな画面でも見やすい文字サイズとカード配置。
+              メニューもモバイル向けに折りたたみ表示。
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- FAQ -->
+      <section id="faq" aria-label="よくある質問">
+        <div class="secTitle">
+          <div>
+            <h3>FAQ</h3>
+            <p>運用やリンク構成が気になったときはここを確認。</p>
+          </div>
+        </div>
+
+        <details>
+          <summary>
+            コースのリンク（bt7 / bt30）はどう使う？
+            <span class="chev" aria-hidden="true">▾</span>
+          </summary>
+          <p>
+            メモに合わせて、各ページへ相対パスでリンクしています。実際のフォルダ構成が異なる場合は、
+            このホームの <span class="kbd">href</span> をプロジェクトに合わせて変更してください。
+          </p>
+        </details>
+
+        <details>
+          <summary>
+            GitHub運用の最小セットは？
+            <span class="chev" aria-hidden="true">▾</span>
+          </summary>
+          <p>
+            目安は「課題の提示（README/Issue）」「PRテンプレ」「テスト（CI）」の3点です。
+            まずは小さく回して、慣れたらレビュー基準を整備していくのがスムーズです。
+          </p>
+        </details>
+
+        <details>
+          <summary>
+            もっと“動く”感じを出したい
+            <span class="chev" aria-hidden="true">▾</span>
+          </summary>
+          <p>
+            このページは星空（Canvas）を軽くアニメーションしています。
+            さらに加えるなら「スクロール連動の演出」「コース選択で内容が切り替わるUI」などが相性◎です。
+          </p>
+        </details>
+
+        <details>
+          <summary>
+            Pythonトレーニング運用マニュアルは？
+            <span class="chev" aria-hidden="true">▾</span>
+          </summary>
+          <p>
+            <a href="index2.html">
+            Issue（課題）作成：受講者・期限・ガイドLv・時間上限などを入力（Issue Form）<br>
+            受講者は ブランチ作成→実装→PR作成（PRテンプレに所要時間・試行回数・Outcomeを記入）<br>
+            PR作成/更新で Actions（python-ci）がテスト実行（Pass/Fail） <br>
+            結果を使って p をベイズ更新し、次の ガイドLv を提案（Goldilocks帯維持）<br>
+            Projectsで Backlog→Doing→Submitted→Review→Rework→Done を追跡（自動追加も可能） <br>
+            mainブランチは 保護ルールで「テストが通らないとマージ不可」にする <br>
+          </p>
+        </details>
+      </section>
+
+      <footer>
+        <div class="foot">
+          <div>
+            <div><b style="color:rgba(255,255,255,.86);">Python Training @Space Adventure</b></div>
+            <div style="margin-top:6px;">© <span id="year"></span> Space Adventure Crew. All rights reserved.</div>
+          </div>
+          <div>
+            <div>Links:</div>
+            <div style="margin-top:6px;">
+              <a href="#courses">コース</a> /
+              <a href="#flow">進め方</a> /
+              <a href="#about">コンセプト</a>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <!-- Back to top -->
+    <a class="btn top" id="top" href="#main" aria-label="ページ上部へ戻る">
+      <span class="dot" aria-hidden="true"></span>TOP
+    </a>
+  </main>
+
+  <script>
+    // ---------- Smooth-ish scrolling (native) ----------
+    document.documentElement.style.scrollBehavior = "smooth";
+
+    // ---------- Mobile menu ----------
+    const hamburger = document.getElementById("hamburger");
+    const mobile = document.getElementById("mobile");
+
+    hamburger?.addEventListener("click", () => {
+      const open = mobile.classList.toggle("open");
+      hamburger.setAttribute("aria-label", open ? "メニューを閉じる" : "メニューを開く");
+    });
+
+    // Close mobile menu when clicking a link
+    mobile?.addEventListener("click", (e) => {
+      const a = e.target.closest("a");
+      if (!a) return;
+      mobile.classList.remove("open");
+      hamburger?.setAttribute("aria-label", "メニューを開く");
+    });
+
+    // ---------- Year ----------
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    // ---------- Back-to-top visibility ----------
+    const topBtn = document.getElementById("top");
+    const onScroll = () => {
+      if (window.scrollY > 520) topBtn.classList.add("show");
+      else topBtn.classList.remove("show");
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+
+    // ---------- Starfield Canvas ----------
+    const canvas = document.getElementById("starfield");
+    const ctx = canvas.getContext("2d", { alpha: true });
+
+    let w, h, dpr;
+    const stars = [];
+    const STAR_COUNT = 220;
+
+    function resize() {
+      dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+      w = canvas.clientWidth = window.innerWidth;
+      h = canvas.clientHeight = window.innerHeight;
+      canvas.width = Math.floor(w * dpr);
+      canvas.height = Math.floor(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function rand(min, max){ return Math.random() * (max - min) + min; }
+
+    function initStars() {
+      stars.length = 0;
+      for (let i = 0; i < STAR_COUNT; i++) {
+        stars.push({
+          x: rand(0, w),
+          y: rand(0, h),
+          r: rand(0.6, 1.8),
+          s: rand(0.15, 0.65),
+          tw: rand(0, Math.PI * 2),
+          hue: Math.random() < 0.14 ? "hot" : (Math.random() < 0.45 ? "accent" : "white")
+        });
+      }
+    }
+
+    function colorFor(hue, alpha){
+      if (hue === "accent") return `rgba(124,247,255,${alpha})`;
+      if (hue === "hot") return `rgba(255,94,168,${alpha})`;
+      return `rgba(255,255,255,${alpha})`;
+    }
+
+    let last = 0;
+    function tick(t){
+      const dt = Math.min(33, t - last);
+      last = t;
+
+      ctx.clearRect(0,0,w,h);
+
+      // gentle vignette
+      const g = ctx.createRadialGradient(w*0.5, h*0.35, 0, w*0.5, h*0.35, Math.max(w,h)*0.75);
+      g.addColorStop(0, "rgba(0,0,0,0)");
+      g.addColorStop(1, "rgba(0,0,0,.45)");
+      ctx.fillStyle = g;
+      ctx.fillRect(0,0,w,h);
+
+      for (const st of stars){
+        st.y += st.s * (dt / 16);
+        st.tw += 0.02 * (dt / 16);
+        if (st.y > h + 4) {
+          st.y = -4;
+          st.x = rand(0, w);
+        }
+
+        const twinkle = 0.55 + Math.sin(st.tw) * 0.35;
+        const alpha = 0.22 + twinkle * 0.45;
+
+        ctx.beginPath();
+        ctx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
+        ctx.fillStyle = colorFor(st.hue, alpha);
+        ctx.fill();
+
+        // occasional soft glow
+        if (st.r > 1.35) {
+          ctx.beginPath();
+          ctx.arc(st.x, st.y, st.r * 2.8, 0, Math.PI * 2);
+          ctx.fillStyle = colorFor(st.hue, alpha * 0.10);
+          ctx.fill();
+        }
+      }
+
+      requestAnimationFrame(tick);
+    }
+
+    // Respect reduced motion
+    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)");
+    function start() {
+      resize();
+      initStars();
+      if (!reduce || !reduce.matches) requestAnimationFrame(tick);
+    }
+
+    window.addEventListener("resize", () => {
+      resize();
+      initStars();
+    }, { passive: true });
+
+    start();
+  </script>
 </body>
 </html>
