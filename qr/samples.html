@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark light" />
+  <title>DENEB テスト用サンプルQR（フォーマット別）</title>
+  <style>
+    :root{
+      --bg0:#070a12;
+      --bg1:#0b1020;
+      --card:rgba(255,255,255,.06);
+      --card2:rgba(255,255,255,.08);
+      --border:rgba(255,255,255,.12);
+      --text:#e9eefc;
+      --muted:rgba(233,238,252,.72);
+      --accent:#7aa7ff;
+      --ok:#66ffa6;
+      --warn:#ffcc66;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      color:var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans JP", sans-serif;
+      background:
+        radial-gradient(1000px 600px at 20% 10%, rgba(122,167,255,.18), transparent 60%),
+        radial-gradient(900px 700px at 80% 20%, rgba(255,120,200,.14), transparent 55%),
+        radial-gradient(900px 700px at 50% 90%, rgba(102,255,166,.10), transparent 55%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      min-height:100svh;
+    }
+    header{
+      position:sticky;
+      top:0;
+      z-index:10;
+      backdrop-filter: blur(10px);
+      background: linear-gradient(180deg, rgba(7,10,18,.92), rgba(7,10,18,.45));
+      border-bottom: 1px solid var(--border);
+    }
+    .wrap{max-width:1100px; margin:0 auto; padding:16px 16px 70px;}
+    .hero{
+      padding:18px 0 10px;
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+    .title h1{margin:0; font-size:22px; letter-spacing:.4px}
+    .title .sub{margin-top:6px; color:var(--muted); font-size:13px; line-height:1.45}
+    .navline{margin-top:10px; display:flex; gap:8px; flex-wrap:wrap}
+    .chip{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px;
+      border-radius:999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      text-decoration:none;
+      font-size:12px;
+    }
+    .chip:hover{border-color: rgba(122,167,255,.5)}
+    .actions{display:flex; gap:10px; align-items:center}
+    .btn{
+      appearance:none;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.07);
+      color: var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      font-size:13px;
+    }
+    .btn:hover{border-color: rgba(122,167,255,.55)}
+    .grid{
+      margin-top:14px;
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap:14px;
+    }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.05));
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 14px;
+      overflow:hidden;
+    }
+    .card h2{
+      margin:0;
+      font-size:16px;
+      letter-spacing:.2px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .expect{
+      color: var(--muted);
+      font-size:12px;
+      padding: 4px 10px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background: rgba(0,0,0,.25);
+      white-space:nowrap;
+    }
+    .desc{
+      margin:10px 0 0;
+      color: var(--muted);
+      font-size:12px;
+      line-height:1.6;
+    }
+    .qrBox{
+      margin-top:12px;
+      display:grid;
+      grid-template-columns: 260px 1fr;
+      gap:12px;
+      align-items:start;
+    }
+    .qr{
+      width:260px; height:260px;
+      border-radius:16px;
+      background: rgba(0,0,0,.35);
+      border: 1px solid var(--border);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+    }
+    .qr > img, .qr > canvas { max-width:100%; max-height:100%; }
+    .payload{
+      border-radius:16px;
+      background: rgba(0,0,0,.32);
+      border: 1px solid var(--border);
+      padding:12px;
+      min-height:260px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .payload .label{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      font-size:12px; color: var(--muted);
+    }
+    pre{
+      margin:0;
+      white-space:pre-wrap;
+      word-break:break-word;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size:12px;
+      line-height:1.55;
+      color: var(--text);
+      background: rgba(255,255,255,.04);
+      border: 1px dashed rgba(255,255,255,.18);
+      border-radius: 14px;
+      padding: 10px;
+      flex:1;
+      overflow:auto;
+    }
+    .hint{
+      margin-top:10px;
+      padding:12px 14px;
+      border-radius:16px;
+      border:1px solid rgba(122,167,255,.35);
+      background: rgba(122,167,255,.09);
+      color: rgba(233,238,252,.86);
+      font-size:12px;
+      line-height:1.65;
+    }
+    .hint b{color:var(--text)}
+    .ok{color:var(--ok)}
+    .warn{color:var(--warn)}
+    .footer{
+      margin-top:18px;
+      color: var(--muted);
+      font-size:12px;
+    }
+
+    @media (max-width: 860px){
+      .grid{ grid-template-columns: 1fr; }
+      .qrBox{ grid-template-columns: 1fr; }
+      .qr{ width:100%; height:auto; aspect-ratio: 1 / 1; }
+      .payload{ min-height: unset; }
+    }
+
+    @media print{
+      header{ position:static; backdrop-filter:none; background:#000; }
+      body{ background:#000; }
+      .btn{ display:none; }
+      .wrap{ padding-bottom:0; }
+      .card{ break-inside: avoid; page-break-inside: avoid; }
+      a{ color: inherit; text-decoration:none; }
+    }
+  </style>
+
+  <!-- QR generator (qrcodejs). If your environment has no internet, download it and serve locally. -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+  <header>
+    <div class="wrap hero">
+      <div class="title">
+        <h1>DENEB テスト用サンプルQR（フォーマット別）</h1>
+        <div class="sub">
+          empty / plain_text / url / json / vcard / wifi（DENEBの <b>PayloadParser</b> 想定）<br/>
+          <span class="warn">※</span> <b>空文字</b>はQR規格上「完全に空」を表現できないため、このページでは <b>半角スペース1文字</b> を埋め込みます（読み取り側で <code>trim()</code> して空扱いにすると安全）。
+        </div>
+
+        <div class="navline" aria-label="セクション移動">
+          <a class="chip" href="#empty">empty</a>
+          <a class="chip" href="#plain_text">plain_text</a>
+          <a class="chip" href="#url">url</a>
+          <a class="chip" href="#json">json</a>
+          <a class="chip" href="#vcard">vcard</a>
+          <a class="chip" href="#wifi">wifi</a>
+          <a class="chip" href="../index.html">← index</a>
+          <a class="chip" href="spec.html">spec</a>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn" onclick="window.print()">🖨 印刷</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="hint">
+      <b>使い方（おすすめ）</b><br/>
+      1) PCでこのページを開き、QRを表示 → 2) スマホで <b>qr/spec.html</b> を開いて「📷 カメラ開始」 → 3) 画面のQRを読み取って、payload種別が期待通りか確認します。<br/>
+      <span class="ok">✅</span> プレーンテキストは <b>UTF-8</b> を想定（日本語を含む）。<br/>
+      <span class="warn">⚠️</span> 生成に失敗する場合は、ネットワークでCDNがブロックされていないか（qrcodejsが読み込めているか）も確認してください。
+    </div>
+
+    <div class="grid">
+      <!-- EMPTY -->
+      <section id="empty" class="card">
+        <h2>
+          <span>EMPTY（空文字）</span>
+          <span class="expect">期待: PayloadKind.empty</span>
+        </h2>
+        <p class="desc">
+          QRコードの中身は <b>半角スペース1文字</b> を入れています。読み取り側で <code>trim()</code> して空なら <b>empty</b> 扱いにするのが分かりやすく安全です。
+        </p>
+        <div class="qrBox">
+          <div class="qr" data-qr="empty"></div>
+          <div class="payload">
+            <div class="label"><span>payload（実データ）</span><span class="chip">1文字</span></div>
+            <pre data-payload="empty"></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- PLAIN TEXT -->
+      <section id="plain_text" class="card">
+        <h2>
+          <span>PLAIN TEXT（通常テキスト）</span>
+          <span class="expect">期待: PayloadKind.plain_text</span>
+        </h2>
+        <p class="desc">
+          以前の「code length overflow」は、<b>固定の型番（typeNumber）</b> や <b>高すぎる誤り訂正レベル</b> が原因で起きやすいです。
+          このページは <b>オーバーフロー時に自動で拡張</b> する生成ロジックにしています。
+        </p>
+        <div class="qrBox">
+          <div class="qr" data-qr="plain_text"></div>
+          <div class="payload">
+            <div class="label"><span>payload</span><span class="chip">UTF-8</span></div>
+            <pre data-payload="plain_text"></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- URL -->
+      <section id="url" class="card">
+        <h2>
+          <span>URL（http/https）</span>
+          <span class="expect">期待: PayloadKind.url</span>
+        </h2>
+        <p class="desc">
+          <code>http://</code> または <code>https://</code> で始まるURLを想定します。
+        </p>
+        <div class="qrBox">
+          <div class="qr" data-qr="url"></div>
+          <div class="payload">
+            <div class="label"><span>payload</span><span class="chip">URL</span></div>
+            <pre data-payload="url"></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- JSON -->
+      <section id="json" class="card">
+        <h2>
+          <span>JSON</span>
+          <span class="expect">期待: PayloadKind.json</span>
+        </h2>
+        <p class="desc">
+          先頭が <code>{</code> または <code>[</code> の文字列をJSONとしてパースできる想定です。
+        </p>
+        <div class="qrBox">
+          <div class="qr" data-qr="json"></div>
+          <div class="payload">
+            <div class="label"><span>payload</span><span class="chip">{...}</span></div>
+            <pre data-payload="json"></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- VCARD -->
+      <section id="vcard" class="card">
+        <h2>
+          <span>vCard</span>
+          <span class="expect">期待: PayloadKind.vcard</span>
+        </h2>
+        <p class="desc">
+          <code>BEGIN:VCARD</code> で始まる形式。改行は <code>\n</code>（LF）に統一しています。
+        </p>
+        <div class="qrBox">
+          <div class="qr" data-qr="vcard"></div>
+          <div class="payload">
+            <div class="label"><span>payload</span><span class="chip">BEGIN:VCARD</span></div>
+            <pre data-payload="vcard"></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- WIFI -->
+      <section id="wifi" class="card">
+        <h2>
+          <span>WiFi</span>
+          <span class="expect">期待: PayloadKind.wifi</span>
+        </h2>
+        <p class="desc">
+          <code>WIFI:</code> で始まる形式（例: <code>WIFI:T:WPA;S:SSID;P:password;;</code>）。
+        </p>
+        <div class="qrBox">
+          <div class="qr" data-qr="wifi"></div>
+          <div class="payload">
+            <div class="label"><span>payload</span><span class="chip">WIFI:</span></div>
+            <pre data-payload="wifi"></pre>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="footer">
+      <div>補足：このページは「表示専用」です（入力フォームは無し）。payloadは下の <code>&lt;pre&gt;</code> にそのまま表示しています。</div>
+    </div>
+  </main>
+
+<script>
+/**
+ * qrcodejs の日本語（UTF-8）対応パッチ
+ * - これを入れないと、環境によっては日本語が正しくエンコードされず、容量計算も崩れることがあります。
+ */
+(function patchUtf8() {
+  if (!window.QRCode) return;
+  // qrcodejs (davidshimjs) 互換: QRCode.stringToBytes を差し替える
+  window.QRCode.stringToBytes = function(s) {
+    const bytes = [];
+    const enc = new TextEncoder();
+    const u8 = enc.encode(String(s));
+    for (let i = 0; i < u8.length; i++) bytes.push(u8[i]);
+    return bytes;
+  };
+})();
+
+function clearNode(el) {
+  while (el.firstChild) el.removeChild(el.firstChild);
+}
+
+/**
+ * “code length overflow” を避けるための賢い生成:
+ * - 誤り訂正レベル（H→Q→M→L の順で下げる）
+ * - typeNumber（1→40）を上げて容量を確保
+ *
+ * ※ 短い文字列は最初の試行で成功します。
+ */
+function makeQRCodeSmart(el, text, { size = 240 } = {}) {
+  if (!window.QRCode) throw new Error("QRコード生成ライブラリ（qrcodejs）が利用できません");
+
+  const levels = [
+    window.QRCode.CorrectLevel.H,
+    window.QRCode.CorrectLevel.Q,
+    window.QRCode.CorrectLevel.M,
+    window.QRCode.CorrectLevel.L,
+  ];
+
+  let lastErr = null;
+  for (const level of levels) {
+    for (let typeNumber = 1; typeNumber <= 40; typeNumber++) {
+      try {
+        clearNode(el);
+        new window.QRCode(el, {
+          text: String(text),
+          width: size,
+          height: size,
+          correctLevel: level,
+          typeNumber: typeNumber,
+        });
+        return; // success
+      } catch (e) {
+        lastErr = e;
+        const msg = String(e && (e.message || e));
+        // overflow は typeNumber を上げれば解消する可能性がある
+        if (/code length overflow/i.test(msg)) continue;
+        // それ以外はレベルを変えて再試行
+        break;
+      }
+    }
+  }
+  throw lastErr || new Error("QR生成に失敗しました");
+}
+
+function setPre(selector, value) {
+  const el = document.querySelector(selector);
+  if (el) el.textContent = String(value);
+}
+
+function setError(el, err) {
+  clearNode(el);
+  const box = document.createElement("div");
+  box.style.padding = "14px";
+  box.style.color = "rgba(233,238,252,.86)";
+  box.style.fontSize = "13px";
+  box.style.lineHeight = "1.6";
+  box.innerHTML = 'QR生成に失敗しました：<br/><span style="color:rgba(255,204,102,.95)"></span>';
+  box.querySelector("span").textContent = String(err && (err.message || err));
+  el.appendChild(box);
+}
+
+function renderAll() {
+  // ===== サンプルpayload =====
+  const payloads = {
+    empty: " ", // “空”の代わりにスペース
+    plain_text: "DENEB TEST: Hello Space Adventure! こんにちはDENEB",
+    url: "https://example.com/deneb?from=samples",
+    json: JSON.stringify({ type: "deneb_sample", id: 123, ok: true, note: "こんにちは" }, null, 0),
+    vcard: [
+      "BEGIN:VCARD",
+      "VERSION:3.0",
+      "N:DENEB;TARO;;;",
+      "FN:DENEB TARO",
+      "ORG:Space Adventure",
+      "TITLE:QR Tester",
+      "TEL;TYPE=CELL:+81-90-0000-0000",
+      "EMAIL:deneb@example.com",
+      "URL:https://example.com",
+      "END:VCARD",
+    ].join("\n"),
+    wifi: "WIFI:T:WPA;S:DENEB-WiFi;P:passw0rd123;;",
+  };
+
+  // 表示
+  for (const key of Object.keys(payloads)) {
+    setPre(`[data-payload="${key}"]`, payloads[key]);
+  }
+
+  // 生成
+  document.querySelectorAll("[data-qr]").forEach((box) => {
+    const key = box.getAttribute("data-qr");
+    const text = payloads[key] ?? "";
+    try {
+      makeQRCodeSmart(box, text, { size: 240 });
+    } catch (e) {
+      setError(box, e);
+    }
+  });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  // CDNが読み込めない環境向けのメッセージを先に出す
+  if (!window.QRCode) {
+    document.querySelectorAll("[data-qr]").forEach((box) => {
+      setError(box, "qrcodejs が読み込めませんでした（CDNブロック/オフラインの可能性）");
+    });
+  }
+  renderAll();
+});
+</script>
+</body>
+</html>
