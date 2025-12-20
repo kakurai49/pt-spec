@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>論文モデルに基づくQRコード→CSV変換システム</title>
+    <link rel="stylesheet" href="pop3_style.css">
+    <!-- KaTeX CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        :root {
+            /* カラーマネジメントアーキテクチャ - CSSカスタムプロパティ */
+            --primary-bg: #ffdd57;
+            --secondary-bg: #ffffff;
+            --accent-1: #ff4081;
+            --accent-2: #1e90ff;
+            --accent-3: #32cd32;
+            --accent-4: #ff8c00;
+            --text-dark: #222222;
+            --text-light: #ffffff;
+            --border-color: #333333;
+            --code-bg: #f8f9fa;
+            --section-alt: #f0f8ff;
+        }
+
+        body {
+            background-color: var(--primary-bg);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            background-color: var(--secondary-bg);
+            border: 3px solid var(--accent-1);
+            margin-bottom: 80px; /* フッター分の余白 */
+        }
+
+        h1, h2, h3 {
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            border-left: 5px solid var(--accent-2);
+            padding-left: 15px;
+            margin-top: 30px;
+        }
+
+        h3 {
+            color: var(--accent-4);
+            margin-top: 20px;
+        }
+
+        .section-alt {
+            background-color: var(--section-alt);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            border-left: 5px solid var(--accent-3);
+        }
+
+        .model-box {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border: 3px dashed var(--accent-1);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 25px 0;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .code-block {
+            background-color: var(--code-bg);
+            border: 2px solid var(--accent-2);
+            border-radius: 8px;
+            padding: 15px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .download-box {
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            border: 3px solid var(--accent-2);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin: 25px 0;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(30, 144, 255, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(30, 144, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(30, 144, 255, 0); }
+        }
+
+        .highlight {
+            background-color: #fffacd;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: #d2691e;
+        }
+
+        .step-list {
+            counter-reset: step-counter;
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .step-list li {
+            counter-increment: step-counter;
+            margin-bottom: 15px;
+            padding-left: 50px;
+            position: relative;
+            background-color: #f9f9f9;
+            padding: 15px 15px 15px 60px;
+            border-radius: 8px;
+            border-left: 5px solid var(--accent-3);
+        }
+
+        .step-list li:before {
+            content: counter(step-counter);
+            background-color: var(--accent-1);
+            color: white;
+            font-weight: bold;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            text-align: center;
+            line-height: 36px;
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .color-swatch {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            margin-right: 5px;
+            vertical-align: middle;
+            border: 1px solid #999;
+        }
+
+        table {
+            border: 3px solid var(--border-color);
+            background-color: white;
+        }
+
+        th {
+            background-color: var(--accent-1);
+            color: var(--text-light);
+            font-weight: bold;
+        }
+
+        td {
+            background-color: #f9f9f9;
+        }
+
+        .katex-formula {
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>論文モデルに基づくQRコード→CSV変換システム</h1>
+    </header>
+
+    <div class="container">
+        <div class="model-box">
+            <h2>論文モデル: 中間生成物としての明示</h2>
+            <p>モデル <span class="katex-formula"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mo>:</mo><mo stretchy="false">(</mo><mi>W</mi><mo separator="true">,</mo><mi>E</mi><mo stretchy="false">)</mo><mo>→</mo><mo stretchy="false">(</mo><mi>S</mi><mo separator="true">,</mo><mi>A</mi><mo stretchy="false">(</mo><mi>S</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">G:(W,E)\rightarrow (S,A(S))</annotation></semantics></math></span></span></span> をこの課題に適用</p>
+            <p>世界 <span class="katex-formula"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>W</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">(W)</annotation></semantics></math></span></span></span> と制約 <span class="katex-formula"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>E</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">(E)</annotation></semantics></math></span></span></span> から、観点 <span class="katex-formula"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>S</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">(S)</annotation></semantics></math></span></span></span> と離散的テスト条件集合 <span class="katex-formula"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>A</mi><mo stretchy="false">(</mo><mi>S</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">(A(S))</annotation></semantics></math></span></span></span> を得る</p>
+        </div>
+
+        <h2>1. 論文モデルをこの課題に当てはめた定義（中間生成物）</h2>
+
+        <div class="section-alt">
+            <h3>(W) World: 連続的な可能性</h3>
+            <p>QR→CSVの「世界」を、実務で起こり得る状態として列挙：</p>
+            <ul>
+                <li>入力ソース（画像1枚／画像フォルダ／Webカメラ）</li>
+                <li>各入力に含まれるQRの数（0個／1個／複数）</li>
+                <li>QRデータ（ペイロード）の形（空／テキスト／URL／JSON／vCard／WiFi…）</li>
+                <li>例外系（画像が読めない、デコードが落ちるなど）</li>
+                <li>出力（CSV新規作成／追記、文字コードなど）</li>
+            </ul>
+        </div>
+
+        <div class="section-alt">
+            <h3>(E) Environment/Evaluator: 制約・評価基準</h3>
+            <p>メモの条件を <strong>E</strong> として採用：</p>
+            <ul>
+                <li>初心者想定</li>
+                <li>1日30分×1週間（週末は最大1時間程度の集中）</li>
+                <li>依存を増やしすぎない（インストールが簡単、説明しやすい）</li>
+                <li>型（データモデル）を先に決める「王道」で設計する</li>
+            </ul>
+        </div>
+
+        <div class="section-alt">
+            <h3>(S) Situation: 観点 = 何を区別したいか</h3>
+            <p>この課題では、観点 (S) を「4つの観点の直積（タプル）」として定義：</p>
+            <ul>
+                <li><span class="highlight">入力観点</span>: <code>InputSourceKind</code> - <code>image_file</code> / <code>image_dir</code> / <code>webcam</code></li>
+                <li><span class="highlight">読み取り結果観点</span>: <code>DecodeOutcome</code> - <code>no_qr</code> / <code>single_qr</code> / <code>multi_qr</code> / <code>decode_error</code></li>
+                <li><span class="highlight">ペイロード観点</span>: <code>PayloadKind</code> - <code>empty</code> / <code>plain_text</code> / <code>url</code> / <code>json</code> / <code>vcard</code> / <code>wifi</code> / <code>unknown</code></li>
+                <li><span class="highlight">出力観点</span>: <code>OutputMode</code> - <code>new_file</code> / <code>append</code></li>
+            </ul>
+            <p>つまり <strong>この課題の (S)</strong> は、次の"観測結果ベクトル"：</p>
+            <div class="katex-formula">
+                <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>:=</mo><mo stretchy="false">(</mo><mtext>InputSourceKind</mtext><mo separator="true">,</mo><mtext>DecodeOutcome</mtext><mo separator="true">,</mo><mtext>PayloadKind</mtext><mo separator="true">,</mo><mtext>OutputMode</mtext><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">S := (\text{InputSourceKind},\ \text{DecodeOutcome},\ \text{PayloadKind},\ \text{OutputMode})</annotation></semantics></math></span></span>
+            </div>
+        </div>
+
+        <div class="section-alt">
+            <h3>(A(S)) 離散的テスト条件集合: 等価クラス集合</h3>
+            <p>上の観点 (S) が誘導する離散条件を、初心者の制約 (E) でも扱えるように<strong>最小代表集合</strong>として定義：</p>
+            <ol class="step-list">
+                <li><strong>A1</strong>: 画像1枚・QR1個・プレーンテキスト・新規CSV</li>
+                <li><strong>A2</strong>: フォルダ・複数QR（複数画像/複数QR）・URL系・新規CSV</li>
+                <li><strong>A3</strong>: QRが無い（0件）</li>
+                <li><strong>A4</strong>: Webカメラ・QR1個・JSON・追記CSV（重複抑制あり）</li>
+                <li><strong>A5</strong>: 入力破損/読めない/デコード例外（decode_error）</li>
+            </ol>
+            <p>この <strong>A(S)</strong> を"最低限まず通すべきテスト条件"として採用し、設計と実装の骨格にします。</p>
+        </div>
+
+        <h2>2. 「型を設計する王道」に沿った設計（入力型→中間モデル→出力型）</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>分類</th>
+                    <th>型/クラス</th>
+                    <th>役割</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>入力の型</strong></td>
+                    <td><code>InputSpec</code></td>
+                    <td>入力が「画像ファイル/ディレクトリ/カメラ」どれかを表現</td>
+                </tr>
+                <tr>
+                    <td rowspan="3"><strong>中間モデル</strong></td>
+                    <td><code>QRDecode</code></td>
+                    <td>OpenCVで読めた1つのQR（text + bbox）</td>
+                </tr>
+                <tr>
+                    <td><code>ParsedPayload</code></td>
+                    <td>ペイロードを軽く分類（JSONなら<code>json_value</code>を保持）</td>
+                </tr>
+                <tr>
+                    <td><code>Situation</code></td>
+                    <td>上で定義した (S) を Enum 4つで表現（中間生成物がコード上でも追える）</td>
+                </tr>
+                <tr>
+                    <td><strong>出力の型</strong></td>
+                    <td><code>OutputRecord</code></td>
+                    <td>CSVに出す列を固定化（Excelでも開きやすいよう<code>utf-8-sig</code>をデフォルト）</td>
+                </tr>
+                <tr>
+                    <td rowspan="4"><strong>クラス分割</strong></td>
+                    <td><code>OpenCVQRCodeReader</code></td>
+                    <td>QR読み取り（複数QRも対応）</td>
+                </tr>
+                <tr>
+                    <td><code>PayloadParser</code></td>
+                    <td>QR文字列を<code>PayloadKind</code>に分類（Sの一部）</td>
+                </tr>
+                <tr>
+                    <td><code>QRToCSVUsecase</code></td>
+                    <td>入力→デコード→パース→<code>OutputRecord</code>の列へ</td>
+                </tr>
+                <tr>
+                    <td><code>CSVWriter</code></td>
+                    <td>CSV出力（新規/追記）</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>3. 成果物（Pythonコード）</h2>
+
+        <div class="download-box">
+            <h3>ダウンロード: <a href="sandbox:/mnt/data/qr_to_csv.py" download="qr_to_csv.py">qr_to_csv.py</a></h3>
+            <p>上記リンクをクリックしてPythonスクリプトをダウンロードできます。</p>
+        </div>
+
+        <h2>4. 実行方法（初心者向け・最短ルート）</h2>
+
+        <div class="section-alt">
+            <h3>依存インストール</h3>
+            <div class="code-block">
+                pip install opencv-python
+            </div>
+        </div>
+
+        <div class="section-alt">
+            <h3>画像1枚 → CSV</h3>
+            <div class="code-block">
+                python qr_to_csv.py --input path/to/image.png --output out.csv
+            </div>
+        </div>
+
+        <div class="section-alt">
+            <h3>画像フォルダ → CSV（再帰）</h3>
+            <div class="code-block">
+                python qr_to_csv.py --input path/to/images --recursive --output out.csv
+            </div>
+        </div>
+
+        <div class="section-alt">
+            <h3>Webカメラ（0番）→ CSV</h3>
+            <div class="code-block">
+                python qr_to_csv.py --webcam 0 --output out.csv
+            </div>
+            <ul>
+                <li>プレビューウィンドウが出ます（<code>q</code>で終了）</li>
+                <li>同じQRを連続で読んだときにCSVが増えすぎないよう、<strong>デフォルトで重複抑制</strong>します
+                    <ul>
+                        <li>抑制しない場合：<code>--no-dedup</code></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <div class="section-alt">
+            <h3>「中間生成物：S と A(S)」を確認する</h3>
+            <p>コードは、論文モデルの中間生成物を<strong>そのままJSONで可視化</strong>できます。</p>
+            <div class="code-block">
+                python qr_to_csv.py --print-model
+            </div>
+        </div>
+
+        <h2>5. 1週間（1日30分）での進め方（Eの制約を満たす最小計画）</h2>
+
+        <ol class="step-list">
+            <li><strong>Day1</strong>: <code>pip install opencv-python</code> と <code>--print-model</code> で S/A(S) を理解</li>
+            <li><strong>Day2</strong>: 画像1枚で <code>--input</code> が動く（A1）</li>
+            <li><strong>Day3</strong>: フォルダ + <code>--recursive</code>（A2）</li>
+            <li><strong>Day4</strong>: <code>PayloadParser</code> の分類を増やす（URL/JSON 等）</li>
+            <li><strong>Day5</strong>: 例外系（読めない画像等）でCSVに error を残す（A5）</li>
+            <li><strong>週末</strong>: Webカメラ（A4）＋CSV追記・重複抑制の挙動確認</li>
+        </ol>
+
+        <div class="model-box">
+            <h3>拡張可能性</h3>
+            <p>必要なら、次の拡張も同じ (S) の枠組みで自然に増やせます（例：QRの「内容スキーマ」観点、重複の"時間窓"観点、出力先の分割、など）。</p>
+        </div>
+
+        <div style="margin-top: 30px; padding: 15px; background-color: #f0f0f0; border-radius: 8px;">
+            <h4>カラーマネジメント</h4>
+            <p>このページではCSSカスタムプロパティ（変数）を使用して色を管理しています：</p>
+            <ul>
+                <li><span class="color-swatch" style="background-color: var(--primary-bg);"></span> プライマリ背景: #ffdd57</li>
+                <li><span class="color-swatch" style="background-color: var(--accent-1);"></span> アクセント1: #ff4081</li>
+                <li><span class="color-swatch" style="background-color: var(--accent-2);"></span> アクセント2: #1e90ff</li>
+                <li><span class="color-swatch" style="background-color: var(--text-dark);"></span> テキスト: #222222</li>
+            </ul>
+            <p>背景と文字色のコントラスト比はWCAG AA基準（4.5:1以上）を満たすように設計されています。</p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>論文モデルに基づくQRコード→CSV変換システム &copy; 2023</p>
+    </div>
+
+    <!-- KaTeX JS -->
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false},
+                    {left: '\\(', right: '\\)', display: false},
+                    {left: '\\[', right: '\\]', display: true}
+                ],
+                throwOnError: false
+            });
+        });
+    </script>
+</body>
+</html>

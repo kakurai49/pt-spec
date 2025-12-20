@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>QR → CSV (G:(W,E)→(S,A(S)) デモ)</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans JP", sans-serif; margin: 0; padding: 0; background: #fafafa; color: #111; }
+    header { padding: 16px 20px; background: #111; color: #fff; }
+    header h1 { margin: 0; font-size: 18px; }
+    main { padding: 16px 20px; display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 16px; align-items: start; }
+    section { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 14px; }
+    section h2 { margin: 0 0 10px; font-size: 16px; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+    .row > * { flex: 0 0 auto; }
+    .muted { color: #666; font-size: 12px; line-height: 1.4; }
+    button { padding: 8px 12px; border-radius: 8px; border: 1px solid #aaa; background: #f6f6f6; cursor: pointer; }
+    button.primary { background: #111; color: #fff; border-color: #111; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    input[type="file"] { padding: 6px; border: 1px solid #ccc; border-radius: 8px; }
+    label { font-size: 13px; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    pre { background: #0b1020; color: #dbe7ff; padding: 10px; border-radius: 10px; overflow: auto; max-height: 280px; font-size: 12px; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th, td { border-bottom: 1px solid #eee; padding: 6px 6px; vertical-align: top; }
+    th { position: sticky; top: 0; background: #fff; z-index: 1; }
+    td.code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; border: 1px solid #ddd; font-size: 11px; }
+    .ok { background: #f0fff2; }
+    .warn { background: #fff6e5; }
+    .err { background: #fff0f0; }
+    video, canvas { width: 100%; border-radius: 10px; border: 1px solid #ddd; background: #000; }
+    .small { font-size: 11px; }
+    footer { padding: 14px 20px; color: #666; font-size: 12px; }
+/* ===== Responsive patch (スマホ対応) ===== */
+
+/* 2カラム時に横はみ出しを起こしにくくする */
+section { min-width: 0; }
+main { grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); }
+
+/* タブレット以下: 2カラム → 1カラムに */
+@media (max-width: 960px) {
+  main { grid-template-columns: 1fr; }
+
+  /* 末尾の <section style="grid-column: 1 / span 2;"> が
+     1カラム時に“暗黙の2列”を作って横スクロールになるのを防ぐ */
+  section[style*="grid-column"] { grid-column: 1 / -1 !important; }
+}
+
+/* スマホ: 入力行や2分割を縦積みに */
+@media (max-width: 640px) {
+  header { padding: 12px 14px; }
+  header h1 { font-size: 16px; line-height: 1.3; }
+
+  main { padding: 12px 14px; gap: 12px; }
+  section { padding: 12px; }
+
+  /* 2分割UIを1列に */
+  .grid2 { grid-template-columns: 1fr; }
+
+  /* ボタン群やチェック群を縦積みに（押しやすく） */
+  .row { flex-direction: column; align-items: stretch; }
+  .row > * { width: 100%; }
+
+  button, input[type="file"] { width: 100%; }
+
+  /* ログ枠が大きすぎる場合は少し抑える */
+  pre { max-height: 220px; }
+}
+
+  </style>
+  <!-- Fallback QR decoder (single QR). If your environment has no internet, download jsQR and serve it locally. -->
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+</head>
+<body>
+<header>
+  <h1>QR → CSV (G:(W,E)→(S,A(S)) の「型ファースト設計」サンプル / Browser JavaScript)</h1>
+</header>
+
+<main>
+  <section>
+    <h2>入力</h2>
+
+    <div class="grid2">
+      <div>
+        <label><strong>画像ファイル</strong>（複数OK）</label><br/>
+        <input id="fileInput" type="file" accept="image/*" multiple />
+        <div class="muted">画像1枚ずつ読み取り、結果を表に追加します。</div>
+      </div>
+      <div>
+        <label><strong>画像フォルダ</strong>（Chrome系: webkitdirectory）</label><br/>
+        <input id="dirInput" type="file" accept="image/*" webkitdirectory multiple />
+        <div class="muted">フォルダ配下の画像をまとめて処理します（ブラウザ依存）。</div>
+      </div>
+    </div>
+
+    <hr style="border:none;border-top:1px solid #eee;margin:12px 0;"/>
+
+    <div class="row">
+      <button id="startCam" class="primary">📷 カメラ開始</button>
+      <button id="stopCam" disabled>⏹ 停止</button>
+      <label class="small"><input type="checkbox" id="dedup" checked /> 重複抑制（同じpayloadは追加しない）</label>
+      <label class="small"><input type="checkbox" id="recordNoQr" /> （画像のみ）QR無しも記録する</label>
+    </div>
+
+    <div class="row">
+      <button id="exportCsv" class="primary">⬇ CSVをダウンロード</button>
+      <button id="clear">🧹 クリア</button>
+      <span class="muted">※ カメラは <strong>https</strong> または <strong>localhost</strong> でないと起動できない場合があります。</span>
+    </div>
+
+    <div class="grid2">
+      <div>
+        <h3 style="margin: 8px 0 6px; font-size: 14px;">カメラプレビュー</h3>
+        <video id="video" playsinline muted></video>
+        <canvas id="canvas" style="display:none;"></canvas>
+      </div>
+      <div>
+        <h3 style="margin: 8px 0 6px; font-size: 14px;">ログ</h3>
+        <pre id="log"></pre>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>中間生成物 (S と A(S))</h2>
+    <div class="muted">
+      論文の写像 <code>G:(W,E)→(S,A(S))</code> に対応して、このサンプルでは
+      <strong>S = (入力種別, 読み取り結果, ペイロード種別, 出力モード)</strong> を採用し、
+      A(S) を最小代表として A1〜A5 に離散化しています。
+    </div>
+
+    <div class="row">
+      <button id="toggleModel">モデルJSONを表示/非表示</button>
+      <span class="muted">（実装が扱う“型”と“等価クラス”をここで固定化）</span>
+    </div>
+    <pre id="modelJson" style="display:none;"></pre>
+
+    <h3 style="margin: 8px 0 6px; font-size: 14px;">A(S) カバレッジ（観測）</h3>
+    <table id="coverageTable">
+      <thead>
+        <tr>
+          <th>A(S)</th>
+          <th>意味（代表条件）</th>
+          <th>件数</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <section style="grid-column: 1 / span 2;">
+    <h2>結果（CSVに出る行）</h2>
+    <div class="muted">列は OutputRecord の「型」として固定。テーブル＝CSVのプレビュー。</div>
+    <div style="overflow:auto; max-height: 420px; border: 1px solid #eee; border-radius: 10px; margin-top: 10px;">
+      <table id="resultTable">
+        <thead>
+          <tr>
+            <th>時刻</th>
+            <th>入力</th>
+            <th>結果</th>
+            <th>payload種別</th>
+            <th>payload</th>
+            <th>A(S)</th>
+            <th>備考</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div>サンプル実装メモ：</div>
+  <ul>
+    <li>可能なら <code>BarcodeDetector</code>（複数QR対応）を使用、無ければ <code>jsQR</code>（1個のみ）でフォールバック。</li>
+    <li>このHTMLは学習用の最小実装です。業務利用では例外処理・パフォーマンス・セキュリティを強化してください。</li>
+  </ul>
+</footer>
+
+<script>
+/**
+ * ============================
+ *  0) 型（データモデル）定義
+ * ============================
+ */
+
+/** @enum {string} */
+const InputSourceKind = Object.freeze({
+  image_file: "image_file",
+  image_dir: "image_dir",
+  webcam: "webcam",
+});
+
+/** @enum {string} */
+const DecodeOutcome = Object.freeze({
+  no_qr: "no_qr",
+  single_qr: "single_qr",
+  multi_qr: "multi_qr",
+  decode_error: "decode_error",
+});
+
+/** @enum {string} */
+const PayloadKind = Object.freeze({
+  empty: "empty",
+  plain_text: "plain_text",
+  url: "url",
+  json: "json",
+  vcard: "vcard",
+  wifi: "wifi",
+  unknown: "unknown",
+});
+
+/** @enum {string} */
+const OutputMode = Object.freeze({
+  new_file: "new_file",
+  append: "append",
+});
+
+/**
+ * @typedef {Object} Situation
+ * @property {string} inputSourceKind  - InputSourceKind
+ * @property {string} decodeOutcome    - DecodeOutcome
+ * @property {string} payloadKind      - PayloadKind
+ * @property {string} outputMode       - OutputMode
+ */
+
+/**
+ * @typedef {Object} QRDecode
+ * @property {string} text
+ * @property {Object|null} bbox
+ */
+
+/**
+ * @typedef {Object} ParsedPayload
+ * @property {string} kind
+ * @property {string} normalized
+ * @property {any|null} jsonValue
+ */
+
+/**
+ * @typedef {Object} OutputRecord
+ * @property {string} timestampISO
+ * @property {string} sourceKind
+ * @property {string} sourceId
+ * @property {string} decodeOutcome
+ * @property {string} payloadKind
+ * @property {string} payload
+ * @property {string} payloadNormalized
+ * @property {string} testConditionId
+ * @property {string} bboxJson
+ * @property {string} error
+ */
+
+/**
+ * ==========================================
+ *  1) 論文モデル G:(W,E)→(S,A(S)) の実装
+ * ==========================================
+ */
+
+const MODEL = Object.freeze({
+  G: "G:(W,E)→(S,A(S))",
+  W: {
+    description: "世界（連続的可能性）: 画像/カメラ入力、QRの有無・数、QR内容（URL/JSON/テキスト等）、例外など。",
+  },
+  E: {
+    description: "制約・評価基準: 初心者でも扱える、依存を増やさない、型（データモデル）を先に決める、等。",
+  },
+  S: {
+    definition: "S := (InputSourceKind, DecodeOutcome, PayloadKind, OutputMode)",
+    enums: {
+      InputSourceKind,
+      DecodeOutcome,
+      PayloadKind,
+      OutputMode,
+    },
+  },
+  A: [
+    { id: "A1", name: "画像1枚・QR1個・プレーンテキスト・新規CSV", predicate: "image_file ∧ single_qr ∧ plain_text ∧ new_file" },
+    { id: "A2", name: "フォルダ/複数・URL系・新規CSV", predicate: "(image_dir ∨ image_file) ∧ (multi_qr ∨ single_qr) ∧ url ∧ new_file" },
+    { id: "A3", name: "QRが無い", predicate: "(image_file ∨ image_dir) ∧ no_qr" },
+    { id: "A4", name: "Webカメラ・QR1個・JSON・追記", predicate: "webcam ∧ single_qr ∧ json ∧ append" },
+    { id: "A5", name: "デコード例外/入力不良", predicate: "decode_error" },
+  ],
+});
+
+/** @param {Situation} s */
+function classifyTestCondition(s) {
+  const isImage = (s.inputSourceKind === InputSourceKind.image_file || s.inputSourceKind === InputSourceKind.image_dir);
+  if (s.decodeOutcome === DecodeOutcome.decode_error) return "A5";
+  if (isImage && s.decodeOutcome === DecodeOutcome.no_qr) return "A3";
+  if (s.inputSourceKind === InputSourceKind.webcam && s.decodeOutcome === DecodeOutcome.single_qr && s.payloadKind === PayloadKind.json && s.outputMode === OutputMode.append) return "A4";
+  if ((s.inputSourceKind === InputSourceKind.image_dir || s.inputSourceKind === InputSourceKind.image_file) && (s.decodeOutcome === DecodeOutcome.multi_qr || s.decodeOutcome === DecodeOutcome.single_qr) && s.payloadKind === PayloadKind.url && s.outputMode === OutputMode.new_file) return "A2";
+  if (s.inputSourceKind === InputSourceKind.image_file && s.decodeOutcome === DecodeOutcome.single_qr && s.payloadKind === PayloadKind.plain_text && s.outputMode === OutputMode.new_file) return "A1";
+  return "A?";
+}
+
+class PayloadParser {
+  /** @param {string} text @returns {ParsedPayload} */
+  static parse(text) {
+    const raw = (text ?? "").trim();
+    if (raw.length === 0) return { kind: PayloadKind.empty, normalized: "", jsonValue: null };
+    if (/^BEGIN:VCARD/i.test(raw)) return { kind: PayloadKind.vcard, normalized: raw.replace(/\r\n/g, "\n"), jsonValue: null };
+    if (/^WIFI:/i.test(raw)) return { kind: PayloadKind.wifi, normalized: raw, jsonValue: null };
+    if (/^[\[{]/.test(raw)) {
+      try { const v = JSON.parse(raw); return { kind: PayloadKind.json, normalized: JSON.stringify(v), jsonValue: v }; } catch (_) {}
+    }
+    try {
+      const u = new URL(raw);
+      if (u.protocol === "http:" || u.protocol === "https:") return { kind: PayloadKind.url, normalized: u.toString(), jsonValue: null };
+    } catch (_) {}
+    return { kind: PayloadKind.plain_text, normalized: raw, jsonValue: null };
+  }
+}
+
+class QRDecoder {
+  constructor() { this.detector = null; this._initDetector(); }
+  _initDetector() {
+    try { if ("BarcodeDetector" in window) this.detector = new BarcodeDetector({ formats: ["qr_code"] }); } catch (e) { this.detector = null; }
+  }
+  /** @param {HTMLCanvasElement} canvas @returns {Promise<QRDecode[]>} */
+  async decodeFromCanvas(canvas) {
+    if (this.detector) {
+      try {
+        const barcodes = await this.detector.detect(canvas);
+        const out = barcodes.map(b => ({
+          text: String(b.rawValue ?? ""),
+          bbox: b.boundingBox ? { x: b.boundingBox.x, y: b.boundingBox.y, width: b.boundingBox.width, height: b.boundingBox.height } : null
+        }));
+        return out.filter(x => x.text.length > 0);
+      } catch (e) {}
+    }
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    if (!ctx) throw new Error("2Dコンテキストを作成できません");
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    if (typeof window.jsQR !== "function") throw new Error("QRデコーダが見つかりません（BarcodeDetectorもjsQRも利用不可）");
+    const code = window.jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: "attemptBoth" });
+    if (!code) return [];
+    return [{
+      text: String(code.data ?? ""),
+      bbox: code.location ? {
+        x: code.location.topLeftCorner.x,
+        y: code.location.topLeftCorner.y,
+        width: (code.location.bottomRightCorner.x - code.location.topLeftCorner.x),
+        height: (code.location.bottomRightCorner.y - code.location.topLeftCorner.y),
+      } : null,
+    }];
+  }
+}
+
+class CSVWriter {
+  /** @param {OutputRecord[]} records @returns {string} */
+  static toCSV(records) {
+    const cols = ["timestampISO","sourceKind","sourceId","decodeOutcome","payloadKind","payload","payloadNormalized","testConditionId","bboxJson","error"];
+    const escapeCsv = (v) => {
+      const s = String(v ?? "");
+      const needs = /[",\n\r]/.test(s);
+      const inner = s.replace(/"/g, '""');
+      return needs ? `"${inner}"` : inner;
+    };
+    const lines = [];
+    lines.push(cols.join(","));
+    for (const r of records) lines.push(cols.map(c => escapeCsv(r[c])).join(","));
+    return "\ufeff" + lines.join("\n"); // Excel向けBOM
+  }
+  /** @param {OutputRecord[]} records */
+  static download(records) {
+    const csv = CSVWriter.toCSV(records);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const now = new Date();
+    const pad = (n) => String(n).padStart(2, "0");
+    const filename = `qr_export_${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}.csv`;
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  }
+}
+
+class QRToCSVUsecase {
+  constructor(decoder) { this.decoder = decoder; }
+
+  /** @param {File} file @param {string} sourceKind @param {string} outputMode @returns {Promise<OutputRecord[]>} */
+  async processImageFile(file, sourceKind, outputMode) {
+    const ts = new Date().toISOString();
+    const sourceId = file.webkitRelativePath || file.name || "(unknown)";
+    try {
+      const img = await this._loadImageFromFile(file);
+      const canvas = this._drawToCanvas(img);
+      const decodes = await this.decoder.decodeFromCanvas(canvas);
+      const outcome =
+        decodes.length === 0 ? DecodeOutcome.no_qr :
+        decodes.length === 1 ? DecodeOutcome.single_qr :
+        DecodeOutcome.multi_qr;
+
+      if (decodes.length === 0) {
+        const s = { inputSourceKind: sourceKind, decodeOutcome: outcome, payloadKind: PayloadKind.empty, outputMode };
+        return [this._toRecord(ts, sourceKind, sourceId, outcome, "", PayloadKind.empty, "", s, null, "")];
+      }
+
+      const rs = [];
+      for (const d of decodes) {
+        const parsed = PayloadParser.parse(d.text);
+        const s = { inputSourceKind: sourceKind, decodeOutcome: outcome, payloadKind: parsed.kind, outputMode };
+        rs.push(this._toRecord(ts, sourceKind, sourceId, outcome, d.text, parsed.kind, parsed.normalized, s, d.bbox, ""));
+      }
+      return rs;
+    } catch (e) {
+      const msg = (e && e.message) ? e.message : String(e);
+      const s = { inputSourceKind: sourceKind, decodeOutcome: DecodeOutcome.decode_error, payloadKind: PayloadKind.unknown, outputMode };
+      return [this._toRecord(ts, sourceKind, sourceId, DecodeOutcome.decode_error, "", PayloadKind.unknown, "", s, null, msg)];
+    }
+  }
+
+  /** @param {HTMLCanvasElement} canvas @param {string} sourceId @returns {Promise<OutputRecord[]>} */
+  async processWebcamFrame(canvas, sourceId) {
+    const ts = new Date().toISOString();
+    const sourceKind = InputSourceKind.webcam;
+    const outputMode = OutputMode.append;
+    try {
+      const decodes = await this.decoder.decodeFromCanvas(canvas);
+      const outcome =
+        decodes.length === 0 ? DecodeOutcome.no_qr :
+        decodes.length === 1 ? DecodeOutcome.single_qr :
+        DecodeOutcome.multi_qr;
+      if (decodes.length === 0) return []; // カメラは no_qr を記録しない
+
+      const rs = [];
+      for (const d of decodes) {
+        const parsed = PayloadParser.parse(d.text);
+        const s = { inputSourceKind: sourceKind, decodeOutcome: outcome, payloadKind: parsed.kind, outputMode };
+        rs.push(this._toRecord(ts, sourceKind, sourceId, outcome, d.text, parsed.kind, parsed.normalized, s, d.bbox, ""));
+      }
+      return rs;
+    } catch (e) {
+      const msg = (e && e.message) ? e.message : String(e);
+      const s = { inputSourceKind: InputSourceKind.webcam, decodeOutcome: DecodeOutcome.decode_error, payloadKind: PayloadKind.unknown, outputMode: OutputMode.append };
+      return [this._toRecord(ts, InputSourceKind.webcam, sourceId, DecodeOutcome.decode_error, "", PayloadKind.unknown, "", s, null, msg)];
+    }
+  }
+
+  _toRecord(timestampISO, sourceKind, sourceId, decodeOutcome, payload, payloadKind, payloadNormalized, situation, bbox, error) {
+    const testConditionId = classifyTestCondition(situation);
+    return {
+      timestampISO, sourceKind, sourceId,
+      decodeOutcome, payloadKind, payload,
+      payloadNormalized, testConditionId,
+      bboxJson: bbox ? JSON.stringify(bbox) : "",
+      error: error || "",
+    };
+  }
+
+  _loadImageFromFile(file) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("画像を読み込めません: " + (file.name || ""))); };
+      img.src = url;
+    });
+  }
+
+  _drawToCanvas(img) {
+    const canvas = document.createElement("canvas");
+    const MAX = 1280;
+    let w = img.naturalWidth || img.width;
+    let h = img.naturalHeight || img.height;
+    if (w > MAX || h > MAX) {
+      const scale = Math.min(MAX / w, MAX / h);
+      w = Math.max(1, Math.floor(w * scale));
+      h = Math.max(1, Math.floor(h * scale));
+    }
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    if (!ctx) throw new Error("2Dコンテキストを作成できません");
+    ctx.drawImage(img, 0, 0, w, h);
+    return canvas;
+  }
+}
+
+/** UI */
+const el = {
+  fileInput: document.getElementById("fileInput"),
+  dirInput: document.getElementById("dirInput"),
+  startCam: document.getElementById("startCam"),
+  stopCam: document.getElementById("stopCam"),
+  dedup: document.getElementById("dedup"),
+  recordNoQr: document.getElementById("recordNoQr"),
+  exportCsv: document.getElementById("exportCsv"),
+  clear: document.getElementById("clear"),
+  video: document.getElementById("video"),
+  canvas: document.getElementById("canvas"),
+  log: document.getElementById("log"),
+  resultTbody: document.querySelector("#resultTable tbody"),
+  coverageTbody: document.querySelector("#coverageTable tbody"),
+  modelJson: document.getElementById("modelJson"),
+  toggleModel: document.getElementById("toggleModel"),
+};
+
+const decoder = new QRDecoder();
+const usecase = new QRToCSVUsecase(decoder);
+
+let records = [];
+let seenPayloadKeys = new Set();
+let camStream = null;
+let camLoopHandle = null;
+let lastScanAt = 0;
+
+function log(msg) {
+  const ts = new Date().toISOString().replace("T", " ").replace("Z", "");
+  el.log.textContent = `[${ts}] ${msg}\n` + el.log.textContent;
+}
+function renderModel() { el.modelJson.textContent = JSON.stringify(MODEL, null, 2); }
+function renderCoverage() {
+  const counts = new Map(); for (const a of MODEL.A) counts.set(a.id, 0); counts.set("A?", 0);
+  for (const r of records) counts.set(r.testConditionId, (counts.get(r.testConditionId) || 0) + 1);
+  el.coverageTbody.innerHTML = "";
+  const rows = [...MODEL.A, { id: "A?", name: "未分類（モデル外）", predicate: "その他" }];
+  for (const a of rows) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td class="code">${a.id}</td><td>${a.name}<div class="muted">${a.predicate}</div></td><td>${counts.get(a.id) || 0}</td>`;
+    el.coverageTbody.appendChild(tr);
+  }
+}
+function escapeHtml(s) {
+  return String(s ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
+}
+function renderTable() {
+  el.resultTbody.innerHTML = "";
+  for (const r of records) {
+    const tr = document.createElement("tr");
+    const pillClass =
+      r.decodeOutcome === DecodeOutcome.decode_error ? "pill err" :
+      (r.decodeOutcome === DecodeOutcome.no_qr ? "pill warn" : "pill ok");
+    const payloadShort = (r.payload || "").length > 120 ? (r.payload.slice(0,120) + "…") : (r.payload || "");
+    const note = r.error ? `<span class="pill err">error</span> ${escapeHtml(r.error)}`
+                         : (r.bboxJson ? `<span class="pill">bbox</span> <span class="muted">${escapeHtml(r.bboxJson)}</span>` : "");
+    tr.innerHTML = `
+      <td class="code">${escapeHtml(r.timestampISO)}</td>
+      <td><span class="pill">${escapeHtml(r.sourceKind)}</span><div class="muted">${escapeHtml(r.sourceId)}</div></td>
+      <td><span class="${pillClass}">${escapeHtml(r.decodeOutcome)}</span></td>
+      <td><span class="pill">${escapeHtml(r.payloadKind)}</span></td>
+      <td class="code">${escapeHtml(payloadShort)}</td>
+      <td class="code">${escapeHtml(r.testConditionId)}</td>
+      <td>${note}</td>
+    `;
+    el.resultTbody.appendChild(tr);
+  }
+  renderCoverage();
+}
+function dedupKey(r) { return `${r.payloadKind}::${r.payloadNormalized || r.payload}`; }
+function addRecords(newOnes, { allowNoQr } = { allowNoQr: false }) {
+  for (const r of newOnes) {
+    if (!allowNoQr && r.decodeOutcome === DecodeOutcome.no_qr) continue;
+    if (el.dedup.checked && r.decodeOutcome !== DecodeOutcome.no_qr) {
+      const key = dedupKey(r);
+      if (seenPayloadKeys.has(key)) continue;
+      seenPayloadKeys.add(key);
+    }
+    records.push(r);
+  }
+  renderTable();
+}
+async function handleFiles(fileList, sourceKind) {
+  const files = Array.from(fileList || []);
+  if (files.length === 0) return;
+  log(`${files.length} 件の画像を処理します… (${sourceKind})`);
+  for (const f of files) {
+    const rs = await usecase.processImageFile(f, sourceKind, OutputMode.new_file);
+    const allowNoQr = el.recordNoQr.checked;
+    addRecords(rs, { allowNoQr });
+    const last = rs[0];
+    if (last && last.decodeOutcome === DecodeOutcome.decode_error) log(`❌ ${f.name}: ${last.error}`);
+    else if (last && last.decodeOutcome === DecodeOutcome.no_qr) log(`⚠️ ${f.name}: QRなし`);
+    else log(`✅ ${f.name}: ${rs.length} 件`);
+    await new Promise(res => setTimeout(res, 10));
+  }
+  log("完了");
+}
+async function startCamera() {
+  if (camStream) return;
+  try {
+    camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
+    el.video.srcObject = camStream;
+    await el.video.play();
+    el.startCam.disabled = true; el.stopCam.disabled = false;
+    log("カメラ開始");
+    camLoop();
+  } catch (e) {
+    const msg = (e && e.message) ? e.message : String(e);
+    log("カメラ開始失敗: " + msg);
+    camStream = null;
+  }
+}
+function stopCamera() {
+  if (!camStream) return;
+  try { for (const t of camStream.getTracks()) t.stop(); } catch (_) {}
+  camStream = null;
+  if (camLoopHandle) cancelAnimationFrame(camLoopHandle);
+  camLoopHandle = null;
+  el.video.srcObject = null;
+  el.startCam.disabled = false; el.stopCam.disabled = true;
+  log("カメラ停止");
+}
+async function camLoop() {
+  if (!camStream) return;
+  const now = performance.now();
+  const intervalMs = 300;
+  if (now - lastScanAt >= intervalMs) {
+    lastScanAt = now;
+    const w = el.video.videoWidth;
+    const h = el.video.videoHeight;
+    if (w && h) {
+      el.canvas.width = w; el.canvas.height = h;
+      const ctx = el.canvas.getContext("2d", { willReadFrequently: true });
+      if (ctx) {
+        ctx.drawImage(el.video, 0, 0, w, h);
+        const rs = await usecase.processWebcamFrame(el.canvas, "webcam:0");
+        if (rs.length > 0) { addRecords(rs, { allowNoQr: false }); log(`📌 QR検出: ${rs.map(r => r.payloadKind).join(", ")} (${rs.length}件)`); }
+      }
+    }
+  }
+  camLoopHandle = requestAnimationFrame(camLoop);
+}
+
+renderModel(); renderCoverage();
+
+el.toggleModel.addEventListener("click", () => {
+  const show = (el.modelJson.style.display === "none");
+  el.modelJson.style.display = show ? "block" : "none";
+});
+el.fileInput.addEventListener("change", async () => { await handleFiles(el.fileInput.files, InputSourceKind.image_file); el.fileInput.value = ""; });
+el.dirInput.addEventListener("change", async () => { await handleFiles(el.dirInput.files, InputSourceKind.image_dir); el.dirInput.value = ""; });
+el.startCam.addEventListener("click", startCamera);
+el.stopCam.addEventListener("click", stopCamera);
+
+el.exportCsv.addEventListener("click", () => {
+  if (records.length === 0) { log("CSV出力: レコードが0件です"); return; }
+  CSVWriter.download(records);
+  log(`CSV出力: ${records.length} 行`);
+});
+el.clear.addEventListener("click", () => {
+  stopCamera();
+  records = [];
+  seenPayloadKeys = new Set();
+  renderTable();
+  log("クリアしました");
+});
+</script>
+</body>
+</html>

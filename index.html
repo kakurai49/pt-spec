@@ -7,7 +7,7 @@
   <title>Python Training | Space Adventure</title>
   <meta
     name="description"
-    content="Training Course @Space Adventure — GitHub(PR)で進める、冒険感のあるPythonトレーニング。VEGA / ALTAIR の各コースへ最短でアクセス。"
+    content="Training Course @Space Adventure — GitHub(PR)で進める、冒険感のあるPythonトレーニング。VEGA / ALTAIR / DENEB の各コースへ最短でアクセス。"
   />
 
   <style>
@@ -456,7 +456,7 @@
 
     .grid2{
       display:grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
       gap: 14px;
     }
 
@@ -951,6 +951,7 @@
               <div class="mini" aria-label="学習ペースの目安">
                 <span class="pill"><span class="spark" aria-hidden="true"></span>VEGA: <b>1日1時間 / 7日</b></span>
                 <span class="pill"><span class="spark" aria-hidden="true"></span>ALTAIR: <b>1日2時間 / 3ヶ月</b></span>
+                <span class="pill"><span class="spark" aria-hidden="true"></span>DENEB: <b>1日30分 / 7日</b></span>
               </div>
             </div>
           </div>
@@ -970,7 +971,8 @@
               <ul>
                 <li><span class="kbd">VEGA</span>：基礎〜全般を短期で攻略</li>
                 <li><span class="kbd">ALTAIR</span>：長期でじっくり鍛える</li>
-                <li>各コースは <span class="kbd">scope / index / overview / spec</span> へ</li>
+                <li><span class="kbd">DENEB</span>：QR→CSVを型ファーストで作る（1週間）</li>
+                <li>各コースは <span class="kbd">scope / index / overview / spec</span> へ（DENEBは overview/spec）</li>
               </ul>
             </div>
           </aside>
@@ -982,7 +984,7 @@
         <div class="secTitle">
           <div>
             <h3>コース</h3>
-            <p>画像メモにある構成（VEGA / ALTAIR）を、そのまま“かっこよく”整理してリンク化しています。</p>
+            <p>画像メモにある構成（VEGA / ALTAIR / DENEB）を、そのまま“かっこよく”整理してリンク化しています。</p>
           </div>
         </div>
 
@@ -1142,6 +1144,59 @@
             <div class="courseFoot">
               <a class="btn" href="#flow"><span class="dot" aria-hidden="true"></span>提出フローを見る</a>
               <a class="btn primary" href="bt30/index.html"><span class="dot" aria-hidden="true"></span>ALTAIRを開始</a>
+            </div>
+          </article>
+          
+          <!-- DENEB -->
+          <article class="course" aria-label="コース DENEB">
+            <div class="courseHead">
+              <div class="courseName">
+                <span class="tag"><span class="chip" aria-hidden="true"></span>コース DENEB</span>
+                <h4>DENEB</h4>
+                <p>
+                  論文モデル <span class="kbd">G:(W,E)→(S,A(S))</span> に沿って、S（観点）と A(S)（最小テスト条件）を明示。
+                  入力（画像/フォルダ/カメラ）からQRを読み取り、CSVへ落とす“型ファースト”実装ミッション。
+                </p>
+              </div>
+
+              <div class="courseMeta">
+                <div><b>学習目安</b></div>
+                <div>1日30分 / 7日</div>
+              </div>
+            </div>
+
+            <div class="links" role="list">
+              <a class="linkCard" role="listitem" href="qr/overview.html">
+                <div class="ico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M12 6v12M6 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M4 8c3-4 13-4 16 0M4 16c3 4 13 4 16 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <div class="t">
+                  <b>論文モデル / 設計（Overview）</b>
+                  <small>qr/overview.html</small>
+                </div>
+              </a>
+
+              <a class="linkCard" role="listitem" href="qr/spec.html">
+                <div class="ico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M8 12h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M12 8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                </div>
+                <div class="t">
+                  <b>ブラウザ実装デモ（Spec）</b>
+                  <small>qr/spec.html</small>
+                </div>
+              </a>
+            </div>
+
+            <div class="courseFoot">
+              <a class="btn" href="#flow"><span class="dot" aria-hidden="true"></span>提出フローを見る</a>
+              <a class="btn primary" href="qr/overview.html"><span class="dot" aria-hidden="true"></span>DENEBを開始</a>
             </div>
           </article>
         </div>
