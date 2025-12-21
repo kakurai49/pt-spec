@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR2CSV プロジェクト仕様書 - ポップアートスタイル</title>
+    <link rel="stylesheet" href="pop3_style.css">
+    <!-- KaTeX CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        /* カラーパレット定義 - 最新カラーアーキテクチャ */
+        :root {
+            --primary-bg: #ffdd57;
+            --secondary-bg: #ffffff;
+            --header-bg: #ff4081;
+            --footer-bg: #ff4081;
+            --accent-1: #1e90ff;
+            --accent-2: #32cd32;
+            --accent-3: #ff6347;
+            --accent-4: #9370db;
+            --text-primary: #333333;
+            --text-secondary: #555555;
+            --text-on-dark: #ffffff;
+            --border-color: #ff4081;
+            --shadow-color: rgba(0, 0, 0, 0.2);
+            
+            /* セクション固有の色 */
+            --section-0: #ffdd57;
+            --section-1: #ffcccb;
+            --section-2: #c9e4ff;
+            --section-3: #d4edda;
+            --section-4: #fff3cd;
+            --section-5: #e2e3e5;
+            --section-6: #d1ecf1;
+            --section-7: #f8d7da;
+            --section-8: #d6d8db;
+            --section-9: #e8f4f8;
+            
+            /* コントラストを保証するテキスト色 */
+            --text-on-section-0: #333333;
+            --text-on-section-1: #333333;
+            --text-on-section-2: #333333;
+            --text-on-section-3: #333333;
+            --text-on-section-4: #333333;
+            --text-on-section-5: #333333;
+            --text-on-section-6: #333333;
+            --text-on-section-7: #333333;
+            --text-on-section-8: #333333;
+            --text-on-section-9: #333333;
+        }
+        
+        /* コントラストを強化した基本スタイル */
+        body {
+            background-color: var(--primary-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding-bottom: 60px; /* フッターの高さ分 */
+        }
+        
+        /* ヘッダーの強化 */
+        header {
+            background-color: var(--header-bg);
+            color: var(--text-on-dark);
+            padding: 20px 0;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            border-bottom: 5px solid var(--accent-1);
+        }
+        
+        /* メインコンテナ */
+        .container {
+            background-color: var(--secondary-bg);
+            color: var(--text-primary);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            border: 3px solid var(--border-color);
+        }
+        
+        /* セクション見出し */
+        h2 {
+            color: var(--header-bg);
+            border-bottom: 3px solid var(--accent-1);
+            padding-bottom: 10px;
+            margin-top: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        h3 {
+            color: var(--accent-3);
+            margin-top: 25px;
+            padding-left: 10px;
+            border-left: 5px solid var(--accent-2);
+        }
+        
+        h4 {
+            color: var(--accent-4);
+            margin-top: 20px;
+        }
+        
+        /* Issueセクション - カラフルな背景 */
+        .issue-section {
+            margin-bottom: 40px;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 2px solid;
+        }
+        
+        .issue-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 8px 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* 各Issueに異なる色を割り当て */
+        .issue-0 { background-color: var(--section-0); color: var(--text-on-section-0); border-color: var(--accent-1); }
+        .issue-1 { background-color: var(--section-1); color: var(--text-on-section-1); border-color: var(--accent-2); }
+        .issue-2 { background-color: var(--section-2); color: var(--text-on-section-2); border-color: var(--accent-3); }
+        .issue-3 { background-color: var(--section-3); color: var(--text-on-section-3); border-color: var(--accent-4); }
+        .issue-4 { background-color: var(--section-4); color: var(--text-on-section-4); border-color: var(--accent-1); }
+        .issue-5 { background-color: var(--section-5); color: var(--text-on-section-5); border-color: var(--accent-2); }
+        .issue-6 { background-color: var(--section-6); color: var(--text-on-section-6); border-color: var(--accent-3); }
+        .issue-7 { background-color: var(--section-7); color: var(--text-on-section-7); border-color: var(--accent-4); }
+        .issue-8 { background-color: var(--section-8); color: var(--text-on-section-8); border-color: var(--accent-1); }
+        .issue-9 { background-color: var(--section-9); color: var(--text-on-section-9); border-color: var(--accent-2); }
+        
+        /* コードブロックとpre要素の強化 */
+        pre, code {
+            background-color: #2d2d2d;
+            color: #f8f8f2;
+            border-radius: 8px;
+            padding: 15px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            border-left: 5px solid var(--accent-1);
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        code {
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        
+        /* テーブルの強化 */
+        table {
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+        }
+        
+        th {
+            background-color: var(--header-bg);
+            color: var(--text-on-dark);
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        td {
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+        }
+        
+        tr:nth-child(even) td {
+            background-color: rgba(255, 221, 87, 0.1);
+        }
+        
+        /* リンクの強化 */
+        a {
+            color: var(--accent-1);
+            text-decoration: none;
+            font-weight: bold;
+            padding: 2px 4px;
+            border-radius: 3px;
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        
+        a:hover {
+            color: var(--header-bg);
+            background-color: rgba(255, 64, 129, 0.1);
+            border-bottom: 2px solid var(--header-bg);
+            text-shadow: 0 0 5px rgba(255, 64, 129, 0.3);
+        }
+        
+        /* リストの強化 */
+        ul, ol {
+            padding-left: 25px;
+        }
+        
+        li {
+            margin-bottom: 10px;
+            padding-left: 5px;
+        }
+        
+        li::marker {
+            color: var(--header-bg);
+            font-weight: bold;
+        }
+        
+        /* フッターの強化 */
+        .footer {
+            background-color: var(--footer-bg);
+            color: var(--text-on-dark);
+            padding: 20px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.2);
+            font-weight: bold;
+            letter-spacing: 1px;
+            z-index: 1000;
+        }
+        
+        /* バッジ */
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-right: 10px;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        .badge-epic { background-color: var(--accent-1); }
+        .badge-chore { background-color: var(--accent-2); }
+        .badge-spec { background-color: var(--accent-3); }
+        .badge-core { background-color: var(--accent-4); }
+        .badge-cli { background-color: #ff8c00; }
+        .badge-test { background-color: #20b2aa; }
+        .badge-ci { background-color: #778899; }
+        
+        /* ラベル */
+        .label {
+            font-weight: bold;
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            margin-right: 5px;
+            font-size: 0.85em;
+        }
+        
+        .label-important { background-color: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
+        .label-note { background-color: #e3f2fd; color: #1565c0; border: 1px solid #bbdefb; }
+        .label-fixed { background-color: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+        
+        /* 引用 */
+        blockquote {
+            border-left: 5px solid var(--accent-2);
+            padding-left: 20px;
+            margin-left: 0;
+            font-style: italic;
+            background-color: rgba(255, 255, 255, 0.5);
+            padding: 15px;
+            border-radius: 0 10px 10px 0;
+        }
+        
+        /* レスポンシブ調整 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+                width: auto;
+            }
+            
+            .issue-section {
+                padding: 15px;
+            }
+            
+            h2 {
+                font-size: 1.8rem;
+            }
+            
+            h3 {
+                font-size: 1.4rem;
+            }
+        }
+        
+        /* 目次 */
+        .toc {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 2px dashed var(--border-color);
+        }
+        
+        .toc h3 {
+            margin-top: 0;
+            color: var(--header-bg);
+        }
+        
+        .toc ul {
+            list-style-type: none;
+            padding-left: 0;
+            column-count: 2;
+        }
+        
+        .toc li {
+            margin-bottom: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            .toc ul {
+                column-count: 1;
+            }
+        }
+        
+        /* アニメーション */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+        
+        .highlight {
+            animation: pulse 2s infinite;
+            background-color: rgba(255, 255, 0, 0.1);
+            padding: 5px;
+            border-radius: 5px;
+        }
+        
+        /* 数式コンテナ */
+        .math-container {
+            background-color: rgba(0, 0, 0, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>QR2CSV プロジェクト仕様書</h1>
+        <p>Python QRコード画像 → CSV出力 CLIアプリケーション</p>
+    </header>
+    
+    <div class="container">
+        <h2>プロジェクト概要</h2>
+        <p>このドキュメントは、Pythonで「QRコード画像を読み取り → CSVに出力」するCLIアプリの実装仕様を定義します。型ファースト＆Gモデル（S/A(S)）に基づいて設計されています。</p>
+        
+        <div class="toc">
+            <h3>目次 - 全10Issue</h3>
+            <ul>
+                <li><a href="#issue-0">Issue 0: [EPIC] 全体概要</a></li>
+                <li><a href="#issue-1">Issue 1: [Chore] プロジェクト雛形作成</a></li>
+                <li><a href="#issue-2">Issue 2: [Spec/Core] 型定義とGモデル</a></li>
+                <li><a href="#issue-3">Issue 3: [Core] OpenCV QR読取</a></li>
+                <li><a href="#issue-4">Issue 4: [Core] Payload解析</a></li>
+                <li><a href="#issue-5">Issue 5: [Core] CSV出力</a></li>
+                <li><a href="#issue-6">Issue 6: [Core] ユースケース実装</a></li>
+                <li><a href="#issue-7">Issue 7: [CLI] argparse統合</a></li>
+                <li><a href="#issue-8">Issue 8: [Test/Docs] テスト設計</a></li>
+                <li><a href="#issue-9">Issue 9: [CI] GitHub Actions</a></li>
+            </ul>
+        </div>
+        
+        <div class="issue-section issue-0" id="issue-0">
+            <h2><span class="badge badge-epic">EPIC</span> Issue 0: Python QR→CSV（Gモデル準拠 / 型ファースト / CLI）</h2>
+            
+            <h3>目的（1文）</h3>
+            <p>Pythonで「QRコード画像を読み取り → CSVに出力」するCLIアプリを、型ファースト＆Gモデル（S/A(S)）で作る。</p>
+            
+            <h3>スコープ（Week1）</h3>
+            <ul>
+                <li>入力: 画像ファイル / 画像ディレクトリ（拡張子フィルタ）</li>
+                <li>QR読取: OpenCV（cv2.QRCodeDetector）</li>
+                <li>出力: CSV（utf-8-sig、append、崩れないエスケープ）</li>
+                <li>中間生成物: spec/g_model.json（S/A(S)/obligations/scenarios）</li>
+                <li>CLI: argparse（--print-model含む）</li>
+                <li>テスト: pytest（ユニット中心 + 生成QRでの最小統合）</li>
+            </ul>
+            
+            <h3>非スコープ（Week1）</h3>
+            <ul>
+                <li>GUI/Web UI</li>
+                <li>高度な画像前処理（補正）</li>
+                <li>外部API連携</li>
+            </ul>
+            
+            <h3>配布する子Issue</h3>
+            <table>
+                <tr>
+                    <th>Issue番号</th>
+                    <th>タイトル</th>
+                    <th>主要タスク</th>
+                </tr>
+                <tr>
+                    <td>#1</td>
+                    <td>雛形（pyproject/README/PRテンプレ）</td>
+                    <td>プロジェクト基盤作成</td>
+                </tr>
+                <tr>
+                    <td>#2</td>
+                    <td>型（domain）+ spec（g_model.json）+ 分類（classify）</td>
+                    <td>コア仕様定義</td>
+                </tr>
+                <tr>
+                    <td>#3</td>
+                    <td>OpenCV QR読取</td>
+                    <td>QRデコード実装</td>
+                </tr>
+                <tr>
+                    <td>#4</td>
+                    <td>Payload解析</td>
+                    <td>QR内容解析</td>
+                </tr>
+                <tr>
+                    <td>#5</td>
+                    <td>CSV出力</td>
+                    <td>CSV書き込み実装</td>
+                </tr>
+                <tr>
+                    <td>#6</td>
+                    <td>usecase（入力列挙→records→summary）</td>
+                    <td>主要ロジック実装</td>
+                </tr>
+                <tr>
+                    <td>#7</td>
+                    <td>CLI（argparse）</td>
+                    <td>コマンドラインインターフェース</td>
+                </tr>
+                <tr>
+                    <td>#8</td>
+                    <td>テスト + 手動テスト計画</td>
+                    <td>品質保証</td>
+                </tr>
+                <tr>
+                    <td>#9</td>
+                    <td>CI（任意）</td>
+                    <td>継続的インテグレーション</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="issue-section issue-1" id="issue-1">
+            <h2><span class="badge badge-chore">Chore</span> Issue 1: ルートにPythonプロジェクト雛形作成（setuptools固定）+ PRテンプレ + README</h2>
+            
+            <h3>ゴール</h3>
+            <p>協力者が同じ前提で動けるように「ビルド/パッケージ流派」を固定した雛形を作る。</p>
+            
+            <h3>実装ルール（重要）</h3>
+            <ul>
+                <li><span class="label label-important">重要</span> <strong>build backend は setuptools に固定</strong>（hatch/poetryは使わない）</li>
+                <li>依存は最小: runtimeは opencv-python のみ</li>
+                <li>テスト用に optional dev extras を用意する（pytest, ruff, qrcode[pil]）</li>
+            </ul>
+            
+            <h3>作成/変更ファイル（Deliverables）</h3>
+            <ul>
+                <li><code>pyproject.toml</code></li>
+                <li><code>README.md</code></li>
+                <li><code>.github/pull_request_template.md</code></li>
+                <li><code>.gitignore</code></li>
+                <li><code>src/qr2csv/__init__.py</code></li>
+                <li><code>src/qr2csv/__main__.py</code></li>
+                <li><code>src/qr2csv/cli.py</code>（このIssueでは空でもOKだが main() を呼ぶ構造だけ作る）</li>
+            </ul>
+            
+            <h3>pyproject.toml（固定仕様）</h3>
+            <pre><code>[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "qr2csv"
+version = "0.1.0"
+description = "QR code image to CSV exporter (training project)"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "opencv-python",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+  "ruff",
+  "qrcode[pil]",
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100</code></pre>
+            
+            <h3>__main__.py（固定仕様）</h3>
+            <pre><code>from qr2csv.cli import main
+
+raise SystemExit(main())</code></pre>
+            
+            <h3>Definition of Done</h3>
+            <ul>
+                <li><code>pip install -e ".[dev]"</code> が通る</li>
+                <li><code>python -m qr2csv --help</code> が起動する（中身は後続Issueで実装）</li>
+                <li>PRテンプレが <code>.github/pull_request_template.md</code> に存在する</li>
+            </ul>
+            
+            <h3>禁止事項</h3>
+            <ul>
+                <li>poetry/hatch/uv などの導入</li>
+                <li>click/typer など argparse以外のCLIライブラリ導入</li>
+            </ul>
+        </div>
+        
+        <div class="issue-section issue-2" id="issue-2">
+            <h2><span class="badge badge-spec">Spec/Core</span> Issue 2: domain型 + spec/g_model.json（スキーマ固定）+ A(S)分類（classify_test_condition）</h2>
+            
+            <h3>ゴール</h3>
+            <p>後続Issueがブレないように、型とspecの「唯一の正」を確定する。</p>
+            
+            <h3>実装ルール（重要）</h3>
+            <ul>
+                <li><span class="label label-important">重要</span> Enumは必ず <strong><code>Enum(str, Enum)</code></strong> を使い、<strong><code>.value</code> を外部表現（CSV/JSON）に使う</strong></li>
+                <li>CSV/JSONに出す文字列は <strong>snake_caseの小文字</strong> に固定</li>
+                <li>spec/g_model.json のスキーマは本Issue本文で固定（勝手にキーを増減しない）</li>
+            </ul>
+            
+            <h3>1) domain.py（型仕様：値まで固定）</h3>
+            
+            <h4>Enum（<code>.value</code> を固定）</h4>
+            <pre><code>class InputSourceKind(str, Enum):
+    IMAGE_FILE = "image_file"
+    IMAGE_DIR  = "image_dir"
+    WEBCAM     = "webcam"
+
+class DecodeOutcome(str, Enum):
+    NO_QR       = "no_qr"
+    SINGLE_QR   = "single_qr"
+    MULTI_QR    = "multi_qr"
+    DECODE_ERROR= "decode_error"
+
+class PayloadKind(str, Enum):
+    EMPTY       = "empty"
+    PLAIN_TEXT  = "plain_text"
+    URL         = "url"
+    JSON        = "json"
+    VCARD       = "vcard"
+    WIFI        = "wifi"
+    UNKNOWN     = "unknown"
+
+class OutputMode(str, Enum):
+    NEW_FILE = "new_file"
+    APPEND   = "append"</code></pre>
+            
+            <h3>2) spec/g_model.json（スキーマ固定）</h3>
+            <p>必ず次のトップレベルキーを持つ（順序は自由）：</p>
+            <ul>
+                <li><code>version</code> (str)</li>
+                <li><code>S</code> (object)</li>
+                <li><code>A</code> (array)</li>
+                <li><code>obligations</code> (array)</li>
+                <li><code>scenarios</code> (array)</li>
+            </ul>
+            
+            <h4>g_model.json（この雛形をそのまま作る）</h4>
+            <pre><code>{
+  "version": "1.0",
+  "S": {
+    "definition": "S := (InputSourceKind, DecodeOutcome, PayloadKind, OutputMode)",
+    "InputSourceKind": ["image_file", "image_dir", "webcam"],
+    "DecodeOutcome": ["no_qr", "single_qr", "multi_qr", "decode_error"],
+    "PayloadKind": ["empty", "plain_text", "url", "json", "vcard", "wifi", "unknown"],
+    "OutputMode": ["new_file", "append"]
+  },
+  "A": [
+    {
+      "id": "A1",
+      "name": "画像1枚・QR1個・TEXT・新規CSV",
+      "optional": false,
+      "predicate": "image_file ∧ single_qr ∧ plain_text ∧ new_file"
+    },
+    {
+      "id": "A2",
+      "name": "画像/フォルダ・QR(1or複数)・URL・新規CSV",
+      "optional": false,
+      "predicate": "(image_dir ∨ image_file) ∧ (single_qr ∨ multi_qr) ∧ url ∧ new_file"
+    },
+    {
+      "id": "A3",
+      "name": "QRが無い",
+      "optional": false,
+      "predicate": "(image_file ∨ image_dir) ∧ no_qr"
+    },
+    {
+      "id": "A4",
+      "name": "Webカメラ・QR1個・JSON・追記",
+      "optional": true,
+      "predicate": "webcam ∧ single_qr ∧ json ∧ append"
+    },
+    {
+      "id": "A5",
+      "name": "デコード例外/入力不良",
+      "optional": false,
+      "predicate": "decode_error"
+    }
+  ],
+  "obligations": [
+    { "id": "O1", "text": "A1/A2/A3/A5 を最低1回は観測できる（手動でもOK）" },
+    { "id": "O2", "text": "CSVエスケープ（カンマ/改行/ダブルクォート）を最低1回通す" },
+    { "id": "O3", "text": "--print-model で S/A(S)/obligations が表示できる" }
+  ],
+  "scenarios": [
+    {
+      "id": "t1",
+      "input": "single file with TEXT QR: hello",
+      "expected": { "test_condition_id": "A1", "decode_outcome": "single_qr", "payload_kind": "plain_text" }
+    },
+    {
+      "id": "t2",
+      "input": "dir with URL QR",
+      "expected": { "test_condition_id": "A2", "decode_outcome": "single_qr", "payload_kind": "url" }
+    },
+    {
+      "id": "t3",
+      "input": "image without QR",
+      "expected": { "test_condition_id": "A3", "decode_outcome": "no_qr", "payload_kind": "empty" }
+    },
+    {
+      "id": "t4",
+      "input": "broken image file",
+      "expected": { "test_condition_id": "A5", "decode_outcome": "decode_error", "payload_kind": "unknown" }
+    }
+  ]
+}</code></pre>
+            
+            <h3>3) g_model.py（関数仕様：固定）</h3>
+            
+            <h4><code>classify_test_condition(s: Situation) -> str</code></h4>
+            <p>返り値: <code>"A1"|"A2"|"A3"|"A4"|"A5"|"A?"</code></p>
+            <p>判定ルール（この順序で固定）:</p>
+            <ol>
+                <li><code>s.decode_outcome == DecodeOutcome.DECODE_ERROR</code> → <code>"A5"</code></li>
+                <li><code>s.input_source in {IMAGE_FILE, IMAGE_DIR}</code> かつ <code>s.decode_outcome == NO_QR</code> → <code>"A3"</code></li>
+                <li><code>s.input_source == WEBCAM</code> かつ <code>s.decode_outcome == SINGLE_QR</code> かつ <code>s.payload_kind == JSON</code> かつ <code>s.output_mode == APPEND</code> → <code>"A4"</code></li>
+                <li><code>s.input_source in {IMAGE_FILE, IMAGE_DIR}</code> かつ <code>s.decode_outcome in {SINGLE_QR, MULTI_QR}</code> かつ <code>s.payload_kind == URL</code> かつ <code>s.output_mode == NEW_FILE</code> → <code>"A2"</code></li>
+                <li><code>s.input_source == IMAGE_FILE</code> かつ <code>s.decode_outcome == SINGLE_QR</code> かつ <code>s.payload_kind == PLAIN_TEXT</code> かつ <code>s.output_mode == NEW_FILE</code> → <code>"A1"</code></li>
+                <li>else → <code>"A?"</code></li>
+            </ol>
+            
+            <h3>Definition of Done</h3>
+            <ul>
+                <li><code>spec/g_model.json</code> が上記スキーマで存在する</li>
+                <li><code>domain.py</code> の Enum が <code>.value</code> で上記文字列を持つ</li>
+                <li><code>classify_test_condition</code> が仕様通り（ユニットテスト可能）</li>
+            </ul>
+            
+            <h3>禁止事項</h3>
+            <ul>
+                <li>Enumの <code>.name</code> をCSV/JSONに出すこと</li>
+                <li>spec JSONのキー名を勝手に変えること</li>
+            </ul>
+        </div>
+        
+        <div class="issue-section issue-3" id="issue-3">
+            <h2><span class="badge badge-core">Core</span> Issue 3: OpenCV QR読取（画像）: decode_qr_from_image_path の確定仕様（multi/single差分吸収）</h2>
+            
+            <h3>ゴール</h3>
+            <p>画像ファイルからQRを読み取り、<code>DecodeOutcome</code> と <code>QRDecode[]</code> を安定して返す。</p>
+            
+            <h3>実装ルール（重要）</h3>
+            <ul>
+                <li>OpenCVは <code>cv2.QRCodeDetector()</code> を使用</li>
+                <li><code>detectAndDecodeMulti</code> が使えれば優先、失敗や未対応なら <code>detectAndDecode</code> にfallback</li>
+                <li><code>text == ""</code> の結果は <strong>破棄する</strong>（QRDecodeに含めない）</li>
+                <li>bbox算出の丸め規則を固定する（下記）</li>
+            </ul>
+            
+            <h3>関数仕様（固定）</h3>
+            
+            <h4><code>points_to_bbox(points: np.ndarray) -> BBox</code></h4>
+            <p>丸め規則（固定）:</p>
+            <div class="math-container">
+                $$ \text{minx} = \min(\text{points}[...,0]) $$
+                $$ \text{maxx} = \max(\text{points}[...,0]) $$
+                $$ \text{miny} = \min(\text{points}[...,1]) $$
+                $$ \text{maxy} = \max(\text{points}[...,1]) $$
+                $$ x = \lfloor \text{minx} \rfloor,\quad y = \lfloor \text{miny} \rfloor $$
+                $$ \text{width} = \lceil \text{maxx} \rceil - x,\quad \text{height} = \lceil \text{maxy} \rceil - y $$
+            </div>
+            
+            <h4><code>decode_qr_from_image_path(path: Path) -> tuple[DecodeOutcome, list[QRDecode], str|None]</code></h4>
+            <p>ルール:</p>
+            <ul>
+                <li>QRDecode数=0 → (NO_QR, [], None)</li>
+                <li>QRDecode数=1 → (SINGLE_QR, [..], None)</li>
+                <li>QRDecode数>=2 → (MULTI_QR, [..], None)</li>
+                <li>例外 → (DECODE_ERROR, [], "error message with path")</li>
+            </ul>
+            
+            <h3>Definition of Done</h3>
+            <ul>
+                <li>生成QR（Issue8のqrcode生成）で SINGLE_QR が取れる</li>
+                <li>QR無し画像（白画像）で NO_QR</li>
+                <li>壊れたファイル入力で DECODE_ERROR（message付き）</li>
+            </ul>
+            
+            <h3>禁止事項</h3>
+            <ul>
+                <li>画像前処理の過剰追加（Week1では不要）</li>
+                <li>例外を握りつぶして何も記録しないこと（error_messageを必ず返す）</li>
+            </ul>
+        </div>
+        
+        <div class="issue-section issue-4" id="issue-4">
+            <h2><span class="badge badge-core">Core</span> Issue 4: Payload解析（parse_payload）: kind判定順序＋normalized規則を固定</h2>
+            
+            <h3>ゴール</h3>
+            <p>QRの文字列を <code>ParsedPayload</code> に落とし、CSV出力＆dedupに耐える normalized を作る。</p>
+            
+            <h3>実装ルール（重要）</h3>
+            <ul>
+                <li>判定順序を固定（下記）</li>
+                <li>JSONのnormalizedは <strong>sort_keys=True</strong> で安定化</li>
+                <li>URLのnormalizedは <strong>strip後の原文をそのまま</strong>（過剰な正規化はしない）</li>
+            </ul>
+            
+            <h3>関数仕様（固定）</h3>
+            
+            <h4><code>parse_payload(text: str) -> ParsedPayload</code></h4>
+            <p>判定順序（固定）:</p>
+            <ol>
+                <li><code>raw = normalize_text(text)</code> が空 → kind=EMPTY, normalized=""</li>
+                <li><code>raw</code> が <code>BEGIN:VCARD</code> で始まる（case-insensitive） → VCARD, normalized=raw</li>
+                <li><code>raw</code> が <code>WIFI:</code> で始まる（case-insensitive） → WIFI, normalized=raw</li>
+                <li>JSONとして <code>json.loads(raw)</code> 成功 → JSON</li>
+                <li>URL判定: <code>p = urllib.parse.urlparse(raw)</code>, <code>p.scheme in {"http","https"}</code> かつ <code>p.netloc != ""</code> → URL</li>
+                <li>それ以外 → PLAIN_TEXT, normalized=raw</li>
+            </ol>
+            
+            <h3>Definition of Done</h3>
+            <ul>
+                <li>unit testで URL/JSON/VCARD/WIFI/TEXT/EMPTY が判定できる</li>
+                <li>JSON normalized がキー順で安定する</li>
+            </ul>
+        </div>
+        
+        <div class="issue-section issue-5" id="issue-5">
+            <h2><span class="badge badge-core">Core</span> Issue 5: CSV出力: utf-8-sig固定 / append仕様固定 / Enumは.valueで出す</h2>
+            
+            <h3>ゴール</h3>
+            <p>OutputRecordの配列を壊れないCSVとして出力する。</p>
+            
+            <h3>実装ルール（重要）</h3>
+            <ul>
+                <li>CSV出力は <code>csv</code> 標準ライブラリを使う（手書きエスケープしない）</li>
+                <li>エンコーディングは <strong>utf-8-sig</strong> 固定</li>
+                <li>Enumは必ず <code>.value</code> を出力</li>
+            </ul>
+            
+            <h3>固定CSV仕様</h3>
+            <p>ヘッダ順（固定）:</p>
+            <ol>
+                <li>timestamp_iso</li>
+                <li>source_kind</li>
+                <li>source_id</li>
+                <li>decode_outcome</li>
+                <li>payload_kind</li>
+                <li>payload</li>
+                <li>payload_normalized</li>
+                <li>test_condition_id</li>
+                <li>bbox_json</li>
+                <li>error</li>
+            </ol>
+            
+            <h3>関数仕様（固定）</h3>
+            
+            <h4><code>write_records_to_csv(records: list[OutputRecord], output_path: Path, *, append: bool) -> None</code></h4>
+            <ul>
+                <li>親ディレクトリが無ければ作る: <code>output_path.parent.mkdir(parents=True, exist_ok=True)</code></li>
+                <li><code>open(output_path, mode, newline="", encoding="utf-8-sig")</code></li>
+                <li>append=False: mode="w", 必ずヘッダ→レコード</li>
+                <li>append=True: mode="a", ファイルが存在しない、またはサイズが0のときのみヘッダを書く</li>
+            </ul>
+            
+            <h3>Definition of Done</h3>
+            <ul>
+                <li><code>csv.reader</code> で読み直して列数が常に10</li>
+                <li>appendしてもヘッダが重複しない</li>
+                <li>Excelで開いて文字化けしにくい（utf-8-sig）</li>
+            </ul>
+        </div>
+        
+        <div class="issue-section issue-6" id="issue-6">
+            <h2><span class="badge badge-core">Core</span> Issue 6: usecase: 入力列挙→records生成→dedup→summary（source_id規則/NO_QR規則/exitとは別）</h2>
+            
+            <h3>ゴール</h3>
+            <p>CLIから呼ぶ"本体処理"を作る。I/Oを分離し、安定したrecordsとsummaryを返す。</p>
+            
+            <h3>実装ルール（重要）</h3>
+            <ul>
+                <li>入力が file か dir かで <strong>source_kind を固定</strong>する</li>
+                <li>dir入力の場合の source_id は <strong>ディレクトリからの相対パス（POSIX区切り）</strong></li>
+                <li>画像列挙は <strong>ソートして安定化</strong></li>
+                <li>dedupは <strong>成功デコードのみ</strong>に適用（NO_QR / DECODE_ERROR は dedup対象外）</li>
+                <li>NO_QR を記録するかどうかは include_no_qr で厳密に制御</li>
+            </ul>
+            
+            <h3>入力種別の決定（固定）</h3>
+            <ul>
+                <li><code>input_path.is_file()</code> のとき: source_kind = <code>InputSourceKind.IMAGE_FILE</code>, base_dir = <code>input_path.parent</code></li>
+                <li><code>input_path.is_dir()</code> のとき: source_kind = <code>InputSourceKind.IMAGE_DIR</code>, base_dir = <code>input_path</code></li>
+            </ul>
+            
+            <h3>source_id の規則（固定）</h3>
+            <ul>
+                <li>file入力: <code>source_id = input_path.name</code></li>
+                <li>dir入力: <code>source_id = path.relative_to(base_dir).as_posix()</code></li>
+            </ul>
+            
+            <h3>関数仕様（固定）</h3>
+            
+            <h4><code>dedup_key(r: OutputRecord) -> str</code></h4>
+            <p><code>f"{r.payload_kind}:{r.payload_normalized}"</code>（どちらも Enum.value/文字列）</p>
+            
+            <h4><code>run_pipeline(input_path: Path, output_path: Path, *, recursive: bool, append: bool, include_no_qr: bool, dedup: bool) -> tuple[list[OutputRecord], dict]</code></h4>
+            
+            <p>summary（dictスキーマ固定）:</p>
+            <ul>
+                <li><code>total_files</code>: int（pathsの数）</li>
+                <li><code>total_records</code>: int（dedup後のrecords数）</li>
+                <li><code>by_decode_outcome</code>: dict[str,int]（DecodeOutcome.valueをキー）</li>
+                <li><code>by_test_condition_id</code>: dict[str,int]（"A1".."A5","A?" をキー）</li>
+            </ul>
+            
+            <h3>Definition of Done</h3>
+            <ul>
+                <li>dir入力でも安定順序で処理される</li>
+                <li>include_no_qr / dedup / append の挙動が仕様どおり</li>
+                <li>summaryが固定スキーマで返る</li>
+            </ul>
+        </div>
+        
+        <div class="issue-section issue-7" id="issue-7">
+            <h2><span class="badge badge-cli">CLI</span> Issue 7: argparse統合（exit code固定）: --print-model / --input / --output / --append / --recursive / --include-no-qr / --no-dedup</h2>
+            
+            <h3>ゴール</h3>
+            <p>CLI入口を確定し、失敗時のexit codeを固定する。</p>
+            
+            <h3>実装ルール（重要）</h3>
+            <ul>
+                <li>CLIは argparse のみ</li>
+                <li><strong>exit codeを固定</strong></li>
+                <li>「一部ファイルのdecode_error」は fatal ではない（CSVにerror行として出す）</li>
+            </ul>
+            
+            <h3>exit code（固定）</h3>
+            <ul>
+                <li><strong>0</strong>: 正常終了（decode_errorが混じっても0。CSVに記録するから）</li>
+                <li><strong>2</strong>: 致命的エラー（例: inputが存在しない、画像が1件も見つからない、spec/g_model.jsonが読めない）</li>
+            </ul>
+            
+            <h3>CLI仕様（固定）</h3>
+            
+            <h4>引数</h4>
+            <ul>
+                <li><code>--print-model</code>（bool）</li>
+                <li><code>--input PATH</code>（--print-modelがFalseのとき必須）</li>
+                <li><code>--output PATH</code>（default: <code>qr_export.csv</code>）</li>
+                <li><code>--recursive</code>（default: False）</li>
+                <li><code>--append</code>（default: False）</li>
+                <li><code>--include-no-qr</code>（default: False）</li>
+                <li><code>--no-dedup</code>（default: False）</li>
+            </ul>
+            
+            <h3>summary表示（最低限）</h3>
+            <p>以下の順でprint（固定）:</p>
+            <ol>
+                <li>total_files, total_records</li>
+                <li>by_test_condition_id（A1..A5,A?）</li>
+                <li>by_decode_outcome（no_qr/single_qr/multi_qr/decode_error）</li>
+            </ol>
+            
+            <h3>Definition of Done</h3>
+            <ul>
+                <li><code>python -m qr2csv --help</code> が分かりやすい</li>
+                <li><code>--print-model</code> が動く</li>
+                <li>input不正・画像0件・spec不正で exit 2</li>
+            </ul>
+        </div>
+        
+        <div class="issue-section issue-8" id="issue-8">
+            <h2><span class="badge badge-test">Test/Docs</span> Issue 8: pytest: unit + 生成QRの最小統合テスト + manual_test_plan（obligationsチェック）</h2>
+            
+            <h3>ゴール</h3>
+            <p>Codexが実装を自己検証できるように、外部画像に依存しないテストを用意する。また、人間向けに手動テスト計画を用意する。</p>
+            
+            <h3>前提（重要）</h3>
+            <ul>
+                <li><code>pip install -e ".[dev]"</code> で <code>qrcode[pil]</code> が入る（Issue1）</li>
+                <li>テストは <strong>外部ファイル不要</strong>（テスト内でQR画像を生成する）</li>
+            </ul>
+            
+            <h3>テスト仕様（固定）</h3>
+            
+            <h4>1) <code>test_payload_parser.py</code></h4>
+            <ul>
+                <li>EMPTY / PLAIN_TEXT / URL / JSON / VCARD / WIFI の判定</li>
+                <li>JSON normalized が sort_keys=True で安定していること</li>
+            </ul>
+            
+            <h4>2) <code>test_csv_writer.py</code></h4>
+            <ul>
+                <li>OutputRecordを数件作り、CSVへ書く→csv.readerで読み直す</li>
+                <li>列数が常に10になること</li>
+                <li>エスケープ対象文字列: <code>a,b</code>, <code>a\nb</code>, <code>a"b</code></li>
+            </ul>
+            
+            <h4>4) <code>test_qr_reader_integration.py</code>（生成QRで検証）</h4>
+            <p>テストケース（最低限）:</p>
+            <ul>
+                <li>TEXT: "hello"</li>
+                <li>URL: "https://example.com"</li>
+                <li>JSON: '{"a":1,"b":2}'</li>
+            </ul>
+            
+            <h3>manual_test_plan.md（固定要件）</h3>
+            <ul>
+                <li>obligationsチェックリストを含める:
+                    <ul>
+                        <li>O1: A1/A2/A3/A5 観測</li>
+                        <li>O2: CSVエスケープ観測</li>
+                        <li>O3: --print-model表示確認</li>
+                    </ul>
+                </li>
+                <li>実行例コマンドを記載する</li>
+            </ul>
+            
+            <h3>Definition of Done</h3>
+            <ul>
+                <li><code>python -m pytest</code> が通る</li>
+                <li>manual_test_plan.md が1ページで実行可能</li>
+                <li>テストが外部画像に依存しない（生成QRで完結）</li>
+            </ul>
+        </div>
+        
+        <div class="issue-section issue-9" id="issue-9">
+            <h2><span class="badge badge-ci">CI</span> Issue 9: GitHub Actions: pytest（必須）+ ruff（任意）</h2>
+            
+            <h3>ゴール</h3>
+            <p>PRごとに pytest が自動で走る。</p>
+            
+            <h3>必須仕様</h3>
+            <ul>
+                <li>python-version: 3.10 と 3.11（2本でOK）</li>
+                <li>手順:
+                    <ol>
+                        <li>checkout</li>
+                        <li>setup-python</li>
+                        <li><code>pip install -e ".[dev]"</code></li>
+                        <li><code>python -m pytest</code></li>
+                    </ol>
+                </li>
+            </ul>
+            
+            <h3>Definition of Done</h3>
+            <ul>
+                <li>PRでCIが走り、pytest失敗で落ちる</li>
+            </ul>
+        </div>
+        
+        <div class="issue-section">
+            <h2>付録：PRテンプレ最終版</h2>
+            <pre><code>## 関連Issue
+- Closes #番号
+
+## 変更内容（What）
+- 何を変更したか（箇条書き）
+- 追加/修正ファイル:
+
+## 仕様（関数仕様）
+- `module.function(arg: Type) -> ReturnType`
+  - 入力:
+  - 出力:
+  - 例外:
+  - I/O副作用:
+
+## 固定ルール確認
+- [ ] Enumは `.value` を外部表現に使っている（CSV/JSON）
+- [ ] spec/g_model.json のスキーマを変更していない
+- [ ] source_kind/source_id/dedup規則を変えていない（Issue6の固定仕様）
+
+## テスト
+- [ ] `python -m pytest` 実行結果:
+- 手動テスト（任意）:
+
+## リスク/注意点
+- 互換性・既知の制限:</code></pre>
+        </div>
+    </div>
+    
+    <div class="footer">
+        QR2CSV プロジェクト仕様書 - ポップアートスタイル | 最終更新: 2024年
+    </div>
+    
+    <!-- KaTeX JavaScript -->
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body, {
+            delimiters: [
+                {left: '$$', right: '$$', display: true},
+                {left: '$', right: '$', display: false},
+                {left: '\\(', right: '\\)', display: false},
+                {left: '\\[', right: '\\]', display: true}
+            ],
+            throwOnError: false
+        });">
+    </script>
+</body>
+</html>
