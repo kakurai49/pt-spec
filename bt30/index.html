@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GitHub Issue Pack: 「BEATを作る楽器」MVP（簡易ドラムマシン／ステップシーケンサ）</title>
+
+  <!-- ✅ 指定CSS（添付pop3_style.css） -->
+  <link rel="stylesheet" href="pop3_style.css" />
+
+  <!-- ✅ KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghG0G+N4WmV5+Kf+zC2l6Fq5qV6H5Uu" crossorigin="anonymous">
+
+  <!-- ✅ 追加CSS：強コントラスト + カラフル（色トークン/OKLCH/レイヤーで色管理） -->
+  <style>
+    /*
+      Color Architecture (Modern):
+      - Design Tokens via CSS Custom Properties
+      - OKLCH (perceptual uniform) with fallback
+      - CSS Layers for predictable override
+      - Supports: prefers-color-scheme / prefers-contrast / reduced-motion
+    */
+    @layer tokens, base, components, utilities, overrides;
+
+    @layer tokens {
+      :root {
+        /* Fallback (hex) */
+        --c-bg: #ffdd57;          /* pop yellow */
+        --c-surface: #ffffff;     /* card surface */
+        --c-text: #0b0b0f;        /* near-black */
+        --c-muted: #2a2a33;
+
+        --c-accent: #ff4081;      /* pop pink */
+        --c-accent-2: #1e90ff;    /* pop blue */
+        --c-accent-3: #00c853;    /* pop green */
+        --c-warn: #ff6d00;        /* pop orange */
+
+        --c-border: #0b0b0f;
+        --c-shadow: rgba(0,0,0,.25);
+
+        --c-code-bg: #0b0b0f;
+        --c-code-text: #f7f7fb;
+        --c-code-border: #00e5ff;
+
+        --c-quote-bg: #fff6cc;
+        --c-quote-border: #0b0b0f;
+
+        --radius: 16px;
+        --radius-sm: 10px;
+
+        --stroke: 3px;
+        --stroke-sm: 2px;
+
+        --shadow-pop:
+          0 14px 0 rgba(0,0,0,.18),
+          0 0 0 var(--stroke) var(--c-border);
+      }
+
+      /* Prefer OKLCH when supported */
+      @supports (color: oklch(50% 0.2 250)) {
+        :root{
+          --c-bg: oklch(92% 0.16 98);
+          --c-surface: oklch(99% 0.01 95);
+          --c-text: oklch(15% 0.02 270);
+          --c-muted: oklch(35% 0.03 270);
+
+          --c-accent: oklch(65% 0.25 12);
+          --c-accent-2: oklch(60% 0.23 250);
+          --c-accent-3: oklch(70% 0.23 145);
+          --c-warn: oklch(75% 0.25 55);
+
+          --c-border: oklch(15% 0.02 270);
+          --c-shadow: color-mix(in oklch, black 25%, transparent);
+
+          --c-code-bg: oklch(18% 0.02 270);
+          --c-code-text: oklch(98% 0.01 270);
+          --c-code-border: oklch(80% 0.23 210);
+
+          --c-quote-bg: oklch(96% 0.06 95);
+          --c-quote-border: oklch(15% 0.02 270);
+        }
+      }
+
+      /* Dark mode */
+      @media (prefers-color-scheme: dark) {
+        :root{
+          --c-bg: #0b0b0f;
+          --c-surface: #12121a;
+          --c-text: #f7f7fb;
+          --c-muted: #c9c9d6;
+
+          --c-border: #f7f7fb;
+          --c-shadow: rgba(0,0,0,.55);
+
+          --c-code-bg: #000000;
+          --c-code-text: #f7f7fb;
+          --c-quote-bg: #1b1b24;
+        }
+      }
+
+      /* High contrast preference */
+      @media (prefers-contrast: more) {
+        :root{
+          --c-text: #000000;
+          --c-muted: #111111;
+          --c-border: #000000;
+          --stroke: 4px;
+          --stroke-sm: 3px;
+
+          --c-code-bg: #000000;
+          --c-code-text: #ffffff;
+        }
+      }
+
+      /* Reduce motion */
+      @media (prefers-reduced-motion: reduce) {
+        * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+      }
+    }
+
+    @layer base {
+      html { scroll-behavior: smooth; }
+      body {
+        background-color: var(--c-bg) !important;
+        color: var(--c-text) !important;
+
+        /* subtle pop pattern without killing readability */
+        background-image:
+          radial-gradient(circle at 12px 12px, color-mix(in srgb, var(--c-accent) 18%, transparent) 2px, transparent 3px),
+          radial-gradient(circle at 28px 28px, color-mix(in srgb, var(--c-accent-2) 16%, transparent) 2px, transparent 3px);
+        background-size: 40px 40px;
+      }
+
+      header{
+        background-color: var(--c-accent) !important;
+        color: var(--c-surface) !important;
+        border-bottom: var(--stroke) solid var(--c-border);
+      }
+
+      .container{
+        background-color: var(--c-surface) !important;
+        color: var(--c-text) !important;
+        border: var(--stroke) solid var(--c-border);
+        box-shadow: var(--shadow-pop);
+      }
+
+      a{
+        color: var(--c-accent-2) !important;
+        text-decoration-thickness: 2px;
+        text-underline-offset: 3px;
+      }
+      a:hover{
+        color: var(--c-accent) !important;
+      }
+
+      /* Footer: fixedだと本文に被ることがあるため、上書きして安全化 */
+      .footer{
+        position: static !important;
+        margin-top: 24px;
+        border-top: var(--stroke) solid var(--c-border);
+      }
+
+      /* Typography & spacing */
+      .md-content{
+        line-height: 1.75;
+        font-size: 16px;
+      }
+
+      /* Headings with pop outlines */
+      .md-content h1,
+      .md-content h2,
+      .md-content h3,
+      .md-content h4{
+        color: var(--c-text) !important;
+        text-transform: none;
+        letter-spacing: .2px;
+        margin-top: 1.2em;
+        padding: .35em .55em;
+        border: var(--stroke-sm) solid var(--c-border);
+        border-radius: var(--radius-sm);
+        box-shadow: 6px 6px 0 var(--c-shadow);
+      }
+      .md-content h1{ background: linear-gradient(90deg, color-mix(in srgb, var(--c-accent) 25%, var(--c-surface)), var(--c-surface)); }
+      .md-content h2{ background: linear-gradient(90deg, color-mix(in srgb, var(--c-accent-2) 22%, var(--c-surface)), var(--c-surface)); }
+      .md-content h3{ background: linear-gradient(90deg, color-mix(in srgb, var(--c-accent-3) 22%, var(--c-surface)), var(--c-surface)); }
+      .md-content h4{ background: linear-gradient(90deg, color-mix(in srgb, var(--c-warn) 22%, var(--c-surface)), var(--c-surface)); }
+
+      .md-content hr{
+        border: none;
+        height: 10px;
+        margin: 24px 0;
+        background:
+          repeating-linear-gradient(
+            90deg,
+            var(--c-border) 0 10px,
+            transparent 10px 18px
+          );
+        border-radius: 999px;
+      }
+
+      /* Blockquote pop callout */
+      .md-content blockquote{
+        background: var(--c-quote-bg);
+        border-left: 10px solid var(--c-quote-border);
+        margin: 16px 0;
+        padding: 12px 14px;
+        border-radius: var(--radius-sm);
+        box-shadow: 6px 6px 0 var(--c-shadow);
+      }
+
+      /* Code blocks: high contrast */
+      pre{
+        background-color: var(--c-code-bg) !important;
+        color: var(--c-code-text) !important;
+        border: var(--stroke-sm) solid var(--c-code-border);
+        border-radius: var(--radius-sm);
+      }
+      pre code{
+        color: inherit !important;
+      }
+
+      /* Inline code: keep visible even on colored surfaces */
+      .md-content code{
+        background: color-mix(in srgb, var(--c-accent-2) 18%, transparent);
+        border: 1px solid color-mix(in srgb, var(--c-border) 55%, transparent);
+        border-radius: 8px;
+        padding: 0 .35em;
+        color: var(--c-text) !important;
+      }
+
+      /* Tables: stronger contrast */
+      table{
+        border: var(--stroke) solid var(--c-border);
+        border-radius: var(--radius-sm);
+        overflow: hidden;
+      }
+      th{
+        background: color-mix(in srgb, var(--c-accent) 25%, var(--c-surface)) !important;
+        color: var(--c-text) !important;
+      }
+
+      /* Details (raw text) */
+      details.raw{
+        margin-top: 22px;
+        border: var(--stroke-sm) dashed var(--c-border);
+        border-radius: var(--radius);
+        padding: 10px 12px;
+        background: color-mix(in srgb, var(--c-accent-3) 10%, var(--c-surface));
+      }
+      details.raw summary{
+        cursor: pointer;
+        font-weight: 800;
+      }
+      #raw-pre{
+        background: color-mix(in srgb, var(--c-border) 6%, var(--c-surface));
+        color: var(--c-text);
+        border: var(--stroke-sm) solid var(--c-border);
+        border-radius: var(--radius-sm);
+        padding: 12px;
+        overflow-x: auto;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
+      /* KaTeX (already in pop3_style.css, but ensure contrast in dark mode too) */
+      .katex,
+      .katex-display{
+        color: inherit;
+      }
+
+      /* Focus */
+      :focus-visible{
+        outline: 4px solid var(--c-accent-2);
+        outline-offset: 3px;
+      }
+    }
+
+    @layer components{
+      .top-note{
+        border: var(--stroke-sm) solid var(--c-border);
+        border-radius: var(--radius);
+        padding: 12px 14px;
+        background: linear-gradient(
+          90deg,
+          color-mix(in srgb, var(--c-warn) 18%, var(--c-surface)),
+          color-mix(in srgb, var(--c-accent) 16%, var(--c-surface))
+        );
+        box-shadow: 6px 6px 0 var(--c-shadow);
+        margin-bottom: 16px;
+      }
+      .badge{
+        display: inline-block;
+        padding: 2px 10px;
+        border-radius: 999px;
+        border: var(--stroke-sm) solid var(--c-border);
+        background: var(--c-surface);
+        box-shadow: 3px 3px 0 var(--c-shadow);
+        font-weight: 800;
+      }
+      .katex-inline-code{
+        display: inline-block;
+        vertical-align: baseline;
+        padding: 0 .15em;
+      }
+    }
+
+    @layer utilities{
+      .sr-only{
+        position:absolute;
+        width:1px;
+        height:1px;
+        padding:0;
+        margin:-1px;
+        overflow:hidden;
+        clip:rect(0,0,0,0);
+        white-space:nowrap;
+        border:0;
+      }
+    }
+
+    @layer overrides{
+      /* pop3_style.css の body color が薄くなる環境があるので固定 */
+      body, .container, .md-content, #raw-pre { color: var(--c-text) !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    GitHub Issue Pack: 「BEATを作る楽器」MVP
+  </header>
+
+  <main class="container">
+    <div class="top-note">
+      <span class="badge">STYLE</span> pop3_style.css + 追加CSS（強コントラスト/色トークン管理）　
+      <span class="badge">MATH</span> KaTeX（pre内/外とも）
+    </div>
+
+    <!-- Rendered Markdown -->
+    <article id="rendered" class="md-content" aria-label="Rendered Content"></article>
+
+    <!-- Verbatim (一字一句削除なし) -->
+    <details class="raw">
+      <summary>原文（削除なし・検証用）</summary>
+      <pre id="raw-pre" aria-label="Verbatim Source"></pre>
+    </details>
+  </main>
+
+  <div class="footer">© BEATを作る楽器 — Issue Pack HTML</div>
+
+  <!-- ✅ 情報全文（ここに“そのまま”埋め込み：一字一句削除なし） -->
+  <script id="source-md" type="text/plain">以下は、アップロードされた学習計画（「BEATを作る楽器 - 3ヶ月学習計画」）を、そのまま **Codex/コーディングエージェントに貼れる粒度**へ落とし込み、**GitHub Issues の束**として再構成した「詳細定義」です。
+
+---
+
+# GitHub Issue Pack: 「BEATを作る楽器」MVP（簡易ドラムマシン／ステップシーケンサ）
+
+> 目的：
+> **Pattern（パターン）→ Events（イベント列）→ AudioBuffer（音配列）→ WAV** のパイプラインを、標準ライブラリ中心で実装し、CLI から WAV を生成できる状態にする。
+> ※この Issue Pack は「型レンズ」(T_in/T_model/T_out/T_effect/T_error) の考え方で各タスクを明確化する。
+
+---
+
+## 使い方（このままCodexプロンプトに貼る前提のヘッダ）
+
+**エージェント向け共通ルール（全Issue共通）**
+
+* 実装言語：Python（推奨 3.11+）
+* 依存：原則 **標準ライブラリのみ**（dataclasses / typing / pathlib / wave / json / math / array / argparse / unittest 等）
+* 型ヒント必須、Public API は docstring をつける
+* “Functional core, imperative shell”：
+
+  * パース・変換・レンダリングは **副作用なし（純粋関数）** を基本
+  * I/O（ファイル読み書き）は境界に寄せる（wav書き出し・CLI）
+* テスト：unittest
+
+  * **EP（同値分割）**と **BVA（境界値）** を毎Issueに最低1本ずつ入れる
+
+---
+
+# Issue 0（EPIC）: MVP仕様確定（Codex Promptの核）
+
+**Title**: EPIC: 「BEATを作る楽器」MVP 仕様（型・入力フォーマット・API・非目標）
+**Labels**: `epic`, `spec`, `mvp`
+**Milestone**: `Week 0`（準備）
+
+## 背景
+
+本プロジェクトは、Beat世界を **Pattern→Events→AudioBuffer→WAV** のパイプラインとして扱い、学習・実装を「型レンズ」で整理する。
+
+## MVPで提供するもの（必須）
+
+1. **Patternテキスト** をパースして内部型 `Pattern` にする（A7/A8）
+2. `Pattern` から `Event` 列を生成する（A9）
+3. `Event` を合成して `AudioBuffer` を作り、WAVを書き出す（A13〜A18）
+4. CLIで `pattern.txt` から `out.wav` を生成できる（Week6/最終成果物）
+5. 例外/Resultなどの **失敗戦略を型として固定**し、テストで担保（A24）
+
+## MVPの非目標（明示的にやらない）
+
+* リアルタイム再生（標準ライブラリだけではOS依存が強いので除外）
+* GUI
+* 外部音源サンプル（.wav読み込み）※将来拡張にする
+* 高度な音響処理（EQ/コンプ等）
+
+## 用語（Glossary）
+
+* **Pattern**: 1小節（bar）相当のリズム定義（複数トラック）
+* **Track**: kick/snare/hihat などの打音レーン
+* **Step**: 小節を分割した格子点。例：16step（x---×4）
+* **Event**: 「時刻 + トラック + 速度(任意)」の抽象イベント
+* **Hit**: Eventをサンプル配置へ落としたもの（開始サンプル位置など）
+* **AudioBuffer**: float振幅の配列（のちにPCM16へ）
+
+## 実装の“固定”デフォルト（曖昧さ排除のためにここで決める）
+
+> 元資料に明示のない箇所は、MVPのために以下を**固定仕様**として採用する。
+
+* 拍子：`beats_per_bar = 4`（4/4固定）
+* サンプルレート：`sample_rate = 44100`
+* 量子化：`steps_per_bar = 16` をデフォルト
+
+  * ただし入力パターン文字列長が16でない場合も受理可能（= steps_per_bar は文字列長で決定）
+* bpm：整数、デフォルト `120`
+
+  * 受理範囲：`40 <= bpm <= 300`（範囲は設計判断。境界テストの題材にする）
+* 音はモノラル、16-bit PCM、WAV
+
+## Patternテキスト仕様（MVP）
+
+* 例（資料のサンプルを踏襲）
+
+  ```
+  bpm=120
+  kick:  x---x---x---x---
+  snare: ----x-------x---
+  hihat: x-x-x-x-x-x-x-x-
+  ```
+* ルール
+
+  * 空行は無視
+  * `bpm=INT` 行は任意（なければデフォルト bpm）
+  * トラック行は `name:` の後にパターン文字列
+  * パターン文字列の許可文字（MVP）
+
+    * `x` = ヒット
+    * `-` = 休符
+  * **すべてのトラックは同じ長さ**であること（違う場合はパースエラー）
+  * トラック名は `[a-zA-Z0-9_]+` を推奨（MVPは厳格にして良い）
+
+## 内部データモデル（提案）
+
+（コードはIssue実装で作る。ここは仕様の形状。）
+
+* `Pattern`
+
+  * `bpm: int`
+  * `beats_per_bar: int`（固定 4）
+  * `steps_per_bar: int`
+  * `tracks: dict[str, list[int]]`
+
+    * 値は「ヒットするstep indexの昇順リスト」（A7の成果物に寄せる）
+* `Event`
+
+  * `time_sec: float`
+  * `track: str`
+  * `step_index: int`
+  * `velocity: float = 1.0`（将来拡張）
+* `InstrumentSpec`
+
+  * `name: str`（kick/snare/hihat）
+  * `kind: Literal["kick","snare","hihat"]`（MVP3種固定でOK）
+  * `params: dict[str, float]`（任意）
+* `AudioBuffer`
+
+  * `sample_rate: int`
+  * `samples: array('f')`（float、レンダリング中は[-1,1]超えてもよい→最終で正規化/クリップ）
+* `Config`
+
+  * `sample_rate: int`
+  * `bpm: int`（Patternが持つが、CLI上書き用にConfigにも持たせてよい）
+  * `swing: float`（0.0〜0.5、MVPは0固定でもよいが型は用意）
+  * `instruments: dict[str, InstrumentSpec]`（track名→音色）
+
+## JSON 仕様（A19）
+
+* Pattern JSON（例）
+
+  ```json
+  {
+    "bpm": 120,
+    "beats_per_bar": 4,
+    "steps_per_bar": 16,
+    "tracks": {
+      "kick": [0,4,8,12],
+      "snare": [4,12],
+      "hihat": [0,2,4,6,8,10,12,14]
+    }
+  }
+  ```
+* Song JSON はMVPでは任意（Issueで後述）
+
+## 公開API（MVPの核）
+
+* `parse_pattern_text(text: str) -> Pattern`
+* `pattern_to_events(pattern: Pattern, swing: float = 0.0) -> Iterator[Event]`
+* `render_events_to_buffer(events: Iterable[Event], config: Config, duration_bars: int = 1) -> AudioBuffer`
+* `write_wav(path: Path, buffer: AudioBuffer) -> None`
+
+## エラー戦略（A24）
+
+* ユーザー入力に起因する失敗は **専用例外**で表現（例：`PatternParseError`, `ConfigError`）
+* 例外メッセージは「原因 + 期待する形式」を含める
+* 必要に応じて `Result[T]` も導入可（ただしMVPは例外中心でもOK）
+
+## 受け入れ条件（EPIC）
+
+* サンプルPatternテキストから `out.wav` を生成し、WAVヘッダが正しく書ける（waveで開ける）
+* 主要変換（bpm→秒、step→time→sample）がテストされている（BVA含む）
+* パース失敗が例外で明確に返る
+
+---
+
+# Issue 1: プロジェクト雛形・モジュール分割（Week6前倒し）
+
+**Title**: scaffold: パッケージ構成・モジュール骨格・テスト骨格
+**Labels**: `chore`, `scaffold`
+**Milestone**: `Week 6`（ただし早期にやる）
+
+## 型レンズ
+
+* T_in: なし
+* T_model: パッケージ設計
+* T_out: import可能なモジュール群 + unittest起動
+* T_effect: ファイル作成
+* T_error: なし
+
+## 詳細仕様
+
+* `beat_instrument/` パッケージを作る（名前は任意だが一貫）
+* 推奨構成：
+
+  * `beat_instrument/types.py`
+  * `beat_instrument/errors.py`
+  * `beat_instrument/tempo.py`
+  * `beat_instrument/parse.py`
+  * `beat_instrument/pattern_ops.py`
+  * `beat_instrument/events.py`
+  * `beat_instrument/audio/synth.py`
+  * `beat_instrument/audio/render.py`
+  * `beat_instrument/audio/wav.py`
+  * `beat_instrument/serialization.py`
+  * `beat_instrument/machine.py`
+  * `beat_instrument/cli.py`
+* `tests/` に unittest を配置し、`python -m unittest` で動く
+
+## 受け入れ条件
+
+* `python -m unittest` が0件でも成功する（骨格）
+* `from beat_instrument import ...` が通る
+
+---
+
+# Issue 2（A24）: エラー戦略の型設計（例外階層 + バリデーション）
+
+**Title**: A24: 失敗を型として固定する（例外設計 + validate関数）
+**Labels**: `feature`, `error-handling`
+**Milestone**: `Week 5`
+
+## 型レンズ
+
+* T_in: `Any`（ユーザー入力）
+* T_model: 純粋関数（validate系）
+* T_out: `None`（成功時） or 例外
+* T_effect: なし
+* T_error: `BeatInstrumentError`派生例外
+
+## 詳細仕様
+
+* `BeatInstrumentError(Exception)` を基底に、少なくとも：
+
+  * `PatternParseError(BeatInstrumentError, ValueError)`
+  * `ConfigError(BeatInstrumentError, ValueError)`
+  * `RenderError(BeatInstrumentError, RuntimeError)`
+* validate関数例：
+
+  * `validate_bpm(bpm: int) -> None`
+  * `validate_steps_per_bar(n: int) -> None`
+  * `validate_track_name(name: str) -> None`
+  * `validate_pattern_lengths(lengths: set[int]) -> None` など
+
+## 受け入れ条件
+
+* パース系のエラーが `PatternParseError` で統一される
+* エラーメッセージが「原因 + 期待形式」を含む
+
+## テスト（EP/BVA）
+
+* EP: 正常/空/不正文字/長さ不一致/トラック0 を最低1本ずつ（資料の例を踏襲）
+* BVA: bpm=0,1,39,40,300,301 相当（境界の例）
+
+---
+
+# Issue 3（A1）: bpm → sec_per_beat
+
+**Title**: A1: bpm -> sec_per_beat（テンポ基本変換）
+**Labels**: `feature`, `tempo`
+**Milestone**: `Week 1`
+
+## 型レンズ
+
+* T_in: `int bpm`
+* T_model: 純粋関数
+* T_out: `float sec_per_beat`
+* T_effect: なし
+* T_error: `ValueError` or `ConfigError`
+
+## 詳細仕様
+
+* `sec_per_beat = 60.0 / bpm`
+* bpm は Issue2 の validate を通す（範囲外は例外）
+
+## 受け入れ条件
+
+* bpm=120 → 0.5 秒/beat
+* bpm=60 → 1.0 秒/beat
+
+## テスト
+
+* BVA: bpm=40, 300（受理）、39,301（拒否）
+
+---
+
+# Issue 4（A2）: bpm → sec_per_step（steps_per_bar対応）
+
+**Title**: A2: bpm -> sec_per_step（小節分割対応）
+**Labels**: `feature`, `tempo`
+**Milestone**: `Week 1`
+
+## 型レンズ
+
+* T_in: `bpm:int`, `beats_per_bar:int=4`, `steps_per_bar:int`
+* T_model: 純粋関数
+* T_out: `float sec_per_step`
+* T_effect: なし
+* T_error: `ConfigError`
+
+## 詳細仕様
+
+* 小節長（秒） = `sec_per_beat * beats_per_bar`
+* `sec_per_step = bar_duration_sec / steps_per_bar`
+* 例：bpm=120, beats=4, steps=16
+
+  * bar=2.0 sec, step=0.125 sec
+
+## 受け入れ条件
+
+* 上記例が一致
+* steps_per_bar が0以下ならエラー
+
+## テスト
+
+* EP: steps_per_bar=16,32
+* BVA: steps_per_bar=1,0,-1
+
+---
+
+# Issue 5（A3〜A5）: step/time/sample 変換セット
+
+**Title**: A3/A4/A5: step_index -> time_sec -> sample_index / duration -> n_samples
+**Labels**: `feature`, `tempo`, `audio`
+**Milestone**: `Week 1`
+
+## 型レンズ
+
+* T_in: `step_index:int`, `sec_per_step:float`, `sample_rate:int`
+* T_model: 純粋関数
+* T_out: `float time_sec`, `int sample_index`, `int n_samples`
+* T_effect: なし
+* T_error: `ValueError` / `ConfigError`
+
+## 詳細仕様
+
+* A3: `time_sec = step_index * sec_per_step`
+* A4: `sample_index = round(time_sec * sample_rate)` を `int` 化
+
+  * 丸め規則を固定（`round`）し、テストで確認
+* A5: `n_samples = round(duration_sec * sample_rate)`
+
+## 受け入れ条件
+
+* step_index=0 → time=0
+* time=0.0 → sample_index=0
+* duration=1.0, sr=44100 → 44100
+
+## テスト
+
+* BVA: step_index=0,1,15,16,17（資料例）
+* EP: sample_rate=8000,44100
+
+---
+
+# Issue 6（A6）: Swing（タイミング調整）
+
+**Title**: A6: swing -> timing_adjust（偶数/奇数stepの遅延）
+**Labels**: `feature`, `tempo`, `swing`
+**Milestone**: `Week 12`
+
+## 型レンズ
+
+* T_in: `swing: float`, `step_index:int`, `sec_per_step:float`
+* T_model: 純粋関数
+* T_out: `float adjusted_time_sec`
+* T_effect: なし
+* T_error: `ConfigError`
+
+## 詳細仕様（MVPの固定仕様）
+
+* `swing` は `0.0 <= swing <= 0.5`
+* 調整規則：
+
+  * 偶数step（0,2,4...）はそのまま
+  * 奇数step（1,3,5...）は `+ swing * sec_per_step` 遅らせる
+
+    * swing=0.5 で最大半step遅延
+* 将来：3連符スウィング等は非MVP
+
+## 受け入れ条件
+
+* swing=0.0 なら全step調整なし
+* swing>0 で奇数stepだけ遅れる
+
+## テスト
+
+* BVA: swing=-0.01（拒否）, 0.0（OK）, 0.5（OK）, 0.51（拒否）
+
+---
+
+# Issue 7（A7）: track_line → list[int]（行パースの最小核）
+
+**Title**: A7: "kick: x---x---" -> [0,4,...]（トラック行→step index列）
+**Labels**: `feature`, `parser`
+**Milestone**: `Week 2`
+
+## 型レンズ
+
+* T_in: `str track_line`
+* T_model: 純粋関数
+* T_out: `tuple[str track_name, list[int] hits, int steps_per_bar]`
+* T_effect: なし
+* T_error: `PatternParseError`
+
+## 詳細仕様
+
+* 入力例：`kick:  x---x---x---x---`
+* パース結果：
+
+  * name=`kick`
+  * hits=`[0,4,8,12]`
+  * steps_per_bar=16
+* 許可文字：`x` と `-` のみ
+* それ以外の文字はエラー（どの位置で何がダメかをメッセージに含める）
+
+## 受け入れ条件
+
+* 正常行が正しく parse できる
+* `:` がない、nameが空、patternが空、禁止文字がある場合にエラー
+
+## テスト（EP/BVA）
+
+* EP: 正常/禁止文字/空パターン/コロン無し
+* BVA: steps_per_bar=1（`x`）, 16, 17（長さの扱い確認）
+
+---
+
+# Issue 8（A8）: pattern_text → Pattern（複数行パース）
+
+**Title**: A8: pattern_text -> Pattern dataclass（bpm行 + 複数トラック整合）
+**Labels**: `feature`, `parser`, `types`
+**Milestone**: `Week 2`
+
+## 型レンズ
+
+* T_in: `str pattern_text`
+* T_model: 純粋関数
+* T_out: `Pattern`
+* T_effect: なし
+* T_error: `PatternParseError`
+
+## 詳細仕様
+
+* 入力全体から：
+
+  * bpm行があれば読み取る（例：`bpm=120`）
+  * トラック行をすべてA7で解釈
+* すべてのトラックの `steps_per_bar` が一致しない場合はエラー
+* トラック0件はエラー（資料のEPに沿う）
+
+## 受け入れ条件
+
+* サンプルパターンが `Pattern(tracks={"kick":[...],...}, steps_per_bar=16, bpm=120)` になる
+* 長さ不一致は必ず検出する
+
+## テスト（EP/BVA）
+
+* EP:
+
+  * 正常
+  * 空テキスト
+  * bpm行だけ
+  * 長さ不一致
+  * track0
+* BVA: bpm境界（Issue2同様）
+
+---
+
+# Issue 9（A11）: Pattern → Pattern（変換：shift/mute）
+
+**Title**: A11: Pattern -> Pattern（シフト・ミュート・簡易変換）
+**Labels**: `feature`, `pattern`
+**Milestone**: `Week 3`
+
+## 型レンズ
+
+* T_in: `Pattern`, `op params`
+* T_model: 純粋関数
+* T_out: `Pattern`
+* T_effect: なし
+* T_error: `ValueError`
+
+## 詳細仕様（MVPで必須の変換）
+
+* `shift_track(pattern, track: str, delta_steps: int) -> Pattern`
+
+  * step index を `(i + delta_steps) % steps_per_bar` で回す
+* `mute_track(pattern, track: str) -> Pattern`
+
+  * hits を空にする
+* 存在しないtrack指定はエラー（もしくは無視、どちらか固定。MVPはエラー推奨）
+
+## 受け入れ条件
+
+* shift が循環し、範囲外にならない
+* mute で hits が空
+
+## テスト
+
+* BVA: delta_steps=0,1,steps_per_bar-1,steps_per_bar, -1
+
+---
+
+# Issue 10（A12）: list[Event] → dict[track, list]
+
+**Title**: A12: events -> group_by_track（イベントのグルーピング）
+**Labels**: `feature`, `events`
+**Milestone**: `Week 3`
+
+## 型レンズ
+
+* T_in: `Iterable[Event]`
+* T_model: 純粋関数
+* T_out: `dict[str, list[Event]]`
+* T_effect: なし
+* T_error: なし
+
+## 詳細仕様
+
+* track名で `Event` をまとめる
+* 同一track内の順序は time_sec 昇順にする（必要なら sort）
+
+## 受け入れ条件
+
+* 3トラックが正しくdictに分かれる
+
+## テスト
+
+* EP: 空入力、単一入力、複数入力
+
+---
+
+# Issue 11（A9）: Pattern → Iterator[Event]
+
+**Title**: A9: Pattern -> Iterator[Event]（イベント生成ジェネレータ）
+**Labels**: `feature`, `events`
+**Milestone**: `Week 4`
+
+## 型レンズ
+
+* T_in: `Pattern`, `swing: float=0.0`
+* T_model: ジェネレータ（副作用なし）
+* T_out: `Iterator[Event]`
+* T_effect: なし
+* T_error: `ValueError`/`ConfigError`
+
+## 詳細仕様
+
+* 各トラックの hit step を `Event(time_sec, track, step_index)` に変換
+* time_sec は Issue4/5（sec_per_step / step→time）に従う
+* swingは Issue6 の調整を適用
+
+## 受け入れ条件
+
+* サンプルパターンで Event が期待数生成される
+
+  * kick 4、snare 2、hihat 8 → 合計14
+* time_sec が単調増加（track混在でも全体ソートするか、生成順仕様を固定）
+
+  * MVPは「time_sec昇順でyield」推奨
+
+## テスト
+
+* EP: track数1/複数、steps_per_bar=16/8
+* BVA: step_index=0,steps_per_bar-1
+
+---
+
+# Issue 12（A10）: Event → Hit（サンプル配置の準備）
+
+**Title**: A10: Event -> Hit（開始サンプル位置へ変換）
+**Labels**: `feature`, `audio`, `events`
+**Milestone**: `Week 4`
+
+## 型レンズ
+
+* T_in: `Event`, `sample_rate:int`, `total_length_samples:int`
+* T_model: 純粋関数
+* T_out: `Hit`
+* T_effect: なし
+* T_error: `RenderError`
+
+## 詳細仕様（提案Hit）
+
+* `Hit(track: str, start_sample: int, velocity: float, total_length_samples: int)`
+* `start_sample` は Issue5（time→sample）で決定
+* start_sample が範囲外（負/total超え）はエラー
+
+## 受け入れ条件
+
+* time_sec=0 → start_sample=0
+* time_sec=1.0,sr=44100 → start_sample=44100
+
+## テスト
+
+* BVA: start_sample=0,total-1,total,total+1
+
+---
+
+# Issue 13（A13）: InstrumentSpec → Sample（最小音色合成）
+
+**Title**: A13: InstrumentSpec -> Sample（kick/snare/hihat合成）
+**Labels**: `feature`, `audio`, `synth`
+**Milestone**: `Week 7-8`
+
+## 型レンズ
+
+* T_in: `InstrumentSpec`, `sample_rate:int`
+* T_model: 純粋関数（乱数を使う場合はseed引数で制御）
+* T_out: `AudioBuffer`（=短いサンプル）
+* T_effect: なし
+* T_error: `RenderError`
+
+## 詳細仕様（MVP合成アルゴリズム案）
+
+* 共通：ADエンベロープ（Attack/Decay）を掛ける
+* kick：
+
+  * 周波数を短時間で下げるサイン波（例：100→50Hz）+指数減衰
+* snare：
+
+  * ノイズ（random.uniform(-1,1)）+短い減衰（必要なら低域に少しサイン）
+* hihat：
+
+  * ノイズ + 超短い減衰（0.03〜0.08 sec程度）
+* それぞれ duration（秒）を固定（例：kick 0.25s / snare 0.2s / hihat 0.08s）
+* 生成サンプルは AudioBuffer（samples float）で返す
+
+## 受け入れ条件
+
+* 各音色が所定の長さで生成される
+* 最大振幅が極端に大きくならない（|x| <= 2 などの上限でもOK、後段で正規化）
+
+## テスト
+
+* EP: 3種類生成できる
+* BVA: duration=0（拒否）, sample_rate=1（拒否）
+
+---
+
+# Issue 14（A14）: Hit + Sample → AudioBuffer（配置）
+
+**Title**: A14: place_sample(Hit, Sample) -> AudioBuffer（ヒット配置）
+**Labels**: `feature`, `audio`, `render`
+**Milestone**: `Week 9`
+
+## 型レンズ
+
+* T_in: `Hit`, `sample: AudioBuffer`
+* T_model: 純粋関数
+* T_out: `AudioBuffer`（total_length_samples 長）
+* T_effect: なし
+* T_error: `RenderError`
+
+## 詳細仕様
+
+* 出力は `total_length_samples` 長の無音バッファを作り、`start_sample` 位置に sample を足し込む
+* sample が末尾をはみ出す場合は切り捨て（またはエラー。MVPは切り捨て推奨）
+
+## 受け入れ条件
+
+* start_sample=0 で先頭から鳴る
+* start_sample=total-1 でも安全（1サンプルだけ置ける/切り捨て）
+
+## テスト
+
+* BVA: はみ出し（start_sample=total-1, sample_len=10）
+
+---
+
+# Issue 15（A15）: list[AudioBuffer] → AudioBuffer（ミックス）
+
+**Title**: A15: mix(buffers) -> AudioBuffer（加算合成）
+**Labels**: `feature`, `audio`, `mix`
+**Milestone**: `Week 9`
+
+## 型レンズ
+
+* T_in: `list[AudioBuffer]`
+* T_model: 純粋関数
+* T_out: `AudioBuffer`
+* T_effect: なし
+* T_error: `RenderError`
+
+## 詳細仕様
+
+* 全バッファの sample_rate が一致していること
+* 長さが一致していること（不一致はエラー or 最長に合わせて0埋め。MVPはエラー推奨）
+* サンプルごとに総和する
+
+## 受け入れ条件
+
+* 2つのバッファを足すと各サンプルが足し算になる
+
+## テスト
+
+* EP: 空リスト（無音を返す or エラー。仕様固定）
+* BVA: 1件、2件、多件
+
+---
+
+# Issue 16（A16）: AudioBuffer → AudioBuffer（正規化/クリップ戦略）
+
+**Title**: A16: normalize/clip（振幅処理）
+**Labels**: `feature`, `audio`, `postprocess`
+**Milestone**: `Week 8`
+
+## 型レンズ
+
+* T_in: `AudioBuffer`
+* T_model: 純粋関数
+* T_out: `AudioBuffer`
+* T_effect: なし
+* T_error: なし
+
+## 詳細仕様（MVPで最低限）
+
+* `normalize_peak(buffer, target_peak=0.95)`：
+
+  * peak = max(abs(x))
+  * peak==0 ならそのまま
+  * スケール係数 = target_peak/peak
+* `clip(buffer, limit=1.0)`：
+
+  * x を [-limit, limit] に丸める
+* 実行順を固定：`normalize_peak` → `clip`
+
+## 受け入れ条件
+
+* 過大な振幅が最終的に [-1,1] に収まる
+
+## テスト
+
+* EP: 無音/ピークあり
+* BVA: peak=0, peak=1, peak>1
+
+---
+
+# Issue 17（A17）: AudioBuffer → bytes(pcm16)
+
+**Title**: A17: float samples -> PCM16 bytes（WAV用エンコード）
+**Labels**: `feature`, `audio`, `io`
+**Milestone**: `Week 7`
+
+## 型レンズ
+
+* T_in: `AudioBuffer`
+* T_model: 純粋関数
+* T_out: `bytes`
+* T_effect: なし
+* T_error: `RenderError`
+
+## 詳細仕様
+
+* 入力は最終的に [-1.0, 1.0] に収まっている前提（Issue16）
+* `int16 = round(x * 32767)`（-1.0は-32767か-32768か、仕様を固定してテスト）
+
+  * 推奨：-1.0 → -32768、1.0 → 32767 にクリップしてからpack
+* `struct.pack('<h', int16)` を連結（または array('h') でまとめて bytes化）
+
+## 受け入れ条件
+
+* 長さが `n_samples * 2` バイト
+* 0.0 は 0 になる
+
+## テスト
+
+* BVA: x=-1.0, -0.9999, 0.0, 0.9999, 1.0
+
+---
+
+# Issue 18（A18）: bytes → Path(.wav)（wave書き出し）
+
+**Title**: A18: write_wav(Path, pcm_bytes, sample_rate)（標準wave）
+**Labels**: `feature`, `audio`, `io`
+**Milestone**: `Week 7`
+
+## 型レンズ
+
+* T_in: `Path`, `AudioBuffer` or `bytes`
+* T_model: 手続き（I/O）
+* T_out: `Path`
+* T_effect: ファイルI/O
+* T_error: `OSError` / `RenderError`
+
+## 詳細仕様
+
+* `wave` モジュールで
+
+  * nchannels=1
+  * sampwidth=2
+  * framerate=sample_rate
+* 生成したwavを `wave.open` で読み直してヘッダ検証するテストを入れる
+
+## 受け入れ条件
+
+* 書いたWAVが `wave.open` で開け、フレーム数が一致する
+
+## テスト
+
+* EP: 無音1秒を書いて読み直す
+
+---
+
+# Issue 19（A19）: dict/json ↔ Pattern（保存と復元）
+
+**Title**: A19: Pattern <-> dict/json（永続化）
+**Labels**: `feature`, `serialization`
+**Milestone**: `Week 10`
+
+## 型レンズ
+
+* T_in: `Pattern` / `dict` / `str(json)`
+* T_model: 純粋関数
+* T_out: `dict` / `Pattern` / `str`
+* T_effect: なし（ファイル保存はCLIでやってもよい）
+* T_error: `ValueError` / `PatternParseError`
+
+## 詳細仕様
+
+* `pattern_to_dict(pattern) -> dict`
+* `pattern_from_dict(d: dict) -> Pattern`（バリデーション必須）
+* `pattern_to_json(pattern) -> str`
+* `pattern_from_json(text) -> Pattern`
+
+## 受け入れ条件
+
+* round-trip で等価（tracksの順序は問わないが値が一致）
+
+## テスト
+
+* EP: サンプルパターンで round-trip
+* BVA: 欠損キー、型違い（bpmが文字列等）
+
+---
+
+# Issue 20（A20）: Config → BeatMachine（DI前提の組み立て）
+
+**Title**: A20: Config -> BeatMachine（依存性注入しやすい構造）
+**Labels**: `feature`, `architecture`
+**Milestone**: `Week 11`
+
+## 型レンズ
+
+* T_in: `Config`
+* T_model: クラス生成
+* T_out: `BeatMachine`
+* T_effect: なし
+* T_error: `ConfigError`
+
+## 詳細仕様（MVP BeatMachine）
+
+* `BeatMachine(config: Config)`
+* メソッド
+
+  * `render_pattern(pattern: Pattern, out_path: Path | None = None) -> AudioBuffer`
+  * `render_to_wav(pattern: Pattern, out_path: Path) -> Path`（I/Oはここ or wavモジュールへ）
+* DIポイント
+
+  * `synth_provider(track_name)->AudioBuffer` の差し替え可能性（テストでモックしやすく）
+
+## 受け入れ条件
+
+* ConfigとPatternを渡してAudioBufferが返る
+
+---
+
+# Issue 21（A21）: BeatMachine.render → AudioBuffer（統合パイプライン）
+
+**Title**: A21: BeatMachine.render = parse→events→hits→mix→normalize
+**Labels**: `feature`, `integration`
+**Milestone**: `Week 11`
+
+## 型レンズ
+
+* T_in: `Pattern`, `Config`
+* T_model: パイプライン合成
+* T_out: `AudioBuffer`
+* T_effect: なし（wav書き出しは別関数でもOK）
+* T_error: `BeatInstrumentError` いずれか
+
+## 詳細仕様
+
+* この順で呼ぶ（MVP固定）：
+
+  1. tempo計算（sec_per_step等）
+  2. events生成（A9 + swing）
+  3. event→hit（A10）
+  4. instrument sample生成（A13） ※トラックごとにキャッシュ可
+  5. hit配置（A14）
+  6. mix（A15）
+  7. normalize/clip（A16）
+* duration（総サンプル長）は pattern 1bar から計算：
+  `bar_duration_sec = sec_per_step * steps_per_bar`
+  `total_length_samples = round(bar_duration_sec * sample_rate)`
+
+## 受け入れ条件
+
+* サンプルパターンで out.wav 生成まで通る（Issue18と合わせて）
+
+## テスト
+
+* 統合テスト：サンプルパターン→wav→waveで読める
+
+---
+
+# Issue 22（A23）: Song → Iterator[Event]（アレンジ）
+
+**Title**: A23: Song（複数Pattern/小節連結）→ Event列
+**Labels**: `feature`, `song`, `events`
+**Milestone**: `Week 12`
+
+## 型レンズ
+
+* T_in: `Song`
+* T_model: ジェネレータ
+* T_out: `Iterator[Event]`
+* T_effect: なし
+* T_error: `ValueError`
+
+## 詳細仕様（MVP案）
+
+* `Song` を以下のいずれかで定義（どちらか固定）：
+
+  1. `list[Pattern]`（各Pattern=1小節）
+  2. `list[SongSection(pattern: Pattern, bars: int)]`
+* event生成時に小節オフセットを加算：
+
+  * `time_sec += bar_index * bar_duration_sec`
+* BPMが小節ごとに違う場合は非MVP（まずはSong内bpm固定 or セクションごと固定）
+
+## 受け入れ条件
+
+* 2小節Songで Event の時刻が後半で +bar_duration される
+
+## テスト
+
+* EP: 1小節/2小節/0小節（エラーか無音か仕様固定）
+
+---
+
+# Issue 23（A22）: State + Command → State（編集コマンド）
+
+**Title**: A22: 編集コマンド状態機械（Pattern編集を純粋関数で）
+**Labels**: `feature`, `editor`
+**Milestone**: `Week 12`
+
+## 型レンズ
+
+* T_in: `State`, `Command`
+* T_model: 純粋関数（状態遷移）
+* T_out: `State`
+* T_effect: なし
+* T_error: `ValueError`
+
+## 詳細仕様（MVPコマンドセット）
+
+* `State` は最低 `pattern: Pattern` を持つ
+* `Command`（dataclass or TypedDict）例：
+
+  * `AddHit(track:str, step:int)`
+  * `RemoveHit(track:str, step:int)`
+  * `ShiftTrack(track:str, delta:int)`
+  * `MuteTrack(track:str)`
+  * `SetBpm(bpm:int)`
+  * `SetSwing(swing:float)`
+* `apply_command(state, cmd) -> state` を実装
+* 無効step/track はエラー（または無視。MVPはエラー推奨）
+
+## 受け入れ条件
+
+* Add→Remove が可逆に動く
+* Shift/Mute/SetBpm が反映される
+
+## テスト
+
+* BVA: step=-1,0,steps_per_bar-1,steps_per_bar
+
+---
+
+# Issue 24（CLI）: CLI（pattern→wav） + README
+
+**Title**: CLI: patternファイル入力→WAV出力、READMEに最小デモ
+**Labels**: `feature`, `cli`, `docs`
+**Milestone**: `Week 6` + `Final`
+
+## 型レンズ
+
+* T_in: コマンドライン引数、ファイルPath
+* T_model: 手続き（I/O境界）
+* T_out: `out.wav`
+* T_effect: ファイルI/O
+* T_error: 例外→stderr表示、exit code !=0
+
+## CLI仕様（MVP固定）
+
+* 例：
+
+  * `python -m beat_instrument --in pattern.txt --out out.wav`
+* オプション：
+
+  * `--bpm 120`（pattern内bpmより優先）
+  * `--swing 0.0`
+  * `--sample-rate 44100`
+  * `--json-in pattern.json`（A19対応、どちらか指定）
+* ログは `logging`（任意）
+
+## README（最低限）
+
+* サンプルパターン（資料の例）
+* 実行例
+* 生成物 out.wav の説明（Input→Model→Output を簡単に説明：資料の最終Day90狙い）
+
+## 受け入れ条件
+
+* READMEの手順で out.wav が生成できる
+* 入力不正時に分かりやすいエラーが出る
+
+---
+
+## 追加の「小さめIssue」（任意だが品質が上がる）
+
+必要なら以下もIssue化してよい（ただしMVP必須ではない）。
+
+* **Issue 25**: 「クリックの予定表」生成（Week1 Day5/6相当：step時刻表を出す）
+* **Issue 26**: テスト自動化（EP→BVAのテンプレ化、テストデータ生成）
+* **Issue 27**: JSONでSong保存/復元（A19拡張）
+
+---
+
+# 仕上げ：このIssue PackをCodexプロンプトとして使う場合の貼り方
+
+Codex/エージェントに渡す時は、**Issue 0 を先頭**に置き、その後に Issue 1〜24 を貼るだけでOKです。
+特に Issue 0 の「固定デフォルト」「Patternテキスト仕様」「公開API」を最初に読ませるのが重要です。
+
+---
+
+必要なら、このIssue Packを **GitHubにそのまま貼りやすい JSON（title/body/labels/milestone）形式**にも変換して出せます（ただ、あなたの要望どおり確認質問はせず、現仕様のまま機械投入用に整形します）。</script>
+
+  <!-- ✅ Marked (Markdown -> HTML) -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <!-- ✅ KaTeX core + auto-render -->
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkF6bS3b9Hc7pWqR5gYcGm2k3rYJg1b3j5l7n8lK9n1b2c3d4e5f6g7h8i9" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XkKj6rZrJ6aJp3Qy2oJvQqgO3mQyqgH1V8o2u8m2b2m2m2m2m2m2m2" crossorigin="anonymous"></script>
+
+  <script>
+    (function () {
+      const sourceEl = document.getElementById('source-md');
+      const md = sourceEl ? sourceEl.textContent : '';
+      const rendered = document.getElementById('rendered');
+      const rawPre = document.getElementById('raw-pre');
+
+      if (rawPre) rawPre.textContent = md;
+
+      // Render Markdown -> HTML
+      if (window.marked && rendered) {
+        marked.setOptions({
+          gfm: true,
+          breaks: false,
+          mangle: false,
+          headerIds: true
+        });
+        rendered.innerHTML = marked.parse(md);
+      }
+
+      // --- KaTeX: inline-code "formulas" -> KaTeX (monospace) ---
+      // Policy:
+      // - Inline <code> (NOT in <pre>) is treated as "math-ish" if it contains operators.
+      // - Render as \texttt{...} with escaping, so underscores etc never break.
+      function texEscapeTexttt(s) {
+        // Escape TeX special chars in a conservative way.
+        return String(s)
+          .replace(/\\/g, '\\\\textbackslash{}')
+          .replace(/[{}]/g, function (m) { return '\\' + m; })
+          .replace(/_/g, '\\_')
+          .replace(/\^/g, '\\textasciicircum{}')
+          .replace(/~/g, '\\textasciitilde{}')
+          .replace(/%/g, '\\%')
+          .replace(/\$/g, '\\$')
+          .replace(/#/g, '\\#')
+          .replace(/&/g, '\\&');
+      }
+
+      function shouldKatexifyInlineCode(codeEl) {
+        if (!codeEl) return false;
+        if (codeEl.closest('pre')) return false; // keep fenced code blocks as code
+        const s = codeEl.textContent || '';
+        // "数式"っぽいもの（等号/不等号/矢印/演算子）を優先
+        return /<=|>=|->|=/.test(s);
+      }
+
+      function katexifyInlineCode() {
+        if (!rendered || !window.katex) return;
+        const codes = rendered.querySelectorAll('code');
+        codes.forEach((codeEl) => {
+          if (!shouldKatexifyInlineCode(codeEl)) return;
+
+          const raw = codeEl.textContent || '';
+          const span = document.createElement('span');
+          span.className = 'katex-inline-code';
+          span.setAttribute('data-raw', raw);
+          span.title = raw;
+
+          const latex = '\\texttt{' + texEscapeTexttt(raw) + '}';
+          try {
+            katex.render(latex, span, { throwOnError: false, displayMode: false });
+            // Keep the literal text for screen readers (no deletion guarantee in DOM)
+            const sr = document.createElement('span');
+            sr.className = 'sr-only';
+            sr.textContent = raw;
+            span.appendChild(sr);
+
+            codeEl.replaceWith(span);
+          } catch (e) {
+            // fallback: do nothing
+          }
+        });
+      }
+
+      // Render KaTeX after KaTeX loads (defer scripts)
+      function runKatexPipeline() {
+        katexifyInlineCode();
+
+        // Auto-render for explicit delimiters (pre内/外を無視しない設定)
+        if (window.renderMathInElement && rendered) {
+          renderMathInElement(rendered, {
+            delimiters: [
+              { left: '$$', right: '$$', display: true },
+              { left: '$', right: '$', display: false },
+              { left: '\\(', right: '\\)', display: false },
+              { left: '\\[', right: '\\]', display: true }
+            ],
+            // pre/codeも対象にする（要件：preコード内も外も）
+            ignoredTags: ['script','noscript','style','textarea','option'],
+            throwOnError: false
+          });
+        }
+      }
+
+      // Wait for KaTeX scripts
+      let tries = 0;
+      const timer = setInterval(() => {
+        tries++;
+        if (window.katex && (window.renderMathInElement || tries > 50)) {
+          clearInterval(timer);
+          runKatexPipeline();
+        }
+      }, 50);
+    })();
+  </script>
+</body>
+</html>

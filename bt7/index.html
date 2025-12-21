@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BEAT楽器トレーニング計画 - ポップアートスタイル</title>
+    <link rel="stylesheet" href="pop3_style.css">
+    <!-- KaTeX CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+    <!-- 追加のカラフルスタイル -->
+    <style>
+        :root {
+            /* カラーパレット - ポップアート風 */
+            --pop-primary: #ff4081;
+            --pop-secondary: #1e90ff;
+            --pop-accent: #ffdd57;
+            --pop-dark: #333333;
+            --pop-light: #ffffff;
+            --pop-success: #00c853;
+            --pop-warning: #ff9100;
+            --pop-danger: #ff1744;
+            --pop-info: #00b0ff;
+            
+            /* コントラスト確保のための明るさ/暗さ調整 */
+            --text-on-dark: #ffffff;
+            --text-on-light: #333333;
+            --text-on-accent: #333333;
+        }
+        
+        /* カラーテーマを適用 */
+        body {
+            background: linear-gradient(135deg, var(--pop-accent) 0%, #ffcc00 100%);
+            color: var(--pop-dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            background-color: var(--pop-light);
+            border: 5px solid var(--pop-primary);
+        }
+        
+        h1, h2, h3, h4 {
+            color: var(--pop-primary);
+        }
+        
+        /* カラフルなセクション */
+        .section-milestone {
+            background: linear-gradient(90deg, var(--pop-info) 0%, #00e5ff 100%);
+            color: var(--text-on-dark);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 8px solid var(--pop-secondary);
+        }
+        
+        .section-issue {
+            background: linear-gradient(90deg, #f8f9fa 0%, #ffffff 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 25px 0;
+            border: 3px solid var(--pop-secondary);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .section-issue:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            border-color: var(--pop-primary);
+        }
+        
+        .issue-label {
+            display: inline-block;
+            padding: 5px 12px;
+            margin: 0 5px 5px 0;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+        
+        .label-epic { background-color: var(--pop-primary); }
+        .label-feature { background-color: var(--pop-success); }
+        .label-bug { background-color: var(--pop-danger); }
+        .label-test { background-color: var(--pop-warning); }
+        .label-docs { background-color: var(--pop-info); }
+        .label-refactor { background-color: #9c27b0; }
+        
+        /* B1-B10 ラベル用の色 */
+        .label-b1 { background-color: #ff5722; }
+        .label-b2 { background-color: #ff9800; }
+        .label-b3 { background-color: #ffc107; }
+        .label-b4 { background-color: #8bc34a; }
+        .label-b5 { background-color: #4caf50; }
+        .label-b6 { background-color: #009688; }
+        .label-b7 { background-color: #00bcd4; }
+        .label-b8 { background-color: #2196f3; }
+        .label-b9 { background-color: #3f51b5; }
+        .label-b10 { background-color: #673ab7; }
+        .label-good-first { background-color: #e91e63; }
+        
+        /* テーブルスタイル */
+        table {
+            border: 3px solid var(--pop-dark);
+            margin: 20px 0;
+            background-color: white;
+        }
+        
+        th {
+            background-color: var(--pop-primary);
+            color: var(--text-on-dark);
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        td {
+            border-color: var(--pop-dark);
+        }
+        
+        tr:nth-child(even) {
+            background-color: rgba(255, 64, 129, 0.1);
+        }
+        
+        /* コードブロックのスタイル */
+        pre {
+            background: linear-gradient(90deg, #2d3436 0%, #1a1a1a 100%);
+            color: #00ff9d;
+            border: 2px solid var(--pop-secondary);
+            border-left: 8px solid var(--pop-secondary);
+        }
+        
+        /* 数式コンテナ */
+        .math-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 2px dashed var(--pop-primary);
+        }
+        
+        /* ヘッダーのアニメーション強化 */
+        header {
+            background: linear-gradient(90deg, var(--pop-primary) 0%, #ff0066 100%);
+            letter-spacing: 2px;
+        }
+        
+        /* フッターのスタイル */
+        .footer {
+            background: linear-gradient(90deg, var(--pop-primary) 0%, #ff0066 100%);
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        
+        /* レスポンシブ調整 */
+        @media (max-width: 768px) {
+            .section-issue {
+                padding: 15px;
+                margin: 15px 0;
+            }
+            
+            .issue-label {
+                font-size: 0.8rem;
+                padding: 4px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        GitHub Issues Backlog: Python「BEAT楽器」(ミニ・ドラムマシン)
+    </header>
+    
+    <div class="container">
+        <h1>BEAT楽器トレーニング計画</h1>
+        
+        <div class="math-container">
+            <p><strong>時間解像度の計算式:</strong></p>
+            <p>1ステップの秒数: \(\text{step\_sec} = \frac{60}{\text{bpm} \times 4}\)</p>
+            <p>1小節の秒数: \(\text{bar\_sec} = 16 \times \text{step\_sec} = \frac{60 \times 16}{\text{bpm} \times 4} = \frac{240}{\text{bpm}}\)</p>
+        </div>
+        
+        <div class="section-milestone">
+            <h2>共通仕様（全Issue共通の契約）</h2>
+            
+            <h3>ゴール（最終成果物）</h3>
+            <ul>
+                <li>入力（パターンファイル）→ モデル化 → スケジューリング → レンダリング → 出力</li>
+                <li><strong>WAVファイル</strong>（例: <code>beat.wav</code>）</li>
+                <li><strong>ASCII可視化</strong>（標準出力）</li>
+            </ul>
+            
+            <h3>制約（E）</h3>
+            <ul>
+                <li><strong>Python標準ライブラリ中心</strong>（OK例: <code>dataclasses</code>, <code>wave</code>, <code>math</code>, <code>pathlib</code>, <code>argparse</code>, <code>typing</code>, <code>random</code>, <code>unittest</code>）</li>
+                <li><strong>外部依存なし</strong>（実行時）</li>
+                <li>初心者でも読みやすい：短い関数、型ヒント、明確な例外、Docstring</li>
+            </ul>
+            
+            <h3>観点（S）＝設計軸（Issue記載の型）</h3>
+            <p>各Issueでは可能なら以下を明記して設計する（資料の観点をそのまま採用）</p>
+            <ul>
+                <li><code>InputType</code>（入力型）</li>
+                <li><code>ModelType</code>（内部モデル型）</li>
+                <li><code>ProcessType</code>（処理の型）</li>
+                <li><code>OutputType</code>（出力型）</li>
+            </ul>
+        </div>
+        
+        <h2>入力ファイル仕様（MVP）</h2>
+        <p>例（最小）:</p>
+        <pre><code>bpm=120
+K:x---x---x---x---
+S:----x-------x---
+H:x-x-x-x-x-x-x-x-</code></pre>
+        
+        <h3>ルール（MVPの確定仕様）</h3>
+        <ul>
+            <li><code>bpm=&lt;int&gt;</code> が1行（先頭推奨、ただし順不同でもよい）</li>
+            <li>トラック行：<code>&lt;InstrumentID&gt;:&lt;Pattern&gt;</code>
+                <ul>
+                    <li><code>InstrumentID</code> は <code>K</code>, <code>S</code>, <code>H</code> を <strong>必須対応</strong>（Kick/Snare/Hat）</li>
+                    <li><code>Pattern</code> は <strong>長さ16固定</strong></li>
+                    <li>文字は <code>x</code>（ヒット）と <code>-</code>（休符）のみ（MVP）</li>
+                </ul>
+            </li>
+            <li>空行は無視してよい</li>
+            <li>余計な空白は左右トリムしてよい</li>
+        </ul>
+        
+        <h2>時間解像度（MVP）</h2>
+        <ul>
+            <li>16ステップ = 1小節（16分音符相当）</li>
+            <li>1ステップ秒数：<code>step_sec = 60 / bpm / 4</code>（資料の定義を採用）</li>
+        </ul>
+        
+        <h2>波形（MVP）</h2>
+        <ul>
+            <li>内部表現：<code>list[float]</code>（-1.0〜1.0）</li>
+            <li>WAV出力：16bit PCM（mono）</li>
+        </ul>
+        
+        <h2>エラー戦略（MVP）</h2>
+        <ul>
+            <li>入力不正は <strong>例外で落とす</strong>
+                <ul>
+                    <li><code>ValueError</code> を基本</li>
+                    <li>メッセージは「どの行の何がダメか」を含める</li>
+                </ul>
+            </li>
+        </ul>
+        
+        <div class="section-milestone">
+            <h2>Milestones（推奨）</h2>
+            <ul>
+                <li><strong>M0: 基盤</strong>（リポジトリ/構造/モデル）</li>
+                <li><strong>M1: Parser & Validate</strong>（B1〜B3 + Day4のRefine）</li>
+                <li><strong>M2: Schedule & Visualize</strong>（B4, B5）</li>
+                <li><strong>M3: Audio Core</strong>（B6〜B8）</li>
+                <li><strong>M4: Pipeline & CLI</strong>（B9〜B10）</li>
+                <li><strong>M5: Tests & Docs</strong>（品質/使い方）</li>
+            </ul>
+        </div>
+        
+        <div class="section-milestone">
+            <h2>Labels（推奨）</h2>
+            <ul>
+                <li><span class="issue-label label-epic">epic</span>, <span class="issue-label label-feature">feature</span>, <span class="issue-label label-bug">bug</span>, <span class="issue-label label-test">test</span>, <span class="issue-label label-docs">docs</span>, <span class="issue-label label-refactor">refactor</span></li>
+                <li><span class="issue-label label-b1">B1</span>〜<span class="issue-label label-b10">B10</span>（等価クラス番号をラベル化）</li>
+                <li><span class="issue-label label-good-first">good first issue</span>（初学者向け）</li>
+            </ul>
+        </div>
+        
+        <h1>Issueテンプレ（コピペ用）</h1>
+        
+        <!-- BEAT-00 Issue -->
+        <div class="section-issue character">
+            <h2>BEAT-00: [EPIC] Python BEAT楽器（型付き変換パイプライン）実装</h2>
+            <p><strong>Labels</strong>: <span class="issue-label label-epic">epic</span></p>
+            <p><strong>Milestone</strong>: M0〜M5</p>
+            
+            <h3>背景 / 目的</h3>
+            <p>「ビート楽器」を <strong>型を選ぶ→変換を合成する</strong> という骨格で実装する。
+            パイプラインは <code>Path → Song → Hits → Wave(float) → WAV Path</code> を最小構成で完成させる。</p>
+            
+            <h3>スコープ（IN）</h3>
+            <ul>
+                <li>パターンファイル入力</li>
+                <li>BPM/トラックのパースと検証</li>
+                <li>16ステップ格子 → Hitイベント列</li>
+                <li>簡易音色（Kick/Snare/Hat）生成</li>
+                <li>ミキシング + WAV保存</li>
+                <li>CLI（コマンド一発で <code>beat.wav</code> 生成）</li>
+            </ul>
+            
+            <h3>スコープ（OUT / 非目標）</h3>
+            <ul>
+                <li>GUI</li>
+                <li>MIDI対応</li>
+                <li>本格的シンセ/エフェクト</li>
+                <li>複雑な拍子/スイング/可変ステップ</li>
+                <li>多チャンネルステレオ</li>
+            </ul>
+            
+            <h3>Definition of Done（EPIC完了条件）</h3>
+            <ul>
+                <li>例の <code>pattern.txt</code> から <code>beat.wav</code> が生成できる</li>
+                <li>生成前にASCII可視化が出る</li>
+                <li>不正入力（BPM0、長さ15/17、禁止文字など）で明確な例外</li>
+                <li><code>python -m unittest</code> が通る（主要機能）</li>
+            </ul>
+        </div>
+        
+        <!-- BEAT-01 Issue -->
+        <div class="section-issue character">
+            <h2>BEAT-01: リポジトリ骨格とモジュール構成を作る</h2>
+            <p><strong>Labels</strong>: <span class="issue-label label-feature">feature</span></p>
+            <p><strong>Milestone</strong>: M0</p>
+            <p><strong>Depends on</strong>: なし</p>
+            
+            <h3>要件</h3>
+            <p>以下の構成を作る（例、調整可）:</p>
+            <ul>
+                <li><code>beat_machine/</code>
+                    <ul>
+                        <li><code>__init__.py</code></li>
+                        <li><code>models.py</code></li>
+                        <li><code>parse.py</code></li>
+                        <li><code>validate.py</code></li>
+                        <li><code>schedule.py</code></li>
+                        <li><code>synth.py</code></li>
+                        <li><code>render.py</code></li>
+                        <li><code>wav.py</code></li>
+                        <li><code>cli.py</code></li>
+                    </ul>
+                </li>
+                <li><code>tests/</code>
+                    <ul>
+                        <li><code>test_parse.py</code>, <code>test_validate.py</code>, <code>test_schedule.py</code>, <code>test_audio.py</code></li>
+                    </ul>
+                </li>
+                <li><code>README.md</code>（使用例と入力フォーマット）</li>
+            </ul>
+            <p>実行例:</p>
+            <ul>
+                <li><code>python -m beat_machine.cli --in pattern.txt --out beat.wav</code></li>
+            </ul>
+            
+            <h3>受け入れ条件</h3>
+            <ul>
+                <li>モジュールがimportできる（循環importなし）</li>
+                <li>CLI実行の入口が存在する</li>
+            </ul>
+        </div>
+        
+        <!-- BEAT-02 Issue -->
+        <div class="section-issue character">
+            <h2>BEAT-02: ドメインモデル定義（Song / Hit / 定数）</h2>
+            <p><strong>Labels</strong>: <span class="issue-label label-feature">feature</span></p>
+            <p><strong>Milestone</strong>: M0</p>
+            <p><strong>Mapping</strong>: B4, B9の前提</p>
+            
+            <h3>観点（S）</h3>
+            <ul>
+                <li>InputType: <code>dict[str, list[bool]]</code>, <code>int</code>, <code>Path</code></li>
+                <li>ModelType: <code>Song</code>, <code>Hit</code></li>
+                <li>ProcessType: model definition</li>
+                <li>OutputType: dataclass</li>
+            </ul>
+            
+            <h3>仕様（models.py）</h3>
+            <ul>
+                <li><code>@dataclass(frozen=True)</code>
+                    <ul>
+                        <li><code>Hit</code>:
+                            <ul>
+                                <li><code>instrument: str</code>（"K"/"S"/"H"）</li>
+                                <li><code>step: int</code>（0..15）</li>
+                                <li><code>time_sec: float</code></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li><code>@dataclass(frozen=True)</code>
+                    <ul>
+                        <li><code>Song</code>:
+                            <ul>
+                                <li><code>bpm: int</code></li>
+                                <li><code>tracks: dict[str, list[bool]]</code>（各トラック16要素）</li>
+                                <li><code>steps_per_bar: int = 16</code>（固定でもよい）</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>定数:
+                    <ul>
+                        <li><code>ALLOWED_INSTRUMENTS = ("K","S","H")</code></li>
+                        <li><code>ALLOWED_PATTERN_CHARS = ("x","-")</code></li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <h3>受け入れ条件</h3>
+            <ul>
+                <li><code>Song</code> と <code>Hit</code> を import できる</li>
+                <li>型ヒントが付いている</li>
+            </ul>
+        </div>
+        
+        <!-- BEAT-03 Issue -->
+        <div class="section-issue character">
+            <h2>BEAT-03: BPM文字列をパースする（B1）</h2>
+            <p><strong>Labels</strong>: <span class="issue-label label-feature">feature</span> <span class="issue-label label-b1">B1</span></p>
+            <p><strong>Milestone</strong>: M1</p>
+            
+            <h3>観点（S）</h3>
+            <ul>
+                <li>InputType: <code>str</code></li>
+                <li>ModelType: <code>int</code></li>
+                <li>ProcessType: <code>parse + validate</code></li>
+                <li>OutputType: <code>int</code></li>
+            </ul>
+            
+            <h3>仕様（parse.py）</h3>
+            <ul>
+                <li>関数:
+                    <ul>
+                        <li><code>parse_bpm(value: str) -&gt; int</code>
+                            <ul>
+                                <li><code>"120"</code> → <code>120</code></li>
+                                <li>前後空白は許容</li>
+                                <li>数値以外は <code>ValueError</code></li>
+                            </ul>
+                        </li>
+                        <li><code>parse_bpm_line(line: str) -&gt; int</code>
+                            <ul>
+                                <li><code>"bpm=120"</code> を受け取り <code>120</code></li>
+                                <li><code>bpm=</code> 以外は <code>ValueError</code></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <h3>例外</h3>
+            <ul>
+                <li><code>&lt;=0</code> は <code>ValueError("bpm must be positive: ...")</code></li>
+            </ul>
+            
+            <h3>受け入れ条件（テスト観点）</h3>
+            <ul>
+                <li><code>"120"</code> はOK</li>
+                <li><code>"0"</code>, <code>"-1"</code>, <code>"12.0"</code>, <code>"abc"</code> はNG</li>
+                <li><code>"bpm=120"</code> はOK</li>
+                <li><code>"bpm="</code>, <code>"bpm=abc"</code> はNG</li>
+            </ul>
+        </div>
+        
+        <!-- BEAT-04 Issue -->
+        <div class="section-issue character">
+            <h2>BEAT-04: 16ステップパターンをパースする（B2）</h2>
+            <p><strong>Labels</strong>: <span class="issue-label label-feature">feature</span> <span class="issue-label label-b2">B2</span></p>
+            <p><strong>Milestone</strong>: M1</p>
+            
+            <h3>観点（S）</h3>
+            <ul>
+                <li>InputType: <code>str</code></li>
+                <li>ModelType: <code>list[bool]</code></li>
+                <li>ProcessType: parse(pattern)</li>
+                <li>OutputType: <code>list[bool]</code></li>
+            </ul>
+            
+            <h3>仕様（parse.py）</h3>
+            <ul>
+                <li><code>parse_steps(pattern: str, steps: int = 16) -&gt; list[bool]</code>
+                    <ul>
+                        <li>入力は <code>"x---x---x---x---"</code> のような文字列</li>
+                        <li>長さが <code>steps</code> と一致しない → <code>ValueError</code></li>
+                        <li>許可文字は <code>x</code> と <code>-</code> のみ</li>
+                        <li>変換規則：<code>x -&gt; True</code>, <code>- -&gt; False</code></li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <h3>受け入れ条件</h3>
+            <ul>
+                <li>長さ16はOK、15/17はNG</li>
+                <li>禁止文字（例: <code>o</code>, <code>*</code>, 空白）はNG</li>
+                <li>戻り値の長さは必ず16</li>
+            </ul>
+        </div>
+        
+        <!-- BEAT-05 Issue -->
+        <div class="section-issue character">
+            <h2>BEAT-05: 複数トラックをパースして辞書モデルにする（B3）</h2>
+            <p><strong>Labels</strong>: <span class="issue-label label-feature">feature</span> <span class="issue-label label-b3">B3</span></p>
+            <p><strong>Milestone</strong>: M1</p>
+            <p><strong>Depends on</strong>: BEAT-04</p>
+            
+            <h3>観点（S）</h3>
+            <ul>
+                <li>InputType: <code>list[str]</code></li>
+                <li>ModelType: <code>dict[str, list[bool]]</code></li>
+                <li>ProcessType: parse(multitrack)</li>
+                <li>OutputType: dict</li>
+            </ul>
+            
+            <h3>仕様（parse.py）</h3>
+            <ul>
+                <li><code>parse_track_line(line: str, steps: int = 16) -&gt; tuple[str, list[bool]]</code>
+                    <ul>
+                        <li>例: <code>"K:x---x---x---x---"</code> → <code>("K", [..16..])</code></li>
+                        <li><code>:</code> がない / instrumentが空 / patternが空 → <code>ValueError</code></li>
+                    </ul>
+                </li>
+                <li><code>parse_tracks(lines: list[str], steps: int = 16) -&gt; dict[str, list[bool]]</code>
+                    <ul>
+                        <li>空行はスキップ可</li>
+                        <li>instrumentが重複したら <code>ValueError</code>（MVP）</li>
+                        <li>instrumentが <code>ALLOWED_INSTRUMENTS</code> 以外なら <code>ValueError</code>（MVP）</li>
+                        <li>最低1トラックは必要（空なら <code>ValueError</code>）</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <h3>受け入れ条件</h3>
+            <ul>
+                <li>K/S/Hの3行で辞書が返る</li>
+                <li>instrument不正、重複、pattern不正で落ちる</li>
+            </ul>
+        </div>
+        
+        <!-- BEAT-06 Issue -->
+        <div class="section-issue character">
+            <h2>BEAT-06: ファイルからSongを読み込む（B9）</h2>
+            <p><strong>Labels</strong>: <span class="issue-label label-feature">feature</span> <span class="issue-label label-b9">B9</span></p>
+            <p><strong>Milestone</strong>: M4</p>
+            <p><strong>Depends on</strong>: BEAT-02,03,05</p>
+            
+            <h3>観点（S）</h3>
+            <ul>
+                <li>InputType: <code>Path</code></li>
+                <li>ModelType: <code>Song</code></li>
+                <li>ProcessType: system IO + parse</li>
+                <li>OutputType: <code>Song</code></li>
+            </ul>
+            
+            <h3>仕様（parse.py または専用 load モジュール）</h3>
+            <ul>
+                <li><code>load_song(path: Path) -&gt; Song</code>
+                    <ul>
+                        <li>UTF-8テキストとして読む</li>
+                        <li><code>bpm=...</code> 行を探す（1つ必須）</li>
+                        <li>それ以外の行をトラックとして扱う</li>
+                        <li><code>Song(bpm=..., tracks=...)</code> を返す</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <h3>受け入れ条件</h3>
+            <ul>
+                <li>サンプル <code>pattern.txt</code> で <code>Song</code> ができる</li>
+                <li>bpm行が無い/複数あるなら <code>ValueError</code></li>
+                <li>ファイルが無ければ <code>FileNotFoundError</code>（そのままでOK）</li>
+            </ul>
+        </div>
+        
+        <!-- BEAT-07 Issue -->
+        <div class="section-issue character">
+            <h2>BEAT-07: Validateを実装する（Day4のRefine、境界値分析）（B1/B2/B3の強化）</h2>
+            <p><strong>Labels</strong>: <span class="issue-label label-feature">feature</span> <span class="issue-label label-test">test</span></p>
+            <p><strong>Milestone</strong>: M1</p>
+            <p><strong>Depends on</strong>: BEAT-03,04,05</p>
+            
+            <h3>目的</h3>
+            <p>「validate は制約Eをコード化する」方針で、境界・異常系を明示的に扱う。</p>
+            
+            <h3>仕様（validate.py）</h3>
+            <ul>
+                <li><code>validate_bpm(bpm: int, *, min_bpm: int = 20, max_bpm: int = 300) -&gt; None</code>
+                    <ul>
+                        <li>範囲外は <code>ValueError</code></li>
+                    </ul>
+                </li>
+                <li><code>validate_steps(steps: list[bool], *, expected_len: int = 16) -&gt; None</code></li>
+                <li><code>validate_tracks(tracks: dict[str, list[bool]], *, expected_len: int = 16) -&gt; None</code>
+                    <ul>
+                        <li>instrumentが空、未知、steps長不一致、空dict → <code>ValueError</code></li>
+                    </ul>
+                </li>
+                <li><code>validate_song(song: Song) -&gt; None</code>（上を合成）</li>
+            </ul>
+            
+            <h3>受け入れ条件（テスト必須）</h3>
+            <ul>
+                <li>BPM境界: <code>0, 1, 19, 20, 300, 301</code> をテスト</li>
+                <li>パターン境界: 0/15/16/17相当（parse側+validate側で担保）</li>
+                <li>不正文字は parse で落ちる</li>
+            </ul>
+        </div>
+        
+        <!-- BEAT-08 Issue -->
+        <div class="section-issue character">
+            <h2>BEAT-08: 格子（tracks）をASCII可視化する（B5）</h2>
+            <p><strong>Labels</strong>: <span class="issue-label label-feature">feature</span> <span class="issue-label label-b5">B5</span></p>
+            <p><strong>Milestone</strong>: M2</p>
+            <p><strong>Depends on</strong>: BEAT-02</p>
+            
+            <h3>観点（S）</h3>
+            <ul>
+                <li>InputType: <code>dict[str, list[bool]]</code> or <code>Song</code></li>
+                <li>ModelType: <code>str</code></li>
+                <li>ProcessType: visualize</li>
+                <li>OutputType: <code>str</code></li>
+            </ul>
+            
+            <h3>仕様（render.py でも可）</h3>
+            <ul>
+                <li><code>visualize_tracks(tracks: dict[str, list[bool]], steps: int = 16) -&gt; str</code>
+                    <ul>
+                        <li>表示例:
+                            <pre><code>K:x---x---x---x---
+S:----x-------x---
+H:x-x-x-x-x-x-x-x-</code></pre>
+                        </li>
+                    </ul>
+                </li>
+                <li><code>visualize_song(song: Song) -&gt; str</code>
+                    <ul>
+                        <li>先頭に <code>bpm=...</code> を付けてもよい</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <h3>受け入れ条件</h3>
+            <ul>
+                <li>どのトラックも16文字で出る</li>
+                <li>True/False → x/- に正しく対応</li>
+            </ul>
+        </div>
+        
+        <!-- BEAT-09 Issue -->
+        <div class="section-issue character">
+            <h2>BEAT-09: スケジューラ実装（格子→Hitイベント列）（B4）</h2>
+            <p><strong>Labels</strong>: <span class="issue-label label-feature">feature</span> <span class="issue-label label-b4">B4</span></p>
+            <p><strong>Milestone</strong>: M2</p>
+            <p><strong>Depends on</strong>: BEAT-02,07</p>
+            
+            <h3>観点（S）</h3>
+            <ul>
+                <li>InputType: <code>Song</code> or <code>dict[...] + bpm</code></li>
+                <li>ModelType: <code>list[Hit]</code></li>
+                <li>ProcessType: schedule(time)</li>
+                <li>OutputType: <code>list[Hit]</code></li>
+            </ul>
+            
+            <h3>仕様（schedule.py）</h3>
+            <ul>
+                <li><code>step_duration_sec(bpm: int) -&gt; float</code>
+                    <ul>
+                        <li><code>60 / bpm / 4</code></li>
+                    </ul>
+                </li>
+                <li><code>schedule(song: Song) -&gt; list[Hit]</code>
+                    <ul>
+                        <li>tracksを走査して <code>True</code> のstepだけ <code>Hit</code> を作る</li>
+                        <li><code>Hit.time_sec = step * step_duration_sec(song.bpm)</code></li>
+                        <li>出力の並び順は <strong>time_sec昇順</strong>（同時刻は instrument順でも可）</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <h3>受け入れ条件</h3>
+            <ul>
+                <li>0ステップのtime_secは0.0</li>
+                <li>step=15が最終時刻（1小節ぶん）</li>
+                <li>期待イベント数 = Trueの総数</li>
+            </ul>
+        </div>
+        
+        <!-- BEAT-10 Issue -->
+        <div class="section-issue character">
+            <h2>BEAT-10: 1ヒット波形を生成する（簡易シンセ）（B6）</h2>
+            <p><strong>Labels</strong>: <span class="issue-label label-feature">feature</span> <span class="issue-label label-b6">B6</span></p>
+            <p><strong>Milestone</strong>: M3</p>
+            <p><strong>Depends on</strong>: BEAT-02</p>
+            
+            <h3>観点（S）</h3>
+            <ul>
+                <li>InputType: <code>Hit</code> または <code>(instrument: str, duration_sec: float, sample_rate: int)</code></li>
+                <li>ModelType: <code>list[float]</code></li>
+                <li>ProcessType: synth(1 hit)</li>
+                <li>OutputType: <code>list[float]</code></li>
+            </ul>
+            
+            <h3>仕様（synth.py）</h3>
+            <ul>
+                <li><code>synth_hit(instrument: str, duration_sec: float, sample_rate: int) -&gt; list[float]</code>
+                    <ul>
+                        <li>戻り値長: <code>int(duration_sec * sample_rate)</code></li>
+                        <li>範囲: なるべく <code>-1.0..1.0</code></li>
+                        <li>音色（MVPの一例・確定してOK）:
+                            <ul>
+                                <li>K: 減衰サイン（低周波 60Hz〜）</li>
+                                <li>S: ノイズ（random）+ 減衰</li>
+                                <li>H: 高域ノイズ + 強い減衰（短い）</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>推奨: <code>envelope(t)</code> = <code>exp(-k*t)</code> 相当を <code>math.exp</code> で作る</li>
+            </ul>
+            
+            <h3>受け入れ条件</h3>
+            <ul>
+                <li>instrumentごとに長さが正しい</li>
+                <li>最大振幅が極端に1.0超えしない（多少は許容、後段でクリップ）</li>
+            </ul>
+        </div>
+        
+        <!-- BEAT-11 Issue -->
+        <div class="section-issue character">
+            <h2>BEAT-11: レンダリング & ミキシング（イベント列→波形）（B7）</h2>
+            <p><strong>Labels</strong>: <span class="issue-label label-feature">feature</span> <span class="issue-label label-b7">B7</span></p>
+            <p><strong>Milestone</strong>: M3</p>
+            <p><strong>Depends on</strong>: BEAT-09,10</p>
+            
+            <h3>観点（S）</h3>
+            <ul>
+                <li>InputType: <code>list[Hit]</code></li>
+                <li>ModelType: <code>list[float]</code></li>
+                <li>ProcessType: render + mix</li>
+                <li>OutputType: <code>list[float]</code></li>
+            </ul>
+            
+            <h3>仕様（render.py）</h3>
+            <ul>
+                <li><code>render(hits: list[Hit], bpm: int, sample_rate: int, *, steps: int = 16) -&gt; list[float]</code>
+                    <ul>
+                        <li>出力長（MVP）:
+                            <ul>
+                                <li>1小節ぶん: <code>bar_sec = steps * (60/bpm/4)</code></li>
+                                <li><code>n_samples = ceil(bar_sec * sample_rate)</code></li>
+                            </ul>
+                        </li>
+                        <li>各Hit:
+                            <ul>
+                                <li><code>start = round(hit.time_sec * sample_rate)</code></li>
+                                <li><code>hit_wave = synth_hit(...)</code> を足し込む</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>クリップ対策（MVP）:
+                    <ul>
+                        <li><code>normalize(wave: list[float], peak: float = 0.95) -&gt; list[float]</code></li>
+                        <li>peakが0ならそのまま返す</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <h3>受け入れ条件</h3>
+            <ul>
+                <li>出力配列の長さが仕様通り</li>
+                <li>正規化後の最大値が <code>&lt;= peak</code>（浮動小数誤差は許容）</li>
+            </ul>
+        </div>
+        
+        <!-- BEAT-12 Issue -->
+        <div class="section-issue character">
+            <h2>BEAT-12: float波形をint16へ量子化しWAV保存（B8）</h2>
+            <p><strong>Labels</strong>: <span class="issue-label label-feature">feature</span> <span class="issue-label label-b8">B8</span></p>
+            <p><strong>Milestone</strong>: M3</p>
+            <p><strong>Depends on</strong>: BEAT-11</p>
+            
+            <h3>観点（S）</h3>
+            <ul>
+                <li>InputType: <code>list[float]</code></li>
+                <li>ModelType: <code>bytes</code> / <code>list[int]</code></li>
+                <li>ProcessType: quantize(int16)</li>
+                <li>OutputType: <code>Path</code></li>
+            </ul>
+            
+            <h3>仕様（wav.py）</h3>
+            <ul>
+                <li><code>float_to_int16_samples(wave: list[float]) -&gt; list[int]</code>
+                    <ul>
+                        <li>clamp: [-1.0, 1.0]</li>
+                        <li>scale: <code>int(sample * 32767)</code>（負側の扱いは実装で一貫性があればOK）</li>
+                    </ul>
+                </li>
+                <li><code>write_wav(path: Path, wave: list[float], sample_rate: int) -&gt; None</code>
+                    <ul>
+                        <li><code>wave</code> モジュールで 1ch, 16bit PCM</li>
+                        <li><code>frames</code> は <code>struct.pack</code> で生成（標準ライブラリ）</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <h3>受け入れ条件</h3>
+            <ul>
+                <li>書き出したwavが再生できる形式（一般的プレイヤーでOK）</li>
+                <li>空waveは <code>ValueError</code>（または長さ0を許可しない）</li>
+            </ul>
+        </div>
+        
+        <!-- BEAT-13 Issue -->
+        <div class="section-issue character">
+            <h2>BEAT-13: パイプライン合成（B10）— parse→validate→schedule→render→export</h2>
+            <p><strong>Labels</strong>: <span class="issue-label label-feature">feature</span> <span class="issue-label label-b10">B10</span></p>
+            <p><strong>Milestone</strong>: M4</p>
+            <p><strong>Depends on</strong>: BEAT-06,07,09,11,12,08</p>
+            
+            <h3>観点（S）</h3>
+            <ul>
+                <li>InputType: <code>args + Path</code></li>
+                <li>ModelType: pipeline modules</li>
+                <li>ProcessType: architecture(pipeline)</li>
+                <li>OutputType: <code>Path + report</code></li>
+            </ul>
+            
+            <h3>仕様（cli.py）</h3>
+            <ul>
+                <li><code>run(input_path: Path, output_path: Path, *, sample_rate: int = 44100) -&gt; None</code>
+                    <ul>
+                        <li><code>song = load_song(input_path)</code></li>
+                        <li><code>validate_song(song)</code></li>
+                        <li><code>print(visualize_song(song))</code></li>
+                        <li><code>hits = schedule(song)</code></li>
+                        <li><code>wave = render(hits, song.bpm, sample_rate)</code></li>
+                        <li><code>write_wav(output_path, wave, sample_rate)</code></li>
+                    </ul>
+                </li>
+                <li>CLI:
+                    <ul>
+                        <li><code>--in</code> 入力ファイル（必須）</li>
+                        <li><code>--out</code> 出力wav（必須）</li>
+                        <li><code>--sample-rate</code>（任意、default 44100）</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <h3>受け入れ条件</h3>
+            <ul>
+                <li>コマンド1回でwav生成</li>
+                <li>入力不正でスタックトレースだけにならず、メッセージが読める（最低限）</li>
+            </ul>
+        </div>
+        
+        <!-- BEAT-14 Issue -->
+        <div class="section-issue character">
+            <h2>BEAT-14: テスト実装（unittest）— 代表ケース + 境界値</h2>
+            <p><strong>Labels</strong>: <span class="issue-label label-test">test</span></p>
+            <p><strong>Milestone</strong>: M5</p>
+            <p><strong>Depends on</strong>: 主要機能Issue</p>
+            
+            <h3>方針</h3>
+            <ul>
+                <li>標準ライブラリ <code>unittest</code> で実装</li>
+                <li>"耳"に頼らず、<strong>長さ・最大振幅・例外</strong>で確認（資料方針）</li>
+            </ul>
+            
+            <h3>必須テストケース</h3>
+            <ul>
+                <li>parse:
+                    <ul>
+                        <li>bpm: OK/NG</li>
+                        <li>steps: OK/NG（長さ・文字）</li>
+                        <li>tracks: OK/NG（未知instrument・重複）</li>
+                    </ul>
+                </li>
+                <li>validate:
+                    <ul>
+                        <li>bpm境界（0/1/19/20/300/301）</li>
+                    </ul>
+                </li>
+                <li>schedule:
+                    <ul>
+                        <li>イベント数、先頭time、昇順</li>
+                    </ul>
+                </li>
+                <li>synth/render:
+                    <ul>
+                        <li><code>synth_hit</code> の長さ</li>
+                        <li><code>render</code> の長さ</li>
+                        <li>normalize後のpeak</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <h3>受け入れ条件</h3>
+            <ul>
+                <li><code>python -m unittest</code> が通る</li>
+            </ul>
+        </div>
+        
+        <!-- BEAT-15 Issue -->
+        <div class="section-issue character">
+            <h2>BEAT-15: README（使い方・入力フォーマット・設計意図）</h2>
+            <p><strong>Labels</strong>: <span class="issue-label label-docs">docs</span></p>
+            <p><strong>Milestone</strong>: M5</p>
+            <p><strong>Depends on</strong>: BEAT-13</p>
+            
+            <h3>READMEに必ず書くこと</h3>
+            <ul>
+                <li>目的（ミニBEAT楽器）</li>
+                <li>入力フォーマット例（<code>bpm=...</code> / <code>K:</code> 等）</li>
+                <li>実行方法（CLI例）</li>
+                <li>生成物（ASCII + WAV）</li>
+                <li>設計の骨格（型を選ぶ→変換を合成）</li>
+            </ul>
+            
+            <h3>受け入れ条件</h3>
+            <ul>
+                <li>READMEだけで初見が実行できる</li>
+            </ul>
+        </div>
+        
+        <h2>追加（任意）Issue案（余力があれば）</h2>
+        
+        <!-- BEAT-16 Issue -->
+        <div class="section-issue character">
+            <h3>BEAT-16: ループ再生（bars指定）対応</h3>
+            <ul>
+                <li><code>--bars N</code> でN小節ぶんレンダリング</li>
+                <li>schedule/renderを拡張（stepオフセット）</li>
+            </ul>
+        </div>
+        
+        <!-- BEAT-17 Issue -->
+        <div class="section-issue character">
+            <h3>BEAT-17: 許可文字拡張（<code>X</code>/<code>.</code> など）と互換維持</h3>
+            <ul>
+                <li>parse_stepsで許可文字を増やす（既存のx/-は維持）</li>
+            </ul>
+        </div>
+        
+        <!-- BEAT-18 Issue -->
+        <div class="section-issue character">
+            <h3>BEAT-18: 例外メッセージ改善（行番号付き）</h3>
+            <ul>
+                <li><code>load_song</code> が行番号を含むエラーを出す</li>
+            </ul>
+        </div>
+        
+        <div class="math-container">
+            <p><strong>数式表示テスト:</strong></p>
+            <p>ステップ時間: \(t_{\text{step}} = \frac{60}{\text{BPM} \times 4}\)</p>
+            <p>イベント時間: \(t_{\text{event}} = n_{\text{step}} \times t_{\text{step}}\)</p>
+            <p>サンプル位置: \(s_{\text{pos}} = \lfloor t_{\text{event}} \times f_s \rfloor\)</p>
+        </div>
+    </div>
+    
+    <div class="footer">
+        BEAT楽器トレーニング計画 - ポップアートスタイル版 | 色管理アーキテクチャ採用 | KaTeX対応
+    </div>
+    
+    <!-- KaTeX JS -->
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false},
+                    {left: '\\(', right: '\\)', display: false},
+                    {left: '\\[', right: '\\]', display: true}
+                ],
+                throwOnError: false
+            });
+        });
+    </script>
+</body>
+</html>
