@@ -1,0 +1,1579 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Beat Diffusion Demo (MIDI)</title>
+  <style>
+    :root{
+      --bg:#0b0f14;
+      --panel:#111826;
+      --panel2:#0f1622;
+      --text:#e8eef7;
+      --muted:#9bb0c9;
+      --accent:#6ae4ff;
+      --accent2:#b8ff6a;
+      --danger:#ff6a7a;
+      --border:rgba(255,255,255,.10);
+      --shadow: 0 12px 30px rgba(0,0,0,.45);
+      --radius: 14px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; background: radial-gradient(1200px 700px at 30% -10%, rgba(106,228,255,.12), transparent 50%),
+                         radial-gradient(900px 500px at 85% 5%, rgba(184,255,106,.10), transparent 55%),
+                         var(--bg);
+      color:var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", sans-serif;
+      line-height:1.45;
+    }
+    a{color:var(--accent)}
+    header{
+      padding: 18px 16px 10px;
+      position: sticky; top:0;
+      backdrop-filter: blur(10px);
+      background: rgba(11,15,20,.62);
+      border-bottom: 1px solid var(--border);
+      z-index: 5;
+    }
+    .titleRow{
+      max-width: 1200px;
+      margin: 0 auto;
+      display:flex; align-items:flex-start; gap:12px; flex-wrap:wrap;
+    }
+    .brand{
+      display:flex; flex-direction:column;
+      gap:4px;
+    }
+    .brand h1{
+      font-size: 18px; margin:0;
+      letter-spacing:.2px;
+    }
+    .brand p{
+      margin:0; color: var(--muted); font-size: 13px;
+    }
+    .badge{
+      font-size: 12px;
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      border-radius: 999px;
+      color: var(--muted);
+      display:inline-flex; align-items:center; gap:6px;
+    }
+    .dot{width:8px; height:8px; border-radius:50%; background: var(--accent); box-shadow: 0 0 14px rgba(106,228,255,.45);}
+    main{
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 12px 16px 80px;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    @media (min-width: 980px){
+      main{grid-template-columns: 420px 1fr; gap: 14px;}
+      header{padding: 18px 22px 10px;}
+      main{padding: 14px 22px 80px;}
+    }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .cardHeader{
+      padding: 12px 12px 10px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(17,24,38,.55);
+      display:flex; align-items:center; justify-content:space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .cardHeader h2{margin:0; font-size: 14px;}
+    .cardBody{padding: 12px;}
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    @media (min-width: 500px){
+      .grid2{grid-template-columns: 1fr 1fr;}
+    }
+    label{
+      display:block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    input[type="text"], textarea, select{
+      width:100%;
+      padding: 10px 10px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(15,22,34,.7);
+      color: var(--text);
+      outline:none;
+    }
+    textarea{min-height: 74px; resize: vertical;}
+    input[type="range"]{width:100%}
+    .row{
+      display:flex; gap:10px; align-items:center; justify-content:space-between;
+    }
+    .valuePill{
+      font-size: 12px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      min-width: 60px;
+      text-align:center;
+    }
+    .hint{
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 8px;
+    }
+    .btnRow{
+      display:flex; gap:10px; flex-wrap:wrap;
+    }
+    button{
+      appearance:none;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 12px;
+      cursor:pointer;
+      font-weight: 600;
+      letter-spacing:.1px;
+      transition: transform .06s ease, background .2s ease, border-color .2s ease;
+      user-select:none;
+    }
+    button:hover{background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.16);}
+    button:active{transform: translateY(1px) scale(.99);}
+    .primary{
+      background: linear-gradient(180deg, rgba(106,228,255,.26), rgba(106,228,255,.12));
+      border-color: rgba(106,228,255,.38);
+    }
+    .good{
+      background: linear-gradient(180deg, rgba(184,255,106,.22), rgba(184,255,106,.10));
+      border-color: rgba(184,255,106,.36);
+    }
+    .danger{
+      background: linear-gradient(180deg, rgba(255,106,122,.18), rgba(255,106,122,.08));
+      border-color: rgba(255,106,122,.30);
+    }
+    .mini{
+      padding: 8px 10px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .mono{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Noto Sans Mono", "Liberation Mono", "Courier New", monospace;
+    }
+    .tabs{
+      display:flex; gap:8px; flex-wrap:wrap;
+    }
+    .tab{
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.05);
+      color: var(--muted);
+      cursor:pointer;
+      font-weight: 700;
+      font-size: 12px;
+    }
+    .tab[aria-selected="true"]{
+      color: var(--text);
+      border-color: rgba(106,228,255,.42);
+      background: rgba(106,228,255,.14);
+    }
+    .sequencerWrap{
+      display:flex; flex-direction:column; gap: 10px;
+    }
+    .barNav{
+      display:flex; gap: 8px; align-items:center; flex-wrap:wrap;
+    }
+    .barNav input[type="range"]{flex:1}
+    .seqScroll{
+      overflow-x:auto;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(15,22,34,.55);
+    }
+    .seq{
+      min-width: 760px; /* mobileでも横スクロール */
+      padding: 10px;
+      display:grid;
+      grid-template-columns: 88px 1fr;
+      gap: 10px;
+      align-items:center;
+    }
+    .trackName{
+      font-size: 12px;
+      color: var(--muted);
+      display:flex; align-items:center; justify-content:space-between;
+      gap: 8px;
+    }
+    .trackPills{
+      display:flex; gap: 6px; flex-wrap:wrap;
+    }
+    .pill{
+      font-size: 10px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .steps{
+      display:grid;
+      grid-template-columns: repeat(32, 1fr);
+      gap: 5px;
+      align-items:center;
+    }
+    .step{
+      height: 26px;
+      border-radius: 7px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+      cursor:pointer;
+      position:relative;
+      touch-action: manipulation;
+    }
+    .step.on{
+      background: rgba(106,228,255,.18);
+      border-color: rgba(106,228,255,.38);
+      box-shadow: 0 0 0 1px rgba(106,228,255,.10) inset;
+    }
+    .step.req{
+      background: rgba(184,255,106,.16);
+      border-color: rgba(184,255,106,.38);
+      cursor:not-allowed;
+    }
+    .step.playing::after{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      border-radius: 9px;
+      border: 2px solid rgba(106,228,255,.42);
+      pointer-events:none;
+    }
+    .legend{
+      display:flex; gap:10px; flex-wrap:wrap;
+      align-items:center;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .lg{
+      display:flex; gap:6px; align-items:center;
+    }
+    .swatch{
+      width: 14px; height: 14px; border-radius: 5px; border: 1px solid var(--border);
+      background: rgba(255,255,255,.04);
+    }
+    .swatch.on{background: rgba(106,228,255,.18); border-color: rgba(106,228,255,.38);}
+    .swatch.req{background: rgba(184,255,106,.16); border-color: rgba(184,255,106,.38);}
+    details{
+      border-top: 1px solid var(--border);
+      margin-top: 10px;
+      padding-top: 10px;
+    }
+    details > summary{
+      cursor:pointer;
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 12px;
+      list-style: none;
+    }
+    details > summary::-webkit-details-marker{display:none;}
+    pre{
+      margin: 10px 0 0;
+      padding: 10px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.25);
+      overflow:auto;
+      max-height: 260px;
+      font-size: 12px;
+    }
+    .toast{
+      position: fixed;
+      left: 50%;
+      bottom: 14px;
+      transform: translateX(-50%);
+      background: rgba(17,24,38,.85);
+      border: 1px solid rgba(255,255,255,.16);
+      box-shadow: var(--shadow);
+      padding: 10px 12px;
+      border-radius: 999px;
+      color: var(--text);
+      font-size: 12px;
+      opacity: 0;
+      pointer-events:none;
+      transition: opacity .25s ease, transform .25s ease;
+      z-index: 10;
+      max-width: min(520px, calc(100vw - 24px));
+      text-align:center;
+    }
+    .toast.show{
+      opacity: 1;
+      transform: translateX(-50%) translateY(-4px);
+    }
+    .footerNote{
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="titleRow">
+    <div class="brand">
+      <h1>Beat Diffusion Demo <span class="badge"><span class="dot"></span>MIDI生成（WAV不要）</span></h1>
+      <p>「条件（感情/情景/矛盾）」で白色ノイズからビートを具体化するデモ。スマホ対応・オフライン動作。</p>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- Controls -->
+  <section class="card" aria-label="Controls">
+    <div class="cardHeader">
+      <h2>条件入力（BeatCondition）</h2>
+      <span class="badge mono" id="buildInfo">v0.1</span>
+    </div>
+    <div class="cardBody">
+      <div class="grid2">
+        <div>
+          <label for="coreMessage">コアメッセージ（1文）</label>
+          <input id="coreMessage" type="text" value="こんなに悔しい。でも止まらない" />
+        </div>
+        <div>
+          <label for="primaryEmotion">主感情</label>
+          <select id="primaryEmotion">
+            <option value="regret" selected>悔しさ (regret)</option>
+            <option value="anger">怒り (anger)</option>
+            <option value="sadness">悲しみ (sadness)</option>
+            <option value="determination">決意 (determination)</option>
+          </select>
+        </div>
+
+        <div>
+          <div class="row">
+            <label for="intensity">強度 (0–10)</label>
+            <span class="valuePill mono" id="intensityVal">9</span>
+          </div>
+          <input id="intensity" type="range" min="0" max="10" step="1" value="9" />
+        </div>
+        <div>
+          <label for="arousal">エネルギー方向</label>
+          <select id="arousal">
+            <option value="high" selected>高い（焦り・突進）</option>
+            <option value="low">低い（噛みしめる）</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="conflict">ねじれ（したいのにできない）</label>
+          <input id="conflict" type="text" value="勝ちたいのに勝てない" />
+        </div>
+        <div>
+          <label for="resolution">解決方針</label>
+          <select id="resolution">
+            <option value="no_full_release" selected>解放しない（終止回避）</option>
+            <option value="partial_release">部分的に解放</option>
+            <option value="flip_to_determination">悔しさ→決意へ反転</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="scene">情景（場所/時間/天候など）</label>
+          <textarea id="scene">夜の帰り道、雨。評価されない側の立場。</textarea>
+        </div>
+        <div>
+          <label for="desires">欲求（カンマ区切り）</label>
+          <input id="desires" type="text" value="勝ちたい, 認められたい, 取り返したい" />
+        </div>
+
+        <div>
+          <div class="row">
+            <label for="bpm">BPM</label>
+            <span class="valuePill mono" id="bpmVal">148</span>
+          </div>
+          <input id="bpm" type="range" min="70" max="190" step="1" value="148" />
+          <div class="hint">※デモではBPMは固定値。Rangeではなく単体指定にしています。</div>
+        </div>
+        <div>
+          <div class="row">
+            <label for="swing">Swing（0.50=ストレート / 0.66=シャッフル寄り）</label>
+            <span class="valuePill mono" id="swingVal">0.56</span>
+          </div>
+          <input id="swing" type="range" min="0.50" max="0.66" step="0.01" value="0.56" />
+        </div>
+
+        <div>
+          <div class="row">
+            <label for="bars">小節数</label>
+            <span class="valuePill mono" id="barsVal">16</span>
+          </div>
+          <input id="bars" type="range" min="4" max="32" step="1" value="16" />
+          <div class="hint">break（間）は中盤に2小節自動で挿入します。</div>
+        </div>
+        <div>
+          <div class="row">
+            <label for="stepsIter">“拡散ステップ数”（反復回数）</label>
+            <span class="valuePill mono" id="stepsIterVal">48</span>
+          </div>
+          <input id="stepsIter" type="range" min="8" max="128" step="1" value="48" />
+          <div class="hint">数が多いほど「徐々に収束」っぽくなります（最後は必ず制約を満たす射影）。</div>
+        </div>
+
+        <div>
+          <div class="row">
+            <label for="seed">Seed（再現性）</label>
+            <span class="valuePill mono" id="seedVal">42</span>
+          </div>
+          <input id="seed" type="range" min="1" max="9999" step="1" value="42" />
+          <div class="hint">同じ条件＋同じseedなら、同じMIDIが出ます。</div>
+        </div>
+      </div>
+
+      <div style="margin-top: 12px;" class="btnRow">
+        <button class="primary" id="btnGenerate">生成（Condition→Spec→Pattern）</button>
+        <button class="good" id="btnDownload">MIDIダウンロード</button>
+        <button id="btnCopySpec" class="mini">Specをコピー</button>
+        <button id="btnCopyPattern" class="mini">Patternをコピー</button>
+      </div>
+
+      <div style="margin-top: 10px;" class="btnRow">
+        <button id="btnPlay" class="mini good">▶︎ 再生（簡易音源）</button>
+        <button id="btnStop" class="mini danger">■ 停止</button>
+      </div>
+
+      <div class="footerNote">
+        ※ブラウザのMIDI再生は環境依存です。ここでは<strong>簡易WebAudioプレビュー</strong>＋<strong>MIDI出力</strong>にしています（DAW取り込み推奨）。
+      </div>
+
+      <details open>
+        <summary>現在のBeatSpec（設計書）</summary>
+        <pre id="specOut" class="mono"></pre>
+      </details>
+      <details>
+        <summary>現在のPattern（シンボリック）</summary>
+        <pre id="patternOut" class="mono"></pre>
+      </details>
+    </div>
+  </section>
+
+  <!-- Sequencer -->
+  <section class="card" aria-label="Sequencer">
+    <div class="cardHeader">
+      <h2>パターン編集（1小節ビュー）</h2>
+      <div class="tabs" role="tablist" aria-label="View Tabs">
+        <button class="tab" id="tabSeq" aria-selected="true" role="tab">シーケンサ</button>
+        <button class="tab" id="tabExplain" aria-selected="false" role="tab">写像/説明</button>
+      </div>
+    </div>
+    <div class="cardBody">
+      <div id="viewSeq" class="sequencerWrap">
+        <div class="barNav">
+          <span class="badge mono">Bar</span>
+          <input id="barIndex" type="range" min="1" max="16" step="1" value="1" />
+          <span class="valuePill mono" id="barIndexVal">1</span>
+          <span class="badge mono" id="sectionBadge">main</span>
+        </div>
+
+        <div class="legend">
+          <div class="lg"><span class="swatch on"></span> on</div>
+          <div class="lg"><span class="swatch req"></span> 必須（backbeat）</div>
+          <div class="lg">横スクロールできます →</div>
+        </div>
+
+        <div class="seqScroll">
+          <div class="seq" id="seqGrid"></div>
+        </div>
+
+        <div class="hint">
+          ヒント：snareの緑は「必須の拍2/4」。kick/hat/perc/bassはタップでON/OFFできます。
+        </div>
+      </div>
+
+      <div id="viewExplain" style="display:none;">
+        <div class="card" style="box-shadow:none; border-radius: 12px;">
+          <div class="cardBody">
+            <h3 style="margin:0 0 6px; font-size: 14px;">このデモの「拡散（ノイズ除去）」の意味</h3>
+            <p style="margin:0; color:var(--muted); font-size: 13px;">
+              まずランダムなビート（白色ノイズ）を作り、反復（拡散ステップ）ごとに<br/>
+              <span class="mono">①世界観（BPM/質感）→ ②骨格（backbeat/密度）→ ③装飾（ロール/ゴースト）</span><br/>
+              の順で条件を強めていきます。最後に必ず制約集合へ射影して「破綻しない」出力にします。
+            </p>
+
+            <h3 style="margin:12px 0 6px; font-size: 14px;">条件→音の写像（ざっくり）</h3>
+            <ul style="margin:0; padding-left: 18px; color:var(--muted); font-size: 13px;">
+              <li><span class="mono">強度↑</span> → hat密度↑ / ゴースト↑ / キックのシンコペ↑</li>
+              <li><span class="mono">arousal=high</span> → BPM高め / 密度高め</li>
+              <li><span class="mono">解放しない</span> → breakを短く &amp; “落としすぎない”</li>
+              <li><span class="mono">ねじれ（conflict）</span> → オフ拍キック増で「押し引き」</li>
+            </ul>
+
+            <h3 style="margin:12px 0 6px; font-size: 14px;">出力（MIDI）について</h3>
+            <p style="margin:0; color:var(--muted); font-size: 13px;">
+              このページは外部ライブラリなしでMIDI（SMF）を生成します。<br/>
+              DAWでドラムラック/808音源に差し替える想定です。
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ==========================
+   Utils: RNG (LCG), helpers
+========================== */
+function clamp(x, a, b){ return Math.max(a, Math.min(b, x)); }
+function lerp(a,b,t){ return a + (b-a)*t; }
+function round2(x){ return Math.round(x*100)/100; }
+
+class LCG {
+  constructor(seed){
+    this.m = 0x80000000; // 2^31
+    this.a = 1103515245;
+    this.c = 12345;
+    this.state = seed ? seed : 1;
+  }
+  nextInt(){
+    this.state = (this.a * this.state + this.c) % this.m;
+    return this.state;
+  }
+  next(){ return this.nextInt() / (this.m - 1); }
+  int(min, max){ return Math.floor(this.next() * (max - min + 1)) + min; }
+  pick(arr){ return arr[this.int(0, arr.length-1)]; }
+  chance(p){ return this.next() < p; }
+  shuffle(arr){
+    for(let i=arr.length-1;i>0;i--){
+      const j = this.int(0,i);
+      [arr[i],arr[j]]=[arr[j],arr[i]];
+    }
+    return arr;
+  }
+}
+
+/* ==========================
+   Data shapes (v0.1)
+========================== */
+function makeEmptyPattern(stepsPerBar, barsTotal, swing){
+  const totalSteps = stepsPerBar * barsTotal;
+  const mkTrack = (withNote=false) => ({
+    steps: Array.from({length: totalSteps}, () => withNote ? ({on:false, vel:0.0, note:36, length_steps:1, meta:{}}) : ({on:false, vel:0.0, meta:{}}))
+  });
+  return {
+    version: "0.1",
+    steps_per_bar: stepsPerBar,
+    bars_total: barsTotal,
+    swing: swing,
+    tracks: {
+      kick: mkTrack(false),
+      snare: mkTrack(false),
+      hat: mkTrack(false),
+      perc: mkTrack(false),
+      bass808: mkTrack(true),
+      texture: mkTrack(false)
+    }
+  };
+}
+
+function toast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"), 1800);
+}
+
+/* ==========================
+   UI bindings
+========================== */
+const el = (id)=>document.getElementById(id);
+
+function bindRange(id, outId, fmt=(v)=>v){
+  const r = el(id), o = el(outId);
+  const update = ()=> o.textContent = fmt(r.value);
+  r.addEventListener("input", update);
+  update();
+}
+bindRange("intensity","intensityVal",(v)=>v);
+bindRange("bpm","bpmVal",(v)=>v);
+bindRange("swing","swingVal",(v)=>round2(parseFloat(v)).toFixed(2));
+bindRange("bars","barsVal",(v)=>v);
+bindRange("stepsIter","stepsIterVal",(v)=>v);
+bindRange("seed","seedVal",(v)=>v);
+
+function setTab(selected){
+  const isSeq = selected === "seq";
+  el("tabSeq").setAttribute("aria-selected", isSeq ? "true":"false");
+  el("tabExplain").setAttribute("aria-selected", !isSeq ? "true":"false");
+  el("viewSeq").style.display = isSeq ? "" : "none";
+  el("viewExplain").style.display = !isSeq ? "" : "none";
+}
+el("tabSeq").addEventListener("click", ()=>setTab("seq"));
+el("tabExplain").addEventListener("click", ()=>setTab("explain"));
+
+/* ==========================
+   Condition -> Spec (Planner)
+========================== */
+function parseScene(text){
+  // 超簡易：place/time/weather/positionを推定したいが、v0.1ではそのまま文字列に保持
+  return {
+    place: null, time: null, weather: null,
+    position: null,
+    raw: text.trim()
+  };
+}
+
+function parseList(text){
+  return text.split(",").map(s=>s.trim()).filter(Boolean);
+}
+
+function makeConditionFromUI(){
+  const intensity = parseInt(el("intensity").value, 10);
+  const bpm = parseInt(el("bpm").value, 10);
+  const swing = parseFloat(el("swing").value);
+  const bars = parseInt(el("bars").value, 10);
+  const seed = parseInt(el("seed").value, 10);
+  const sceneText = el("scene").value;
+
+  return {
+    version: "0.1",
+    goal: {
+      core_message: el("coreMessage").value.trim(),
+      primary_emotion: el("primaryEmotion").value,
+      secondary_emotions: [],
+      intensity_0_10: intensity,
+      arousal: el("arousal").value,
+      resolution_policy: el("resolution").value
+    },
+    scene: {
+      ...parseScene(sceneText),
+      obstacles: [],
+      desires: parseList(el("desires").value),
+      conflict_sentence: el("conflict").value.trim()
+    },
+    music_constraints: {
+      genre_hint: ["trap","dark"],
+      bpm_range: [bpm, bpm], // demoでは固定
+      swing_range: [swing, swing],
+      steps_per_bar: 32,
+      bar_length: bars,
+      must_include: ["808","snare_backbeat"],
+      must_avoid: ["happy_chords","major_resolution"]
+    },
+    references: { audio_ref:null, midi_ref:null, sound_palette_ref:[] },
+    meta: { seed: seed, created_at: new Date().toISOString(), notes: "" }
+  };
+}
+
+function planSpec(cond, rng){
+  const bpm = cond.music_constraints.bpm_range[0];
+  const swing = cond.music_constraints.swing_range[0];
+  const stepsPerBar = cond.music_constraints.steps_per_bar;
+  const barsTotal = cond.music_constraints.bar_length;
+
+  // intensity / arousal から密度を決める
+  const I = clamp(cond.goal.intensity_0_10 / 10, 0, 1);
+  const high = cond.goal.arousal === "high";
+
+  const kickBase = high ? lerp(0.16, 0.26, I) : lerp(0.10, 0.18, I);
+  const hatBase  = high ? lerp(0.34, 0.62, I) : lerp(0.22, 0.45, I);
+  const percBase = lerp(0.05, 0.14, I);
+
+  const conflictOn = !!(cond.scene.conflict_sentence && cond.scene.conflict_sentence.length >= 3);
+  const syncTarget = conflictOn ? lerp(0.22, 0.40, I) : lerp(0.14, 0.26, I);
+  const ghostTarget = lerp(0.02, 0.10, I);
+
+  // resolution_policyで曲線を変える
+  let energyCurve = "flat";
+  if(cond.goal.resolution_policy === "no_full_release") energyCurve = "suppressed_to_outburst";
+  if(cond.goal.resolution_policy === "flip_to_determination") energyCurve = "rising";
+
+  const mixPressure = (cond.goal.primary_emotion === "regret" || cond.goal.primary_emotion === "anger") ? "tight" : "open";
+
+  // arrangement: intro 4, main 6, break 2, main2 remaining, outro 0-2
+  const introBars = Math.min(4, Math.max(2, Math.floor(barsTotal*0.25)));
+  const breakBars = Math.min(2, Math.max(1, Math.floor(barsTotal*0.125)));
+  const mainBars = Math.max(4, Math.floor((barsTotal - introBars - breakBars) * 0.45));
+  const remain = barsTotal - introBars - breakBars - mainBars;
+  const outroBars = Math.max(0, Math.min(2, remain > 2 ? 2 : 0));
+  const main2Bars = Math.max(0, barsTotal - introBars - breakBars - mainBars - outroBars);
+
+  const arrangement = [];
+  arrangement.push({name:"intro", bars:introBars, density_multiplier: 0.55});
+  arrangement.push({name:"main", bars:mainBars, density_multiplier: 1.00});
+  arrangement.push({name:"break", bars:breakBars, density_multiplier: 0.22});
+  if(main2Bars>0) arrangement.push({name:"main2", bars:main2Bars, density_multiplier: 1.05});
+  if(outroBars>0) arrangement.push({name:"outro", bars:outroBars, density_multiplier: 0.50});
+
+  // kit tags (抽象)
+  const dist = lerp(0.10, 0.42, I) + (cond.goal.primary_emotion === "anger" ? 0.15 : 0.0);
+  const smallRoom = cond.goal.resolution_policy === "no_full_release" ? 0.18 : 0.28;
+
+  const spec = {
+    version:"0.1",
+    global_: {
+      bpm, swing,
+      key: null,
+      steps_per_bar: stepsPerBar,
+      bars_total: barsTotal,
+      energy_curve: energyCurve,
+      mix_pressure: mixPressure
+    },
+    kit: {
+      kick: { tags:["punchy","hard"], distortion: clamp(dist,0,1), reverb: 0.05, tone: 0.45},
+      snare: { tags:["backbeat","hard_clap_layered"], distortion: clamp(dist*0.8,0,1), reverb: smallRoom, tone: 0.50},
+      hat: { tags:["metallic","tight"], distortion: clamp(dist*0.35,0,1), reverb: 0.10, tone: 0.65},
+      perc: { tags:["industrial_hits"], distortion: clamp(dist*0.55,0,1), reverb: 0.12, tone: 0.55},
+      bass808:{ tags:["sub","glide"], distortion: clamp(dist*0.25,0,1), reverb: 0.0, tone: 0.35},
+      texture:{ tags:["air","noise"], distortion: 0.05, reverb: 0.30, tone: 0.40}
+    },
+    pattern_targets: {
+      kick_density: [clamp(kickBase-0.04,0.05,0.45), clamp(kickBase+0.04,0.06,0.50)],
+      hat_density:  [clamp(hatBase-0.08,0.10,0.85), clamp(hatBase+0.08,0.12,0.92)],
+      perc_density: [clamp(percBase-0.03,0.01,0.40), clamp(percBase+0.03,0.02,0.45)],
+      ghost_note_rate: [clamp(ghostTarget-0.02,0.00,0.30), clamp(ghostTarget+0.02,0.01,0.35)],
+      syncopation: [clamp(syncTarget-0.05,0.00,0.60), clamp(syncTarget+0.05,0.01,0.70)],
+      break_density_multiplier: [0.15, 0.30]
+    },
+    arrangement
+  };
+  return spec;
+}
+
+/* ==========================
+   Pattern generation ("diffusion-like")
+   - init random noise
+   - iterative denoise with schedule
+   - final projection to constraints
+========================== */
+function stepIndex(bar, stepInBar, stepsPerBar){ return bar*stepsPerBar + stepInBar; }
+
+function getSectionOfBar(spec, barIdx){
+  let acc=0;
+  for(const sec of spec.arrangement){
+    if(barIdx >= acc && barIdx < acc + sec.bars) return {name: sec.name, density_multiplier: sec.density_multiplier, startBar: acc, endBar: acc+sec.bars-1};
+    acc += sec.bars;
+  }
+  return {name:"main", density_multiplier: 1.0, startBar:0, endBar:spec.global_.bars_total-1};
+}
+
+function isBackbeatStep(stepInBar){
+  // 32 steps/bar, beat2=8, beat4=24
+  return stepInBar === 8 || stepInBar === 24;
+}
+
+function setOn(pattern, trackName, idx, on, vel=0.9){
+  const s = pattern.tracks[trackName].steps[idx];
+  s.on = !!on;
+  s.vel = on ? vel : 0.0;
+}
+
+function mutateNoise(pattern, rng, rate, protectedMask){
+  // flip a few bits across kick/hat/perc/bass (snare excluded except non-required)
+  const trackNames = ["kick","hat","perc","bass808"];
+  const totalSteps = pattern.steps_per_bar * pattern.bars_total;
+  const flips = Math.floor(totalSteps * 0.02 * rate); // rate 0..1
+  for(let k=0;k<flips;k++){
+    const tr = rng.pick(trackNames);
+    const idx = rng.int(0, totalSteps-1);
+    if(protectedMask && protectedMask(tr, idx)) continue;
+    const st = pattern.tracks[tr].steps[idx];
+    st.on = !st.on;
+    st.vel = st.on ? clamp(0.45 + rng.next()*0.55, 0, 1) : 0.0;
+    if(tr==="bass808" && st.on){
+      st.note = 36 + rng.pick([0,3,5,7,10,12]); // minor-ish
+      st.length_steps = rng.pick([2,4,6,8]);
+    }
+  }
+}
+
+function applyBackbeat(pattern){
+  const spb = pattern.steps_per_bar;
+  for(let b=0;b<pattern.bars_total;b++){
+    for(const sInBar of [8,24]){
+      const idx = stepIndex(b, sInBar, spb);
+      const st = pattern.tracks.snare.steps[idx];
+      st.on = true; st.vel = 0.95;
+      st.meta = st.meta || {};
+      st.meta.required = true;
+    }
+  }
+}
+
+function initNoisePattern(spec, cond, rng){
+  const spb = spec.global_.steps_per_bar;
+  const bars = spec.global_.bars_total;
+  const swing = spec.global_.swing;
+  const p = makeEmptyPattern(spb, bars, swing);
+
+  // start with more-than-target density, later trimmed
+  const t = spec.pattern_targets;
+  const targets = {
+    kick: clamp(t.kick_density[1] + 0.05, 0.08, 0.55),
+    hat: clamp(t.hat_density[1] + 0.10, 0.12, 0.95),
+    perc: clamp(t.perc_density[1] + 0.05, 0.04, 0.60),
+    bass808: clamp(t.kick_density[1] + 0.02, 0.06, 0.35)
+  };
+
+  for(let b=0;b<bars;b++){
+    for(let s=0;s<spb;s++){
+      const idx = stepIndex(b,s,spb);
+      // hats
+      if(rng.chance(targets.hat)) setOn(p, "hat", idx, true, clamp(0.35 + rng.next()*0.55, 0,1));
+      // kick: prefer downbeats but random
+      const downbeat = (s % 8 === 0);
+      const kickP = downbeat ? targets.kick * 1.3 : targets.kick * 0.7;
+      if(rng.chance(clamp(kickP,0,0.95))) setOn(p,"kick",idx,true, clamp(0.6 + rng.next()*0.4, 0,1));
+      // perc
+      if(rng.chance(targets.perc*0.55)) setOn(p, "perc", idx, true, clamp(0.25 + rng.next()*0.6, 0,1));
+      // bass: follow some kicks
+      if(rng.chance(targets.bass808*0.35)){
+        const st = p.tracks.bass808.steps[idx];
+        st.on = true;
+        st.vel = clamp(0.55 + rng.next()*0.45,0,1);
+        st.note = 36 + rng.pick([0,3,5,7,10,12]);
+        st.length_steps = rng.pick([2,4,6,8]);
+      }
+    }
+  }
+
+  applyBackbeat(p);
+
+  // minimal texture: sparse
+  for(let b=0;b<bars;b++){
+    for(let s=0;s<spb;s++){
+      const idx = stepIndex(b,s,spb);
+      if(rng.chance(0.04)) setOn(p, "texture", idx, true, 0.25);
+    }
+  }
+  return p;
+}
+
+function chooseCandidateStepsForTrack(trackName, spb){
+  // exclude extreme: for kick prefer musically common places
+  const all = Array.from({length: spb}, (_,i)=>i);
+  if(trackName === "kick"){
+    // bias: downbeat & a few sync points
+    return [0, 3, 4, 7, 8, 11, 12, 15, 16, 19, 20, 23, 24, 27, 28, 31];
+  }
+  if(trackName === "hat"){
+    // 1/16 grid (every 2 steps) + extras
+    const base = [];
+    for(let i=0;i<spb;i+=2) base.push(i);
+    return base.concat([1,5,9,13,17,21,25,29]);
+  }
+  if(trackName === "perc"){
+    return [2,6,10,14,18,22,26,30, 1,9,17,25];
+  }
+  if(trackName === "bass808"){
+    return [0,4,8,12,16,20,24,28, 3,7,11,15,19,23,27,31];
+  }
+  return all;
+}
+
+function projectDensityForSection(pattern, trackName, spec, rng, barStart, barCount, multiplier){
+  const spb = pattern.steps_per_bar;
+  const totalSteps = spb * barCount;
+  const startStep = barStart * spb;
+  const endStep = startStep + totalSteps;
+
+  const targets = spec.pattern_targets;
+  let range = [0.05, 0.25];
+  if(trackName === "kick") range = targets.kick_density;
+  if(trackName === "hat") range = targets.hat_density;
+  if(trackName === "perc") range = targets.perc_density;
+  if(trackName === "bass808") range = [targets.kick_density[0]*0.55, targets.kick_density[1]*0.75];
+
+  // apply section multiplier (break, intro, outro)
+  const minD = clamp(range[0] * multiplier, 0, 1);
+  const maxD = clamp(range[1] * multiplier, 0, 1);
+  const minOn = Math.floor(minD * totalSteps);
+  const maxOn = Math.ceil(maxD * totalSteps);
+
+  const isProtected = (idx)=>{
+    // don't touch required snare or (for bass) long notes? keep simple
+    if(trackName === "snare") return isBackbeatStep(idx % spb);
+    return false;
+  };
+
+  // count current
+  let onIdx = [];
+  let offIdx = [];
+  const steps = pattern.tracks[trackName].steps;
+  for(let i=startStep;i<endStep;i++){
+    if(steps[i].on) onIdx.push(i);
+    else offIdx.push(i);
+  }
+
+  // remove if too many
+  while(onIdx.length > maxOn){
+    const i = rng.int(0, onIdx.length-1);
+    const idx = onIdx[i];
+    if(isProtected(idx)) { onIdx.splice(i,1); continue; }
+    steps[idx].on = false; steps[idx].vel = 0.0;
+    if(trackName === "bass808"){ steps[idx].length_steps = 1; }
+    onIdx.splice(i,1);
+    offIdx.push(idx);
+  }
+
+  // add if too few
+  if(onIdx.length < minOn){
+    // candidates within section
+    const candidatesInBar = chooseCandidateStepsForTrack(trackName, spb);
+    const candidateSteps = [];
+    for(let b=barStart; b<barStart+barCount; b++){
+      for(const sInBar of candidatesInBar){
+        candidateSteps.push(stepIndex(b, sInBar, spb));
+      }
+    }
+    rng.shuffle(candidateSteps);
+    for(const idx of candidateSteps){
+      if(onIdx.length >= minOn) break;
+      const st = steps[idx];
+      if(st.on) continue;
+      st.on = true;
+      st.vel = clamp(0.45 + rng.next()*0.55, 0,1);
+      if(trackName === "bass808"){
+        st.note = 36 + rng.pick([0,3,5,7,10,12]);
+        st.length_steps = rng.pick([2,4,6,8]);
+      }
+      onIdx.push(idx);
+    }
+  }
+}
+
+function applySyncopation(pattern, spec, cond, rng, t){
+  // Increase offbeat kicks when conflict exists and intensity high, mostly in main sections
+  const conflict = !!(cond.scene.conflict_sentence && cond.scene.conflict_sentence.length > 0);
+  if(!conflict) return;
+
+  const I = clamp(cond.goal.intensity_0_10/10,0,1);
+  const spb = pattern.steps_per_bar;
+  const bars = pattern.bars_total;
+  const kick = pattern.tracks.kick.steps;
+  const weight = lerp(0.15, 0.60, I) * (1 - t*0.35); // stronger later
+
+  const offbeatPositions = [3,7,11,15,19,23,27,31];
+  for(let b=0;b<bars;b++){
+    const sec = getSectionOfBar(spec, b);
+    if(sec.name === "break") continue;
+    for(const s of offbeatPositions){
+      const idx = stepIndex(b,s,spb);
+      if(!kick[idx].on && rng.chance(weight*0.25)){
+        kick[idx].on = true;
+        kick[idx].vel = clamp(0.55 + rng.next()*0.35, 0,1);
+      }
+    }
+  }
+}
+
+function applyHatRolls(pattern, spec, cond, rng, t){
+  // add a few 1/32 rolls near ends of bars (final phase)
+  const I = clamp(cond.goal.intensity_0_10/10,0,1);
+  const spb = pattern.steps_per_bar;
+  const bars = pattern.bars_total;
+  const hat = pattern.tracks.hat.steps;
+  const chance = lerp(0.04, 0.20, I) * (1 - t); // stronger at end
+  for(let b=0;b<bars;b++){
+    const sec = getSectionOfBar(spec, b);
+    if(sec.name === "break") continue;
+    if(rng.chance(chance)){
+      const s = rng.pick([26,27,28,29,30]);
+      const idx = stepIndex(b,s,spb);
+      hat[idx].on = true;
+      hat[idx].vel = clamp(0.30 + rng.next()*0.50,0,1);
+      // roll: add next step too (if in range)
+      if(s+1 < spb){
+        const idx2 = stepIndex(b,s+1,spb);
+        hat[idx2].on = true;
+        hat[idx2].vel = clamp(hat[idx].vel*0.85, 0,1);
+        hat[idx2].meta = hat[idx2].meta || {};
+        hat[idx2].meta.roll = true;
+      }
+      hat[idx].meta = hat[idx].meta || {};
+      hat[idx].meta.roll = true;
+    }
+  }
+}
+
+function applyBreakMultiplier(pattern, spec, rng){
+  // Ensure break sections reduced density (except required snare)
+  // We'll do it by projecting densities with the section's multiplier.
+  let barAcc = 0;
+  for(const sec of spec.arrangement){
+    const m = sec.density_multiplier;
+    const barStart = barAcc;
+    const barCount = sec.bars;
+    // apply for kick/hat/perc/bass/texture (snare handled separately)
+    for(const tr of ["kick","hat","perc","bass808","texture"]){
+      projectDensityForSection(pattern, tr, spec, rng, barStart, barCount, m);
+    }
+    barAcc += barCount;
+  }
+}
+
+function finalProjectToConstraints(pattern, spec, rng){
+  // 1) enforce backbeat
+  applyBackbeat(pattern);
+  // 2) per-section density projection (handles break too)
+  applyBreakMultiplier(pattern, spec, rng);
+  // 3) ensure pattern lengths & sanity
+  const total = pattern.steps_per_bar * pattern.bars_total;
+  for(const [name, tr] of Object.entries(pattern.tracks)){
+    if(tr.steps.length !== total){
+      tr.steps = tr.steps.slice(0,total);
+      while(tr.steps.length < total){
+        tr.steps.push(name==="bass808" ? ({on:false, vel:0, note:36, length_steps:1, meta:{}}) : ({on:false, vel:0, meta:{}}));
+      }
+    }
+  }
+}
+
+function generatePattern(cond, spec, stepsIter){
+  const rng = new LCG(cond.meta.seed || 1);
+  const pattern = initNoisePattern(spec, cond, rng);
+
+  // protect required snare in noise mutation
+  const protectedMask = (tr, idx) => (tr==="snare" && isBackbeatStep(idx % pattern.steps_per_bar));
+
+  for(let i=0;i<stepsIter;i++){
+    const t = (stepsIter<=1) ? 0 : 1 - i/(stepsIter-1); // 1..0
+    // noise schedule: more exploration early
+    const noiseRate = clamp(t, 0, 1);
+    mutateNoise(pattern, rng, noiseRate, protectedMask);
+
+    // enforce + shape gradually
+    applyBackbeat(pattern);
+
+    // mid phase: push syncopation
+    if(t < 0.75) applySyncopation(pattern, spec, cond, rng, t);
+
+    // late phase: add rolls
+    if(t < 0.35) applyHatRolls(pattern, spec, cond, rng, t);
+
+    // keep section multipliers somewhat throughout
+    if(i % 3 === 0) applyBreakMultiplier(pattern, spec, rng);
+  }
+
+  // final hard projection (guarantee)
+  finalProjectToConstraints(pattern, spec, rng);
+
+  // small clean: bass note length cannot overflow bar
+  const spb = pattern.steps_per_bar;
+  const bass = pattern.tracks.bass808.steps;
+  for(let idx=0;idx<bass.length;idx++){
+    if(!bass[idx].on) continue;
+    const stepInBar = idx % spb;
+    bass[idx].length_steps = clamp(bass[idx].length_steps||2, 1, spb - stepInBar);
+  }
+
+  return pattern;
+}
+
+/* ==========================
+   Sequencer UI
+========================== */
+const TRACKS = [
+  {name:"kick", label:"Kick", pills:["punchy"]},
+  {name:"snare", label:"Snare", pills:["必須backbeat"]},
+  {name:"hat", label:"Hat", pills:["密度/焦り"]},
+  {name:"perc", label:"Perc", pills:["金属感"]},
+  {name:"bass808", label:"808", pills:["低域/前進"]},
+  {name:"texture", label:"Texture", pills:["空気"]},
+];
+
+let currentCondition = null;
+let currentSpec = null;
+let currentPattern = null;
+
+function formatJSON(obj){
+  return JSON.stringify(obj, null, 2);
+}
+
+function updateOutputs(){
+  el("specOut").textContent = currentSpec ? formatJSON(currentSpec) : "";
+  el("patternOut").textContent = currentPattern ? formatJSON(currentPattern) : "";
+
+  // update bar slider bounds
+  const bars = currentSpec?.global_?.bars_total || parseInt(el("bars").value,10);
+  const barR = el("barIndex");
+  barR.max = String(bars);
+  if(parseInt(barR.value,10) > bars) barR.value = String(bars);
+  el("barIndexVal").textContent = barR.value;
+
+  renderSequencer();
+}
+
+function renderSequencer(){
+  const grid = el("seqGrid");
+  grid.innerHTML = "";
+  if(!currentPattern || !currentSpec) return;
+
+  const bar = parseInt(el("barIndex").value, 10) - 1; // 0-based
+  el("barIndexVal").textContent = String(bar+1);
+  const sec = getSectionOfBar(currentSpec, bar);
+  el("sectionBadge").textContent = sec.name;
+
+  const spb = currentPattern.steps_per_bar;
+  const baseIdx = bar * spb;
+
+  TRACKS.forEach(track => {
+    const left = document.createElement("div");
+    left.className = "trackName";
+    left.innerHTML = `<div><strong>${track.label}</strong></div>`;
+    const pills = document.createElement("div");
+    pills.className = "trackPills";
+    track.pills.forEach(p=>{
+      const s = document.createElement("span");
+      s.className="pill";
+      s.textContent = p;
+      pills.appendChild(s);
+    });
+    left.appendChild(pills);
+
+    const right = document.createElement("div");
+    right.className = "steps";
+
+    for(let s=0;s<spb;s++){
+      const idx = baseIdx + s;
+      const step = currentPattern.tracks[track.name].steps[idx];
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "step" + (step.on ? " on": "");
+      const req = (track.name==="snare" && isBackbeatStep(s));
+      if(req) btn.classList.add("req");
+      btn.setAttribute("aria-label", `${track.label} step ${s+1}`);
+
+      btn.addEventListener("click", () => {
+        if(req) return;
+        // toggle
+        step.on = !step.on;
+        step.vel = step.on ? 0.85 : 0.0;
+        if(track.name==="bass808" && step.on){
+          // keep note in a minor-ish pool
+          const rng = new LCG((currentCondition?.meta?.seed || 1) + idx*17);
+          step.note = 36 + rng.pick([0,3,5,7,10,12]);
+          step.length_steps = rng.pick([2,4,6,8]);
+        }
+        // ensure constraints after manual edit: re-project quickly
+        const rng = new LCG(currentCondition?.meta?.seed || 1);
+        finalProjectToConstraints(currentPattern, currentSpec, rng);
+        updateOutputs();
+      });
+
+      right.appendChild(btn);
+    }
+
+    grid.appendChild(left);
+    grid.appendChild(right);
+  });
+}
+
+el("barIndex").addEventListener("input", renderSequencer);
+
+/* ==========================
+   MIDI Writer (no deps)
+========================== */
+function u32be(n){ return [(n>>>24)&255,(n>>>16)&255,(n>>>8)&255,n&255]; }
+function u16be(n){ return [(n>>>8)&255,n&255]; }
+
+function varlen(value){
+  // MIDI variable length quantity
+  let buffer = value & 0x7F;
+  const bytes = [];
+  while((value >>= 7)){
+    buffer <<= 8;
+    buffer |= ((value & 0x7F) | 0x80);
+  }
+  while(true){
+    bytes.push(buffer & 0xFF);
+    if(buffer & 0x80) buffer >>= 8;
+    else break;
+  }
+  return bytes;
+}
+
+function strBytes(s){
+  return Array.from(s).map(ch=>ch.charCodeAt(0));
+}
+
+function buildMidi(pattern, spec){
+  const ppq = 480;
+  const ticksPerStep = Math.floor(ppq / 8); // 32 steps/bar => 8 steps/quarter => 60
+  const bpm = spec.global_.bpm;
+  const mpq = Math.floor(60000000 / bpm);
+
+  // swing: delay offbeat eighth ("and" of beat) within each beat (8 steps per beat)
+  const swing = spec.global_.swing;
+  const beatSteps = 8;
+  const baseOff = 4;
+  const swungOff = Math.round(swing * beatSteps); // 0.5->4, 0.66->5
+  const swingDeltaSteps = clamp(swungOff - baseOff, 0, 3);
+
+  function tickForStep(globalStep){
+    const spb = pattern.steps_per_bar;
+    const bar = Math.floor(globalStep / spb);
+    const stepInBar = globalStep % spb;
+    const beatInBar = Math.floor(stepInBar / beatSteps);
+    const stepInBeat = stepInBar % beatSteps;
+
+    let tick = (bar * spb + stepInBar) * ticksPerStep;
+    // apply swing only when exactly at offbeat eighth (step 4 of beat)
+    if(stepInBeat === baseOff){
+      tick += swingDeltaSteps * ticksPerStep;
+    }
+    return tick;
+  }
+
+  // Collect events as absolute ticks
+  const events0 = []; // meta track
+  // Tempo
+  events0.push({tick:0, bytes:[0xFF,0x51,0x03, (mpq>>16)&255,(mpq>>8)&255, mpq&255]});
+  // Time signature 4/4
+  events0.push({tick:0, bytes:[0xFF,0x58,0x04, 0x04,0x02,0x18,0x08]});
+
+  const events1 = []; // notes track
+  // program change for bass (channel 0)
+  events1.push({tick:0, bytes:[0xC0, 0x26]});
+
+  const spb = pattern.steps_per_bar;
+  const totalSteps = spb * pattern.bars_total;
+
+  const DRUM_CH = 9; // channel 10
+  const BASS_CH = 0;
+
+  const drumMap = {
+    kick: 36,
+    snare: 38,
+    hat: 42,
+    perc: 39,
+    texture: 56 // placeholder
+  };
+
+  function addNote(ch, note, vel, tickOn, tickOff){
+    vel = clamp(Math.round(vel*127), 1, 127);
+    events1.push({tick: tickOn, bytes:[0x90 | (ch & 0x0F), note & 0x7F, vel]});
+    events1.push({tick: tickOff, bytes:[0x80 | (ch & 0x0F), note & 0x7F, 0]});
+  }
+
+  // Drums: 1-step notes
+  for(const trName of ["kick","snare","hat","perc","texture"]){
+    const note = drumMap[trName];
+    const steps = pattern.tracks[trName].steps;
+    for(let i=0;i<totalSteps;i++){
+      if(!steps[i].on) continue;
+      const tickOn = tickForStep(i);
+      const tickOff = tickForStep(i+1);
+      addNote(DRUM_CH, note, steps[i].vel || 0.85, tickOn, tickOff);
+    }
+  }
+
+  // Bass: length_steps
+  const bassSteps = pattern.tracks.bass808.steps;
+  for(let i=0;i<totalSteps;i++){
+    const st = bassSteps[i];
+    if(!st.on) continue;
+    const note = clamp(st.note ?? 36, 0, 127);
+    const tickOn = tickForStep(i);
+    const tickOff = tickForStep(Math.min(i + (st.length_steps||2), totalSteps));
+    addNote(BASS_CH, note, st.vel || 0.85, tickOn, tickOff);
+  }
+
+  function buildTrackChunk(events){
+    events.sort((a,b)=>a.tick-b.tick);
+    const bytes = [];
+    let lastTick = 0;
+    for(const e of events){
+      const dt = Math.max(0, e.tick - lastTick);
+      bytes.push(...varlen(dt), ...e.bytes);
+      lastTick = e.tick;
+    }
+    bytes.push(...varlen(0), 0xFF,0x2F,0x00);
+    const header = [...strBytes("MTrk"), ...u32be(bytes.length)];
+    return new Uint8Array([...header, ...bytes]);
+  }
+
+  const track0 = buildTrackChunk(events0);
+  const track1 = buildTrackChunk(events1);
+
+  // Header chunk
+  const format = 1;
+  const nTracks = 2;
+  const headerData = [...u16be(format), ...u16be(nTracks), ...u16be(ppq)];
+  const header = new Uint8Array([...strBytes("MThd"), ...u32be(6), ...headerData]);
+
+  // concat
+  const out = new Uint8Array(header.length + track0.length + track1.length);
+  out.set(header, 0);
+  out.set(track0, header.length);
+  out.set(track1, header.length + track0.length);
+  return out;
+}
+
+/* ==========================
+   WebAudio preview (simple synth)
+========================== */
+let audioCtx = null;
+let isPlaying = false;
+let schedulerTimer = null;
+let currentStep = 0;
+let nextNoteTime = 0;
+
+function ensureAudio(){
+  if(!audioCtx){
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  return audioCtx;
+}
+
+function midiToFreq(note){
+  return 440 * Math.pow(2, (note-69)/12);
+}
+
+function playKick(time, vel){
+  const ctx = ensureAudio();
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+  o.type = "sine";
+  const f0 = 120, f1 = 42;
+  o.frequency.setValueAtTime(f0, time);
+  o.frequency.exponentialRampToValueAtTime(f1, time + 0.08);
+  g.gain.setValueAtTime(0.0001, time);
+  g.gain.exponentialRampToValueAtTime(0.7*vel, time + 0.003);
+  g.gain.exponentialRampToValueAtTime(0.0001, time + 0.12);
+  o.connect(g).connect(ctx.destination);
+  o.start(time);
+  o.stop(time + 0.13);
+}
+
+function playNoise(time, vel, type){
+  const ctx = ensureAudio();
+  const bufferSize = Math.floor(ctx.sampleRate * 0.12);
+  const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for(let i=0;i<bufferSize;i++){
+    data[i] = (Math.random()*2-1) * (type==="hat" ? 0.6 : 1.0);
+  }
+  const src = ctx.createBufferSource();
+  src.buffer = buffer;
+  const bp = ctx.createBiquadFilter();
+  const hp = ctx.createBiquadFilter();
+  const g = ctx.createGain();
+  if(type==="snare"){
+    bp.type="bandpass"; bp.frequency.setValueAtTime(1800, time); bp.Q.value=0.8;
+    hp.type="highpass"; hp.frequency.setValueAtTime(700, time); hp.Q.value=0.7;
+  } else if(type==="hat"){
+    bp.type="highpass"; bp.frequency.setValueAtTime(7000, time); bp.Q.value=0.7;
+    hp.type="highpass"; hp.frequency.setValueAtTime(9000, time); hp.Q.value=0.7;
+  } else {
+    bp.type="bandpass"; bp.frequency.setValueAtTime(3200, time); bp.Q.value=1.4;
+    hp.type="highpass"; hp.frequency.setValueAtTime(1200, time); hp.Q.value=0.9;
+  }
+  g.gain.setValueAtTime(0.0001, time);
+  g.gain.exponentialRampToValueAtTime(0.5*vel, time + 0.002);
+  g.gain.exponentialRampToValueAtTime(0.0001, time + (type==="hat" ? 0.06 : 0.10));
+  src.connect(bp).connect(hp).connect(g).connect(ctx.destination);
+  src.start(time);
+  src.stop(time + 0.12);
+}
+
+function playBass(time, vel, note, durSec){
+  const ctx = ensureAudio();
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+  o.type = "sine";
+  o.frequency.setValueAtTime(midiToFreq(note), time);
+  g.gain.setValueAtTime(0.0001, time);
+  g.gain.exponentialRampToValueAtTime(0.22*vel, time + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001, time + durSec);
+  o.connect(g).connect(ctx.destination);
+  o.start(time);
+  o.stop(time + durSec + 0.02);
+}
+
+function scheduleStep(stepIdx, time){
+  if(!currentPattern || !currentSpec) return;
+  const spb = currentPattern.steps_per_bar;
+  const totalSteps = spb * currentPattern.bars_total;
+  const idx = stepIdx % totalSteps;
+
+  const kick = currentPattern.tracks.kick.steps[idx];
+  const snare = currentPattern.tracks.snare.steps[idx];
+  const hat = currentPattern.tracks.hat.steps[idx];
+  const perc = currentPattern.tracks.perc.steps[idx];
+  const tex = currentPattern.tracks.texture.steps[idx];
+  const bass = currentPattern.tracks.bass808.steps[idx];
+
+  if(kick.on) playKick(time, kick.vel||0.8);
+  if(snare.on) playNoise(time, snare.vel||0.9, "snare");
+  if(hat.on) playNoise(time, hat.vel||0.5, "hat");
+  if(perc.on) playNoise(time, perc.vel||0.5, "perc");
+  if(tex.on) playNoise(time, tex.vel||0.3, "perc");
+
+  if(bass.on){
+    const stepDur = (60/currentSpec.global_.bpm) / 8;
+    const dur = stepDur * (bass.length_steps || 2);
+    playBass(time, bass.vel||0.8, bass.note||36, dur);
+  }
+}
+
+function updatePlayingMarker(){
+  const bar = parseInt(el("barIndex").value, 10) - 1;
+  const spb = currentPattern?.steps_per_bar || 32;
+  const baseIdx = bar * spb;
+  const local = (currentStep % (spb*currentPattern.bars_total)) - baseIdx;
+  const grid = el("seqGrid");
+  if(!grid) return;
+  const btns = grid.querySelectorAll(".step");
+  btns.forEach(b=>b.classList.remove("playing"));
+  if(local >=0 && local < spb){
+    TRACKS.forEach((t, rIdx)=>{
+      const indexInAll = rIdx*spb + local;
+      const b = btns[indexInAll];
+      if(b) b.classList.add("playing");
+    });
+  }
+}
+
+function startPlayback(){
+  if(isPlaying) return;
+  if(!currentPattern || !currentSpec){
+    toast("先に「生成」を押してください");
+    return;
+  }
+  const ctx = ensureAudio();
+  ctx.resume?.();
+  isPlaying = true;
+  currentStep = 0;
+  nextNoteTime = ctx.currentTime + 0.05;
+
+  const bpm = currentSpec.global_.bpm;
+  const spb = currentPattern.steps_per_bar;
+  const stepDur = (60/bpm) / 8;
+
+  const lookahead = 0.12;
+  const intervalMs = 25;
+
+  schedulerTimer = setInterval(()=>{
+    const now = ctx.currentTime;
+    while(nextNoteTime < now + lookahead){
+      scheduleStep(currentStep, nextNoteTime);
+      const beatSteps = 8;
+      const baseOff = 4;
+      const swing = currentSpec.global_.swing;
+      const swungOff = Math.round(swing * beatSteps);
+      const delta = Math.max(0, swungOff - baseOff);
+      const stepInBeat = (currentStep % spb) % beatSteps;
+      let adv = stepDur;
+      if(stepInBeat === baseOff) adv += delta * stepDur;
+      nextNoteTime += adv;
+      currentStep++;
+    }
+    updatePlayingMarker();
+  }, intervalMs);
+
+  toast("再生開始（簡易音源）");
+}
+
+function stopPlayback(){
+  isPlaying = false;
+  if(schedulerTimer){
+    clearInterval(schedulerTimer);
+    schedulerTimer = null;
+  }
+  const grid = el("seqGrid");
+  if(grid){
+    grid.querySelectorAll(".step").forEach(b=>b.classList.remove("playing"));
+  }
+  toast("停止");
+}
+
+el("btnPlay").addEventListener("click", startPlayback);
+el("btnStop").addEventListener("click", stopPlayback);
+
+/* ==========================
+   Buttons: Generate / Download / Copy
+========================== */
+function regenerate(){
+  stopPlayback();
+  const cond = makeConditionFromUI();
+  const rng = new LCG(cond.meta.seed || 1);
+  const spec = planSpec(cond, rng);
+  const stepsIter = parseInt(el("stepsIter").value, 10);
+  const pattern = generatePattern(cond, spec, stepsIter);
+
+  currentCondition = cond;
+  currentSpec = spec;
+  currentPattern = pattern;
+
+  updateOutputs();
+  toast("生成しました（Pattern/MIDI準備OK）");
+}
+
+el("btnGenerate").addEventListener("click", regenerate);
+
+el("btnDownload").addEventListener("click", ()=>{
+  if(!currentPattern || !currentSpec){
+    toast("先に「生成」を押してください");
+    return;
+  }
+  const midi = buildMidi(currentPattern, currentSpec);
+  const blob = new Blob([midi], {type: "audio/midi"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const safeName = (currentCondition?.goal?.primary_emotion || "beat") + "_bpm" + currentSpec.global_.bpm + "_seed" + (currentCondition?.meta?.seed || 1);
+  a.href = url;
+  a.download = safeName + ".mid";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  toast("MIDIを書き出しました");
+});
+
+async function copyText(text){
+  try{
+    await navigator.clipboard.writeText(text);
+    toast("コピーしました");
+  }catch(e){
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    ta.remove();
+    toast("コピーしました（fallback）");
+  }
+}
+
+el("btnCopySpec").addEventListener("click", ()=>{
+  if(!currentSpec){ toast("先に「生成」を押してください"); return; }
+  copyText(formatJSON(currentSpec));
+});
+el("btnCopyPattern").addEventListener("click", ()=>{
+  if(!currentPattern){ toast("先に「生成」を押してください"); return; }
+  copyText(formatJSON(currentPattern));
+});
+
+/* Initial generate */
+regenerate();
+</script>
+</body>
+</html>

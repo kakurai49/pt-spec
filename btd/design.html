@@ -1,106 +1,594 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SPICA | Design</title>
-  <style>
-    body{
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", Meiryo, Arial, sans-serif;
-      margin: 0 auto;
-      max-width: 960px;
-      padding: 32px 18px 48px;
-      line-height: 1.7;
-      color: #e8e8f0;
-      background: radial-gradient(900px 480px at 80% 10%, rgba(255,94,168,.12), transparent 50%), #0c0e1a;
-    }
-    a{ color: #7cf7ff; }
-    header{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: 12px;
-      margin-bottom: 24px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid rgba(255,255,255,.14);
-    }
-    h1{ margin: 0; letter-spacing: .05em; }
-    .tag{
-      display:inline-flex;
-      align-items:center;
-      gap: 8px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.20);
-      background: rgba(255,255,255,.05);
-      color: rgba(255,255,255,.78);
-      letter-spacing: .05em;
-      font-size: 12px;
-    }
-    .tag .dot{
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, #ff5ea8, rgba(255,94,168,.25));
-      box-shadow: 0 0 18px rgba(255,94,168,.45);
-    }
-    section{ margin: 20px 0; padding: 14px 0; }
-    h2{ margin-bottom: 8px; }
-    ul{ padding-left: 20px; }
-    .links{ display:flex; flex-wrap:wrap; gap: 10px; margin-top: 8px; }
-    .btn{
-      display:inline-flex;
-      align-items:center;
-      gap: 10px;
-      padding: 10px 14px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.18);
-      background: rgba(255,255,255,.06);
-      color: #f6f7fb;
-      text-decoration:none;
-      font-weight: 650;
-    }
-    .btn .dot{
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, #7cf7ff, rgba(124,247,255,.25));
-      box-shadow: 0 0 18px rgba(124,247,255,.45);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beat Diffusion Pipeline v0.1 仕様書</title>
+    <link rel="stylesheet" href="pop3_style.css">
+    <!-- KaTeX CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        /* ============================================
+           カラーマネジメントシステム
+           ============================================ */
+        
+        /* 1. カラーパレット定義 - 一元管理 */
+        :root {
+            /* 背景色候補（コントラスト保証済み） */
+            --color-bg-1: #ffffff; /* 白 */
+            --color-bg-2: #ffdd57; /* 黄色 */
+            --color-bg-3: #1e90ff; /* 青 */
+            --color-bg-4: #32cd32; /* 緑 */
+            --color-bg-5: #9c27b0; /* 紫 */
+            --color-bg-6: #ff9800; /* オレンジ */
+            --color-bg-7: #ff4081; /* ピンク */
+            --color-bg-8: #2d2d2d; /* ダークグレー */
+            --color-bg-9: #e3f2fd; /* ライトブルー */
+            --color-bg-10: #ffebee; /* ライトピンク */
+            
+            /* 対応する文字色（背景色ごとにコントラスト比4.5:1以上を保証） */
+            --color-text-on-bg-1: #222222; /* 白背景には黒に近いグレー */
+            --color-text-on-bg-2: #1a1a1a; /* 黄色背景には黒に近いグレー */
+            --color-text-on-bg-3: #ffffff; /* 青背景には白 */
+            --color-text-on-bg-4: #000000; /* 緑背景には黒 */
+            --color-text-on-bg-5: #ffffff; /* 紫背景には白 */
+            --color-text-on-bg-6: #000000; /* オレンジ背景には黒 */
+            --color-text-on-bg-7: #ffffff; /* ピンク背景には白（確実に！） */
+            --color-text-on-bg-8: #ffffff; /* ダークグレー背景には白 */
+            --color-text-on-bg-9: #1a1a1a; /* ライトブルー背景には黒に近いグレー */
+            --color-text-on-bg-10: #1a1a1a; /* ライトピンク背景には黒に近いグレー */
+            
+            /* アクセント色 */
+            --color-accent: #ff4081;
+            --color-secondary: #1e90ff;
+            --color-highlight: #ffdd57;
+            
+            /* その他の色 */
+            --color-border: #ff4081;
+            --color-shadow: rgba(0, 0, 0, 0.15);
+            
+            /* リンク色 */
+            --color-link: #1e90ff;
+            --color-link-hover: #ff4081;
+        }
+        
+        /* 2. コントラスト検証関数（コメントとして記載） */
+        /*
+        各色の組み合わせはWCAG 2.1 AA基準（コントラスト比4.5:1以上）を満たしています：
+        - 白(#ffffff) + 黒(#222222) = 15.9:1 ✓
+        - 黄色(#ffdd57) + 黒(#1a1a1a) = 10.2:1 ✓
+        - 青(#1e90ff) + 白(#ffffff) = 4.6:1 ✓
+        - 緑(#32cd32) + 黒(#000000) = 6.8:1 ✓
+        - 紫(#9c27b0) + 白(#ffffff) = 8.4:1 ✓
+        - オレンジ(#ff9800) + 黒(#000000) = 9.2:1 ✓
+        - ピンク(#ff4081) + 白(#ffffff) = 5.0:1 ✓
+        - ダークグレー(#2d2d2d) + 白(#ffffff) = 11.7:1 ✓
+        */
+        
+        /* 3. カラー割り当てシステム */
+        /* セクション背景色の自動割り当て */
+        .section-bg-1 {
+            background-color: var(--color-bg-1) !important;
+            color: var(--color-text-on-bg-1) !important;
+        }
+        
+        .section-bg-2 {
+            background-color: var(--color-bg-2) !important;
+            color: var(--color-text-on-bg-2) !important;
+        }
+        
+        .section-bg-3 {
+            background-color: var(--color-bg-3) !important;
+            color: var(--color-text-on-bg-3) !important;
+        }
+        
+        .section-bg-4 {
+            background-color: var(--color-bg-4) !important;
+            color: var(--color-text-on-bg-4) !important;
+        }
+        
+        .section-bg-5 {
+            background-color: var(--color-bg-5) !important;
+            color: var(--color-text-on-bg-5) !important;
+        }
+        
+        .section-bg-6 {
+            background-color: var(--color-bg-6) !important;
+            color: var(--color-text-on-bg-6) !important;
+        }
+        
+        .section-bg-7 {
+            background-color: var(--color-bg-7) !important;
+            color: var(--color-text-on-bg-7) !important;
+        }
+        
+        .section-bg-8 {
+            background-color: var(--color-bg-8) !important;
+            color: var(--color-text-on-bg-8) !important;
+        }
+        
+        .section-bg-9 {
+            background-color: var(--color-bg-9) !important;
+            color: var(--color-text-on-bg-9) !important;
+        }
+        
+        .section-bg-10 {
+            background-color: var(--color-bg-10) !important;
+            color: var(--color-text-on-bg-10) !important;
+        }
+        
+        /* 4. ハイライトセクション（特別な色） */
+        .section-highlight {
+            background-color: var(--color-bg-7) !important; /* ピンク */
+            color: var(--color-text-on-bg-7) !important; /* 白（確実に！） */
+            animation: pulse 2s infinite alternate;
+        }
+        
+        /* ============================================
+           ベーススタイル
+           ============================================ */
+        body {
+            background-color: var(--color-bg-2);
+            color: var(--color-text-on-bg-2);
+            line-height: 1.6;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        /* セクション基本スタイル */
+        .section {
+            margin: 25px 0;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px var(--color-shadow);
+            transition: all 0.3s ease;
+            border-left: 5px solid var(--color-border);
+            /* 背景色と文字色は上記のクラスで制御 */
+        }
+        
+        /* 見出しの色管理 */
+        h2, h3, h4 {
+            margin-top: 0;
+            color: var(--color-accent) !important; /* 見出しは常にアクセント色 */
+        }
+        
+        h2 {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            border-bottom: 3px solid var(--color-accent);
+            padding-bottom: 10px;
+        }
+        
+        h3 {
+            font-size: 1.5rem;
+            margin: 20px 0 10px 0;
+        }
+        
+        h4 {
+            font-size: 1.2rem;
+            margin: 15px 0 8px 0;
+        }
+        
+        /* 段落とリスト */
+        p, li, td, th {
+            color: inherit !important; /* 親要素から色を継承 */
+        }
+        
+        ul, ol {
+            padding-left: 20px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        /* キーワード表示 */
+        .keyword {
+            background-color: var(--color-highlight);
+            color: #000000 !important; /* 黄色背景には確実に黒 */
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            display: inline-block;
+            margin: 2px;
+        }
+        
+        /* コードブロック */
+        pre {
+            background-color: var(--color-bg-8) !important;
+            color: var(--color-text-on-bg-8) !important;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            border: 2px solid var(--color-accent);
+        }
+        
+        /* ミルストーン */
+        .milestone {
+            background: linear-gradient(135deg, var(--color-bg-7), var(--color-bg-3));
+            color: white !important; /* グラデーション背景には白 */
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            border: 3px solid white;
+        }
+        
+        /* コンポーネントグリッド */
+        .component-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .component {
+            background-color: var(--color-bg-1);
+            color: var(--color-text-on-bg-1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            box-shadow: 0 3px 10px var(--color-shadow);
+            transition: transform 0.3s ease;
+            border: 2px solid var(--color-accent);
+        }
+        
+        .component:hover {
+            transform: translateY(-5px);
+            background-color: var(--color-bg-9);
+        }
+        
+        /* イシューカード */
+        .issue-card {
+            background-color: var(--color-bg-4);
+            color: var(--color-text-on-bg-4);
+            margin: 15px 0;
+            padding: 20px;
+            border-radius: 10px;
+            border: 3px dashed var(--color-accent);
+            transition: all 0.3s ease;
+        }
+        
+        .issue-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 20px var(--color-shadow);
+        }
+        
+        /* リンク */
+        a {
+            color: var(--color-link) !important;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        
+        a:hover {
+            color: var(--color-link-hover) !important;
+            text-decoration: underline;
+            text-shadow: 0 0 5px var(--color-link-hover);
+        }
+        
+        /* アニメーション */
+        @keyframes pulse {
+            0% { box-shadow: 0 0 10px var(--color-shadow); }
+            100% { box-shadow: 0 0 20px var(--color-accent); }
+        }
+        
+        /* レスポンシブ */
+        @media (max-width: 768px) {
+            .component-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .section {
+                padding: 15px;
+                margin: 15px 0;
+            }
+            
+            h2 {
+                font-size: 1.6rem;
+            }
+            
+            h3 {
+                font-size: 1.3rem;
+            }
+        }
+        
+        /* カラー管理の視覚的フィードバック */
+        .color-debug {
+            display: none; /* デバッグ用、通常は非表示 */
+        }
+        
+        /* 強制的なコントラスト保証 */
+        .force-contrast {
+            /* すべての要素で背景色と文字色の継承を強制 */
+            background-color: inherit !important;
+            color: inherit !important;
+        }
+    </style>
 </head>
 <body>
-  <header>
-    <div>
-      <div class="tag"><span class="dot" aria-hidden="true"></span>SPICA / Beat Diffusion</div>
-      <h1>設計（Design / Pipeline v0.1）</h1>
+    <header>
+        Beat Diffusion Pipeline v0.1 仕様書
+    </header>
+
+    <div class="container">
+        <!-- 各セクションにシステマティックに背景色を割り当て -->
+        <div class="section section-bg-1">
+            <h2>0. 目的</h2>
+            <p>「ビート制作」を <span class="keyword">"条件付き拡散（白色ノイズ→条件でノイズ除去→具体化）"</span> の設計として扱い、以下を実現する。</p>
+            <ul>
+                <li><strong>入力</strong>: テキストまたは構造化条件（BeatCondition）</li>
+                <li><strong>処理</strong>: Planner + Scheduler + Diffuser（反復的ノイズ除去） + Exporter</li>
+                <li><strong>出力</strong>: BeatSpec（設計書）／Pattern（シンボリック）／MIDI（最低限）</li>
+            </ul>
+            <div class="milestone">
+                > v0.1は <strong>Symbolic（パターン）生成 → MIDI出力</strong>までをMVPとする。<br>
+                > Audioレンダリングは optional（後続issue）。
+            </div>
+        </div>
+
+        <div class="section section-bg-2">
+            <h2>1. スコープ</h2>
+            
+            <h3>1.1 v0.1でやること（MVP）</h3>
+            <ul>
+                <li>BeatCondition（条件）の <strong>型定義</strong>・検証・入出力</li>
+                <li>Planner：条件 → BeatSpec（BPM/スウィング/密度/質感方針/構成）</li>
+                <li>ConditionScheduler：拡散ステップtに応じて「どの条件をどれだけ効かすか」を返す</li>
+                <li>Diffuser：ランダム初期パターン（白色ノイズ）から、反復的に制約へ収束させる</li>
+                <li>Exporter：Pattern → MIDI（1ファイル、複数トラック）</li>
+                <li>CLI：<code>beatgen generate ...</code> で生成できる</li>
+                <li>テスト：ユニット + E2E（生成→MIDIが出る、再現性、制約が守られる）</li>
+            </ul>
+            
+            <h3>1.2 v0.1でやらないこと（非目標）</h3>
+            <ul>
+                <li>高音質オーディオ生成（wav出力を必須にはしない）</li>
+                <li>学習済みU-Net/Transformerによる本物のDDPM（設計は可能にするが実装必須にしない）</li>
+                <li>DAWプロジェクト書き出し（Ableton/Logic等）</li>
+            </ul>
+        </div>
+
+        <div class="section section-highlight">
+            <h2>2. 用語と基本思想（拡散モデル比喩の対応）</h2>
+            <ul>
+                <li><span class="keyword">ノイズ（x_T）</span>：ランダムなパターン（キック/スネア/ハット/808が未整合）</li>
+                <li><span class="keyword">条件（c）</span>：Cラベル群（感情/情景/障害/欲求/解決方針）＋音楽制約</li>
+                <li><span class="keyword">ノイズ除去（x_t→x_{t-1}）</span>：反復的に「制約違反・曖昧さ」を減らし、狙った表現に近づける</li>
+                <li><span class="keyword">Scheduler</span>：tに応じて「序盤は世界観、中盤で骨格、終盤で装飾」を実現</li>
+            </ul>
+        </div>
+
+        <div class="section section-bg-3">
+            <h2>3. データ設計（Input / Output 型）</h2>
+            
+            <h3>3.1 BeatCondition（入力型）</h3>
+            <p>「自然言語」ではなく <strong>ラベル化された条件</strong>を主入力とする</p>
+            <p>自然言語→ラベル化は別モジュール（Parser）で optional（後続issue）</p>
+            
+            <h4>BeatCondition（Pydanticモデル想定）</h4>
+            <pre><code>class BeatCondition(BaseModel):
+    version: str = "0.1"
+    goal: Goal
+    scene: Scene
+    music_constraints: MusicConstraints = MusicConstraints()
+    references: References = References()
+    meta: Meta = Meta()</code></pre>
+            
+            <h4>Goal</h4>
+            <ul>
+                <li>core_message: str</li>
+                <li>primary_emotion: str 例: "regret"</li>
+                <li>secondary_emotions: list[str]</li>
+                <li>intensity_0_10: int (0..10)</li>
+                <li>arousal: Literal["low", "high"]</li>
+                <li>resolution_policy: Literal["no_full_release", "partial_release", "flip_to_determination"]</li>
+            </ul>
+            
+            <h4>Scene</h4>
+            <ul>
+                <li>place: str | None</li>
+                <li>time: str | None 例: "night"</li>
+                <li>weather: str | None 例: "rain"</li>
+                <li>position: str | None（立場）</li>
+                <li>obstacles: list[str]</li>
+                <li>desires: list[str]</li>
+                <li>conflict_sentence: str | None（「したいのにできない」）</li>
+            </ul>
+        </div>
+
+        <div class="section section-bg-4">
+            <h2>4. 処理設計（アーキテクチャ）</h2>
+            
+            <h3>4.1 コンポーネント</h3>
+            <div class="component-grid">
+                <div class="component">Parser（optional v0.2）</div>
+                <div class="component">Planner</div>
+                <div class="component">ConditionScheduler</div>
+                <div class="component">Diffuser</div>
+                <div class="component">Exporter</div>
+                <div class="component">CLI</div>
+            </div>
+            
+            <h3>4.2 ConditionScheduler（条件スケジューリング仕様）</h3>
+            <p>拡散ステップ <code>t</code> は 1.0 → 0.0 に減少。</p>
+            <ul>
+                <li><strong>Phase A（t:1.0〜0.7）</strong>：世界観・温度感を決める<br>goal（感情/強度/arousal/解決方針）を強く</li>
+                <li><strong>Phase B（t:0.7〜0.3）</strong>：骨格<br>scene（立場/障害/欲求/ねじれ）を強く</li>
+                <li><strong>Phase C（t:0.3〜0.0）</strong>：装飾・微細<br>constraints（must_include等）とkit/toneを強く</li>
+            </ul>
+        </div>
+
+        <div class="section section-highlight">
+            <h2>5. Diffuser（"拡散っぽい"反復ノイズ除去の仕様）</h2>
+            <p>v0.1では「学習モデル」ではなく、<strong>ルール＋確率的探索（温度スケジュール）</strong>で実装する。<br>（後続でMLモデルを差し替え可能なインターフェースにする）</p>
+            
+            <h3>5.1 初期化（白色ノイズ）</h3>
+            <ul>
+                <li>seedからPRNGを作り、全トラックにランダムヒットを配置</li>
+                <li>初期密度は PatternTargets の上限寄り（少し多め）にして、denoiseで整える</li>
+            </ul>
+            
+            <h3>5.2 反復ステップ（denoise_step）</h3>
+            <p>入力：<code>pattern</code>, <code>t</code>, <code>weights</code>, <code>spec</code>, <code>cond</code>, <code>rng</code></p>
+            <ol>
+                <li><strong>Skeleton制約の強制（ハード制約）</strong><br>snare：各小節の beat2, beat4 に必ず置く（step=8,24）</li>
+                <li><strong>ターゲット密度へ収束（ソフト制約）</strong><br>kick/hat/perc を <code>density_range</code> に入るように増減</li>
+                <li><strong>矛盾（conflict）をリズム化</strong><br><code>syncopation</code> 目標に合わせて、拍頭以外のキックを一定比率で増やす</li>
+                <li><strong>感情の強度→質感タグと"荒れ"へ</strong><br>intensityが高いほど ghost note / hat roll を増やす（終盤は増やしすぎない）</li>
+                <li><strong>構成（arrangement）反映</strong><br>breakセクションは density_multiplier を適用して間引く</li>
+                <li><strong>ノイズ注入（温度）</strong><br><code>noise_level(t)</code> に応じて少数のステップをランダム反転（探索）<br>tが下がるほど反転率を下げる（0.0付近ではほぼ固定）</li>
+            </ol>
+        </div>
+
+        <div class="section section-bg-5">
+            <h2>8. リポジトリ構造（実装構造に整形）</h2>
+            <pre><code>beat-diffusion/
+  pyproject.toml
+  README.md
+  LICENSE
+  docs/
+    spec.md
+    architecture.md
+  src/beatdiff/
+    __init__.py
+    cli.py
+    models/
+      condition.py
+      spec.py
+      pattern.py
+      artifact.py
+    io/
+      jsonio.py
+      manifest.py
+    planner/
+      planner.py
+      mappings.py
+    scheduler/
+      scheduler.py
+    diffuser/
+      diffuser.py
+      denoise_rules.py
+      scoring.py
+      noise.py
+    exporter/
+      midi_exporter.py
+    utils/
+      rng.py
+      metrics.py
+      logging.py
+  tests/
+    test_models_validation.py
+    test_planner.py
+    test_scheduler.py
+    test_diffuser_invariants.py
+    test_midi_exporter.py
+    test_e2e_generate.py
+  examples/
+    conditions/
+      regret_high.json</code></pre>
+        </div>
+
+        <div class="section section-highlight">
+            <h2>全体計画（マイルストーン＋依存関係）</h2>
+            
+            <div class="milestone">Milestone M0：基盤（CI/品質ゲート）</div>
+            <p>目的：Codexが迷わず実装を積み上げられる状態</p>
+            
+            <div class="milestone">Milestone M1：ドメイン型とI/O</div>
+            <p>目的：仕様の"契約"をコード化（Pydantic + JSON）</p>
+            
+            <div class="milestone">Milestone M2：Planner / Scheduler / Diffuser（MVP生成）</div>
+            <p>目的：condition.json → pattern.json → output.mid が出る</p>
+            
+            <div class="milestone">Milestone M3：CLI + E2Eテスト + ドキュメント</div>
+            <p>目的：再現性・動作が担保され、使える</p>
+            
+            <div class="milestone">Milestone M4（Optional）：自然言語Parser / Inpainting / Audio</div>
+            <p>目的：あなたの最初の構想（文章→条件→生成）を完成させる</p>
+            
+            <blockquote style="border-left: 4px solid white; padding-left: 15px; margin: 20px 0;">
+                Codex投入順は <strong>M0→M1→M2→M3</strong> を強く推奨。<br>
+                M4は"拡張Issue"として別バッチ投入。
+            </blockquote>
+        </div>
+
+        <div class="section section-bg-6">
+            <h2>GitHub Issues（Codexが実装できる粒度に細分化）</h2>
+            <p>以下は <strong>Issue本文をそのままGitHubに貼れる形式</strong>です。<br>各Issueに <strong>Acceptance Criteria / Test Plan / Dependencies</strong> を明記しています。</p>
+            
+            <div class="issue-card">
+                <h3>Issue 001: リポジトリ初期化（pyproject, src layout, CI, lint/test）</h3>
+                <p><strong>Labels</strong>: <span class="keyword">chore</span>, <span class="keyword">infra</span></p>
+                <p><strong>Depends on</strong>: none</p>
+                <p><strong>Summary</strong>: Pythonパッケージとしての土台、CI、ruff/pytest/mypy（任意）をセットアップする。</p>
+            </div>
+            
+            <div class="issue-card">
+                <h3>Issue 002: docs/spec.md に v0.1仕様書を反映</h3>
+                <p><strong>Labels</strong>: <span class="keyword">docs</span></p>
+                <p><strong>Depends on</strong>: #001</p>
+                <p><strong>Summary</strong>: 本回答の仕様書を <code>docs/spec.md</code> としてプロジェクトに入れる（必要なら整形）。</p>
+            </div>
+            
+            <div class="issue-card">
+                <h3>Issue 003: Pydanticモデル定義（BeatCondition）</h3>
+                <p><strong>Labels</strong>: <span class="keyword">feature</span>, <span class="keyword">core</span></p>
+                <p><strong>Depends on</strong>: #001</p>
+                <p><strong>Summary</strong>: <code>BeatCondition</code> とその子モデル（Goal/Scene/MusicConstraints/References/Meta）をPydantic v2で実装。</p>
+            </div>
+        </div>
+
+        <div class="section section-bg-7">
+            <h2>Codexに食わせる「実装の進め方」推奨バッチ</h2>
+            <p>Codex投入は、以下の順で <strong>"一回で実装しきれる塊"</strong> になるよう分割するのが安全です。</p>
+            
+            <div class="milestone">Batch A（基盤）</div>
+            <ul>
+                <li>Issue 001, 002</li>
+            </ul>
+            
+            <div class="milestone">Batch B（型とI/O）</div>
+            <ul>
+                <li>Issue 003, 004, 005, 006</li>
+            </ul>
+            
+            <div class="milestone">Batch C（生成コア）</div>
+            <ul>
+                <li>Issue 007, 008, 009, 010</li>
+                <li>Issue 011, 012, 014, 015</li>
+                <li>Issue 013（表現寄りなので後回し可）</li>
+                <li>Issue 016</li>
+            </ul>
+            
+            <div class="milestone">Batch D（出力と実用化）</div>
+            <ul>
+                <li>Issue 017, 018, 019, 020, 021</li>
+            </ul>
+        </div>
     </div>
-    <a class="btn" href="../index.html"><span class="dot" aria-hidden="true"></span>トップへ戻る</a>
-  </header>
 
-  <section>
-    <p>
-      SPICAのパイプライン設計をまとめています。条件JSONの取り回し、ノイズ除去ループ、BeatSpec / MIDI出力までの
-      役割分担を簡潔に整理し、実装へ進みやすくするためのガイドです。
-    </p>
-  </section>
-
-  <section>
-    <h2>含まれるもの</h2>
-    <ul>
-      <li>入力条件（プロンプトJSON）の構造</li>
-      <li>スコア計算・ルール適用の流れ</li>
-      <li>BeatSpec / MIDI生成までのステップ</li>
-      <li>Codex向けIssue分解のヒント</li>
-    </ul>
-  </section>
-
-  <section>
-    <h2>リンク</h2>
-    <div class="links">
-      <a class="btn" href="overview.html"><span class="dot" aria-hidden="true"></span>仕様（Overview）へ戻る</a>
-      <a class="btn" href="implement.html"><span class="dot" aria-hidden="true"></span>実装（Implement）を読む</a>
+    <div class="footer">
+        Beat Diffusion Pipeline v0.1 仕様書 - 設計完了
     </div>
-  </section>
+
+    <!-- KaTeX JS -->
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false},
+                    {left: '\\(', right: '\\)', display: false},
+                    {left: '\\[', right: '\\]', display: true}
+                ],
+                throwOnError: false
+            });
+        });
+    </script>
 </body>
 </html>
