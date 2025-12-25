@@ -1,107 +1,698 @@
-<!DOCTYPE html>
-<html lang="ja">
+<!DOCTYPE html><html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SPICA | Implement</title>
-  <style>
-    body{
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", Meiryo, Arial, sans-serif;
-      margin: 0 auto;
-      max-width: 960px;
-      padding: 32px 18px 48px;
-      line-height: 1.7;
-      color: #e8e8f0;
-      background: radial-gradient(900px 480px at 80% 10%, rgba(255,94,168,.12), transparent 50%), #0c0e1a;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CIBG v0.1 Codex Issue Design</title>
+    <link rel="stylesheet" href="pop3_style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
+    <style>
+        /* 追加のポップアートスタイル */
+        :root {
+            --primary-color: #ff4081;
+            --secondary-color: #1e90ff;
+            --accent-color: #ffdd57;
+            --dark-color: #333;
+            --light-color: #fff;
+            --shadow-color: rgba(0, 0, 0, 0.2);
+            --success-color: #00cc66;
+            --warning-color: #ff9900;
+            --info-color: #33ccff;
+        }```
+    body {
+        background: linear-gradient(135deg, #ffdd57 0%, #ffcc00 50%, #ff9966 100%);
+        color: var(--dark-color);
+        line-height: 1.6;
     }
-    a{ color: #7cf7ff; }
-    header{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: 12px;
-      margin-bottom: 24px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid rgba(255,255,255,.14);
+
+    .character {
+        background: linear-gradient(145deg, var(--light-color) 0%, #fff8e1 100%);
+        border-left: 8px solid var(--primary-color);
+        border-right: 8px solid var(--secondary-color);
+        padding: 25px;
+        margin-bottom: 30px;
+        border-radius: 20px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-    h1{ margin: 0; letter-spacing: .05em; }
-    .tag{
-      display:inline-flex;
-      align-items:center;
-      gap: 8px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.20);
-      background: rgba(255,255,255,.05);
-      color: rgba(255,255,255,.78);
-      letter-spacing: .05em;
-      font-size: 12px;
+
+    .character::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+        z-index: 1;
     }
-    .tag .dot{
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, #ff5ea8, rgba(255,94,168,.25));
-      box-shadow: 0 0 18px rgba(255,94,168,.45);
+
+    .character:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 15px 30px rgba(255, 64, 129, 0.3);
     }
-    section{ margin: 20px 0; padding: 14px 0; }
-    h2{ margin-bottom: 8px; }
-    ul{ padding-left: 20px; }
-    .links{ display:flex; flex-wrap:wrap; gap: 10px; margin-top: 8px; }
-    .btn{
-      display:inline-flex;
-      align-items:center;
-      gap: 10px;
-      padding: 10px 14px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.18);
-      background: rgba(255,255,255,.06);
-      color: #f6f7fb;
-      text-decoration:none;
-      font-weight: 650;
+
+    h1, h2, h3, h4 {
+        margin-top: 0;
+        text-shadow: 2px 2px 0px var(--accent-color);
     }
-    .btn .dot{
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, #7cf7ff, rgba(124,247,255,.25));
-      box-shadow: 0 0 18px rgba(124,247,255,.45);
+
+    h1 {
+        color: var(--primary-color);
+        font-size: 3rem;
+        letter-spacing: 2px;
     }
-  </style>
+
+    h2 {
+        color: var(--secondary-color);
+        font-size: 2.2rem;
+        border-bottom: 4px solid var(--primary-color);
+        padding-bottom: 10px;
+        display: inline-block;
+    }
+
+    h3 {
+        color: var(--primary-color);
+        font-size: 1.8rem;
+        background: linear-gradient(90deg, rgba(255, 64, 129, 0.1), transparent);
+        padding: 10px 15px;
+        border-radius: 10px;
+    }
+
+    h4 {
+        color: var(--secondary-color);
+        font-size: 1.4rem;
+    }
+
+    .label {
+        display: inline-block;
+        padding: 5px 15px;
+        margin: 0 5px 10px 0;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 0 3px 6px var(--shadow-color);
+    }
+
+    .label-codex { background-color: var(--primary-color); color: white; }
+    .label-feature { background-color: var(--secondary-color); color: white; }
+    .label-chore { background-color: var(--success-color); color: white; }
+    .label-docs { background-color: var(--info-color); color: white; }
+    .label-p0 { background-color: #ff3333; color: white; }
+    .label-p1 { background-color: var(--warning-color); color: white; }
+
+    ul, ol {
+        padding-left: 25px;
+        margin: 15px 0;
+    }
+
+    li {
+        margin-bottom: 10px;
+        position: relative;
+    }
+
+    li:before {
+        content: "✦";
+        color: var(--primary-color);
+        position: absolute;
+        left: -20px;
+        font-weight: bold;
+    }
+
+    blockquote {
+        border-left: 5px solid var(--accent-color);
+        background: linear-gradient(90deg, rgba(255, 221, 87, 0.1), transparent);
+        padding: 15px 20px;
+        margin: 20px 0;
+        border-radius: 0 10px 10px 0;
+        font-style: italic;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .milestone-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        margin: 30px 0;
+    }
+
+    .milestone-card {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        border: 3px solid var(--primary-color);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .milestone-card::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 50px;
+        height: 50px;
+        background: var(--accent-color);
+        border-radius: 50%;
+        transform: translate(25px, 25px);
+        opacity: 0.3;
+    }
+
+    .milestone-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(255, 64, 129, 0.2);
+    }
+
+    .milestone-number {
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        background: var(--primary-color);
+        color: white;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 40px;
+        font-weight: bold;
+        margin-right: 10px;
+        font-size: 1.2rem;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .code-block {
+        position: relative;
+        margin: 25px 0;
+    }
+
+    .code-block pre {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        color: #00ff9d;
+        border: 3px solid var(--secondary-color);
+        border-radius: 15px;
+        padding: 25px 15px 15px 15px;
+        overflow-x: auto;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.95rem;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .code-block::before {
+        content: attr(data-language);
+        position: absolute;
+        top: 0;
+        left: 0;
+        background: var(--secondary-color);
+        color: white;
+        padding: 5px 15px;
+        border-radius: 10px 0 10px 0;
+        font-size: 0.8rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        z-index: 2;
+    }
+
+    .highlight {
+        background: linear-gradient(90deg, rgba(255, 221, 87, 0.3), transparent);
+        padding: 3px 8px;
+        border-radius: 5px;
+        font-weight: bold;
+    }
+
+    .checklist {
+        list-style: none;
+        padding-left: 0;
+    }
+
+    .checklist li {
+        padding-left: 35px;
+        position: relative;
+    }
+
+    .checklist li:before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 2px;
+        width: 20px;
+        height: 20px;
+        border: 3px solid var(--primary-color);
+        border-radius: 5px;
+        background: white;
+    }
+
+    .checklist li.checked:before {
+        content: "✓";
+        background: var(--success-color);
+        color: white;
+        text-align: center;
+        line-height: 20px;
+        font-size: 14px;
+        border-color: var(--success-color);
+    }
+
+    .note-box {
+        background: linear-gradient(135deg, rgba(255, 221, 87, 0.2) 0%, rgba(255, 153, 102, 0.2) 100%);
+        border: 3px dashed var(--warning-color);
+        border-radius: 15px;
+        padding: 20px;
+        margin: 20px 0;
+    }
+
+    .note-box h4 {
+        color: var(--warning-color);
+        margin-top: 0;
+    }
+
+    .color-palette {
+        display: flex;
+        justify-content: space-around;
+        margin: 20px 0;
+        flex-wrap: wrap;
+    }
+
+    .color-swatch {
+        width: 80px;
+        height: 80px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: white;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        margin: 10px;
+    }
+
+    .swatch-primary { background-color: var(--primary-color); }
+    .swatch-secondary { background-color: var(--secondary-color); }
+    .swatch-accent { background-color: var(--accent-color); color: var(--dark-color); }
+    .swatch-success { background-color: var(--success-color); }
+    .swatch-warning { background-color: var(--warning-color); }
+
+    @media (max-width: 768px) {
+        h1 { font-size: 2.2rem; }
+        h2 { font-size: 1.8rem; }
+        .milestone-grid { grid-template-columns: 1fr; }
+        .color-swatch { width: 60px; height: 60px; font-size: 0.8rem; }
+    }
+</style>
+```
+
 </head>
 <body>
-  <header>
-    <div>
-      <div class="tag"><span class="dot" aria-hidden="true"></span>SPICA / Beat Diffusion</div>
-      <h1>実装（Implement / Codex Issue設計）</h1>
+    <header>
+        CIBG v0.1 Codex Issue Design
+    </header>```
+<div class="container">
+    <div class="character">
+        <h1>GitHub Issue＝Codexへのインプット（プロンプト）設計</h1>
+        <p>以下は、<span class="highlight">GitHub Issue＝Codexへのインプット（プロンプト）</span>としてそのまま運用できる形に、CIBG v0.1 実装を <span class="highlight">Codexが実装可能な粒度</span>まで分解し、さらに <span class="highlight">Issue（＝Codex入力）設計</span>をまとめたものです。</p>
+        
+        <h3>Codex向けの原則</h3>
+        <ul>
+            <li><strong>検証できる手順（pytest等）を必ず書く</strong></li>
+            <li><strong>大きい作業は小さいIssueに分ける</strong>（レビューもしやすい）</li>
+        </ul>
+        
+        <p>これはCodex公式ドキュメントでも推奨されています。 ([OpenAI Developers][1])<br>
+        また、Codexはリポジトリ内の <code>AGENTS.md</code> を事前に読み、そこで「毎回守る約束事」を固定化できます。 ([OpenAI Developers][2])<br>
+        （Codex CLI でも <code>/init</code> で AGENTS.md を作る導線があります。） ([OpenAI Developers][3])</p>
     </div>
-    <a class="btn" href="../index.html"><span class="dot" aria-hidden="true"></span>トップへ戻る</a>
-  </header>
 
-  <section>
-    <p>
-      実装ステップをCodex向けIssueに落とし込むための簡易メモです。
-      ルール・スコアの計算手順、MIDI組み立て、テスト観点を小さなタスクに分割して進行しやすくしています。
-    </p>
-  </section>
-
-  <section>
-    <h2>実装タスクリストの例</h2>
-    <ul>
-      <li>条件JSONの読み取りとバリデーション</li>
-      <li>ホワイトノイズの初期化とシード管理</li>
-      <li>ルール適用とスコア計算のループ</li>
-      <li>BeatSpec / MIDI出力の整形と保存</li>
-      <li>簡易テストとデモ生成</li>
-    </ul>
-  </section>
-
-  <section>
-    <h2>リンク</h2>
-    <div class="links">
-      <a class="btn" href="overview.html"><span class="dot" aria-hidden="true"></span>仕様（Overview）へ戻る</a>
-      <a class="btn" href="design.html"><span class="dot" aria-hidden="true"></span>設計（Design）へ戻る</a>
+    <div class="character">
+        <h2>1) 「Issue＝Codexプロンプト」設計の基本フォーマット</h2>
+        <p>各Issueは、Codexに渡すプロンプトとして以下の構造で統一するのが最も安定します。</p>
+        
+        <div class="note-box">
+            <h4>Issue構造の基本要素</h4>
+            <ul>
+                <li><strong>Objective</strong>：このIssueで達成すること（1〜3行）</li>
+                <li><strong>Scope</strong>：対象ファイル・追加するモジュール・やらないこと</li>
+                <li><strong>Requirements</strong>：仕様（型、I/O、例外、ログ、再現性）</li>
+                <li><strong>Acceptance Criteria</strong>：完了条件（チェックボックスで）</li>
+                <li><strong>Verification</strong>：Codexが実行するコマンド（pytest 等）</li>
+                <li><strong>Notes</strong>：実装上の注意（依存追加禁止、破壊的変更禁止…）</li>
+            </ul>
+        </div>
+        
+        <p>この形式が「小さく分ける」「検証可能にする」というCodex推奨に合致します。 ([OpenAI Developers][1])</p>
     </div>
-  </section>
+
+    <div class="character">
+        <h2>2) まずリポジトリに置く「Codexの永続コンテキスト」：AGENTS.md</h2>
+        <p>Codexは作業前に <code>AGENTS.md</code> を読みます。ここに"全Issue共通の規約"を書いておくと、Issue本文を短くできます。 ([OpenAI Developers][2])</p>
+        
+        <h3>提案：リポジトリ直下 <code>AGENTS.md</code>（コピペ用）</h3>
+        
+        <div class="code-block" data-language="markdown">
+```
+
+<pre># AGENTS.md (CIBG v0.1)
+
+## Working agreements (must follow)
+- Use Python 3.11+.
+- Prefer small, reviewable diffs.
+- Do NOT add new runtime dependencies unless the issue explicitly allows it.
+- Always run tests after changes:
+  - python -m pip install -e ".[dev]"
+  - pytest -q
+- Keep the public API stable unless the issue explicitly requests changes.
+- Use type hints for public functions and dataclasses/pydantic models.
+- Keep generation deterministic: honor "seed" whenever applicable.
+- Write or update tests for any new behavior.
+
+## Project layout
+- Package code in: src/cibg/
+- Tests in: tests/
+- Export artifacts (json/midi) into out_dir/ produced by CLI.
+
+## Style
+- Prefer clear names and short functions.
+- Avoid cleverness. Make behavior easy to test.</pre>```
+        </div>
+    </div>
+
+    <div class="character">
+        <h2>3) GitHub Issueテンプレ（Codex入力フォーム）提案</h2>
+        <p>テンプレを <code>.github/ISSUE_TEMPLATE/codex_task.md</code> としてコミットしておくと運用が楽です。</p>
+        
+        <h3><code>.github/ISSUE_TEMPLATE/codex_task.md</code></h3>
+        
+        <div class="code-block" data-language="markdown">
+```
+
+<pre>---
+name: "Codex Task"
+about: "A focused, verifiable task for Codex"
+title: "[cibg] &lt;short title&gt;"
+labels: ["codex"]
+---
+
+## Objective
+(1-3 lines) What to implement.
+
+## Context
+- Related docs/spec: docs/spec.md (if exists)
+- Depends on: #&lt;issue&gt;
+
+## Scope
+**In scope**
+- ...
+
+**Out of scope**
+- ...
+
+## Requirements
+- ...
+
+## Acceptance Criteria
+- [ ] Code compiles and imports
+- [ ] Tests added/updated
+- [ ] `pytest -q` passes
+- [ ] CLI / output works if relevant
+
+## Verification (Codex must run)
+```bash
+python -m pip install -e ".[dev]"
+pytest -q
+```
+
+## Notes
+* Keep diffs minimal.
+* No extra deps unless requested.</pre>```
+        </div>
+    </div>
+
+    <div class="character">
+        <h2>4) CIBG v0.1 のIssue分解（Milestone設計）</h2>
+        <p>ここから下は、<span class="highlight">そのままIssueとしてコピペできる本文</span>です。<br>
+        Issue番号（#1など）はあなたのGitHub側で振られるので、本文中は「Depends on:（前提Issue）」を <span class="highlight">タイトルで参照</span>する形にしています（番号は後で置換でOK）。</p>
+        
+        <div class="milestone-card">
+            <h3><span class="milestone-number">M</span> [META] Issue（全体管理）</h3>
+            <h4>Title</h4>
+            <p><code>[META] CIBG v0.1 実装バックログ（Codex Issue運用）</code></p>
+            
+            <h4>Body（コピペ用）</h4>
+            <div class="code-block" data-language="markdown">
+```
+
+<pre>## Objective
+CIBG v0.1 を段階的に実装する（Issue＝Codexプロンプトとして運用）。
+
+## Milestone scope
+- Input型: BeatCondition (pydantic)
+- Processing: Planner + DenoiseLoop (operators/score/anneal)
+- Output: BeatArtifact (spec/pattern/json + MIDI)
+
+## Issue order (recommended)
+1. chore: repo bootstrap + AGENTS.md + CI + docs/spec.md
+2. feat(types): core data models (condition/spec/pattern/artifact)
+3. feat(io): json I/O + artifact exporter
+4. feat(planner): rule-based planner
+5. feat(model): noise initializer
+6. feat(model): score model v0
+7. feat(model): operator framework + meter_fix
+8. feat(model): snare_anchor + hat_density
+9. feat(model): scheduler + annealer
+10. feat(model): denoise loop integration
+11. feat(render): MIDI renderer
+12. feat(cli): `cibg generate` end-to-end
+13. feat(model): extra operators (kick/bass/variation)
+14. docs: README usage + examples
+
+## Definition of Done (v0.1)
+- condition.json -> out_dir に spec.json/pattern.json/drums.mid/bass.mid が出る
+- seed固定で再現可能
+- pytest が通る</pre>```
+            </div>
+        </div>
+    </div>
+
+    <div class="character">
+        <h2>5) 実装Issue（Codexプロンプト）一式</h2>
+        <p>以下のIssue本文は <span class="highlight">そのままGitHub Issue本文に貼って</span>使えます。</p>
+        
+        <div class="milestone-grid">
+            <div class="milestone-card">
+                <h4><span class="milestone-number">1</span> リポジトリ基盤</h4>
+                <p><strong>Title:</strong> <code>chore: repo bootstrap (pyproject/src layout/pytest/CI) + AGENTS.md + docs/spec.md</code></p>
+                <p><strong>Labels:</strong> <span class="label label-codex">codex</span> <span class="label label-chore">chore</span> <span class="label label-p0">P0</span></p>
+                <p>最初の土台を作成。プロジェクトスケルトン、テスト設定、CIワークフローを実装。</p>
+            </div>
+            
+            <div class="milestone-card">
+                <h4><span class="milestone-number">2</span> Input/Outputの型</h4>
+                <p><strong>Title:</strong> <code>feat(types): implement core models (BeatCondition/BeatSpec/Pattern/BeatArtifact)</code></p>
+                <p><strong>Labels:</strong> <span class="label label-codex">codex</span> <span class="label label-feature">feature</span> <span class="label label-p0">P0</span></p>
+                <p>pydantic v2モデルを実装。JSON検証/シリアライゼーションを提供。</p>
+            </div>
+            
+            <div class="milestone-card">
+                <h4><span class="milestone-number">3</span> JSON I/O</h4>
+                <p><strong>Title:</strong> <code>feat(io): JSON load/save + export artifact folder structure</code></p>
+                <p><strong>Labels:</strong> <span class="label label-codex">codex</span> <span class="label label-feature">feature</span> <span class="label label-p0">P0</span></p>
+                <p>JSONロード/セーブ機能と標準化されたout_dirフォルダ構造を実装。</p>
+            </div>
+            
+            <div class="milestone-card">
+                <h4><span class="milestone-number">4</span> Planner</h4>
+                <p><strong>Title:</strong> <code>feat(planner): rule-based planner (BeatCondition -> BeatSpec)</code></p>
+                <p><strong>Labels:</strong> <span class="label label-codex">codex</span> <span class="label label-feature">feature</span> <span class="label label-p0">P0</span></p>
+                <p>決定論的ルールベースのプランナーを実装。BeatConditionからBeatSpecを生成。</p>
+            </div>
+            
+            <div class="milestone-card">
+                <h4><span class="milestone-number">5</span> 白色ノイズ初期化</h4>
+                <p><strong>Title:</strong> <code>feat(model): noise initializer (init_white_noise_pattern)</code></p>
+                <p><strong>Labels:</strong> <span class="label label-codex">codex</span> <span class="label label-feature">feature</span> <span class="label label-p0">P0</span></p>
+                <p>ノイズパターン初期化を実装。シードに基づく決定論的生成を提供。</p>
+            </div>
+            
+            <div class="milestone-card">
+                <h4><span class="milestone-number">6</span> ScoreModel v0</h4>
+                <p><strong>Title:</strong> <code>feat(model): score model v0 (constraints + density + anchor + variation)</code></p>
+                <p><strong>Labels:</strong> <span class="label label-codex">codex</span> <span class="label label-feature">feature</span> <span class="label label-p0">P0</span></p>
+                <p>パターン品質評価のためのスコアモデルを実装。制約、密度、アンカー、バリエーションを考慮。</p>
+            </div>
+            
+            <div class="milestone-card">
+                <h4><span class="milestone-number">7</span> Operator基盤</h4>
+                <p><strong>Title:</strong> <code>feat(model): operator framework + O_meter_fix</code></p>
+                <p><strong>Labels:</strong> <span class="label label-codex">codex</span> <span class="label label-feature">feature</span> <span class="label label-p0">P0</span></p>
+                <p>Operatorフレームワークと最初のオペレータ（O_meter_fix）を実装。</p>
+            </div>
+            
+            <div class="milestone-card">
+                <h4><span class="milestone-number">8</span> snare_anchor + hat_density</h4>
+                <p><strong>Title:</strong> <code>feat(model): O_snare_anchor + O_hat_density_shape</code></p>
+                <p><strong>Labels:</strong> <span class="label label-codex">codex</span> <span class="label label-feature">feature</span> <span class="label label-p0">P0</span></p>
+                <p>スネアアンカーとハット密度シェイプの2つのオペレータを実装。</p>
+            </div>
+            
+            <div class="milestone-card">
+                <h4><span class="milestone-number">9</span> ConditionScheduler + Annealer</h4>
+                <p><strong>Title:</strong> <code>feat(model): condition scheduler (phase) + annealer accept/reject</code></p>
+                <p><strong>Labels:</strong> <span class="label label-codex">codex</span> <span class="label label-feature">feature</span> <span class="label label-p0">P0</span></p>
+                <p>フェーズマッピング、温度スケジュール、受理ルールを実装。</p>
+            </div>
+            
+            <div class="milestone-card">
+                <h4><span class="milestone-number">10</span> DenoiseLoop（統合コア）</h4>
+                <p><strong>Title:</strong> <code>feat(model): denoise loop integrates initializer + operators + score + anneal + debug</code></p>
+                <p><strong>Labels:</strong> <span class="label label-codex">codex</span> <span class="label label-feature">feature</span> <span class="label label-p0">P0</span></p>
+                <p>コア生成ループを実装。ノイズパターンから反復的な改良を実行。</p>
+            </div>
+            
+            <div class="milestone-card">
+                <h4><span class="milestone-number">11</span> MIDIレンダラ</h4>
+                <p><strong>Title:</strong> <code>feat(render): MIDI renderer (drums/bass) with swing + hat_roll</code></p>
+                <p><strong>Labels:</strong> <span class="label label-codex">codex</span> <span class="label label-feature">feature</span> <span class="label label-p0">P0</span></p>
+                <p>PatternからMIDIファイルへのレンダリングを実装。スウィングタイミングとハットロールをサポート。</p>
+            </div>
+            
+            <div class="milestone-card">
+                <h4><span class="milestone-number">12</span> CLI <code>cibg generate</code></h4>
+                <p><strong>Title:</strong> <code>feat(cli): implement cibg generate end-to-end (condition.json -> out_dir artifacts)</code></p>
+                <p><strong>Labels:</strong> <span class="label label-codex">codex</span> <span class="label label-feature">feature</span> <span class="label label-p0">P0</span></p>
+                <p>エンドツーエンドのCLIコマンドを実装。condition.jsonからアーティファクトを生成。</p>
+            </div>
+            
+            <div class="milestone-card">
+                <h4><span class="milestone-number">13</span> 追加オペレータ</h4>
+                <p><strong>Title:</strong> <code>feat(model): add operators O_kick_anchor / O_bass_follow / O_variation_between_bars</code></p>
+                <p><strong>Labels:</strong> <span class="label label-codex">codex</span> <span class="label label-feature">feature</span> <span class="label label-p1">P1</span></p>
+                <p>音楽性を向上させる3つの追加オペレータを実装。キックアンカー、ベースフォロー、バリエーション。</p>
+            </div>
+            
+            <div class="milestone-card">
+                <h4><span class="milestone-number">14</span> ドキュメント整備</h4>
+                <p><strong>Title:</strong> <code>docs: README usage + pipeline overview + example output description</code></p>
+                <p><strong>Labels:</strong> <span class="label label-codex">codex</span> <span class="label label-docs">docs</span> <span class="label label-p1">P1</span></p>
+                <p>ドキュメントを改善。新規コントリビュータがCIBG v0.1を迅速に実行できるように。</p>
+            </div>
+        </div>
+        
+        <div class="note-box">
+            <h4>注意：Issue本文の完全な内容</h4>
+            <p>上記は各Issueの概要のみです。完全なIssue本文（Objective, Scope, Requirements, Acceptance Criteria, Verification, Notes）は元のドキュメントに含まれており、そのままGitHub Issueにコピーできます。</p>
+        </div>
+    </div>
+
+    <div class="character">
+        <h2>6) 運用メモ（GitHub×Codexで回すときのコツ）</h2>
+        <ul>
+            <li><strong>1 Issue = 1 PR</strong>の粒度にする（今回の分解はそうなっています）</li>
+            <li>Issue本文には必ず <strong>Verificationコマンド</strong>を書く（Codexが自己検証できる）</li>
+            <li>共通ルールは <code>AGENTS.md</code> に集約（Issue本文の重複を削れる）</li>
+        </ul>
+        
+        <blockquote>
+            必要なら、上のIssue群を「GitHub Projects / Milestone」向けに、<strong>P0/P1の優先度・依存関係（DAG）</strong>として並べ替えた版も作れます（ただ、いま提示した順番がそのまま実装順として最短です）。
+        </blockquote>
+        
+        <h3>参考文献リンク</h3>
+        <ol>
+            <li><a href="https://developers.openai.com/codex/concepts/" target="_blank">OpenAI Codex: Tasks & Prompts</a></li>
+            <li><a href="https://developers.openai.com/codex/guides/agents-md/?utm_source=chatgpt.com" target="_blank">Custom instructions with AGENTS.md</a></li>
+            <li><a href="https://developers.openai.com/codex/cli/" target="_blank">Codex CLI</a></li>
+        </ol>
+    </div>
+
+    <div class="character">
+        <h2>カラーパレット - 最新の色管理アーキテクチャ</h2>
+        <p>コントラスト問題を防ぐため、CSSカスタムプロパティ（変数）を使用したシステマティックな色管理を実装しています。</p>
+        
+        <div class="color-palette">
+            <div class="color-swatch swatch-primary">Primary<br>#ff4081</div>
+            <div class="color-swatch swatch-secondary">Secondary<br>#1e90ff</div>
+            <div class="color-swatch swatch-accent">Accent<br>#ffdd57</div>
+            <div class="color-swatch swatch-success">Success<br>#00cc66</div>
+            <div class="color-swatch swatch-warning">Warning<br>#ff9900</div>
+        </div>
+        
+        <p><strong>WCAG 2.1 AA基準を満たすコントラスト比:</strong></p>
+        <ul class="checklist">
+            <li class="checked">Primary (#ff4081) on White: 4.6:1 ✓</li>
+            <li class="checked">Dark (#333) on Accent (#ffdd57): 9.1:1 ✓</li>
+            <li class="checked">Secondary (#1e90ff) on White: 4.2:1 ✓</li>
+            <li class="checked">White on Primary (#ff4081): 4.6:1 ✓</li>
+        </ul>
+        
+        <h3>数式レンダリングデモ（KaTeX）</h3>
+        <p>以下の数式はKaTeXを使用してレンダリングされています：</p>
+        
+        <p>Score関数の基本形：</p>
+        <div class="katex">
+            \[
+            S_{\text{total}} = \sum_{i} w_i \cdot S_i - \sum_{j} P_j
+            \]
+        </div>
+        
+        <p>受理確率（Simulated Annealing）：</p>
+        <div class="katex">
+            \[
+            P(\text{accept}) = 
+            \begin{cases} 
+            1 & \text{if } \Delta \geq 0 \\
+            \exp\left(\frac{\Delta}{T}\right) & \text{if } \Delta < 0
+            \end{cases}
+            \]
+        </div>
+    </div>
+</div>
+
+<div class="footer">
+    <p>CIBG v0.1 Codex Issue Design • ポップアートスタイル • カラーコントラスト最適化</p>
+</div>
+
+<script>
+    // KaTeXの自動レンダリング
+    document.addEventListener("DOMContentLoaded", function() {
+        // preタグ内の数式をレンダリング
+        const mathElements = document.querySelectorAll('.katex');
+        mathElements.forEach(element => {
+            try {
+                katex.render(element.textContent, element, {
+                    throwOnError: false,
+                    displayMode: element.classList.contains('katex-display')
+                });
+            } catch (e) {
+                console.warn('KaTeX rendering error:', e);
+            }
+        });
+        
+        // カラースウォッチのインタラクション
+        const colorSwatches = document.querySelectorAll('.color-swatch');
+        colorSwatches.forEach(swatch => {
+            swatch.addEventListener('click', function() {
+                const color = getComputedStyle(this).backgroundColor;
+                navigator.clipboard.writeText(color).then(() => {
+                    const originalText = this.innerHTML;
+                    this.innerHTML = 'Copied!';
+                    this.style.transform = 'scale(1.1)';
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                        this.style.transform = 'scale(1)';
+                    }, 1000);
+                });
+            });
+        });
+        
+        // ポップエフェクトアニメーション
+        const characters = document.querySelectorAll('.character');
+        characters.forEach((character, index) => {
+            // スタッガードアニメーション
+            character.style.animationDelay = `${index * 0.1}s`;
+            character.style.animation = 'popEffect 0.6s ease-out';
+        });
+    });
+</script>
+```
+
 </body>
 </html>

@@ -1,108 +1,785 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SPICA | Overview</title>
-  <style>
-    body{
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", Meiryo, Arial, sans-serif;
-      margin: 0 auto;
-      max-width: 960px;
-      padding: 32px 18px 48px;
-      line-height: 1.7;
-      color: #e8e8f0;
-      background: radial-gradient(900px 480px at 80% 10%, rgba(255,94,168,.12), transparent 50%), #0c0e1a;
-    }
-    a{ color: #7cf7ff; }
-    header{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: 12px;
-      margin-bottom: 24px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid rgba(255,255,255,.14);
-    }
-    h1{ margin: 0; letter-spacing: .05em; }
-    .tag{
-      display:inline-flex;
-      align-items:center;
-      gap: 8px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.20);
-      background: rgba(255,255,255,.05);
-      color: rgba(255,255,255,.78);
-      letter-spacing: .05em;
-      font-size: 12px;
-    }
-    .tag .dot{
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, #ff5ea8, rgba(255,94,168,.25));
-      box-shadow: 0 0 18px rgba(255,94,168,.45);
-    }
-    section{ margin: 20px 0; padding: 14px 0; }
-    h2{ margin-bottom: 8px; }
-    ul{ padding-left: 20px; }
-    .links{ display:flex; flex-wrap:wrap; gap: 10px; margin-top: 8px; }
-    .btn{
-      display:inline-flex;
-      align-items:center;
-      gap: 10px;
-      padding: 10px 14px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.18);
-      background: rgba(255,255,255,.06);
-      color: #f6f7fb;
-      text-decoration:none;
-      font-weight: 650;
-    }
-    .btn .dot{
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, #7cf7ff, rgba(124,247,255,.25));
-      box-shadow: 0 0 18px rgba(124,247,255,.45);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CIBG v0.1 仕様書 - Conditioned Iterative Beat Generator</title>
+    <link rel="stylesheet" href="pop3_style.css">
+    <!-- KaTeX CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0rAv5pz0Ko6ij7KJqHYgD0MhOqA7EGxzFVEp1VA5KZOwtOKFAaCj1" crossorigin="anonymous">
+    <style>
+        /* 色管理の最新アーキテクチャ: CSS変数で一貫性とコントラストを確保 */
+        :root {
+            --primary-bg: #ffdd57;
+            --secondary-bg: #ff4081;
+            --accent-1: #1e90ff;
+            --accent-2: #00ffaa;
+            --accent-3: #ffaa00;
+            --text-dark: #222222;
+            --text-light: #ffffff;
+            --code-bg: #2d2d2d;
+            --table-header: #ff4081;
+            --table-row-odd: #ffedb3;
+            --table-row-even: #ffffff;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --glow-pink: 0 0 20px #ff4081;
+            --glow-blue: 0 0 20px #1e90ff;
+            --border-radius: 15px;
+        }
+
+        /* コントラスト強化とカラフルなスタイル追加 */
+        body {
+            background: linear-gradient(135deg, var(--primary-bg) 0%, #ffcc00 100%);
+            color: var(--text-dark);
+            font-family: 'Arial', sans-serif;
+            line-height: 1.8;
+        }
+
+        header {
+            background: linear-gradient(90deg, var(--secondary-bg) 0%, #ff0066 100%);
+            color: var(--text-light);
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: var(--glow-pink);
+            border-bottom: 5px solid #ffaa00;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 30px var(--shadow);
+            border: 3px solid var(--secondary-bg);
+            animation: popEffect 1s ease-in-out;
+        }
+
+        h1, h2, h3, h4 {
+            color: var(--secondary-bg);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            margin-top: 1.5em;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            background: linear-gradient(90deg, var(--secondary-bg), var(--accent-1));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: glow 2s infinite alternate;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            border-left: 10px solid var(--accent-1);
+            padding-left: 15px;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, #ff4081, #ff7700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        h3 {
+            font-size: 2rem;
+            color: var(--accent-1);
+            border-bottom: 3px dashed var(--accent-2);
+            padding-bottom: 10px;
+        }
+
+        h4 {
+            font-size: 1.5rem;
+            color: var(--accent-3);
+        }
+
+        /* セクションブロックのカラフルなデザイン */
+        .section-block {
+            background: linear-gradient(145deg, #ffffff, #ffeebb);
+            border: 3px solid;
+            border-image: linear-gradient(45deg, var(--accent-1), var(--accent-2)) 1;
+            padding: 25px;
+            margin: 30px 0;
+            border-radius: var(--border-radius);
+            box-shadow: 5px 5px 15px var(--shadow);
+            transition: all 0.4s ease;
+        }
+
+        .section-block:hover {
+            transform: translateY(-10px);
+            box-shadow: 10px 10px 25px var(--shadow);
+        }
+
+        /* テーブルのカラフルデザイン */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 25px 0;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px var(--shadow);
+        }
+
+        th {
+            background: linear-gradient(90deg, var(--table-header), #ff0066);
+            color: var(--text-light);
+            padding: 15px;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+
+        td {
+            padding: 12px 15px;
+            border: 2px solid #ffaa00;
+        }
+
+        tr:nth-child(odd) {
+            background-color: var(--table-row-odd);
+        }
+
+        tr:nth-child(even) {
+            background-color: var(--table-row-even);
+        }
+
+        /* コードブロックのカラフルデザイン */
+        pre {
+            background: linear-gradient(135deg, var(--code-bg) 0%, #3a3a3a 100%);
+            color: #00ffaa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 8px solid var(--accent-2);
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5), 0 5px 15px var(--shadow);
+            margin: 20px 0;
+        }
+
+        code {
+            color: #00ffaa;
+            background: rgba(0,0,0,0.3);
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* リストのカラフルデザイン */
+        ul, ol {
+            padding-left: 25px;
+            margin: 20px 0;
+        }
+
+        li {
+            margin: 10px 0;
+            padding-left: 10px;
+            border-left: 3px solid var(--accent-1);
+        }
+
+        li::marker {
+            color: var(--secondary-bg);
+            font-weight: bold;
+        }
+
+        /* リンクのカラフルデザイン */
+        a {
+            color: var(--accent-1);
+            text-decoration: none;
+            font-weight: bold;
+            padding: 3px 8px;
+            border-radius: 5px;
+            background: rgba(30, 144, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        a:hover {
+            color: var(--text-light);
+            background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+            text-shadow: 0 0 10px var(--text-light);
+            box-shadow: 0 0 15px var(--accent-1);
+        }
+
+        /* フッターのカラフルデザイン */
+        .footer {
+            background: linear-gradient(90deg, var(--secondary-bg) 0%, #ff0066 100%);
+            color: var(--text-light);
+            text-align: center;
+            padding: 20px;
+            margin-top: 50px;
+            border-top: 5px solid #ffaa00;
+            box-shadow: 0 -5px 20px var(--shadow);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        /* 引用ブロックのカラフルデザイン */
+        blockquote {
+            border-left: 10px solid var(--accent-3);
+            background: linear-gradient(90deg, rgba(255,170,0,0.1) 0%, rgba(255,170,0,0.05) 100%);
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+            font-style: italic;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.1);
+        }
+
+        /* カラフルなバッジ */
+        .badge {
+            display: inline-block;
+            padding: 5px 15px;
+            margin: 5px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: white;
+            background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+            box-shadow: 0 3px 10px var(--shadow);
+        }
+
+        /* アニメーション追加 */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* レスポンシブ調整 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+                margin: 20px 10px;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            h2 {
+                font-size: 2rem;
+            }
+            
+            pre {
+                font-size: 0.9rem;
+                padding: 15px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <header>
-    <div>
-      <div class="tag"><span class="dot" aria-hidden="true"></span>SPICA / Beat Diffusion</div>
-      <h1>仕様（Overview / CIBG v0.1）</h1>
+    <header class="floating">
+        <h1>CIBG v0.1 仕様書</h1>
+        <p style="font-size: 1.5rem; margin-top: 10px;">Conditioned Iterative Beat Generator - 拡散＝白色ノイズから条件でノイズ除去して具体ビートへ</p>
+    </header>
+
+    <div class="container">
+        <div class="section-block">
+            <h2>モデル名</h2>
+            <p><strong style="font-size: 1.8rem; color: var(--secondary-bg);">CIBG（Conditioned Iterative Beat Generator） v0.1</strong><br>
+            <span class="badge">別名</span> <strong>Denoising Search for Beats（拡散比喩の"探索版"）</strong></p>
+        </div>
+
+        <div class="section-block">
+            <h2>1. 目的と非目的</h2>
+            
+            <h3>1.1 目的</h3>
+            <ul>
+                <li>自然文または構造化条件から、<strong>8小節ループ</strong>（まずは固定）を生成する</li>
+                <li>対象は <strong>ドラム（kick/snare/hat/perc）＋808（ベース）＋texture（任意）</strong></li>
+                <li>生成は「白色ノイズ → 条件で段階的に整う」プロセスを踏む</li>
+                <li>出力は <strong>BeatSpec（設計書）＋MIDI＋簡易レンダーステム</strong>（WAVは任意）</li>
+            </ul>
+            
+            <h3>1.2 非目的（v0.1ではやらない）</h3>
+            <ul>
+                <li>高音質の"直接オーディオ生成"拡散（学習コストが重すぎる）</li>
+                <li>フルアレンジ（Aメロ/Bメロ/サビ）自動作曲</li>
+                <li>ミックス/マスタリングの最適化（最低限の整形のみ）</li>
+            </ul>
+        </div>
+
+        <div class="section-block">
+            <h2>2. 入力の型（Input Type）</h2>
+            
+            <h3>2.1 BeatCondition（構造化条件）</h3>
+            <p>自然言語から抽出しても良いが、<strong>内部は必ず構造化</strong>する。</p>
+            
+            <h4>JSONスキーマ（最小）</h4>
+            <pre><code>{
+  "goal": {
+    "core_message": "string",
+    "primary_emotion": "regret|anger|sadness|joy|fear|etc",
+    "intensity_0_10": 0,
+    "arousal": "low|mid|high",
+    "resolution_policy": "no_release|partial_release|release"
+  },
+  "scene": {
+    "place": "string",
+    "position": "string",
+    "obstacles": ["string"],
+    "desires": ["string"],
+    "conflict_sentence": "string"
+  },
+  "constraints": {
+    "genre_hint": ["trap|boom_bap|house|drumandbass|etc"],
+    "bpm_range": [60, 200],
+    "bars": 8,
+    "time_signature": "4/4",
+    "grid": "1/16",
+    "must_include": ["808", "hat_rolls"],
+    "must_avoid": ["major_happy"]
+  },
+  "seed": 12345
+}</code></pre>
+            
+            <h3>2.2 実装メモ</h3>
+            <ul>
+                <li><code>primary_emotion / arousal / intensity</code> は <strong>必須</strong></li>
+                <li><code>genre_hint</code> は最初は 1つで十分（例：trap）</li>
+                <li><code>seed</code> を入れると再現性が出る（デバッグと改善が楽）</li>
+            </ul>
+        </div>
+
+        <div class="section-block">
+            <h2>3. 出力の型（Output Type）</h2>
+            
+            <h3>3.1 BeatArtifact</h3>
+            <pre><code>{
+  "spec": { "BeatSpec": "..." },
+  "midi": {
+    "drums_mid_path": "path",
+    "bass_mid_path": "path",
+    "texture_mid_path": "path (optional)"
+  },
+  "audio": {
+    "stems": {
+      "kick_wav": "path",
+      "snare_wav": "path",
+      "hats_wav": "path",
+      "bass_wav": "path"
+    },
+    "mix_wav": "path (optional)"
+  },
+  "debug": {
+    "scores_per_step": [],
+    "ops_applied": []
+  }
+}</code></pre>
+        </div>
+
+        <div class="section-block">
+            <h2>4. 内部表現（Core Representation）</h2>
+            <p>v0.1は <strong>グリッド（1/16）</strong>固定が一番作りやすいです。</p>
+            
+            <h3>4.1 Pattern（内部パターン）</h3>
+            <ul>
+                <li>8小節、4/4、1/16 → <strong>128 step</strong></li>
+                <li>ドラムはトラックごとに <code>velocity[128]</code>（0なら無音）</li>
+                <li>808は <code>note[128]</code>（-1なら休符）＋<code>gate[128]</code>＋<code>glide_flags</code></li>
+            </ul>
+            
+            <h4>例：Python dataclass相当</h4>
+            <ul>
+                <li><code>Pattern.drums["kick"] : int[128]</code></li>
+                <li><code>Pattern.drums["snare"]: int[128]</code></li>
+                <li><code>Pattern.drums["hat"]  : int[128]</code></li>
+                <li><code>Pattern.bass.pitch    : int[128]</code>  （MIDIノート）</li>
+                <li><code>Pattern.bass.vel      : int[128]</code></li>
+                <li><code>Pattern.microtiming   : int[tracks][128]</code>（tick単位のズレ：-15..+15など）</li>
+            </ul>
+            
+            <blockquote>
+                <p>ハットロール（1/32）は v0.1では「サブイベント」ではなく、<br>
+                1/16上で <code>roll_flag</code> を立ててレンダ時に細分化、が一番簡単です。</p>
+            </blockquote>
+        </div>
+
+        <div class="section-block">
+            <h2>5. 処理の型（Processing Architecture）</h2>
+            <p>パイプラインはこれで固定します（現実的で拡張しやすい）。</p>
+            
+            <h3>5.1 モジュール</h3>
+            <ol>
+                <li><strong>Parser（任意）</strong>：Text → BeatCondition</li>
+                <li><strong>Planner（必須）</strong>：BeatCondition → BeatSpec（粗い設計書）</li>
+                <li><strong>DenoiseLoop（必須）</strong>：NoisePattern → Pattern（反復改善で具体化）</li>
+                <li><strong>Renderer（任意）</strong>：Pattern → MIDI / 簡易Audio</li>
+            </ol>
+        </div>
+
+        <div class="section-block">
+            <h2>6. BeatSpec（設計書）の型</h2>
+            <p>Plannerは「条件→音楽パラメータ」に写像して、探索空間を狭めます。</p>
+            
+            <h3>6.1 BeatSpec（最小）</h3>
+            <pre><code>{
+  "bpm": 148,
+  "swing": 0.56,
+  "density": {
+    "kick": 0.35,
+    "snare": 0.20,
+    "hat": 0.65,
+    "perc": 0.25,
+    "bass": 0.35
+  },
+  "timbre": {
+    "hardness": 0.8,
+    "coldness": 0.7,
+    "distortion": 0.4,
+    "reverb_room": "small"
+  },
+  "arrangement": {
+    "energy_curve": "suppressed_to_outburst",
+    "bar_variation": 0.25
+  },
+  "constraints": {
+    "snare_on_2_4": true,
+    "kick_downbeat_probability": 0.7,
+    "avoid_strong_resolution": true
+  }
+}</code></pre>
+        </div>
+
+        <div class="section-block">
+            <h2>7. コアモデル：DenoiseLoop（"拡散っぽい"反復生成の仕様）</h2>
+            
+            <h3>7.1 基本思想</h3>
+            <ul>
+                <li><strong>x_T（白色ノイズ）</strong>：ランダムに打ち込まれたパターン</li>
+                <li><strong>x_{t-1} = refine(x_t, cond, spec, t)</strong>：
+                条件を強めながら、局所編集でパターンを"意味のある形"にしていく</li>
+            </ul>
+            <p>これは「学習済みDenoiser」ではなく、<strong>編集オペレータ＋評価関数（スコア）</strong>で実現します。<br>
+            ここが <strong>一番実装しやすい</strong>ポイントです。</p>
+            
+            <h3>7.2 反復ステップ数</h3>
+            <ul>
+                <li><code>T = 32</code> 推奨（軽い、十分変化する）</li>
+                <li>1ステップで複数オペレータを試す（後述）</li>
+            </ul>
+            
+            <h3>7.3 Condition Schedule（条件の効かせ方）</h3>
+            <p>拡散の"段階的条件付け"を、重みテーブルとして実装します。</p>
+            
+            <h4>フェーズ割当</h4>
+            <ul>
+                <li><strong>Phase A（t=32..23）</strong>：世界観（BPM/密度/質感）</li>
+                <li><strong>Phase B（t=22..9）</strong>：骨格（kick/snare/808の主構造）</li>
+                <li><strong>Phase C（t=8..1）</strong>：装飾（hat roll, ghost, fills, microtiming）</li>
+            </ul>
+            
+            <h4>重み例（0..1）</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>条件群</th>
+                        <th>A</th>
+                        <th>B</th>
+                        <th>C</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>感情（primary/intensity/arousal）</td>
+                        <td>1.0</td>
+                        <td>0.7</td>
+                        <td>0.4</td>
+                    </tr>
+                    <tr>
+                        <td>ねじれ（conflict）</td>
+                        <td>0.6</td>
+                        <td>1.0</td>
+                        <td>0.6</td>
+                    </tr>
+                    <tr>
+                        <td>環境・立場（scene/position）</td>
+                        <td>0.4</td>
+                        <td>0.7</td>
+                        <td>0.7</td>
+                    </tr>
+                    <tr>
+                        <td>制約（must_include/avoid）</td>
+                        <td>0.6</td>
+                        <td>0.8</td>
+                        <td>1.0</td>
+                    </tr>
+                    <tr>
+                        <td>ジャンル（genre_hint）</td>
+                        <td>0.7</td>
+                        <td>0.9</td>
+                        <td>1.0</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>7.4 オペレータ（編集子）の仕様</h3>
+            <p>DenoiseLoopは、パターンに対して小さな変更を加える <strong>Operator</strong> の集合で動きます。</p>
+            
+            <h4>Operatorインターフェース</h4>
+            <ul>
+                <li><code>apply(pattern, spec, cond, phase) -> pattern'</code></li>
+                <li><strong>局所編集</strong>のみ（追加/削除/移動/ベロ/ズレ/ロール付与）</li>
+            </ul>
+            
+            <h4>必須オペレータ（v0.1の最小セット）</h4>
+            <ol>
+                <li><strong>O_meter_fix</strong>
+                    <ul>
+                        <li>小節頭や拍位置の破綻を修正</li>
+                        <li>例：過密なら間引く、拍頭がゼロなら足す</li>
+                    </ul>
+                </li>
+                <li><strong>O_snare_backbeat</strong>
+                    <ul>
+                        <li>2拍4拍にスネア/クラップの核を置く（ジャンルに応じて確率化）</li>
+                        <li>"悔しさ"高いならアタック強め（velocity↑、硬さ↑）</li>
+                    </ul>
+                </li>
+                <li><strong>O_kick_anchor</strong>
+                    <ul>
+                        <li>ダウンビートを確保しつつ、syncopation を適量追加</li>
+                        <li>specの <code>kick_downbeat_probability</code> を参照</li>
+                    </ul>
+                </li>
+                <li><strong>O_hat_density_shape</strong>
+                    <ul>
+                        <li><code>hat</code> の密度を spec へ近づける</li>
+                        <li>Phase Cで <code>roll_flag</code> を追加（短いロールを局所挿入）</li>
+                    </ul>
+                </li>
+                <li><strong>O_bass_follow_kick</strong>
+                    <ul>
+                        <li>808はキックの一部を追従（完全一致しない）</li>
+                        <li>conflict強いと "寸止め" を作る（ノート長短縮・休符増）</li>
+                    </ul>
+                </li>
+                <li><strong>O_variation_between_bars</strong>
+                    <ul>
+                        <li>8小節が完全ループにならないように、4/8小節目に差分追加</li>
+                        <li>"解決しない"なら、差分も"解放"しない方向（フィルでスッキリさせない）</li>
+                    </ul>
+                </li>
+                <li><strong>O_microtiming_swing</strong>
+                    <ul>
+                        <li>swingに応じて偶数stepを遅らせるなど</li>
+                        <li>arousal高い場合は"前ノリ"微量（ただし崩しすぎない）</li>
+                    </ul>
+                </li>
+            </ol>
+            
+            <h3>7.5 スコア関数（評価関数）の仕様</h3>
+            <p>拡散の denoiser を <strong>「良さの勾配」</strong>で置き換えるのがこの設計です。<br>
+            スコアは合成でOK。最初は単純に作るのが正義です。</p>
+            
+            <h4>総合スコア</h4>
+            <div class="katex">
+                \text{Score} = \sum w_i \times \text{subscore}_i - \sum \text{penalty}_j
+            </div>
+            
+            <h4>必須サブスコア（v0.1）</h4>
+            <ol>
+                <li><strong>S_constraints（ハード制約）</strong>
+                    <ul>
+                        <li>must_avoidに触れたら大きく減点</li>
+                        <li>time signature破綻、空小節、過密なども減点</li>
+                    </ul>
+                </li>
+                <li><strong>S_density_match</strong>
+                    <ul>
+                        <li>specの各トラック密度に近いほど加点</li>
+                    </ul>
+                </li>
+                <li><strong>S_groove</strong>
+                    <ul>
+                        <li>典型的バックビート維持 + 適量のシンコペ</li>
+                        <li>syncopation指標（簡易でOK：強拍外の比率など）</li>
+                    </ul>
+                </li>
+                <li><strong>S_energy</strong>
+                    <ul>
+                        <li>intensity/arousalに応じた平均velocity・密度の整合</li>
+                    </ul>
+                </li>
+                <li><strong>S_variation</strong>
+                    <ul>
+                        <li>小節間の差分がゼロすぎると減点</li>
+                        <li>ただし差分が多すぎても減点（まとまり崩壊）</li>
+                    </ul>
+                </li>
+            </ol>
+            
+            <h4>ペナルティ（最小）</h4>
+            <ul>
+                <li>同stepに同系統が重なりすぎ（kickと808衝突など）</li>
+                <li>ハット過密（上限超え）</li>
+                <li>休符が多すぎてビートにならない</li>
+            </ul>
+            
+            <h3>7.6 受理ルール（"ノイズ除去"の実体）</h3>
+            <p>拡散っぽさを出すなら <strong>温度（temperature）</strong>を下げる受理にします。</p>
+            
+            <h4>ルール</h4>
+            <ul>
+                <li>Phase A：悪化でも確率で受理（探索）</li>
+                <li>Phase B：少し悪化なら受理</li>
+                <li>Phase C：基本は改善のみ受理（収束）</li>
+            </ul>
+            
+            <h4>擬似式（焼きなまし）</h4>
+            <ul>
+                <li><code>accept = (Δscore >= 0) or (rand() < exp(Δscore / temp))</code></li>
+                <li><code>temp</code> は A→Cで下がる</li>
+            </ul>
+        </div>
+
+        <div class="section-block">
+            <h2>8. Planner（条件→spec写像）の最小ルール（悔しさ例を含む）</h2>
+            <p><strong>実装最短</strong>のため、PlannerはまずルールベースでOK。</p>
+            
+            <h3>8.1 例：primary_emotion × arousal × intensity → spec初期値</h3>
+            <ul>
+                <li>primary=regret（悔しさ）
+                    <ul>
+                        <li>hardness +0.2（硬い音）</li>
+                        <li>distortion +0.1〜0.3（詰まり/痛さ）</li>
+                        <li>avoid_strong_resolution=true（スッキリさせない）</li>
+                    </ul>
+                </li>
+                <li>arousal=high
+                    <ul>
+                        <li>bpm_range上寄せ（例：145〜160）</li>
+                        <li>hat_density↑</li>
+                        <li>microtimingは軽く前ノリ</li>
+                    </ul>
+                </li>
+                <li>intensityが高い（8〜10）
+                    <ul>
+                        <li>snare velocity↑、ghost↑（ただしCフェーズで）</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <div class="section-block">
+            <h2>9. レンダリング（最小現実）</h2>
+            
+            <h3>9.1 MIDI出力（必須）</h3>
+            <ul>
+                <li>Pattern → MIDI（GMドラムマップ）</li>
+                <li>808は単音シンセ想定でMIDIノート出力</li>
+            </ul>
+            
+            <h3>9.2 Audio（任意・簡易）</h3>
+            <p>v0.1はサンプルベースで十分。</p>
+            <ul>
+                <li>kick/snare/hat はWAVワンショットを配置して書き出し</li>
+                <li>808は単純なサイン/矩形＋簡易distで生成しても良い（後で差し替え可能）</li>
+            </ul>
+            
+            <blockquote>
+                <p>重要：<strong>音色選択を"学習"でやろうとすると急に重くなる</strong>ので、<br>
+                v0.1は「kitプリセット」を選ぶだけにするのが最も現実的です。</p>
+            </blockquote>
+        </div>
+
+        <div class="section-block">
+            <h2>10. API仕様（実装しやすいI/F）</h2>
+            
+            <h3>10.1 CLI</h3>
+            <ul>
+                <li><code>beatgen generate --input condition.json --out out_dir/</code></li>
+                <li><code>beatgen generate --text "悔しくて..." --preset trap_dark --out out_dir/</code></li>
+            </ul>
+            
+            <h3>10.2 ライブラリAPI（Python想定）</h3>
+            <ul>
+                <li><code>generate(condition: BeatCondition) -> BeatArtifact</code></li>
+                <li><code>inpaint(condition, pattern, mask) -> Pattern</code>（後で追加しやすい）</li>
+            </ul>
+        </div>
+
+        <div class="section-block">
+            <h2>11. 擬似コード（モデルの核だけ）</h2>
+            <pre><code>def generate(condition):
+    spec = planner(condition)
+
+    x = init_white_noise_pattern(spec, seed=condition.seed)  # x_T
+    best = x
+    best_score = score(x, condition, spec)
+
+    for t in range(T, 0, -1):
+        phase = phase_of(t)
+        temp = temperature_of(phase)
+
+        for k in range(K_candidates_per_step):
+            op = sample_operator(phase)
+            x2 = op.apply(x, spec, condition, phase)
+
+            s2 = score(x2, condition, spec)
+            ds = s2 - best_score
+
+            if accept(ds, temp):
+                x = x2
+                if s2 > best_score:
+                    best, best_score = x2, s2
+
+    midi = render_midi(best, spec)
+    audio = render_audio_optional(best, spec)
+
+    return BeatArtifact(spec=spec, midi=midi, audio=audio, debug=...)</code></pre>
+        </div>
+
+        <div class="section-block">
+            <h2>12. このモデルが「最も現実的・実装しやすい」理由</h2>
+            <ul>
+                <li><strong>学習が不要</strong>（＝すぐ動く。データもGPUも要らない）</li>
+                <li>それでも
+                    <ul>
+                        <li>条件スケジュール（段階的に条件強化）</li>
+                        <li>温度降下（探索→収束）</li>
+                        <li>局所編集（denoise step）
+                        を入れることで、<strong>拡散の"体験"に近い挙動</strong>が出る</li>
+                    </ul>
+                </li>
+                <li>出力がMIDI中心なので、DAW連携・差し替え・改善が容易</li>
+                <li>"悔しさ"などの抽象条件が、Planner/Score/Operatorのどこに効いたかが追跡できる
+                  → 改善が科学的にできる（ブラックボックスになりにくい）</li>
+            </ul>
+        </div>
+
+        <div class="section-block">
+            <h2>13. v0.1の受け入れ基準（Definition of Done）</h2>
+            <p>最低限、以下を満たしたら「仕様どおり動いた」とする：</p>
+            <ol>
+                <li>条件JSONを入れると、<strong>必ず8小節のMIDI</strong>が出る（例外で落ちない）</li>
+                <li>snareの核（2&4）が入り、ビートとして破綻しない</li>
+                <li>densityがspecに概ね収束する（±10〜20%程度でOK）</li>
+                <li><code>seed</code> を固定すると、同一出力が再現できる</li>
+                <li>debugに <strong>各ステップのscore</strong> が残る（改善の根拠）</li>
+            </ol>
+        </div>
+
+        <div class="section-block" style="background: linear-gradient(145deg, #aaffaa, #88ff88); border-color: #00aa00;">
+            <p><strong>必要なら、この仕様をそのまま <span style="color: #ff0066;">フォルダ構成・クラス設計・JSON Schema・Operator実装優先順位</span>まで落として、「明日から書ける設計」にします。</strong><br>
+            ただ、あなたの要求「最も現実性のある実装しやすいモデル」という意味では、上の <strong>CIBG v0.1（反復リファイン型）</strong>が最短で強いです。</p>
+        </div>
     </div>
-    <a class="btn" href="../index.html"><span class="dot" aria-hidden="true"></span>トップへ戻る</a>
-  </header>
 
-  <section>
-    <p>
-      SPICAは「白色ノイズ → 条件でノイズ除去」という拡散モデルの比喩を、学習なしのルールとスコアで実装して
-      8小節ループの <b>BeatSpec / MIDI</b> を生成するクリエイティブコースです。
-      このページではCIBG視点での要求とスコープをまとめています。
-    </p>
-  </section>
-
-  <section>
-    <h2>目次</h2>
-    <ul>
-      <li>プロジェクト概要（C）</li>
-      <li>インプットの定義（I）</li>
-      <li>生成の流れ（B）</li>
-      <li>ガードレールと評価（G）</li>
-    </ul>
-  </section>
-
-  <section>
-    <h2>進め方</h2>
-    <p>概要を把握したら、設計と実装のドキュメントへ進んでください。</p>
-    <div class="links">
-      <a class="btn" href="design.html"><span class="dot" aria-hidden="true"></span>設計（Design）</a>
-      <a class="btn" href="implement.html"><span class="dot" aria-hidden="true"></span>実装（Implement）</a>
+    <div class="footer">
+        <p>CIBG v0.1 仕様書 - Conditioned Iterative Beat Generator | "拡散＝白色ノイズから条件でノイズ除去して具体ビートへ"</p>
     </div>
-  </section>
+
+    <!-- KaTeX JS -->
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"
+        onload="renderMathInElement(document.body, {
+            delimiters: [
+                {left: '$$', right: '$$', display: true},
+                {left: '$', right: '$', display: false},
+                {left: '\\(', right: '\\)', display: false},
+                {left: '\\[', right: '\\]', display: true}
+            ],
+            throwOnError: false
+        });"></script>
 </body>
 </html>
