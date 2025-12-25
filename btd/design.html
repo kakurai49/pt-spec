@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SPICA | Design</title>
+  <style>
+    body{
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", Meiryo, Arial, sans-serif;
+      margin: 0 auto;
+      max-width: 960px;
+      padding: 32px 18px 48px;
+      line-height: 1.7;
+      color: #e8e8f0;
+      background: radial-gradient(900px 480px at 80% 10%, rgba(255,94,168,.12), transparent 50%), #0c0e1a;
+    }
+    a{ color: #7cf7ff; }
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255,255,255,.14);
+    }
+    h1{ margin: 0; letter-spacing: .05em; }
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.20);
+      background: rgba(255,255,255,.05);
+      color: rgba(255,255,255,.78);
+      letter-spacing: .05em;
+      font-size: 12px;
+    }
+    .tag .dot{
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #ff5ea8, rgba(255,94,168,.25));
+      box-shadow: 0 0 18px rgba(255,94,168,.45);
+    }
+    section{ margin: 20px 0; padding: 14px 0; }
+    h2{ margin-bottom: 8px; }
+    ul{ padding-left: 20px; }
+    .links{ display:flex; flex-wrap:wrap; gap: 10px; margin-top: 8px; }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.06);
+      color: #f6f7fb;
+      text-decoration:none;
+      font-weight: 650;
+    }
+    .btn .dot{
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #7cf7ff, rgba(124,247,255,.25));
+      box-shadow: 0 0 18px rgba(124,247,255,.45);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <div class="tag"><span class="dot" aria-hidden="true"></span>SPICA / Beat Diffusion</div>
+      <h1>設計（Design / Pipeline v0.1）</h1>
+    </div>
+    <a class="btn" href="../index.html"><span class="dot" aria-hidden="true"></span>トップへ戻る</a>
+  </header>
+
+  <section>
+    <p>
+      SPICAのパイプライン設計をまとめています。条件JSONの取り回し、ノイズ除去ループ、BeatSpec / MIDI出力までの
+      役割分担を簡潔に整理し、実装へ進みやすくするためのガイドです。
+    </p>
+  </section>
+
+  <section>
+    <h2>含まれるもの</h2>
+    <ul>
+      <li>入力条件（プロンプトJSON）の構造</li>
+      <li>スコア計算・ルール適用の流れ</li>
+      <li>BeatSpec / MIDI生成までのステップ</li>
+      <li>Codex向けIssue分解のヒント</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>リンク</h2>
+    <div class="links">
+      <a class="btn" href="overview.html"><span class="dot" aria-hidden="true"></span>仕様（Overview）へ戻る</a>
+      <a class="btn" href="implement.html"><span class="dot" aria-hidden="true"></span>実装（Implement）を読む</a>
+    </div>
+  </section>
+</body>
+</html>
