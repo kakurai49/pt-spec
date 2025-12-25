@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="color-scheme" content="dark" />
   <title>Python Training | Space Adventure</title>
-  <meta
+    <meta
     name="description"
-    content="Training Course @Space Adventure — GitHub(PR)で進める、冒険感のあるPythonトレーニング。VEGA / ALTAIR / DENEB の各コースへ最短でアクセス。"
+    content="Training Course @Space Adventure — GitHub(PR)で進める、冒険感のあるPythonトレーニング。VEGA / ALTAIR / DENEB / SPICA の各コースへ最短でアクセス。"
   />
 
   <style>
@@ -513,6 +513,19 @@
       background: radial-gradient(circle at 30% 30%, var(--accent2), rgba(167,139,250,.20));
       box-shadow: 0 0 18px rgba(167,139,250,.38);
     }
+    /* Highlight for NEW course */
+    .tag.hot .chip{
+      background: radial-gradient(circle at 30% 30%, var(--hot), rgba(255,94,168,.20));
+      box-shadow: 0 0 18px rgba(255,94,168,.45);
+    }
+    .course.spica{
+      border-color: rgba(255,94,168,.22);
+    }
+    .course.spica::before{
+      background: radial-gradient(640px 280px at 20% 25%, rgba(255,94,168,.14), transparent 62%),
+                  radial-gradient(540px 260px at 80% 35%, rgba(124,247,255,.14), transparent 62%),
+                  radial-gradient(520px 220px at 55% 90%, rgba(167,139,250,.10), transparent 70%);
+    }
     .courseName h4{
       margin: 0;
       font-size: 22px;
@@ -940,10 +953,13 @@
                 <br />
                 「トレーニングしながら冒険を楽しむ」ための、活動感あるPythonトレーニングのホームです。
                 スマホでも見やすいレスポンシブ対応。
+                <br />
+                さらに <span class="kbd">SPICA</span>（Beat Diffusion）で、<b>"条件付き生成"</b> を実装するクリエイティブコースも追加。
               </p>
 
               <div class="heroActions">
                 <a class="btn primary" href="#courses"><span class="dot" aria-hidden="true"></span>コース一覧へ</a>
+                <a class="btn" href="#spica"><span class="dot" aria-hidden="true"></span>NEW: SPICA</a>
                 <a class="btn" href="#flow"><span class="dot" aria-hidden="true"></span>進め方（GitHub/PR）</a>
                 <a class="btn" href="#faq"><span class="dot" aria-hidden="true"></span>よくある質問</a>
               </div>
@@ -952,6 +968,7 @@
                 <span class="pill"><span class="spark" aria-hidden="true"></span>VEGA: <b>1日1時間 / 7日</b></span>
                 <span class="pill"><span class="spark" aria-hidden="true"></span>ALTAIR: <b>1日2時間 / 3ヶ月</b></span>
                 <span class="pill"><span class="spark" aria-hidden="true"></span>DENEB: <b>1日30分 / 7日</b></span>
+                <span class="pill"><span class="spark" aria-hidden="true"></span>SPICA: <b>1日1時間 / 14日</b></span>
               </div>
             </div>
           </div>
@@ -971,9 +988,10 @@
               <ul>
                 <li><span class="kbd">VEGA</span>：基礎〜全般を短期で攻略</li>
                 <li><span class="kbd">ALTAIR</span>：長期でじっくり鍛える</li>
+                <li><a href="btd/overview.html"><span class="kbd">SPICA</span>：Beat Diffusionで“条件付き生成”をつくる（仕様→設計→実装）</a></li>
                 <li><span class="kbd">DENEB</span>：QR→CSVを型ファーストで作る（1週間）</li>
                 <li><a href="qr/samples.html"><span class="kbd">DENEB Samples</span>：テスト用サンプルQR（フォーマット別）</a></li>
-                <li>各コースは <span class="kbd">scope / index / overview / spec</span> へ（DENEBは <span class="kbd">index / overview / spec / samples</span>）</li>
+                <li>各コースは <span class="kbd">scope / index / overview / spec</span> へ（DENEBは <span class="kbd">index / overview / spec / samples</span>、SPICAは <span class="kbd">overview / design / implement</span>）</li>
               </ul>
             </div>
           </aside>
@@ -985,7 +1003,7 @@
         <div class="secTitle">
           <div>
             <h3>コース</h3>
-            <p>画像メモにある構成（VEGA / ALTAIR / DENEB）を、そのまま“かっこよく”整理してリンク化しています。</p>
+            <p>画像メモにある構成（VEGA / ALTAIR / DENEB / SPICA）を、そのまま“かっこよく”整理してリンク化しています。</p>
           </div>
         </div>
 
@@ -1145,6 +1163,75 @@
             <div class="courseFoot">
               <a class="btn" href="#flow"><span class="dot" aria-hidden="true"></span>提出フローを見る</a>
               <a class="btn primary" href="bt30/index.html"><span class="dot" aria-hidden="true"></span>ALTAIRを開始</a>
+            </div>
+          </article>
+
+          <!-- SPICA -->
+          <article class="course spica" id="spica" aria-label="コース SPICA">
+            <div class="courseHead">
+              <div class="courseName">
+                <span class="tag hot"><span class="chip" aria-hidden="true"></span>NEW コース SPICA</span>
+                <h4>SPICA</h4>
+                <p>
+                  「拡散＝白色ノイズ→条件でノイズ除去」の比喩を、<span class="kbd">学習なし</span>のルール＆スコアで再現。
+                  8小節ループの <span class="kbd">BeatSpec</span> と <span class="kbd">MIDI</span> を生成する、クリエイティブ実装コースです。
+                  <br />
+                  仕様 → 設計 → Codex向けIssue分解まで揃っているので、最短で “動く生成” に到達できます。
+                </p>
+              </div>
+
+              <div class="courseMeta">
+                <div><b>学習目安</b></div>
+                <div>1日1時間 / 14日</div>
+              </div>
+            </div>
+
+            <div class="links" role="list">
+              <a class="linkCard" role="listitem" href="btd/overview.html">
+                <div class="ico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M12 6v12M6 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M4 8c3-4 13-4 16 0M4 16c3 4 13 4 16 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <div class="t">
+                  <b>仕様（Overview / CIBG v0.1）</b>
+                  <small>btd/overview.html</small>
+                </div>
+              </a>
+
+              <a class="linkCard" role="listitem" href="btd/design.html">
+                <div class="ico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M7 6v12M17 6v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".65"/>
+                  </svg>
+                </div>
+                <div class="t">
+                  <b>設計（Design / Pipeline v0.1）</b>
+                  <small>btd/design.html</small>
+                </div>
+              </a>
+
+              <a class="linkCard" role="listitem" href="btd/implement.html">
+                <div class="ico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M8 9 5 12l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M16 9l3 3-3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M10 19 14 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <div class="t">
+                  <b>実装（Implement / Codex Issue設計）</b>
+                  <small>btd/implement.html</small>
+                </div>
+              </a>
+            </div>
+
+            <div class="courseFoot">
+              <a class="btn" href="#flow"><span class="dot" aria-hidden="true"></span>提出フローを見る</a>
+              <a class="btn" href="btd/design.html"><span class="dot" aria-hidden="true"></span>設計から読む</a>
+              <a class="btn primary" href="btd/overview.html"><span class="dot" aria-hidden="true"></span>SPICAを開始</a>
             </div>
           </article>
           
@@ -1356,6 +1443,18 @@
           <p>
             このページは星空（Canvas）を軽くアニメーションしています。
             さらに加えるなら「スクロール連動の演出」「コース選択で内容が切り替わるUI」などが相性◎です。
+          </p>
+        </details>
+
+        <details>
+          <summary>
+            SPICA（Beat Diffusion）ってどんなコース？
+            <span class="chev" aria-hidden="true">▾</span>
+          </summary>
+          <p>
+            <span class="kbd">SPICA</span> は、拡散モデルの比喩（白色ノイズ→条件でノイズ除去）を“学習なし”で再現し、
+            条件JSONから <span class="kbd">8小節ループ</span>の <span class="kbd">BeatSpec</span> / <span class="kbd">MIDI</span> を生成するプロジェクト型コースです。
+            まずは <a href="#spica">コースSPICA</a> から、<a href="btd/overview.html">仕様</a>→<a href="btd/design.html">設計</a>→<a href="btd/implement.html">実装（Codex）</a> の順で進めるとスムーズです。
           </p>
         </details>
 
