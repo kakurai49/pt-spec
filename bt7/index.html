@@ -3,184 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BEAT楽器トレーニング計画 - ポップアートスタイル</title>
-    <link rel="stylesheet" href="pop3_style.css">
-    <!-- KaTeX CSS -->
+    <title>BEAT楽器トレーニング計画 - VEGAコース</title>
+    <link rel="stylesheet" href="vega_theme.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
-    <!-- 追加のカラフルスタイル -->
-    <style>
-        :root {
-            /* カラーパレット - ポップアート風 */
-            --pop-primary: #ff4081;
-            --pop-secondary: #1e90ff;
-            --pop-accent: #ffdd57;
-            --pop-dark: #333333;
-            --pop-light: #ffffff;
-            --pop-success: #00c853;
-            --pop-warning: #ff9100;
-            --pop-danger: #ff1744;
-            --pop-info: #00b0ff;
-            
-            /* コントラスト確保のための明るさ/暗さ調整 */
-            --text-on-dark: #ffffff;
-            --text-on-light: #333333;
-            --text-on-accent: #333333;
-        }
-        
-        /* カラーテーマを適用 */
-        body {
-            background: linear-gradient(135deg, var(--pop-accent) 0%, #ffcc00 100%);
-            color: var(--pop-dark);
-            line-height: 1.6;
-        }
-        
-        .container {
-            background-color: var(--pop-light);
-            border: 5px solid var(--pop-primary);
-        }
-        
-        h1, h2, h3, h4 {
-            color: var(--pop-primary);
-        }
-        
-        /* カラフルなセクション */
-        .section-milestone {
-            background: linear-gradient(90deg, var(--pop-info) 0%, #00e5ff 100%);
-            color: var(--text-on-dark);
-            padding: 15px;
-            border-radius: 10px;
-            margin: 20px 0;
-            border-left: 8px solid var(--pop-secondary);
-        }
-        
-        .section-issue {
-            background: linear-gradient(90deg, #f8f9fa 0%, #ffffff 100%);
-            padding: 20px;
-            border-radius: 10px;
-            margin: 25px 0;
-            border: 3px solid var(--pop-secondary);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-        }
-        
-        .section-issue:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            border-color: var(--pop-primary);
-        }
-        
-        .issue-label {
-            display: inline-block;
-            padding: 5px 12px;
-            margin: 0 5px 5px 0;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 0.9rem;
-            color: white;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-        }
-        
-        .label-epic { background-color: var(--pop-primary); }
-        .label-feature { background-color: var(--pop-success); }
-        .label-bug { background-color: var(--pop-danger); }
-        .label-test { background-color: var(--pop-warning); }
-        .label-docs { background-color: var(--pop-info); }
-        .label-refactor { background-color: #9c27b0; }
-        
-        /* B1-B10 ラベル用の色 */
-        .label-b1 { background-color: #ff5722; }
-        .label-b2 { background-color: #ff9800; }
-        .label-b3 { background-color: #ffc107; }
-        .label-b4 { background-color: #8bc34a; }
-        .label-b5 { background-color: #4caf50; }
-        .label-b6 { background-color: #009688; }
-        .label-b7 { background-color: #00bcd4; }
-        .label-b8 { background-color: #2196f3; }
-        .label-b9 { background-color: #3f51b5; }
-        .label-b10 { background-color: #673ab7; }
-        .label-good-first { background-color: #e91e63; }
-        
-        /* テーブルスタイル */
-        table {
-            border: 3px solid var(--pop-dark);
-            margin: 20px 0;
-            background-color: white;
-        }
-        
-        th {
-            background-color: var(--pop-primary);
-            color: var(--text-on-dark);
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        td {
-            border-color: var(--pop-dark);
-        }
-        
-        tr:nth-child(even) {
-            background-color: rgba(255, 64, 129, 0.1);
-        }
-        
-        /* コードブロックのスタイル */
-        pre {
-            background: linear-gradient(90deg, #2d3436 0%, #1a1a1a 100%);
-            color: #00ff9d;
-            border: 2px solid var(--pop-secondary);
-            border-left: 8px solid var(--pop-secondary);
-        }
-        
-        /* 数式コンテナ */
-        .math-container {
-            background-color: rgba(255, 255, 255, 0.9);
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-            border: 2px dashed var(--pop-primary);
-        }
-        
-        /* ヘッダーのアニメーション強化 */
-        header {
-            background: linear-gradient(90deg, var(--pop-primary) 0%, #ff0066 100%);
-            letter-spacing: 2px;
-        }
-        
-        /* フッターのスタイル */
-        .footer {
-            background: linear-gradient(90deg, var(--pop-primary) 0%, #ff0066 100%);
-            font-weight: bold;
-            letter-spacing: 1px;
-        }
-        
-        /* レスポンシブ調整 */
-        @media (max-width: 768px) {
-            .section-issue {
-                padding: 15px;
-                margin: 15px 0;
-            }
-            
-            .issue-label {
-                font-size: 0.8rem;
-                padding: 4px 8px;
-            }
-        }
-    </style>
 </head>
 <body>
-    <header>
-        GitHub Issues Backlog: Python「BEAT楽器」(ミニ・ドラムマシン)
+  <div class="wrap">
+    <header class="page-header">
+      <p class="eyebrow">VEGA COURSE</p>
+      <h1>BEAT楽器トレーニング計画</h1>
+      <p class="lede">GitHub Issues Backlog: Python「BEAT楽器」（ミニ・ドラムマシン）— トップページのスペース感に合わせたダークテーマで整理しました。</p>
     </header>
-    
-    <div class="container">
-        <h1>BEAT楽器トレーニング計画</h1>
-        
+
+    <main class="flow">
+      <section class="panel flow">
         <div class="math-container">
-            <p><strong>時間解像度の計算式:</strong></p>
-            <p>1ステップの秒数: \(\text{step\_sec} = \frac{60}{\text{bpm} \times 4}\)</p>
-            <p>1小節の秒数: \(\text{bar\_sec} = 16 \times \text{step\_sec} = \frac{60 \times 16}{\text{bpm} \times 4} = \frac{240}{\text{bpm}}\)</p>
+          <p><strong>時間解像度の計算式:</strong></p>
+          <p>1ステップの秒数: \(\text{step\_sec} = \frac{60}{\text{bpm} \times 4}\)</p>
+          <p>1小節の秒数: \(\text{bar\_sec} = 16 \times \text{step\_sec} = \frac{60 \times 16}{\text{bpm} \times 4} = \frac{240}{\text{bpm}}\)</p>
         </div>
-        
+
         <div class="section-milestone">
             <h2>共通仕様（全Issue共通の契約）</h2>
             
@@ -207,50 +49,52 @@
                 <li><code>OutputType</code>（出力型）</li>
             </ul>
         </div>
-        
-        <h2>入力ファイル仕様（MVP）</h2>
-        <p>例（最小）:</p>
-        <pre><code>bpm=120
+
+        <div class="panel flow">
+          <h2>入力ファイル仕様（MVP）</h2>
+          <p>例（最小）:</p>
+          <pre><code>bpm=120
 K:x---x---x---x---
 S:----x-------x---
 H:x-x-x-x-x-x-x-x-</code></pre>
-        
-        <h3>ルール（MVPの確定仕様）</h3>
-        <ul>
+
+          <h3>ルール（MVPの確定仕様）</h3>
+          <ul>
             <li><code>bpm=&lt;int&gt;</code> が1行（先頭推奨、ただし順不同でもよい）</li>
             <li>トラック行：<code>&lt;InstrumentID&gt;:&lt;Pattern&gt;</code>
-                <ul>
-                    <li><code>InstrumentID</code> は <code>K</code>, <code>S</code>, <code>H</code> を <strong>必須対応</strong>（Kick/Snare/Hat）</li>
-                    <li><code>Pattern</code> は <strong>長さ16固定</strong></li>
-                    <li>文字は <code>x</code>（ヒット）と <code>-</code>（休符）のみ（MVP）</li>
-                </ul>
+              <ul>
+                <li><code>InstrumentID</code> は <code>K</code>, <code>S</code>, <code>H</code> を <strong>必須対応</strong>（Kick/Snare/Hat）</li>
+                <li><code>Pattern</code> は <strong>長さ16固定</strong></li>
+                <li>文字は <code>x</code>（ヒット）と <code>-</code>（休符）のみ（MVP）</li>
+              </ul>
             </li>
             <li>空行は無視してよい</li>
             <li>余計な空白は左右トリムしてよい</li>
-        </ul>
-        
-        <h2>時間解像度（MVP）</h2>
-        <ul>
+          </ul>
+
+          <h2>時間解像度（MVP）</h2>
+          <ul>
             <li>16ステップ = 1小節（16分音符相当）</li>
             <li>1ステップ秒数：<code>step_sec = 60 / bpm / 4</code>（資料の定義を採用）</li>
-        </ul>
-        
-        <h2>波形（MVP）</h2>
-        <ul>
+          </ul>
+
+          <h2>波形（MVP）</h2>
+          <ul>
             <li>内部表現：<code>list[float]</code>（-1.0〜1.0）</li>
             <li>WAV出力：16bit PCM（mono）</li>
-        </ul>
-        
-        <h2>エラー戦略（MVP）</h2>
-        <ul>
+          </ul>
+
+          <h2>エラー戦略（MVP）</h2>
+          <ul>
             <li>入力不正は <strong>例外で落とす</strong>
-                <ul>
-                    <li><code>ValueError</code> を基本</li>
-                    <li>メッセージは「どの行の何がダメか」を含める</li>
-                </ul>
+              <ul>
+                <li><code>ValueError</code> を基本</li>
+                <li>メッセージは「どの行の何がダメか」を含める</li>
+              </ul>
             </li>
-        </ul>
-        
+          </ul>
+        </div>
+
         <div class="section-milestone">
             <h2>Milestones（推奨）</h2>
             <ul>
@@ -262,14 +106,28 @@ H:x-x-x-x-x-x-x-x-</code></pre>
                 <li><strong>M5: Tests & Docs</strong>（品質/使い方）</li>
             </ul>
         </div>
-        
+
         <div class="section-milestone">
             <h2>Labels（推奨）</h2>
-            <ul>
-                <li><span class="issue-label label-epic">epic</span>, <span class="issue-label label-feature">feature</span>, <span class="issue-label label-bug">bug</span>, <span class="issue-label label-test">test</span>, <span class="issue-label label-docs">docs</span>, <span class="issue-label label-refactor">refactor</span></li>
-                <li><span class="issue-label label-b1">B1</span>〜<span class="issue-label label-b10">B10</span>（等価クラス番号をラベル化）</li>
-                <li><span class="issue-label label-good-first">good first issue</span>（初学者向け）</li>
-            </ul>
+            <div class="label-set">
+                <span class="issue-label label-epic">epic</span>
+                <span class="issue-label label-feature">feature</span>
+                <span class="issue-label label-bug">bug</span>
+                <span class="issue-label label-test">test</span>
+                <span class="issue-label label-docs">docs</span>
+                <span class="issue-label label-refactor">refactor</span>
+                <span class="issue-label label-b1">B1</span>
+                <span class="issue-label label-b2">B2</span>
+                <span class="issue-label label-b3">B3</span>
+                <span class="issue-label label-b4">B4</span>
+                <span class="issue-label label-b5">B5</span>
+                <span class="issue-label label-b6">B6</span>
+                <span class="issue-label label-b7">B7</span>
+                <span class="issue-label label-b8">B8</span>
+                <span class="issue-label label-b9">B9</span>
+                <span class="issue-label label-b10">B10</span>
+                <span class="issue-label label-good-first">good first issue</span>
+            </div>
         </div>
         
         <h1>Issueテンプレ（コピペ用）</h1>
@@ -311,7 +169,7 @@ H:x-x-x-x-x-x-x-x-</code></pre>
                 <li><code>python -m unittest</code> が通る（主要機能）</li>
             </ul>
         </div>
-        
+
         <!-- BEAT-01 Issue -->
         <div class="section-issue character">
             <h2>BEAT-01: リポジトリ骨格とモジュール構成を作る</h2>
@@ -353,7 +211,7 @@ H:x-x-x-x-x-x-x-x-</code></pre>
                 <li>CLI実行の入口が存在する</li>
             </ul>
         </div>
-        
+
         <!-- BEAT-02 Issue -->
         <div class="section-issue character">
             <h2>BEAT-02: ドメインモデル定義（Song / Hit / 定数）</h2>
@@ -950,10 +808,10 @@ H:x-x-x-x-x-x-x-x-</code></pre>
             <p>イベント時間: \(t_{\text{event}} = n_{\text{step}} \times t_{\text{step}}\)</p>
             <p>サンプル位置: \(s_{\text{pos}} = \lfloor t_{\text{event}} \times f_s \rfloor\)</p>
         </div>
-    </div>
+    </main>
     
     <div class="footer">
-        BEAT楽器トレーニング計画 - ポップアートスタイル版 | 色管理アーキテクチャ採用 | KaTeX対応
+        BEAT楽器トレーニング計画 - VEGAコース | ダークスペーストーンで統一 | KaTeX対応
     </div>
     
     <!-- KaTeX JS -->
@@ -972,5 +830,6 @@ H:x-x-x-x-x-x-x-x-</code></pre>
             });
         });
     </script>
+  </div>
 </body>
 </html>
