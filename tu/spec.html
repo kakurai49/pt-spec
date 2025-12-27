@@ -1,0 +1,2110 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>動く仕様書（JavaScriptで実行）</title>
+  <style>
+:root{
+  --bg:#0b1020;
+  --panel:#111a33;
+  --text:#eef2ff;
+  --muted:#b8c0ff;
+  --accent:#7c5cff;
+  --accent2:#35d0ba;
+  --warn:#ffcc66;
+  --bad:#ff6b6b;
+  --good:#63f2a1;
+  --code:#0a0f1f;
+  --border:rgba(255,255,255,.12);
+  --shadow: 0 8px 24px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:linear-gradient(180deg, var(--bg), #050714);color:var(--text);font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;line-height:1.6}
+a{color:var(--accent2);text-decoration:none}
+a:hover{text-decoration:underline}
+.container{max-width:1100px;margin:0 auto;padding:24px}
+.header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin:12px 0 18px}
+.brand h1{font-size:22px;margin:0}
+.brand p{margin:6px 0 0;color:var(--muted);font-size:13px}
+.nav{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end}
+.nav a{display:inline-block;padding:8px 12px;border:1px solid var(--border);border-radius:999px;background:rgba(255,255,255,.03)}
+.nav a.active{border-color:rgba(124,92,255,.8);box-shadow: 0 0 0 3px rgba(124,92,255,.15) inset}
+.card{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--shadow);margin:14px 0}
+.card h2{margin:0 0 10px;font-size:18px}
+.card h3{margin:16px 0 8px;font-size:15px}
+.badge{display:inline-block;padding:2px 10px;border-radius:999px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--muted);font-size:12px}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+.col-6{grid-column:span 6}
+.col-4{grid-column:span 4}
+.col-8{grid-column:span 8}
+.col-12{grid-column:span 12}
+@media (max-width: 920px){
+  .col-6,.col-4,.col-8{grid-column:span 12}
+  .header{flex-direction:column;align-items:stretch}
+  .nav{justify-content:flex-start}
+}
+hr{border:0;border-top:1px solid var(--border);margin:16px 0}
+ul{margin:8px 0 8px 22px}
+li{margin:4px 0}
+table{width:100%;border-collapse:collapse;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+th,td{padding:10px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+th{background:rgba(255,255,255,.05);text-align:left;font-weight:600}
+tr:last-child td{border-bottom:0}
+pre{background:var(--code);border:1px solid var(--border);padding:12px;border-radius:12px;overflow:auto}
+code{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Noto Sans Mono", monospace;font-size: 12.5px}
+.callout{border-left:4px solid var(--accent);padding:12px 14px;background:rgba(124,92,255,.08);border-radius:12px}
+.callout.warn{border-left-color: var(--warn);background:rgba(255,204,102,.08)}
+.callout.good{border-left-color: var(--good);background:rgba(99,242,161,.08)}
+.callout.bad{border-left-color: var(--bad);background:rgba(255,107,107,.08)}
+.kpi{display:flex;gap:12px;flex-wrap:wrap}
+.kpi .item{flex:1;min-width:160px;border:1px solid var(--border);border-radius:12px;padding:12px;background:rgba(255,255,255,.03)}
+.kpi .item .n{font-size:22px;font-weight:700}
+.kpi .item .t{color:var(--muted);font-size:12px}
+.footer{color:var(--muted);font-size:12px;margin:18px 0 0}
+.small{font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="brand">
+        <h1>動く仕様書（JavaScriptで実行）</h1>
+        <p>Pythonトレーニング新コース：タロット占い（フルスタック）（生成日: 2025-12-27）</p>
+      </div>
+      <div class="nav">
+        <a class="" href="overview.html">概要</a>
+<a class="" href="implement_spec.html">実装仕様書</a>
+<a class="" href="issues.html">GitHub Issue集</a>
+<a class="active" href="spec.html">動く仕様書</a>
+      </div>
+    </div>
+
+    
+<div class="card">
+  <span class="badge">spec.html</span>
+  <h2>動く仕様書（ブラウザだけで動作）</h2>
+  <p>
+    このページは「実装仕様書（implement_spec.html）」のコア要件（スプレッド・重複なし・seed再現・正逆）を
+    <b>JavaScriptでそのまま実装</b>したものです。<br/>
+    目的は、仕様を読んだだけで終わらせず、<b>その場で仕様を実行して確認</b>できるようにすることです。
+  </p>
+</div>
+
+<div class="grid">
+  <div class="card col-6">
+    <h2>実行</h2>
+
+    <div id="error" class="callout bad" style="display:none"></div>
+
+    <div class="row">
+      <div class="c12">
+        <label class="small">質問（question）</label>
+        <input id="question" class="input" placeholder="例：転職すべき？ / 恋愛はうまくいく？" />
+      </div>
+
+      <div class="c6">
+        <label class="small">カテゴリ（category）</label>
+        <select id="category" class="input">
+          <option value="general">general</option>
+          <option value="love">love</option>
+          <option value="work">work</option>
+          <option value="money">money</option>
+          <option value="health">health</option>
+        </select>
+      </div>
+
+      <div class="c6">
+        <label class="small">スプレッド（spread）</label>
+        <select id="spread" class="input">
+          <option value="one">one（1枚：現在）</option>
+          <option value="three">three（3枚：過去/現在/未来）</option>
+        </select>
+      </div>
+
+      <div class="c6">
+        <label class="small">seed（再現用：整数、空でランダム）</label>
+        <input id="seed" class="input" placeholder="例：123" />
+      </div>
+
+      <div class="c6" style="display:flex;align-items:flex-end;gap:10px">
+        <label style="display:flex;align-items:center;gap:8px">
+          <input id="allowReversed" type="checkbox" checked />
+          <span>逆位置を有効にする</span>
+        </label>
+      </div>
+
+      <div class="c12" style="display:flex;gap:10px;flex-wrap:wrap">
+        <button id="run">ドローして解釈を生成</button>
+        <button id="copy" class="secondary">結果JSONをコピー</button>
+      </div>
+    </div>
+
+    <div id="output" style="display:none;margin-top:14px">
+      <h3>仕様チェック（自動）</h3>
+      <div id="checks"></div>
+
+      <h3>結果</h3>
+      <div id="cards" class="cardlist"></div>
+
+      <h3>結果JSON（APIのレスポンス形）</h3>
+      <textarea id="json" class="input" readonly></textarea>
+    </div>
+  </div>
+
+  <div class="card col-6">
+    <h2>このページが満たす仕様（抜粋）</h2>
+    <ul>
+      <li><b>spread</b> は <code>one</code> / <code>three</code> のみ</li>
+      <li><b>positions</b> は spread から導出（one→["現在"], three→["過去","現在","未来"]）</li>
+      <li><b>重複なし</b>：同じカードIDは1回しか出ない</li>
+      <li><b>allowReversed=false</b> のとき、全カードが正位置</li>
+      <li><b>seed指定</b> のとき、同一入力→同一結果（順序・正逆を含む）</li>
+    </ul>
+
+    <h3>実装メモ（JS版の対応）</h3>
+    <ul>
+      <li>乱数：seedあり→ <code>mulberry32</code> を使用し、決定的にする</li>
+      <li>抽選：Fisher-Yatesでシャッフルして先頭n枚を採用（重複なし）</li>
+      <li>デッキ：このHTML内に78枚データを内蔵（外部依存なし）</li>
+    </ul>
+
+    <div class="callout">
+      <b>次のステップ：</b><br/>
+      このページ（JS）で仕様の動作が確認できたら、同じ入出力を Python 実装（Core→API→UI）で再現してください。
+      そのときの正しさ確認に、この動く仕様書を「期待結果の参照」として使えます。
+    </div>
+
+    <h3>デッキ内蔵データについて</h3>
+    <p class="small">
+      ここでは学習用に、78枚分の意味を短く定義しています（教材の例）。
+      実プロダクトでは、文章の品質（語彙/トーン）や監修方針を別途決めるのが望ましいです。
+    </p>
+  </div>
+</div>
+
+<style>
+.input, select, textarea{
+  width:100%;
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.03);
+  color:var(--text);
+  outline:none;
+}
+textarea{min-height:110px}
+button{
+  padding:10px 14px;
+  border-radius:12px;
+  border:1px solid rgba(124,92,255,.8);
+  background:rgba(124,92,255,.18);
+  color:var(--text);
+  cursor:pointer;
+  font-weight:600;
+}
+button:hover{background:rgba(124,92,255,.28)}
+button.secondary{
+  border-color:rgba(53,208,186,.8);
+  background:rgba(53,208,186,.12);
+}
+button.secondary:hover{background:rgba(53,208,186,.18)}
+.row{display:grid;grid-template-columns:repeat(12,1fr);gap:10px}
+.row .c6{grid-column:span 6}
+.row .c4{grid-column:span 4}
+.row .c8{grid-column:span 8}
+.row .c12{grid-column:span 12}
+@media (max-width:920px){
+  .row .c6,.row .c4,.row .c8{grid-column:span 12}
+}
+.cardlist{display:grid;grid-template-columns:repeat(12,1fr);gap:12px;margin-top:12px}
+.carditem{grid-column:span 6;border:1px solid var(--border);border-radius:14px;padding:12px;background:rgba(255,255,255,.03)}
+.carditem h4{margin:0 0 6px}
+.status{display:flex;gap:8px;flex-wrap:wrap}
+.status .pill{padding:4px 10px;border-radius:999px;border:1px solid var(--border);font-size:12px}
+.pill.ok{border-color:rgba(99,242,161,.8);background:rgba(99,242,161,.08)}
+.pill.ng{border-color:rgba(255,107,107,.8);background:rgba(255,107,107,.08)}
+</style>
+<script>
+const DECK = [
+  {
+    "id": "MAJOR_00",
+    "arcana": "MAJOR",
+    "number": 0,
+    "suit": null,
+    "rank": null,
+    "name_ja": "愚者",
+    "name_en": "The Fool",
+    "keywords_upright": [
+      "自由",
+      "新しい旅",
+      "無邪気"
+    ],
+    "keywords_reversed": [
+      "無計画",
+      "軽率",
+      "現実逃避"
+    ],
+    "meaning_upright": "新しい始まり。固定観念に縛られず一歩を踏み出す時。",
+    "meaning_reversed": "準備不足や軽率さに注意。現実的な確認を。"
+  },
+  {
+    "id": "MAJOR_01",
+    "arcana": "MAJOR",
+    "number": 1,
+    "suit": null,
+    "rank": null,
+    "name_ja": "魔術師",
+    "name_en": "The Magician",
+    "keywords_upright": [
+      "創造",
+      "実行力",
+      "可能性"
+    ],
+    "keywords_reversed": [
+      "自信不足",
+      "空回り",
+      "操作"
+    ],
+    "meaning_upright": "資源は揃っている。意志と技術で形にできる。",
+    "meaning_reversed": "焦りや誤魔化しに注意。目的を再確認。"
+  },
+  {
+    "id": "MAJOR_02",
+    "arcana": "MAJOR",
+    "number": 2,
+    "suit": null,
+    "rank": null,
+    "name_ja": "女教皇",
+    "name_en": "The High Priestess",
+    "keywords_upright": [
+      "直感",
+      "静けさ",
+      "洞察"
+    ],
+    "keywords_reversed": [
+      "混乱",
+      "秘密",
+      "不安"
+    ],
+    "meaning_upright": "内なる声を信じる。情報を急がず熟考。",
+    "meaning_reversed": "疑心暗鬼や隠し事が障害に。心を整える。"
+  },
+  {
+    "id": "MAJOR_03",
+    "arcana": "MAJOR",
+    "number": 3,
+    "suit": null,
+    "rank": null,
+    "name_ja": "女帝",
+    "name_en": "The Empress",
+    "keywords_upright": [
+      "豊穣",
+      "愛情",
+      "育む"
+    ],
+    "keywords_reversed": [
+      "過保護",
+      "浪費",
+      "怠惰"
+    ],
+    "meaning_upright": "育てる力。人間関係や企画が実りやすい。",
+    "meaning_reversed": "甘やかしや依存に注意。節度を。"
+  },
+  {
+    "id": "MAJOR_04",
+    "arcana": "MAJOR",
+    "number": 4,
+    "suit": null,
+    "rank": null,
+    "name_ja": "皇帝",
+    "name_en": "The Emperor",
+    "keywords_upright": [
+      "秩序",
+      "責任",
+      "統率"
+    ],
+    "keywords_reversed": [
+      "独裁",
+      "硬直",
+      "頑固"
+    ],
+    "meaning_upright": "基盤を固め、ルールを作ると安定する。",
+    "meaning_reversed": "支配的になり過ぎない。柔軟性が鍵。"
+  },
+  {
+    "id": "MAJOR_05",
+    "arcana": "MAJOR",
+    "number": 5,
+    "suit": null,
+    "rank": null,
+    "name_ja": "教皇",
+    "name_en": "The Hierophant",
+    "keywords_upright": [
+      "学び",
+      "伝統",
+      "助言"
+    ],
+    "keywords_reversed": [
+      "反発",
+      "独善",
+      "形骸化"
+    ],
+    "meaning_upright": "信頼できる助言や型に従うことで進む。",
+    "meaning_reversed": "古い常識に縛られ過ぎない。自分の価値観も尊重。"
+  },
+  {
+    "id": "MAJOR_06",
+    "arcana": "MAJOR",
+    "number": 6,
+    "suit": null,
+    "rank": null,
+    "name_ja": "恋人",
+    "name_en": "The Lovers",
+    "keywords_upright": [
+      "選択",
+      "調和",
+      "絆"
+    ],
+    "keywords_reversed": [
+      "迷い",
+      "不一致",
+      "誘惑"
+    ],
+    "meaning_upright": "大切な選択。誠実さが関係を深める。",
+    "meaning_reversed": "優先順位が揺れる。曖昧さを減らす。"
+  },
+  {
+    "id": "MAJOR_07",
+    "arcana": "MAJOR",
+    "number": 7,
+    "suit": null,
+    "rank": null,
+    "name_ja": "戦車",
+    "name_en": "The Chariot",
+    "keywords_upright": [
+      "前進",
+      "勝利",
+      "集中"
+    ],
+    "keywords_reversed": [
+      "暴走",
+      "停滞",
+      "方向喪失"
+    ],
+    "meaning_upright": "意思を一点に集めれば突破できる。",
+    "meaning_reversed": "勢い任せに注意。戦略の見直しを。"
+  },
+  {
+    "id": "MAJOR_08",
+    "arcana": "MAJOR",
+    "number": 8,
+    "suit": null,
+    "rank": null,
+    "name_ja": "力",
+    "name_en": "Strength",
+    "keywords_upright": [
+      "勇気",
+      "忍耐",
+      "慈愛"
+    ],
+    "keywords_reversed": [
+      "自制心欠如",
+      "消耗",
+      "短気"
+    ],
+    "meaning_upright": "強さは優しさ。粘り強く向き合えば好転。",
+    "meaning_reversed": "無理を重ねない。休息と境界線。"
+  },
+  {
+    "id": "MAJOR_09",
+    "arcana": "MAJOR",
+    "number": 9,
+    "suit": null,
+    "rank": null,
+    "name_ja": "隠者",
+    "name_en": "The Hermit",
+    "keywords_upright": [
+      "内省",
+      "探求",
+      "成熟"
+    ],
+    "keywords_reversed": [
+      "孤立",
+      "閉鎖",
+      "迷走"
+    ],
+    "meaning_upright": "一度立ち止まり、本質を見極める。",
+    "meaning_reversed": "閉じこもり過ぎない。信頼できる人と対話を。"
+  },
+  {
+    "id": "MAJOR_10",
+    "arcana": "MAJOR",
+    "number": 10,
+    "suit": null,
+    "rank": null,
+    "name_ja": "運命の輪",
+    "name_en": "Wheel of Fortune",
+    "keywords_upright": [
+      "転機",
+      "循環",
+      "チャンス"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "不運",
+      "タイミングズレ"
+    ],
+    "meaning_upright": "流れが変わる。波に乗る準備を。",
+    "meaning_reversed": "無理に回さない。整えることに集中。"
+  },
+  {
+    "id": "MAJOR_11",
+    "arcana": "MAJOR",
+    "number": 11,
+    "suit": null,
+    "rank": null,
+    "name_ja": "正義",
+    "name_en": "Justice",
+    "keywords_upright": [
+      "公平",
+      "判断",
+      "因果"
+    ],
+    "keywords_reversed": [
+      "偏り",
+      "不正",
+      "誤判断"
+    ],
+    "meaning_upright": "事実に基づく判断。契約やルールの確認。",
+    "meaning_reversed": "感情で裁かない。証拠とバランス。"
+  },
+  {
+    "id": "MAJOR_12",
+    "arcana": "MAJOR",
+    "number": 12,
+    "suit": null,
+    "rank": null,
+    "name_ja": "吊るされた男",
+    "name_en": "The Hanged Man",
+    "keywords_upright": [
+      "忍耐",
+      "視点転換",
+      "手放す"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "犠牲過多",
+      "徒労"
+    ],
+    "meaning_upright": "今は待つ時。見方を変えると道が見える。",
+    "meaning_reversed": "我慢が目的化している。手放しの検討。"
+  },
+  {
+    "id": "MAJOR_13",
+    "arcana": "MAJOR",
+    "number": 13,
+    "suit": null,
+    "rank": null,
+    "name_ja": "死神",
+    "name_en": "Death",
+    "keywords_upright": [
+      "終わり",
+      "変容",
+      "再生"
+    ],
+    "keywords_reversed": [
+      "停滞継続",
+      "未練",
+      "恐れ"
+    ],
+    "meaning_upright": "区切りをつけることで新しい局面へ。",
+    "meaning_reversed": "終わらせるべきものを抱え込んでいる。整理を。"
+  },
+  {
+    "id": "MAJOR_14",
+    "arcana": "MAJOR",
+    "number": 14,
+    "suit": null,
+    "rank": null,
+    "name_ja": "節制",
+    "name_en": "Temperance",
+    "keywords_upright": [
+      "調和",
+      "統合",
+      "癒し"
+    ],
+    "keywords_reversed": [
+      "不調和",
+      "極端",
+      "焦り"
+    ],
+    "meaning_upright": "バランス調整。混ぜ合わせることで最適化。",
+    "meaning_reversed": "偏りが出ている。中庸に戻す。"
+  },
+  {
+    "id": "MAJOR_15",
+    "arcana": "MAJOR",
+    "number": 15,
+    "suit": null,
+    "rank": null,
+    "name_ja": "悪魔",
+    "name_en": "The Devil",
+    "keywords_upright": [
+      "執着",
+      "欲望",
+      "束縛"
+    ],
+    "keywords_reversed": [
+      "解放",
+      "依存断ち",
+      "気づき"
+    ],
+    "meaning_upright": "依存や固定化した関係に気づく。",
+    "meaning_reversed": "束縛から抜け出すチャンス。習慣を変える。"
+  },
+  {
+    "id": "MAJOR_16",
+    "arcana": "MAJOR",
+    "number": 16,
+    "suit": null,
+    "rank": null,
+    "name_ja": "塔",
+    "name_en": "The Tower",
+    "keywords_upright": [
+      "崩壊",
+      "衝撃",
+      "刷新"
+    ],
+    "keywords_reversed": [
+      "先延ばし",
+      "小規模崩壊",
+      "恐れ"
+    ],
+    "meaning_upright": "古い前提が崩れる。再構築の始まり。",
+    "meaning_reversed": "変化を避けるほど損失。小さく壊して整える。"
+  },
+  {
+    "id": "MAJOR_17",
+    "arcana": "MAJOR",
+    "number": 17,
+    "suit": null,
+    "rank": null,
+    "name_ja": "星",
+    "name_en": "The Star",
+    "keywords_upright": [
+      "希望",
+      "回復",
+      "導き"
+    ],
+    "keywords_reversed": [
+      "失望",
+      "疑い",
+      "消耗"
+    ],
+    "meaning_upright": "癒しと希望。長期的に良い方向へ。",
+    "meaning_reversed": "期待を一度下ろして、現実的な一歩を。"
+  },
+  {
+    "id": "MAJOR_18",
+    "arcana": "MAJOR",
+    "number": 18,
+    "suit": null,
+    "rank": null,
+    "name_ja": "月",
+    "name_en": "The Moon",
+    "keywords_upright": [
+      "不安",
+      "幻想",
+      "潜在意識"
+    ],
+    "keywords_reversed": [
+      "霧が晴れる",
+      "真実",
+      "解像度"
+    ],
+    "meaning_upright": "曖昧さの中。焦らず情報を集める。",
+    "meaning_reversed": "誤解が解ける。現実確認で前進。"
+  },
+  {
+    "id": "MAJOR_19",
+    "arcana": "MAJOR",
+    "number": 19,
+    "suit": null,
+    "rank": null,
+    "name_ja": "太陽",
+    "name_en": "The Sun",
+    "keywords_upright": [
+      "成功",
+      "喜び",
+      "明快"
+    ],
+    "keywords_reversed": [
+      "過信",
+      "空回り",
+      "燃え尽き"
+    ],
+    "meaning_upright": "明るい結果。素直さが幸運を呼ぶ。",
+    "meaning_reversed": "やり過ぎに注意。休息と謙虚さ。"
+  },
+  {
+    "id": "MAJOR_20",
+    "arcana": "MAJOR",
+    "number": 20,
+    "suit": null,
+    "rank": null,
+    "name_ja": "審判",
+    "name_en": "Judgement",
+    "keywords_upright": [
+      "復活",
+      "決断",
+      "目覚め"
+    ],
+    "keywords_reversed": [
+      "先延ばし",
+      "後悔",
+      "迷い"
+    ],
+    "meaning_upright": "過去の結果を受け取り、新しい決断へ。",
+    "meaning_reversed": "判断を避けると停滞。向き合って選ぶ。"
+  },
+  {
+    "id": "MAJOR_21",
+    "arcana": "MAJOR",
+    "number": 21,
+    "suit": null,
+    "rank": null,
+    "name_ja": "世界",
+    "name_en": "The World",
+    "keywords_upright": [
+      "完成",
+      "達成",
+      "統合"
+    ],
+    "keywords_reversed": [
+      "未完",
+      "停滞",
+      "あと一歩"
+    ],
+    "meaning_upright": "一区切り。成果を受け取り次のステージへ。",
+    "meaning_reversed": "仕上げが甘い。最後の調整を。"
+  },
+  {
+    "id": "WANDS_ACE",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "WANDS",
+    "rank": "ACE",
+    "name_ja": "ワンドのエース",
+    "name_en": "Ace of Wands",
+    "keywords_upright": [
+      "情熱",
+      "始まり",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "情熱・行動・創造に関する「始まり・可能性」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "情熱・行動・創造が不安定になりやすい。「始まり・可能性」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "WANDS_2",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "WANDS",
+    "rank": "2",
+    "name_ja": "ワンドの2",
+    "name_en": "Two of Wands",
+    "keywords_upright": [
+      "情熱",
+      "選択",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "情熱・行動・創造に関する「選択・バランス」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "情熱・行動・創造が不安定になりやすい。「選択・バランス」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "WANDS_3",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "WANDS",
+    "rank": "3",
+    "name_ja": "ワンドの3",
+    "name_en": "Three of Wands",
+    "keywords_upright": [
+      "情熱",
+      "成長",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "情熱・行動・創造に関する「成長・協力」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "情熱・行動・創造が不安定になりやすい。「成長・協力」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "WANDS_4",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "WANDS",
+    "rank": "4",
+    "name_ja": "ワンドの4",
+    "name_en": "Four of Wands",
+    "keywords_upright": [
+      "情熱",
+      "安定",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "情熱・行動・創造に関する「安定・休息」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "情熱・行動・創造が不安定になりやすい。「安定・休息」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "WANDS_5",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "WANDS",
+    "rank": "5",
+    "name_ja": "ワンドの5",
+    "name_en": "Five of Wands",
+    "keywords_upright": [
+      "情熱",
+      "摩擦",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "情熱・行動・創造に関する「摩擦・損失」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "情熱・行動・創造が不安定になりやすい。「摩擦・損失」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "WANDS_6",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "WANDS",
+    "rank": "6",
+    "name_ja": "ワンドの6",
+    "name_en": "Six of Wands",
+    "keywords_upright": [
+      "情熱",
+      "調和",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "情熱・行動・創造に関する「調和・移行」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "情熱・行動・創造が不安定になりやすい。「調和・移行」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "WANDS_7",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "WANDS",
+    "rank": "7",
+    "name_ja": "ワンドの7",
+    "name_en": "Seven of Wands",
+    "keywords_upright": [
+      "情熱",
+      "挑戦",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "情熱・行動・創造に関する「挑戦・戦略」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "情熱・行動・創造が不安定になりやすい。「挑戦・戦略」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "WANDS_8",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "WANDS",
+    "rank": "8",
+    "name_ja": "ワンドの8",
+    "name_en": "Eight of Wands",
+    "keywords_upright": [
+      "情熱",
+      "前進",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "情熱・行動・創造に関する「前進・習熟」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "情熱・行動・創造が不安定になりやすい。「前進・習熟」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "WANDS_9",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "WANDS",
+    "rank": "9",
+    "name_ja": "ワンドの9",
+    "name_en": "Nine of Wands",
+    "keywords_upright": [
+      "情熱",
+      "実り",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "情熱・行動・創造に関する「実り・不安」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "情熱・行動・創造が不安定になりやすい。「実り・不安」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "WANDS_10",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "WANDS",
+    "rank": "10",
+    "name_ja": "ワンドの10",
+    "name_en": "Ten of Wands",
+    "keywords_upright": [
+      "情熱",
+      "完了",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "情熱・行動・創造に関する「完了・負荷」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "情熱・行動・創造が不安定になりやすい。「完了・負荷」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "WANDS_PAGE",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "WANDS",
+    "rank": "PAGE",
+    "name_ja": "ワンドのペイジ",
+    "name_en": "Page of Wands",
+    "keywords_upright": [
+      "情熱",
+      "学び",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "情熱・行動・創造に関する「学び・知らせ」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "情熱・行動・創造が不安定になりやすい。「学び・知らせ」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "WANDS_KNIGHT",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "WANDS",
+    "rank": "KNIGHT",
+    "name_ja": "ワンドのナイト",
+    "name_en": "Knight of Wands",
+    "keywords_upright": [
+      "情熱",
+      "行動",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "情熱・行動・創造に関する「行動・追求」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "情熱・行動・創造が不安定になりやすい。「行動・追求」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "WANDS_QUEEN",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "WANDS",
+    "rank": "QUEEN",
+    "name_ja": "ワンドのクイーン",
+    "name_en": "Queen of Wands",
+    "keywords_upright": [
+      "情熱",
+      "成熟",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "情熱・行動・創造に関する「成熟・包容」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "情熱・行動・創造が不安定になりやすい。「成熟・包容」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "WANDS_KING",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "WANDS",
+    "rank": "KING",
+    "name_ja": "ワンドのキング",
+    "name_en": "King of Wands",
+    "keywords_upright": [
+      "情熱",
+      "統率",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "情熱・行動・創造に関する「統率・完成度」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "情熱・行動・創造が不安定になりやすい。「統率・完成度」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "CUPS_ACE",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "CUPS",
+    "rank": "ACE",
+    "name_ja": "カップのエース",
+    "name_en": "Ace of Cups",
+    "keywords_upright": [
+      "感情",
+      "始まり",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "感情・愛・直感に関する「始まり・可能性」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "感情・愛・直感が不安定になりやすい。「始まり・可能性」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "CUPS_2",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "CUPS",
+    "rank": "2",
+    "name_ja": "カップの2",
+    "name_en": "Two of Cups",
+    "keywords_upright": [
+      "感情",
+      "選択",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "感情・愛・直感に関する「選択・バランス」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "感情・愛・直感が不安定になりやすい。「選択・バランス」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "CUPS_3",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "CUPS",
+    "rank": "3",
+    "name_ja": "カップの3",
+    "name_en": "Three of Cups",
+    "keywords_upright": [
+      "感情",
+      "成長",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "感情・愛・直感に関する「成長・協力」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "感情・愛・直感が不安定になりやすい。「成長・協力」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "CUPS_4",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "CUPS",
+    "rank": "4",
+    "name_ja": "カップの4",
+    "name_en": "Four of Cups",
+    "keywords_upright": [
+      "感情",
+      "安定",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "感情・愛・直感に関する「安定・休息」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "感情・愛・直感が不安定になりやすい。「安定・休息」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "CUPS_5",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "CUPS",
+    "rank": "5",
+    "name_ja": "カップの5",
+    "name_en": "Five of Cups",
+    "keywords_upright": [
+      "感情",
+      "摩擦",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "感情・愛・直感に関する「摩擦・損失」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "感情・愛・直感が不安定になりやすい。「摩擦・損失」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "CUPS_6",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "CUPS",
+    "rank": "6",
+    "name_ja": "カップの6",
+    "name_en": "Six of Cups",
+    "keywords_upright": [
+      "感情",
+      "調和",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "感情・愛・直感に関する「調和・移行」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "感情・愛・直感が不安定になりやすい。「調和・移行」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "CUPS_7",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "CUPS",
+    "rank": "7",
+    "name_ja": "カップの7",
+    "name_en": "Seven of Cups",
+    "keywords_upright": [
+      "感情",
+      "挑戦",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "感情・愛・直感に関する「挑戦・戦略」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "感情・愛・直感が不安定になりやすい。「挑戦・戦略」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "CUPS_8",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "CUPS",
+    "rank": "8",
+    "name_ja": "カップの8",
+    "name_en": "Eight of Cups",
+    "keywords_upright": [
+      "感情",
+      "前進",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "感情・愛・直感に関する「前進・習熟」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "感情・愛・直感が不安定になりやすい。「前進・習熟」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "CUPS_9",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "CUPS",
+    "rank": "9",
+    "name_ja": "カップの9",
+    "name_en": "Nine of Cups",
+    "keywords_upright": [
+      "感情",
+      "実り",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "感情・愛・直感に関する「実り・不安」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "感情・愛・直感が不安定になりやすい。「実り・不安」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "CUPS_10",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "CUPS",
+    "rank": "10",
+    "name_ja": "カップの10",
+    "name_en": "Ten of Cups",
+    "keywords_upright": [
+      "感情",
+      "完了",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "感情・愛・直感に関する「完了・負荷」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "感情・愛・直感が不安定になりやすい。「完了・負荷」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "CUPS_PAGE",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "CUPS",
+    "rank": "PAGE",
+    "name_ja": "カップのペイジ",
+    "name_en": "Page of Cups",
+    "keywords_upright": [
+      "感情",
+      "学び",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "感情・愛・直感に関する「学び・知らせ」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "感情・愛・直感が不安定になりやすい。「学び・知らせ」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "CUPS_KNIGHT",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "CUPS",
+    "rank": "KNIGHT",
+    "name_ja": "カップのナイト",
+    "name_en": "Knight of Cups",
+    "keywords_upright": [
+      "感情",
+      "行動",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "感情・愛・直感に関する「行動・追求」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "感情・愛・直感が不安定になりやすい。「行動・追求」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "CUPS_QUEEN",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "CUPS",
+    "rank": "QUEEN",
+    "name_ja": "カップのクイーン",
+    "name_en": "Queen of Cups",
+    "keywords_upright": [
+      "感情",
+      "成熟",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "感情・愛・直感に関する「成熟・包容」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "感情・愛・直感が不安定になりやすい。「成熟・包容」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "CUPS_KING",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "CUPS",
+    "rank": "KING",
+    "name_ja": "カップのキング",
+    "name_en": "King of Cups",
+    "keywords_upright": [
+      "感情",
+      "統率",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "感情・愛・直感に関する「統率・完成度」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "感情・愛・直感が不安定になりやすい。「統率・完成度」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "SWORDS_ACE",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "SWORDS",
+    "rank": "ACE",
+    "name_ja": "ソードのエース",
+    "name_en": "Ace of Swords",
+    "keywords_upright": [
+      "思考",
+      "始まり",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "思考・言葉・葛藤に関する「始まり・可能性」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "思考・言葉・葛藤が不安定になりやすい。「始まり・可能性」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "SWORDS_2",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "SWORDS",
+    "rank": "2",
+    "name_ja": "ソードの2",
+    "name_en": "Two of Swords",
+    "keywords_upright": [
+      "思考",
+      "選択",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "思考・言葉・葛藤に関する「選択・バランス」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "思考・言葉・葛藤が不安定になりやすい。「選択・バランス」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "SWORDS_3",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "SWORDS",
+    "rank": "3",
+    "name_ja": "ソードの3",
+    "name_en": "Three of Swords",
+    "keywords_upright": [
+      "思考",
+      "成長",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "思考・言葉・葛藤に関する「成長・協力」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "思考・言葉・葛藤が不安定になりやすい。「成長・協力」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "SWORDS_4",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "SWORDS",
+    "rank": "4",
+    "name_ja": "ソードの4",
+    "name_en": "Four of Swords",
+    "keywords_upright": [
+      "思考",
+      "安定",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "思考・言葉・葛藤に関する「安定・休息」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "思考・言葉・葛藤が不安定になりやすい。「安定・休息」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "SWORDS_5",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "SWORDS",
+    "rank": "5",
+    "name_ja": "ソードの5",
+    "name_en": "Five of Swords",
+    "keywords_upright": [
+      "思考",
+      "摩擦",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "思考・言葉・葛藤に関する「摩擦・損失」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "思考・言葉・葛藤が不安定になりやすい。「摩擦・損失」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "SWORDS_6",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "SWORDS",
+    "rank": "6",
+    "name_ja": "ソードの6",
+    "name_en": "Six of Swords",
+    "keywords_upright": [
+      "思考",
+      "調和",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "思考・言葉・葛藤に関する「調和・移行」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "思考・言葉・葛藤が不安定になりやすい。「調和・移行」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "SWORDS_7",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "SWORDS",
+    "rank": "7",
+    "name_ja": "ソードの7",
+    "name_en": "Seven of Swords",
+    "keywords_upright": [
+      "思考",
+      "挑戦",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "思考・言葉・葛藤に関する「挑戦・戦略」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "思考・言葉・葛藤が不安定になりやすい。「挑戦・戦略」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "SWORDS_8",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "SWORDS",
+    "rank": "8",
+    "name_ja": "ソードの8",
+    "name_en": "Eight of Swords",
+    "keywords_upright": [
+      "思考",
+      "前進",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "思考・言葉・葛藤に関する「前進・習熟」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "思考・言葉・葛藤が不安定になりやすい。「前進・習熟」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "SWORDS_9",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "SWORDS",
+    "rank": "9",
+    "name_ja": "ソードの9",
+    "name_en": "Nine of Swords",
+    "keywords_upright": [
+      "思考",
+      "実り",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "思考・言葉・葛藤に関する「実り・不安」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "思考・言葉・葛藤が不安定になりやすい。「実り・不安」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "SWORDS_10",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "SWORDS",
+    "rank": "10",
+    "name_ja": "ソードの10",
+    "name_en": "Ten of Swords",
+    "keywords_upright": [
+      "思考",
+      "完了",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "思考・言葉・葛藤に関する「完了・負荷」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "思考・言葉・葛藤が不安定になりやすい。「完了・負荷」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "SWORDS_PAGE",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "SWORDS",
+    "rank": "PAGE",
+    "name_ja": "ソードのペイジ",
+    "name_en": "Page of Swords",
+    "keywords_upright": [
+      "思考",
+      "学び",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "思考・言葉・葛藤に関する「学び・知らせ」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "思考・言葉・葛藤が不安定になりやすい。「学び・知らせ」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "SWORDS_KNIGHT",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "SWORDS",
+    "rank": "KNIGHT",
+    "name_ja": "ソードのナイト",
+    "name_en": "Knight of Swords",
+    "keywords_upright": [
+      "思考",
+      "行動",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "思考・言葉・葛藤に関する「行動・追求」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "思考・言葉・葛藤が不安定になりやすい。「行動・追求」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "SWORDS_QUEEN",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "SWORDS",
+    "rank": "QUEEN",
+    "name_ja": "ソードのクイーン",
+    "name_en": "Queen of Swords",
+    "keywords_upright": [
+      "思考",
+      "成熟",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "思考・言葉・葛藤に関する「成熟・包容」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "思考・言葉・葛藤が不安定になりやすい。「成熟・包容」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "SWORDS_KING",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "SWORDS",
+    "rank": "KING",
+    "name_ja": "ソードのキング",
+    "name_en": "King of Swords",
+    "keywords_upright": [
+      "思考",
+      "統率",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "思考・言葉・葛藤に関する「統率・完成度」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "思考・言葉・葛藤が不安定になりやすい。「統率・完成度」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "PENTACLES_ACE",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "PENTACLES",
+    "rank": "ACE",
+    "name_ja": "ペンタクルのエース",
+    "name_en": "Ace of Pentacles",
+    "keywords_upright": [
+      "現実",
+      "始まり",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "現実・仕事・お金に関する「始まり・可能性」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "現実・仕事・お金が不安定になりやすい。「始まり・可能性」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "PENTACLES_2",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "PENTACLES",
+    "rank": "2",
+    "name_ja": "ペンタクルの2",
+    "name_en": "Two of Pentacles",
+    "keywords_upright": [
+      "現実",
+      "選択",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "現実・仕事・お金に関する「選択・バランス」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "現実・仕事・お金が不安定になりやすい。「選択・バランス」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "PENTACLES_3",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "PENTACLES",
+    "rank": "3",
+    "name_ja": "ペンタクルの3",
+    "name_en": "Three of Pentacles",
+    "keywords_upright": [
+      "現実",
+      "成長",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "現実・仕事・お金に関する「成長・協力」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "現実・仕事・お金が不安定になりやすい。「成長・協力」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "PENTACLES_4",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "PENTACLES",
+    "rank": "4",
+    "name_ja": "ペンタクルの4",
+    "name_en": "Four of Pentacles",
+    "keywords_upright": [
+      "現実",
+      "安定",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "現実・仕事・お金に関する「安定・休息」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "現実・仕事・お金が不安定になりやすい。「安定・休息」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "PENTACLES_5",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "PENTACLES",
+    "rank": "5",
+    "name_ja": "ペンタクルの5",
+    "name_en": "Five of Pentacles",
+    "keywords_upright": [
+      "現実",
+      "摩擦",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "現実・仕事・お金に関する「摩擦・損失」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "現実・仕事・お金が不安定になりやすい。「摩擦・損失」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "PENTACLES_6",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "PENTACLES",
+    "rank": "6",
+    "name_ja": "ペンタクルの6",
+    "name_en": "Six of Pentacles",
+    "keywords_upright": [
+      "現実",
+      "調和",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "現実・仕事・お金に関する「調和・移行」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "現実・仕事・お金が不安定になりやすい。「調和・移行」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "PENTACLES_7",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "PENTACLES",
+    "rank": "7",
+    "name_ja": "ペンタクルの7",
+    "name_en": "Seven of Pentacles",
+    "keywords_upright": [
+      "現実",
+      "挑戦",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "現実・仕事・お金に関する「挑戦・戦略」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "現実・仕事・お金が不安定になりやすい。「挑戦・戦略」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "PENTACLES_8",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "PENTACLES",
+    "rank": "8",
+    "name_ja": "ペンタクルの8",
+    "name_en": "Eight of Pentacles",
+    "keywords_upright": [
+      "現実",
+      "前進",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "現実・仕事・お金に関する「前進・習熟」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "現実・仕事・お金が不安定になりやすい。「前進・習熟」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "PENTACLES_9",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "PENTACLES",
+    "rank": "9",
+    "name_ja": "ペンタクルの9",
+    "name_en": "Nine of Pentacles",
+    "keywords_upright": [
+      "現実",
+      "実り",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "現実・仕事・お金に関する「実り・不安」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "現実・仕事・お金が不安定になりやすい。「実り・不安」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "PENTACLES_10",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "PENTACLES",
+    "rank": "10",
+    "name_ja": "ペンタクルの10",
+    "name_en": "Ten of Pentacles",
+    "keywords_upright": [
+      "現実",
+      "完了",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "現実・仕事・お金に関する「完了・負荷」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "現実・仕事・お金が不安定になりやすい。「完了・負荷」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "PENTACLES_PAGE",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "PENTACLES",
+    "rank": "PAGE",
+    "name_ja": "ペンタクルのペイジ",
+    "name_en": "Page of Pentacles",
+    "keywords_upright": [
+      "現実",
+      "学び",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "現実・仕事・お金に関する「学び・知らせ」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "現実・仕事・お金が不安定になりやすい。「学び・知らせ」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "PENTACLES_KNIGHT",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "PENTACLES",
+    "rank": "KNIGHT",
+    "name_ja": "ペンタクルのナイト",
+    "name_en": "Knight of Pentacles",
+    "keywords_upright": [
+      "現実",
+      "行動",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "現実・仕事・お金に関する「行動・追求」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "現実・仕事・お金が不安定になりやすい。「行動・追求」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "PENTACLES_QUEEN",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "PENTACLES",
+    "rank": "QUEEN",
+    "name_ja": "ペンタクルのクイーン",
+    "name_en": "Queen of Pentacles",
+    "keywords_upright": [
+      "現実",
+      "成熟",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "現実・仕事・お金に関する「成熟・包容」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "現実・仕事・お金が不安定になりやすい。「成熟・包容」が裏目に出る可能性。ペース調整と見直し。"
+  },
+  {
+    "id": "PENTACLES_KING",
+    "arcana": "MINOR",
+    "number": null,
+    "suit": "PENTACLES",
+    "rank": "KING",
+    "name_ja": "ペンタクルのキング",
+    "name_en": "King of Pentacles",
+    "keywords_upright": [
+      "現実",
+      "統率",
+      "前向き"
+    ],
+    "keywords_reversed": [
+      "停滞",
+      "過不足",
+      "再調整"
+    ],
+    "meaning_upright": "現実・仕事・お金に関する「統率・完成度」。今ある資源を活かし、現実的に一歩進める。",
+    "meaning_reversed": "現実・仕事・お金が不安定になりやすい。「統率・完成度」が裏目に出る可能性。ペース調整と見直し。"
+  }
+];
+
+const SPREADS = {
+  one: { name: "1枚（現在）", positions: ["現在"] },
+  three: { name: "3枚（過去/現在/未来）", positions: ["過去","現在","未来"] },
+};
+
+function mulberry32(seed) {
+  let t = seed >>> 0;
+  return function() {
+    t += 0x6D2B79F5;
+    let x = t;
+    x = Math.imul(x ^ (x >>> 15), x | 1);
+    x ^= x + Math.imul(x ^ (x >>> 7), x | 61);
+    return ((x ^ (x >>> 14)) >>> 0) / 4294967296;
+  }
+}
+
+function makeRng(seedStr) {
+  if (seedStr === null || seedStr === undefined || seedStr === "") {
+    return Math.random;
+  }
+  const seedNum = Number(seedStr);
+  if (!Number.isInteger(seedNum)) {
+    throw new Error("seed は整数で指定してください");
+  }
+  // JSの>>>0で 0..2^32-1 に正規化
+  return mulberry32(seedNum);
+}
+
+function shuffle(array, rng) {
+  const a = array.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function drawReading({question, category, spread, allowReversed, seed}) {
+  if (!question || question.trim().length === 0) {
+    throw new Error("question は空にできません");
+  }
+  if (!SPREADS[spread]) {
+    throw new Error("spread は one / three のみ対応です");
+  }
+  const positions = SPREADS[spread].positions;
+  const n = positions.length;
+
+  const rng = makeRng(seed);
+  const shuffled = shuffle(DECK, rng);
+  const picked = shuffled.slice(0, n);
+
+  const cards = picked.map((c, idx) => {
+    const is_reversed = allowReversed ? (rng() < 0.5) : false;
+    const meaning = is_reversed ? c.meaning_reversed : c.meaning_upright;
+    const pos = positions[idx];
+    const rev = is_reversed ? "（逆位置）" : "";
+    const text = `${pos}${rev}: ${c.name_ja} — ${meaning}`;
+    return {
+      id: c.id,
+      name_ja: c.name_ja,
+      name_en: c.name_en,
+      arcana: c.arcana,
+      suit: c.suit,
+      rank: c.rank,
+      is_reversed,
+      position: pos,
+      meaning,
+      text
+    };
+  });
+
+  return {
+    question: question.trim(),
+    category: category || "general",
+    spread,
+    positions,
+    allowReversed: !!allowReversed,
+    seed: (seed === "" ? null : seed),
+    cards
+  };
+}
+
+function deepEqual(a, b) {
+  return JSON.stringify(a) === JSON.stringify(b);
+}
+
+function complianceChecks(reading) {
+  const checks = [];
+  // 1) 枚数一致
+  const expected = reading.positions.length;
+  checks.push({
+    name: "枚数がpositionsと一致",
+    ok: reading.cards.length === expected,
+    detail: `cards=${reading.cards.length}, positions=${expected}`
+  });
+  // 2) 重複なし
+  const ids = reading.cards.map(c => c.id);
+  const uniq = new Set(ids);
+  checks.push({
+    name: "カードIDが重複していない",
+    ok: uniq.size === ids.length,
+    detail: `unique=${uniq.size}, total=${ids.length}`
+  });
+  // 3) allowReversed=falseなら全てfalse
+  if (!reading.allowReversed) {
+    const allUpright = reading.cards.every(c => c.is_reversed === false);
+    checks.push({
+      name: "逆位置OFFなら全て正位置",
+      ok: allUpright,
+      detail: allUpright ? "OK" : "NG"
+    });
+  } else {
+    checks.push({
+      name: "逆位置ON（統計）",
+      ok: true,
+      detail: `reversed_count=${reading.cards.filter(c => c.is_reversed).length}`
+    });
+  }
+  // 4) seed指定時の再現性（同一入力で2回生成）
+  if (reading.seed !== null && reading.seed !== undefined && reading.seed !== "") {
+    try {
+      const r2 = drawReading({
+        question: reading.question,
+        category: reading.category,
+        spread: reading.spread,
+        allowReversed: reading.allowReversed,
+        seed: reading.seed
+      });
+      checks.push({
+        name: "seed指定時は再現できる（2回生成で一致）",
+        ok: deepEqual(reading, r2),
+        detail: deepEqual(reading, r2) ? "OK" : "NG"
+      });
+    } catch (e) {
+      checks.push({
+        name: "seed再現チェック",
+        ok: false,
+        detail: String(e)
+      });
+    }
+  } else {
+    checks.push({
+      name: "seed未指定（再現性は要件外）",
+      ok: true,
+      detail: "OK"
+    });
+  }
+  return checks;
+}
+
+function renderReading(reading) {
+  const out = document.getElementById("output");
+  const list = document.getElementById("cards");
+  const checksEl = document.getElementById("checks");
+  const jsonEl = document.getElementById("json");
+
+  out.style.display = "block";
+  jsonEl.value = JSON.stringify(reading, null, 2);
+
+  // cards
+  list.innerHTML = "";
+  for (const c of reading.cards) {
+    const div = document.createElement("div");
+    div.className = "carditem";
+    div.innerHTML = `
+      <h4>${c.position}: ${c.name_ja} <span class="small">${c.is_reversed ? "逆位置" : "正位置"}</span></h4>
+      <div class="small">${c.name_en} / ${c.arcana}${c.suit ? " / " + c.suit : ""}${c.rank ? " / " + c.rank : ""}</div>
+      <p style="margin:8px 0 0">${c.meaning}</p>
+    `;
+    list.appendChild(div);
+  }
+
+  // checks
+  const checks = complianceChecks(reading);
+  checksEl.innerHTML = "";
+  const wrap = document.createElement("div");
+  wrap.className = "status";
+  for (const ch of checks) {
+    const pill = document.createElement("div");
+    pill.className = "pill " + (ch.ok ? "ok" : "ng");
+    pill.textContent = `${ch.ok ? "OK" : "NG"}: ${ch.name}`;
+    pill.title = ch.detail;
+    wrap.appendChild(pill);
+  }
+  checksEl.appendChild(wrap);
+}
+
+function showError(msg) {
+  const err = document.getElementById("error");
+  err.style.display = "block";
+  err.textContent = msg;
+}
+
+function clearError() {
+  const err = document.getElementById("error");
+  err.style.display = "none";
+  err.textContent = "";
+}
+
+document.getElementById("run").addEventListener("click", () => {
+  clearError();
+  try {
+    const question = document.getElementById("question").value;
+    const category = document.getElementById("category").value;
+    const spread = document.getElementById("spread").value;
+    const allowReversed = document.getElementById("allowReversed").checked;
+    const seed = document.getElementById("seed").value.trim();
+    const reading = drawReading({question, category, spread, allowReversed, seed});
+    renderReading(reading);
+  } catch(e) {
+    showError(e.message || String(e));
+  }
+});
+
+document.getElementById("copy").addEventListener("click", async () => {
+  const jsonEl = document.getElementById("json");
+  try {
+    await navigator.clipboard.writeText(jsonEl.value);
+    alert("JSONをクリップボードにコピーしました");
+  } catch(e) {
+    // fallback
+    jsonEl.focus();
+    jsonEl.select();
+    document.execCommand("copy");
+    alert("JSONをコピーしました（fallback）");
+  }
+});
+
+// 初期表示：例を入れておく
+document.getElementById("question").value = "今の自分に必要なメッセージは？";
+</script>
+
+
+    <div class="footer">
+      <hr/>
+      <div>このドキュメントは「メモ書き（写真）」の指示に基づき、4ページ構成（overview / implement_spec / issues / spec）で生成されています。</div>
+      <div class="small">注意：占い結果は娯楽目的です。医療・法律・投資などの重要判断には使用しないでください。</div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>概要・アーキテクチャ</title>
+  <style>
+:root{
+  --bg:#0b1020;
+  --panel:#111a33;
+  --text:#eef2ff;
+  --muted:#b8c0ff;
+  --accent:#7c5cff;
+  --accent2:#35d0ba;
+  --warn:#ffcc66;
+  --bad:#ff6b6b;
+  --good:#63f2a1;
+  --code:#0a0f1f;
+  --border:rgba(255,255,255,.12);
+  --shadow: 0 8px 24px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:linear-gradient(180deg, var(--bg), #050714);color:var(--text);font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;line-height:1.6}
+a{color:var(--accent2);text-decoration:none}
+a:hover{text-decoration:underline}
+.container{max-width:1100px;margin:0 auto;padding:24px}
+.header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin:12px 0 18px}
+.brand h1{font-size:22px;margin:0}
+.brand p{margin:6px 0 0;color:var(--muted);font-size:13px}
+.nav{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end}
+.nav a{display:inline-block;padding:8px 12px;border:1px solid var(--border);border-radius:999px;background:rgba(255,255,255,.03)}
+.nav a.active{border-color:rgba(124,92,255,.8);box-shadow: 0 0 0 3px rgba(124,92,255,.15) inset}
+.card{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--shadow);margin:14px 0}
+.card h2{margin:0 0 10px;font-size:18px}
+.card h3{margin:16px 0 8px;font-size:15px}
+.badge{display:inline-block;padding:2px 10px;border-radius:999px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--muted);font-size:12px}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+.col-6{grid-column:span 6}
+.col-4{grid-column:span 4}
+.col-8{grid-column:span 8}
+.col-12{grid-column:span 12}
+@media (max-width: 920px){
+  .col-6,.col-4,.col-8{grid-column:span 12}
+  .header{flex-direction:column;align-items:stretch}
+  .nav{justify-content:flex-start}
+}
+hr{border:0;border-top:1px solid var(--border);margin:16px 0}
+ul{margin:8px 0 8px 22px}
+li{margin:4px 0}
+table{width:100%;border-collapse:collapse;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+th,td{padding:10px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+th{background:rgba(255,255,255,.05);text-align:left;font-weight:600}
+tr:last-child td{border-bottom:0}
+pre{background:var(--code);border:1px solid var(--border);padding:12px;border-radius:12px;overflow:auto}
+code{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Noto Sans Mono", monospace;font-size: 12.5px}
+.callout{border-left:4px solid var(--accent);padding:12px 14px;background:rgba(124,92,255,.08);border-radius:12px}
+.callout.warn{border-left-color: var(--warn);background:rgba(255,204,102,.08)}
+.callout.good{border-left-color: var(--good);background:rgba(99,242,161,.08)}
+.callout.bad{border-left-color: var(--bad);background:rgba(255,107,107,.08)}
+.kpi{display:flex;gap:12px;flex-wrap:wrap}
+.kpi .item{flex:1;min-width:160px;border:1px solid var(--border);border-radius:12px;padding:12px;background:rgba(255,255,255,.03)}
+.kpi .item .n{font-size:22px;font-weight:700}
+.kpi .item .t{color:var(--muted);font-size:12px}
+.footer{color:var(--muted);font-size:12px;margin:18px 0 0}
+.small{font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="brand">
+        <h1>概要・アーキテクチャ</h1>
+        <p>Pythonトレーニング新コース：タロット占い（フルスタック）（生成日: 2025-12-27）</p>
+      </div>
+      <div class="nav">
+        <a class="active" href="overview.html">概要</a>
+<a class="" href="implement_spec.html">実装仕様書</a>
+<a class="" href="issues.html">GitHub Issue集</a>
+<a class="" href="spec.html">動く仕様書</a>
+      </div>
+    </div>
+
+    
+<div class="card">
+  <span class="badge">overview.html</span>
+  <h2>このコースで作るもの</h2>
+  <p>
+    Pythonトレーニングの新コースとして、<b>「タロット占いアプリ」</b>を題材に
+    <b>フルスタック（フロント/バック）</b>で実装します。
+    仕様→実装→テスト→UIの流れを一気通貫で学べる構成にします。
+  </p>
+
+  <div class="kpi">
+    <div class="item"><div class="n">CLI</div><div class="t">端末で占いを実行</div></div>
+    <div class="item"><div class="n">REST API</div><div class="t">Pythonバックエンド</div></div>
+    <div class="item"><div class="n">Web UI</div><div class="t">HTML/JSフロント</div></div>
+    <div class="item"><div class="n">自動テスト</div><div class="t">pytest＋DTD観点</div></div>
+  </div>
+</div>
+
+<div class="grid">
+  <div class="card col-6">
+    <span class="badge">ゴール</span>
+    <h2>ゴール（メモの要件を具体化）</h2>
+    <ul>
+      <li>Pythonトレーニングに合わせて、<b>タロット占いのコード</b>を設計・実装する</li>
+      <li>フルスタックで利用できるように、<b>バックエンドAPI</b>と<b>フロントエンドUI</b>を用意する</li>
+      <li>設計は「同値化（等価クラス化）で世界を離散化する」考え方で整理する</li>
+      <li>テストは DTD（Diffusion Test Design）観点で、観点束 S と A(S) を作って網羅する</li>
+      <li>ドキュメントは4ページ（本サイト）で提供する</li>
+    </ul>
+    <div class="callout warn">
+      <b>補足：</b>このコースは「占いアプリを作りながら、仕様化・設計・API・UI・テストの基本を学ぶ」ことが目的です。
+      占いの正しさを保証するものではありません（娯楽用途）。
+    </div>
+  </div>
+
+  <div class="card col-6">
+    <span class="badge">成果物</span>
+    <h2>成果物の全体像</h2>
+    <ul>
+      <li><b>タロットデッキデータ</b>：カード78枚（大アルカナ22＋小アルカナ56）をJSON/辞書で管理</li>
+      <li><b>占いロジック</b>：スプレッド（1枚/3枚/拡張）・正逆位置・意味生成</li>
+      <li><b>API</b>：/api/deck, /api/draw 等（入力検証・seed指定で再現可能）</li>
+      <li><b>Web UI</b>：質問→スプレッド選択→ドロー→結果表示</li>
+      <li><b>テスト</b>：同値分割＋境界値＋デシジョンテーブル＋性質テスト（任意）</li>
+    </ul>
+
+    <h3>ページ構成（メモの指定）</h3>
+    <table>
+      <thead><tr><th>ページ</th><th>ファイル</th><th>役割</th></tr></thead>
+      <tbody>
+        <tr><td>概要・アーキテクチャ</td><td><code>overview.html</code></td><td>コース全体像／構成図／進め方</td></tr>
+        <tr><td>実装仕様書</td><td><code>implement_spec.html</code></td><td>要件／設計／API／データ／テスト観点</td></tr>
+        <tr><td>GitHub Issue集（Codexプロンプト集）</td><td><code>issues.html</code></td><td>タスク分解／受け入れ条件／生成プロンプト</td></tr>
+        <tr><td>動く仕様書（JSで動作）</td><td><code>spec.html</code></td><td>仕様をそのまま動かして確認（実行可能な仕様）</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="card">
+  <span class="badge">アーキテクチャ</span>
+  <h2>想定アーキテクチャ（フルスタック）</h2>
+  <pre><code>┌────────────────────────────┐
+│          Frontend           │
+│  HTML/CSS/JS (static)       │
+│  - spread選択               │
+│  - 質問入力                 │
+│  - 結果表示                 │
+└───────────────▲────────────┘
+                │ fetch(JSON)
+┌───────────────┴────────────┐
+│          Backend            │
+│  Python (FastAPI推奨)       │
+│  - /api/deck                │
+│  - /api/draw                │
+│  - 入力検証/seed再現性      │
+└───────────────▲────────────┘
+                │
+┌───────────────┴────────────┐
+│           Core              │
+│  tarot/                     │
+│  - deck.py (データ)         │
+│  - draw.py (抽選)           │
+│  - interpret.py (解釈)      │
+│  - models.py (型)           │
+│  - cli.py                   │
+└────────────────────────────┘</code></pre>
+
+  <div class="callout good">
+    <b>狙い：</b>
+    まず「Core（純粋ロジック）」を作り、次に API/CLI/UI を載せます。
+    こうするとテストしやすく、学習の段階化もしやすい（初学者でも追える）構造になります。
+  </div>
+</div>
+
+<div class="card">
+  <span class="badge">学習ステップ</span>
+  <h2>おすすめ学習ステップ（1〜2週間想定）</h2>
+  <ol>
+    <li><b>データモデル</b>：カードを辞書/JSONで表現（型・バリデーション）</li>
+    <li><b>抽選</b>：重複なしで N枚引く。seedで再現できるようにする</li>
+    <li><b>解釈</b>：正位置/逆位置＋スプレッド位置（過去/現在/未来）でテキスト生成</li>
+    <li><b>CLI</b>：対話式に占いを実行（入出力、例外）</li>
+    <li><b>API</b>：FastAPIでJSON返却（入力検証、HTTP）</li>
+    <li><b>フロント</b>：fetchでAPI呼び出し、結果表示</li>
+    <li><b>テスト</b>：観点（S）→等価クラス（A(S)）→テスト生成</li>
+  </ol>
+</div>
+
+
+    <div class="footer">
+      <hr/>
+      <div>このドキュメントは「メモ書き（写真）」の指示に基づき、4ページ構成（overview / implement_spec / issues / spec）で生成されています。</div>
+      <div class="small">注意：占い結果は娯楽目的です。医療・法律・投資などの重要判断には使用しないでください。</div>
+    </div>
+  </div>
+</body>
+</html>

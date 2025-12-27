@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>GitHub Issue集（Codexプロンプト集）</title>
+  <style>
+:root{
+  --bg:#0b1020;
+  --panel:#111a33;
+  --text:#eef2ff;
+  --muted:#b8c0ff;
+  --accent:#7c5cff;
+  --accent2:#35d0ba;
+  --warn:#ffcc66;
+  --bad:#ff6b6b;
+  --good:#63f2a1;
+  --code:#0a0f1f;
+  --border:rgba(255,255,255,.12);
+  --shadow: 0 8px 24px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:linear-gradient(180deg, var(--bg), #050714);color:var(--text);font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;line-height:1.6}
+a{color:var(--accent2);text-decoration:none}
+a:hover{text-decoration:underline}
+.container{max-width:1100px;margin:0 auto;padding:24px}
+.header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin:12px 0 18px}
+.brand h1{font-size:22px;margin:0}
+.brand p{margin:6px 0 0;color:var(--muted);font-size:13px}
+.nav{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end}
+.nav a{display:inline-block;padding:8px 12px;border:1px solid var(--border);border-radius:999px;background:rgba(255,255,255,.03)}
+.nav a.active{border-color:rgba(124,92,255,.8);box-shadow: 0 0 0 3px rgba(124,92,255,.15) inset}
+.card{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--shadow);margin:14px 0}
+.card h2{margin:0 0 10px;font-size:18px}
+.card h3{margin:16px 0 8px;font-size:15px}
+.badge{display:inline-block;padding:2px 10px;border-radius:999px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--muted);font-size:12px}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+.col-6{grid-column:span 6}
+.col-4{grid-column:span 4}
+.col-8{grid-column:span 8}
+.col-12{grid-column:span 12}
+@media (max-width: 920px){
+  .col-6,.col-4,.col-8{grid-column:span 12}
+  .header{flex-direction:column;align-items:stretch}
+  .nav{justify-content:flex-start}
+}
+hr{border:0;border-top:1px solid var(--border);margin:16px 0}
+ul{margin:8px 0 8px 22px}
+li{margin:4px 0}
+table{width:100%;border-collapse:collapse;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+th,td{padding:10px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+th{background:rgba(255,255,255,.05);text-align:left;font-weight:600}
+tr:last-child td{border-bottom:0}
+pre{background:var(--code);border:1px solid var(--border);padding:12px;border-radius:12px;overflow:auto}
+code{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Noto Sans Mono", monospace;font-size: 12.5px}
+.callout{border-left:4px solid var(--accent);padding:12px 14px;background:rgba(124,92,255,.08);border-radius:12px}
+.callout.warn{border-left-color: var(--warn);background:rgba(255,204,102,.08)}
+.callout.good{border-left-color: var(--good);background:rgba(99,242,161,.08)}
+.callout.bad{border-left-color: var(--bad);background:rgba(255,107,107,.08)}
+.kpi{display:flex;gap:12px;flex-wrap:wrap}
+.kpi .item{flex:1;min-width:160px;border:1px solid var(--border);border-radius:12px;padding:12px;background:rgba(255,255,255,.03)}
+.kpi .item .n{font-size:22px;font-weight:700}
+.kpi .item .t{color:var(--muted);font-size:12px}
+.footer{color:var(--muted);font-size:12px;margin:18px 0 0}
+.small{font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="brand">
+        <h1>GitHub Issue集（Codexプロンプト集）</h1>
+        <p>Pythonトレーニング新コース：タロット占い（フルスタック）（生成日: 2025-12-27）</p>
+      </div>
+      <div class="nav">
+        <a class="" href="overview.html">概要</a>
+<a class="" href="implement_spec.html">実装仕様書</a>
+<a class="active" href="issues.html">GitHub Issue集</a>
+<a class="" href="spec.html">動く仕様書</a>
+      </div>
+    </div>
+
+    
+<div class="card">
+  <span class="badge">issues.html</span>
+  <h2>GitHub Issue集（Codexへのプロンプト集）</h2>
+  <p>
+    実装仕様書をそのまま「作業チケット」に落とし込みました。
+    1つずつ消化していけば、コース成果物（CLI/API/UI/テスト）が完成します。
+  </p>
+  <div class="callout">
+    <b>使い方：</b>
+    各Issueの「Codex向けプロンプト」をコピペし、生成されたコードは必ずレビューしてから取り込みます。
+  </div>
+</div>
+
+<div class="card">
+  <h2>Issue一覧</h2>
+  <table>
+    <thead><tr><th>ID</th><th>タイトル</th><th>Labels</th></tr></thead>
+    <tbody>
+      <tr><td>ISSUE-01</td><td>プロジェクト雛形作成（src構成・lint・format）</td><td>chore, repo</td></tr>
+<tr><td>ISSUE-02</td><td>タロットデッキデータ定義（78枚）</td><td>feature, core, data</td></tr>
+<tr><td>ISSUE-03</td><td>Card/DrawnCardモデル作成（型ヒント付き）</td><td>feature, core</td></tr>
+<tr><td>ISSUE-04</td><td>抽選ロジック（重複なし・seed対応）</td><td>feature, core, algo</td></tr>
+<tr><td>ISSUE-05</td><td>スプレッド定義（one/three）</td><td>feature, core</td></tr>
+<tr><td>ISSUE-06</td><td>解釈エンジン（position + 正逆 + 意味）</td><td>feature, core, text</td></tr>
+<tr><td>ISSUE-07</td><td>占い実行ユースケース（1回で結果生成）</td><td>feature, core, usecase</td></tr>
+<tr><td>ISSUE-08</td><td>CLI（対話式）実装</td><td>feature, cli</td></tr>
+<tr><td>ISSUE-09</td><td>FastAPI API（/api/health, /api/deck, /api/draw）</td><td>feature, backend, api</td></tr>
+<tr><td>ISSUE-10</td><td>フロントエンド（静的HTML）でAPI呼び出し</td><td>feature, frontend</td></tr>
+<tr><td>ISSUE-11</td><td>動く仕様書 spec.html（JSのみで完結）</td><td>docs, frontend, spec</td></tr>
+<tr><td>ISSUE-12</td><td>コア層ユニットテスト（DTD観点：基本）</td><td>test, core</td></tr>
+<tr><td>ISSUE-13</td><td>APIテスト（FastAPI TestClient）</td><td>test, backend, api</td></tr>
+<tr><td>ISSUE-14</td><td>テスト設計ドキュメント（S と A(S)）をREADMEに記述</td><td>docs, test</td></tr>
+<tr><td>ISSUE-15</td><td>CI（GitHub Actions）でpytest実行</td><td>chore, ci, test</td></tr>
+<tr><td>ISSUE-16</td><td>入力バリデーション強化（境界値・型・長さ）</td><td>feature, backend, core</td></tr>
+<tr><td>ISSUE-17</td><td>ログ/トレーシング（seed・入力・結果id）</td><td>feature, backend, observability</td></tr>
+<tr><td>ISSUE-18</td><td>配布用ドキュメント整備（この4ページを公開物に）</td><td>docs</td></tr>
+    </tbody>
+  </table>
+</div>
+
+
+  <div class="card">
+    <h2>ISSUE-01: プロジェクト雛形作成（src構成・lint・format）</h2>
+    <div class="small"><span class="badge">chore</span> <span class="badge">repo</span></div>
+    <p>Pythonパッケージ構成（tarot/）とテストフォルダ（tests/）を作り、基本設定を整える。</p>
+    <h3>受け入れ条件</h3>
+    <ul><li>srcレイアウト（例：src/tarot）またはシンプル構成を採用し、importが通る</li><li>pytestが実行できる</li><li>ruff/black等のフォーマッタ設定（任意）がある</li></ul>
+    <h3>Codex向けプロンプト（たたき台）</h3>
+    <pre><code>Create a Python project skeleton for a package named 'tarot' with tests/. Include pyproject.toml (pytest config). Provide minimal __init__.py and a placeholder test that passes.</code></pre>
+  </div>
+
+  <div class="card">
+    <h2>ISSUE-02: タロットデッキデータ定義（78枚）</h2>
+    <div class="small"><span class="badge">feature</span> <span class="badge">core</span> <span class="badge">data</span></div>
+    <p>カード78枚（大アルカナ22＋小アルカナ56）のデータをJSONまたはPython定数で管理する。</p>
+    <h3>受け入れ条件</h3>
+    <ul><li>各カードに一意な id, name_ja, name_en, meaning_upright, meaning_reversed がある</li><li>ロード関数 load_deck() が list[Card] を返す</li><li>少なくとも 78 件が読み込める</li></ul>
+    <h3>Codex向けプロンプト（たたき台）</h3>
+    <pre><code>Implement tarot deck data for 78 cards (Major 22 + Minor 56). Define a Card dataclass with id, arcana, suit(optional), rank(optional), name_ja, name_en, meaning_upright, meaning_reversed. Provide load_deck() returning list[Card].</code></pre>
+  </div>
+
+  <div class="card">
+    <h2>ISSUE-03: Card/DrawnCardモデル作成（型ヒント付き）</h2>
+    <div class="small"><span class="badge">feature</span> <span class="badge">core</span></div>
+    <p>データモデルをdataclassで定義し、比較可能（テストしやすい）にする。</p>
+    <h3>受け入れ条件</h3>
+    <ul><li>Card と DrawnCard が定義される</li><li>DrawnCard は card と is_reversed を持つ</li><li>frozen=True 等で不変にできる（任意）</li></ul>
+    <h3>Codex向けプロンプト（たたき台）</h3>
+    <pre><code>Write dataclasses Card and DrawnCard (with is_reversed). Use type hints and make them hashable/comparable. Add docstrings.</code></pre>
+  </div>
+
+  <div class="card">
+    <h2>ISSUE-04: 抽選ロジック（重複なし・seed対応）</h2>
+    <div class="small"><span class="badge">feature</span> <span class="badge">core</span> <span class="badge">algo</span></div>
+    <p>deckからn枚を重複なしで引き、逆位置を付与する。seed指定で再現可能。</p>
+    <h3>受け入れ条件</h3>
+    <ul><li>n<1, n>len(deck) で ValueError</li><li>seedありで同一結果が再現できる</li><li>重複なしが保証される</li></ul>
+    <h3>Codex向けプロンプト（たたき台）</h3>
+    <pre><code>Implement draw_cards(deck, n, allow_reversed, seed) using random.Random(seed) and sample(). Ensure uniqueness and deterministic result with seed. Add unit tests.</code></pre>
+  </div>
+
+  <div class="card">
+    <h2>ISSUE-05: スプレッド定義（one/three）</h2>
+    <div class="small"><span class="badge">feature</span> <span class="badge">core</span></div>
+    <p>spread名から枚数とpositionsを返す関数を作る。</p>
+    <h3>受け入れ条件</h3>
+    <ul><li>one -> n=1, positions=['現在']</li><li>three -> n=3, positions=['過去','現在','未来']</li><li>未知のspreadはエラー</li></ul>
+    <h3>Codex向けプロンプト（たたき台）</h3>
+    <pre><code>Create a spread module defining supported spreads ('one','three') with positions. Provide get_spread(spread_name) that returns (n, positions) and raises ValueError for unknown.</code></pre>
+  </div>
+
+  <div class="card">
+    <h2>ISSUE-06: 解釈エンジン（position + 正逆 + 意味）</h2>
+    <div class="small"><span class="badge">feature</span> <span class="badge">core</span> <span class="badge">text</span></div>
+    <p>DrawnCardとpositionから表示テキストを作る。</p>
+    <h3>受け入れ条件</h3>
+    <ul><li>正位置/逆位置で meaning が切り替わる</li><li>position名が先頭につく</li><li>空文字を返さない</li></ul>
+    <h3>Codex向けプロンプト（たたき台）</h3>
+    <pre><code>Implement interpret(position: str, drawn: DrawnCard) -&gt; str. It should prefix position, indicate reversed, and use the appropriate meaning. Provide tests for upright vs reversed.</code></pre>
+  </div>
+
+  <div class="card">
+    <h2>ISSUE-07: 占い実行ユースケース（1回で結果生成）</h2>
+    <div class="small"><span class="badge">feature</span> <span class="badge">core</span> <span class="badge">usecase</span></div>
+    <p>question/category/spread/seed等から、positionsとcardsとtextを含む結果オブジェクトを生成する。</p>
+    <h3>受け入れ条件</h3>
+    <ul><li>spreadからn/positionsが導出される（クライアントがnを指定しない）</li><li>結果にpositionsとcards配列が含まれる</li><li>questionが空ならエラー</li></ul>
+    <h3>Codex向けプロンプト（たたき台）</h3>
+    <pre><code>Create a usecase function run_reading(question, category, spread, allow_reversed, seed) that loads deck, draws cards, maps to positions, and returns a serializable dict. Validate inputs.</code></pre>
+  </div>
+
+  <div class="card">
+    <h2>ISSUE-08: CLI（対話式）実装</h2>
+    <div class="small"><span class="badge">feature</span> <span class="badge">cli</span></div>
+    <p>python -m tarot で対話式に入力→結果表示ができるようにする。</p>
+    <h3>受け入れ条件</h3>
+    <ul><li>質問、カテゴリ、spread、逆位置、seedを入力できる</li><li>例外時にクラッシュせず説明して終了/再入力</li><li>表示が読みやすい</li></ul>
+    <h3>Codex向けプロンプト（たたき台）</h3>
+    <pre><code>Implement a CLI entrypoint (python -m tarot) that prompts for question/category/spread/allowReversed/seed and prints the reading. Handle invalid inputs gracefully.</code></pre>
+  </div>
+
+  <div class="card">
+    <h2>ISSUE-09: FastAPI API（/api/health, /api/deck, /api/draw）</h2>
+    <div class="small"><span class="badge">feature</span> <span class="badge">backend</span> <span class="badge">api</span></div>
+    <p>FastAPIで占いAPIを提供する。入力はpydanticで検証。</p>
+    <h3>受け入れ条件</h3>
+    <ul><li>GET /api/health -> {status:'ok'}</li><li>GET /api/deck -> idとname_ja一覧（必要最小限）</li><li>POST /api/draw -> 仕様通りのJSON</li></ul>
+    <h3>Codex向けプロンプト（たたき台）</h3>
+    <pre><code>Create a FastAPI app with /api/health, /api/deck, /api/draw. Use Pydantic models for request/response, validate spread and question, call core usecase. Add uvicorn run instructions.</code></pre>
+  </div>
+
+  <div class="card">
+    <h2>ISSUE-10: フロントエンド（静的HTML）でAPI呼び出し</h2>
+    <div class="small"><span class="badge">feature</span> <span class="badge">frontend</span></div>
+    <p>HTML/JSでフォーム→fetch→結果表示。</p>
+    <h3>受け入れ条件</h3>
+    <ul><li>question/spread/allowReversed/seed入力UI</li><li>POST /api/draw を呼び出して結果を表示</li><li>エラー時はメッセージ表示</li></ul>
+    <h3>Codex向けプロンプト（たたき台）</h3>
+    <pre><code>Write a minimal static HTML+JS frontend that calls POST /api/draw and renders cards and interpretation. Include basic styling and error handling.</code></pre>
+  </div>
+
+  <div class="card">
+    <h2>ISSUE-11: 動く仕様書 spec.html（JSのみで完結）</h2>
+    <div class="small"><span class="badge">docs</span> <span class="badge">frontend</span> <span class="badge">spec</span></div>
+    <p>実装仕様書の内容をJSで再現し、ブラウザで占いが動くページを作る。</p>
+    <h3>受け入れ条件</h3>
+    <ul><li>外部ライブラリなしで動作</li><li>seed入力で再現可能</li><li>ユニーク性・枚数一致などの仕様チェックを表示</li></ul>
+    <h3>Codex向けプロンプト（たたき台）</h3>
+    <pre><code>Create spec.html that contains an in-browser tarot reading demo implemented in vanilla JS. Include a deterministic seeded RNG, deck data, one/three spreads, and a compliance check panel.</code></pre>
+  </div>
+
+  <div class="card">
+    <h2>ISSUE-12: コア層ユニットテスト（DTD観点：基本）</h2>
+    <div class="small"><span class="badge">test</span> <span class="badge">core</span></div>
+    <p>観点（spread/seed/逆位置）ごとに最低限のテストを作る。</p>
+    <h3>受け入れ条件</h3>
+    <ul><li>重複なし、枚数一致、seed再現性をカバー</li><li>spread未知でエラー</li><li>allowReversed=falseで必ず正位置</li></ul>
+    <h3>Codex向けプロンプト（たたき台）</h3>
+    <pre><code>Write pytest unit tests for draw_cards/get_spread/interpret/run_reading. Cover uniqueness, count, deterministic seed, invalid spread, and allowReversed behavior.</code></pre>
+  </div>
+
+  <div class="card">
+    <h2>ISSUE-13: APIテスト（FastAPI TestClient）</h2>
+    <div class="small"><span class="badge">test</span> <span class="badge">backend</span> <span class="badge">api</span></div>
+    <p>APIの入出力を自動確認する。</p>
+    <h3>受け入れ条件</h3>
+    <ul><li>POST /api/draw 正常系（one/three）</li><li>不正入力（空question/未知spread）で422/400</li><li>seed付きで再現性を確認（2回呼ぶ）</li></ul>
+    <h3>Codex向けプロンプト（たたき台）</h3>
+    <pre><code>Add FastAPI tests using TestClient. Verify /api/health, /api/deck, /api/draw. Test validation errors and deterministic results with seed.</code></pre>
+  </div>
+
+  <div class="card">
+    <h2>ISSUE-14: テスト設計ドキュメント（S と A(S)）をREADMEに記述</h2>
+    <div class="small"><span class="badge">docs</span> <span class="badge">test</span></div>
+    <p>テスト観点と等価クラス、デシジョンテーブルをREADMEにまとめる。</p>
+    <h3>受け入れ条件</h3>
+    <ul><li>観点Sの一覧</li><li>等価クラスA(S)の例</li><li>代表テストケース表</li></ul>
+    <h3>Codex向けプロンプト（たたき台）</h3>
+    <pre><code>Write README sections describing the test design: viewpoints S, equivalence classes A(S), and a decision table for key cases. Keep it concise and actionable.</code></pre>
+  </div>
+
+  <div class="card">
+    <h2>ISSUE-15: CI（GitHub Actions）でpytest実行</h2>
+    <div class="small"><span class="badge">chore</span> <span class="badge">ci</span> <span class="badge">test</span></div>
+    <p>push/pull_requestでpytestが走るようにする。</p>
+    <h3>受け入れ条件</h3>
+    <ul><li>Python 3.xでpytestが通る</li><li>依存インストールができる</li></ul>
+    <h3>Codex向けプロンプト（たたき台）</h3>
+    <pre><code>Create a GitHub Actions workflow that installs dependencies and runs pytest on push and pull_request. Use Python matrix (e.g., 3.10, 3.11).</code></pre>
+  </div>
+
+  <div class="card">
+    <h2>ISSUE-16: 入力バリデーション強化（境界値・型・長さ）</h2>
+    <div class="small"><span class="badge">feature</span> <span class="badge">backend</span> <span class="badge">core</span></div>
+    <p>questionの長さ、seedの範囲、categoryの列挙などを厳密にする。</p>
+    <h3>受け入れ条件</h3>
+    <ul><li>question: 空/空白のみを拒否</li><li>seed: intのみ、範囲チェック（任意）</li><li>category: 列挙（general/love/work/money/health）</li></ul>
+    <h3>Codex向けプロンプト（たたき台）</h3>
+    <pre><code>Strengthen validation: reject empty/whitespace question; ensure seed is an int; validate category enum. Add tests for boundary conditions.</code></pre>
+  </div>
+
+  <div class="card">
+    <h2>ISSUE-17: ログ/トレーシング（seed・入力・結果id）</h2>
+    <div class="small"><span class="badge">feature</span> <span class="badge">backend</span> <span class="badge">observability</span></div>
+    <p>API実行時にseedや引いたカードidなどをログに残す（個人情報は避ける）。</p>
+    <h3>受け入れ条件</h3>
+    <ul><li>ログに request_id (UUID) を付与（任意）</li><li>question本文は出さない/マスク（推奨）</li><li>card ids, spread, seed は記録</li></ul>
+    <h3>Codex向けプロンプト（たたき台）</h3>
+    <pre><code>Add logging to the API: log spread, seed, drawn card ids, and a request_id. Avoid logging the full question text. Provide a simple middleware if needed.</code></pre>
+  </div>
+
+  <div class="card">
+    <h2>ISSUE-18: 配布用ドキュメント整備（この4ページを公開物に）</h2>
+    <div class="small"><span class="badge">docs</span></div>
+    <p>overview/implement_spec/issues/spec をリポジトリに配置し、参照しやすくする。</p>
+    <h3>受け入れ条件</h3>
+    <ul><li>docs/ または site/ に4HTMLを配置</li><li>相対リンクで相互に遷移できる</li><li>簡単な公開手順（GitHub Pages等）を記載（任意）</li></ul>
+    <h3>Codex向けプロンプト（たたき台）</h3>
+    <pre><code>Prepare documentation site structure with four HTML files (overview, implement_spec, issues, spec). Ensure navigation links work and add short publish instructions (optional GitHub Pages).</code></pre>
+  </div>
+
+
+
+    <div class="footer">
+      <hr/>
+      <div>このドキュメントは「メモ書き（写真）」の指示に基づき、4ページ構成（overview / implement_spec / issues / spec）で生成されています。</div>
+      <div class="small">注意：占い結果は娯楽目的です。医療・法律・投資などの重要判断には使用しないでください。</div>
+    </div>
+  </div>
+</body>
+</html>

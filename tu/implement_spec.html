@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>実装仕様書</title>
+  <style>
+:root{
+  --bg:#0b1020;
+  --panel:#111a33;
+  --text:#eef2ff;
+  --muted:#b8c0ff;
+  --accent:#7c5cff;
+  --accent2:#35d0ba;
+  --warn:#ffcc66;
+  --bad:#ff6b6b;
+  --good:#63f2a1;
+  --code:#0a0f1f;
+  --border:rgba(255,255,255,.12);
+  --shadow: 0 8px 24px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:linear-gradient(180deg, var(--bg), #050714);color:var(--text);font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;line-height:1.6}
+a{color:var(--accent2);text-decoration:none}
+a:hover{text-decoration:underline}
+.container{max-width:1100px;margin:0 auto;padding:24px}
+.header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin:12px 0 18px}
+.brand h1{font-size:22px;margin:0}
+.brand p{margin:6px 0 0;color:var(--muted);font-size:13px}
+.nav{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end}
+.nav a{display:inline-block;padding:8px 12px;border:1px solid var(--border);border-radius:999px;background:rgba(255,255,255,.03)}
+.nav a.active{border-color:rgba(124,92,255,.8);box-shadow: 0 0 0 3px rgba(124,92,255,.15) inset}
+.card{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--shadow);margin:14px 0}
+.card h2{margin:0 0 10px;font-size:18px}
+.card h3{margin:16px 0 8px;font-size:15px}
+.badge{display:inline-block;padding:2px 10px;border-radius:999px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--muted);font-size:12px}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+.col-6{grid-column:span 6}
+.col-4{grid-column:span 4}
+.col-8{grid-column:span 8}
+.col-12{grid-column:span 12}
+@media (max-width: 920px){
+  .col-6,.col-4,.col-8{grid-column:span 12}
+  .header{flex-direction:column;align-items:stretch}
+  .nav{justify-content:flex-start}
+}
+hr{border:0;border-top:1px solid var(--border);margin:16px 0}
+ul{margin:8px 0 8px 22px}
+li{margin:4px 0}
+table{width:100%;border-collapse:collapse;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+th,td{padding:10px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+th{background:rgba(255,255,255,.05);text-align:left;font-weight:600}
+tr:last-child td{border-bottom:0}
+pre{background:var(--code);border:1px solid var(--border);padding:12px;border-radius:12px;overflow:auto}
+code{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Noto Sans Mono", monospace;font-size: 12.5px}
+.callout{border-left:4px solid var(--accent);padding:12px 14px;background:rgba(124,92,255,.08);border-radius:12px}
+.callout.warn{border-left-color: var(--warn);background:rgba(255,204,102,.08)}
+.callout.good{border-left-color: var(--good);background:rgba(99,242,161,.08)}
+.callout.bad{border-left-color: var(--bad);background:rgba(255,107,107,.08)}
+.kpi{display:flex;gap:12px;flex-wrap:wrap}
+.kpi .item{flex:1;min-width:160px;border:1px solid var(--border);border-radius:12px;padding:12px;background:rgba(255,255,255,.03)}
+.kpi .item .n{font-size:22px;font-weight:700}
+.kpi .item .t{color:var(--muted);font-size:12px}
+.footer{color:var(--muted);font-size:12px;margin:18px 0 0}
+.small{font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="brand">
+        <h1>実装仕様書</h1>
+        <p>Pythonトレーニング新コース：タロット占い（フルスタック）（生成日: 2025-12-27）</p>
+      </div>
+      <div class="nav">
+        <a class="" href="overview.html">概要</a>
+<a class="active" href="implement_spec.html">実装仕様書</a>
+<a class="" href="issues.html">GitHub Issue集</a>
+<a class="" href="spec.html">動く仕様書</a>
+      </div>
+    </div>
+
+    
+<div class="card">
+  <span class="badge">implement_spec.html</span>
+  <h2>実装仕様書：タロット占い（Pythonフルスタック）</h2>
+  <p class="small">
+    本ページは「実装に必要な情報を、なるべく曖昧さなく」定義するための仕様書です。
+    仕様→設計→実装→テスト→UIを一続きに扱います。
+  </p>
+</div>
+
+<div class="card">
+  <h2>1. スコープ</h2>
+  <h3>1.1 対象</h3>
+  <ul>
+    <li>タロット占いの基本機能（カード抽選、正逆位置、スプレッド、結果出力）</li>
+    <li>Pythonでのコアロジック実装 + API + CLI +（任意で）Web UI</li>
+    <li>テスト設計：観点（S）と等価クラス（A(S)）による網羅（DTD準拠）</li>
+  </ul>
+
+  <h3>1.2 非対象（このコースではやらない）</h3>
+  <ul>
+    <li>外部LLMを用いた文章生成（将来拡張として扱う）</li>
+    <li>ユーザアカウント管理、課金、決済</li>
+    <li>占い結果の「正しさ」の科学的保証（娯楽用途）</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2>2. 用語</h2>
+  <table>
+    <thead><tr><th>用語</th><th>説明</th></tr></thead>
+    <tbody>
+      <tr><td>デッキ</td><td>タロットカードの集合（本仕様では78枚を推奨）</td></tr>
+      <tr><td>スプレッド</td><td>引く枚数と位置の意味（例：3枚＝過去/現在/未来）</td></tr>
+      <tr><td>正位置/逆位置</td><td>カードが上下どちら向きか。意味を切り替えるフラグ</td></tr>
+      <tr><td>seed</td><td>乱数の種。指定すると結果を再現可能にする</td></tr>
+      <tr><td>DTD</td><td>観点束 S と A(S) に基づき、同値分割でテスト条件を設計する枠組み</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="card">
+  <h2>3. 機能要件</h2>
+  <h3>3.1 必須機能</h3>
+  <ul>
+    <li>スプレッド選択：<b>1枚 / 3枚</b>（拡張：10枚などはオプション）</li>
+    <li>カード抽選：デッキから重複なしで N 枚引く</li>
+    <li>正逆位置：各カードに <code>is_reversed</code> を付与できる（有効/無効を選べる）</li>
+    <li>解釈生成：カード＋位置（例：過去）＋正逆から、短い解釈文を作る</li>
+    <li>出力：CLI（標準出力）と API（JSON）で結果を返す</li>
+  </ul>
+
+  <h3>3.2 主要ユーザーストーリー</h3>
+  <ul>
+    <li>ユーザは質問を入力し、スプレッドを選んで、占い結果（カード＋解釈）を得たい</li>
+    <li>ユーザは seed を指定して同じ結果を再現したい（復習・検証・共有用途）</li>
+    <li>開発者はユニットテストで、重複無し・枚数一致・入力検証などを自動確認したい</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2>4. 非機能要件</h2>
+  <ul>
+    <li><b>再現性</b>：seed指定時は同一入力→同一出力（順序含む）</li>
+    <li><b>安全性</b>：入力はバリデーションし、異常系はエラーコード/メッセージで返す</li>
+    <li><b>可読性</b>：型ヒント・docstring・責務分割（Coreを純粋に）</li>
+    <li><b>テスト容易性</b>：乱数源を注入可能（DI）にして、テストで固定できる</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2>5. データ設計（デッキ）</h2>
+  <p>カード情報は <b>データ駆動</b> にします（コードに意味を埋め込みすぎない）。</p>
+
+  <h3>5.1 Cardモデル（推奨）</h3>
+  <pre><code>from dataclasses import dataclass
+from typing import Literal, Optional, Sequence
+
+Arcana = Literal["MAJOR", "MINOR"]
+Suit = Literal["WANDS", "CUPS", "SWORDS", "PENTACLES"]
+
+@dataclass(frozen=True)
+class Card:
+    id: str                      # 例: "MAJOR_00" / "WANDS_ACE"
+    arcana: Arcana               # "MAJOR" or "MINOR"
+    name_ja: str                 # 例: "愚者"
+    name_en: str                 # 例: "The Fool"
+    suit: Optional[Suit] = None  # MINORのみ
+    rank: Optional[str] = None   # "ACE","2"...,"KING" 等
+    meaning_upright: str = ""
+    meaning_reversed: str = ""</code></pre>
+
+  <h3>5.2 デッキ形式（例：JSONの一部）</h3>
+  <pre><code>[
+  {
+    "id": "MAJOR_00",
+    "arcana": "MAJOR",
+    "name_ja": "愚者",
+    "name_en": "The Fool",
+    "meaning_upright": "新しい始まり。固定観念に縛られず一歩を踏み出す時。",
+    "meaning_reversed": "準備不足や軽率さに注意。現実的な確認を。"
+  }
+]</code></pre>
+
+  <div class="callout">
+    <b>設計意図：</b>「データ（カードの意味）」と「ロジック（引く/解釈する）」を分離すると、
+    後から意味の差し替え、言語追加、カード追加が容易になります。
+  </div>
+</div>
+
+<div class="card">
+  <h2>6. ロジック設計</h2>
+
+  <h3>6.1 抽選（重複なし）</h3>
+  <ul>
+    <li>入力：deck（list[Card]）, n（int）, allow_reversed（bool）, seed（Optional[int]）</li>
+    <li>出力：drawn（list[DrawnCard]）</li>
+    <li>制約：
+      <ul>
+        <li><b>重複なし</b>（同じ id は1回しか出ない）</li>
+        <li><b>n &lt;= len(deck)</b> を満たさない場合はエラー</li>
+        <li>seed指定時は結果を固定（乱数源を <code>random.Random(seed)</code> にする）</li>
+      </ul>
+    </li>
+  </ul>
+
+  <pre><code>import random
+from dataclasses import dataclass
+
+@dataclass(frozen=True)
+class DrawnCard:
+    card: Card
+    is_reversed: bool
+
+def draw_cards(deck: list[Card], n: int, *, allow_reversed: bool, seed: int | None) -> list[DrawnCard]:
+    if n &lt; 1:
+        raise ValueError("n must be &gt;= 1")
+    if n &gt; len(deck):
+        raise ValueError("n must be &lt;= len(deck)")
+    rng = random.Random(seed) if seed is not None else random.Random()
+    picked = rng.sample(deck, k=n)   # 重複なし
+    out = []
+    for c in picked:
+        rev = (rng.random() &lt; 0.5) if allow_reversed else False
+        out.append(DrawnCard(card=c, is_reversed=rev))
+    return out</code></pre>
+
+  <h3>6.2 スプレッド定義</h3>
+  <table>
+    <thead><tr><th>spread</th><th>枚数</th><th>位置（position）</th><th>例</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>one</code></td>
+        <td>1</td>
+        <td><code>["現在"]</code></td>
+        <td>いま必要なメッセージ</td>
+      </tr>
+      <tr>
+        <td><code>three</code></td>
+        <td>3</td>
+        <td><code>["過去","現在","未来"]</code></td>
+        <td>時間軸で流れを読む</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>6.3 解釈生成</h3>
+  <ul>
+    <li>カードの <code>meaning_upright / meaning_reversed</code> を基礎にする</li>
+    <li>スプレッド位置（例：過去）を前置きし、短文でまとめる</li>
+    <li>質問カテゴリ（恋愛/仕事/金運/健康）を受け取れるようにし、語彙を少し調整（拡張）</li>
+  </ul>
+
+  <pre><code>def interpret(position: str, drawn: DrawnCard) -> str:
+    base = drawn.card.meaning_reversed if drawn.is_reversed else drawn.card.meaning_upright
+    rev = "（逆位置）" if drawn.is_reversed else ""
+    return f"{position}{rev}: {drawn.card.name_ja} — {base}"</code></pre>
+</div>
+
+<div class="card">
+  <h2>7. バックエンドAPI仕様（FastAPI想定）</h2>
+
+  <h3>7.1 エンドポイント一覧</h3>
+  <table>
+    <thead><tr><th>Method</th><th>Path</th><th>概要</th></tr></thead>
+    <tbody>
+      <tr><td>GET</td><td><code>/api/health</code></td><td>稼働確認</td></tr>
+      <tr><td>GET</td><td><code>/api/deck</code></td><td>カード一覧（idと名称）</td></tr>
+      <tr><td>POST</td><td><code>/api/draw</code></td><td>占い実行（抽選＋解釈）</td></tr>
+    </tbody>
+  </table>
+
+  <h3>7.2 POST /api/draw リクエスト</h3>
+  <pre><code>{
+  "question": "転職すべき？",
+  "category": "work",          // optional: love/work/money/health/general
+  "spread": "three",           // one|three
+  "allowReversed": true,
+  "seed": 123                  // optional
+}</code></pre>
+
+  <h3>7.3 POST /api/draw レスポンス（例）</h3>
+  <pre><code>{
+  "spread": "three",
+  "positions": ["過去","現在","未来"],
+  "seed": 123,
+  "cards": [
+    {"id":"MAJOR_10","name_ja":"運命の輪","is_reversed":false,"position":"過去","text":"過去: 運命の輪 — 流れが変わる。波に乗る準備を。"},
+    {"id":"WANDS_ACE","name_ja":"ワンドのエース","is_reversed":true,"position":"現在","text":"現在（逆位置）: ワンドのエース — 情熱・行動・創造が不安定になりやすい..."},
+    {"id":"PENTACLES_3","name_ja":"ペンタクルの3","is_reversed":false,"position":"未来","text":"未来: ペンタクルの3 — 現実・仕事・お金に関する「成長・協力」..."}
+  ]
+}</code></pre>
+
+  <div class="callout warn">
+    <b>入力バリデーション（必須）：</b><br/>
+    spread は <code>one</code> または <code>three</code> のみ。seed は整数。question は空文字不可。
+    n は spread から導出して外部から受け取らない（仕様逸脱を防ぐ）。
+  </div>
+</div>
+
+<div class="card">
+  <h2>8. CLI仕様</h2>
+  <pre><code>$ python -m tarot
+質問を入力してください: 転職すべき？
+カテゴリを選んでください [general/love/work/money/health]: work
+スプレッドを選んでください [one/three]: three
+逆位置を有効にしますか？ [y/N]: y
+seed（再現したい場合）を入力（空でランダム）: 123
+
+--- 結果 ---
+過去: 運命の輪 — 流れが変わる。波に乗る準備を。
+現在（逆位置）: ワンドのエース — 情熱・行動・創造が不安定になりやすい...
+未来: ペンタクルの3 — 現実・仕事・お金に関する「成長・協力」...</code></pre>
+</div>
+
+<div class="card">
+  <h2>9. エラーハンドリング方針</h2>
+  <ul>
+    <li>Core層は例外（ValueError等）で表現</li>
+    <li>API層は HTTP 400/422 として返却し、原因を JSON で返す</li>
+    <li>CLI層はユーザに再入力を促す（例外は握りつぶさず説明文に変換）</li>
+  </ul>
+
+  <pre><code>// APIエラー例
+{ "error": { "code": "INVALID_SPREAD", "message": "spread must be one|three" } }</code></pre>
+</div>
+
+<div class="card">
+  <h2>10. テスト設計（DTD準拠）</h2>
+  <p>
+    テストは「世界 W（入力・状態・操作・運用状況…）を、観点 S で観測して同値化し、
+    離散的なテスト条件集合 A(S) を作る」という考え方で設計します。
+  </p>
+
+  <h3>10.1 観点 S（例）</h3>
+  <table>
+    <thead><tr><th>観点 S</th><th>何を区別するか</th><th>例</th></tr></thead>
+    <tbody>
+      <tr><td>S1: spread</td><td>引く枚数・位置の意味</td><td>one / three</td></tr>
+      <tr><td>S2: allowReversed</td><td>正逆位置の有無</td><td>true / false</td></tr>
+      <tr><td>S3: seed</td><td>再現性（同一出力）</td><td>指定 / 未指定</td></tr>
+      <tr><td>S4: 入力妥当性</td><td>バリデーションの境界</td><td>空文字、未知spread、巨大seed 等</td></tr>
+      <tr><td>S5: 抽選性質</td><td>重複なし・枚数一致</td><td>n=1,3 で不変条件が守られる</td></tr>
+    </tbody>
+  </table>
+
+  <h3>10.2 等価クラス A(S)（例）</h3>
+  <div class="grid">
+    <div class="card col-6">
+      <h3>A(S1): spreadの等価クラス</h3>
+      <ul>
+        <li>E1: <code>one</code>（n=1）</li>
+        <li>E2: <code>three</code>（n=3）</li>
+        <li>E3: その他（エラー）</li>
+      </ul>
+    </div>
+    <div class="card col-6">
+      <h3>A(S3): seedの等価クラス</h3>
+      <ul>
+        <li>E1: seedなし（非決定）</li>
+        <li>E2: seedあり（決定・再現可能）</li>
+        <li>E3: seedが不正（型不一致/範囲外）→エラー</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>10.3 デシジョンテーブル（抜粋）</h3>
+  <table>
+    <thead><tr><th>ID</th><th>spread</th><th>allowRev</th><th>seed</th><th>期待結果</th></tr></thead>
+    <tbody>
+      <tr><td>T1</td><td>one</td><td>false</td><td>なし</td><td>1枚、全て正位置、重複なし</td></tr>
+      <tr><td>T2</td><td>one</td><td>true</td><td>123</td><td>1枚、seed固定で再現可能</td></tr>
+      <tr><td>T3</td><td>three</td><td>true</td><td>123</td><td>3枚、位置=過去/現在/未来、重複なし、再現可能</td></tr>
+      <tr><td>T4</td><td>unknown</td><td>任意</td><td>任意</td><td>入力エラー（APIは422/400）</td></tr>
+      <tr><td>T5</td><td>three</td><td>true</td><td>123</td><td>同一入力を2回呼ぶ→カード順序/正逆が一致</td></tr>
+    </tbody>
+  </table>
+
+  <h3>10.4 pytest例（コア層）</h3>
+  <pre><code>def test_draw_cards_unique():
+    deck = load_deck()
+    out = draw_cards(deck, n=3, allow_reversed=True, seed=123)
+    assert len(out) == 3
+    ids = [d.card.id for d in out]
+    assert len(ids) == len(set(ids))  # 重複なし
+
+def test_draw_cards_seed_reproducible():
+    deck = load_deck()
+    a = draw_cards(deck, n=3, allow_reversed=True, seed=123)
+    b = draw_cards(deck, n=3, allow_reversed=True, seed=123)
+    assert a == b  # dataclass(frozen=True)なら比較可能</code></pre>
+
+  <div class="callout good">
+    <b>ポイント：</b>
+    DTDの考え方で「何を区別したいか（観点）」を先に決めると、
+    テストの漏れ（逆位置ON/OFF、seedあり/なし、異常系…）が見えやすくなります。
+  </div>
+</div>
+
+<div class="card">
+  <h2>11. 受け入れ条件（Definition of Done）</h2>
+  <ul>
+    <li>spread=one/three で正常に結果が返る（CLI/API）</li>
+    <li>seed指定時に再現できる（同一入力→同一結果）</li>
+    <li>重複なしが保証される</li>
+    <li>入力不正時に明確なエラーが返る（クラッシュしない）</li>
+    <li>ユニットテストが主要観点をカバーし、CIで実行できる</li>
+  </ul>
+</div>
+
+
+    <div class="footer">
+      <hr/>
+      <div>このドキュメントは「メモ書き（写真）」の指示に基づき、4ページ構成（overview / implement_spec / issues / spec）で生成されています。</div>
+      <div class="small">注意：占い結果は娯楽目的です。医療・法律・投資などの重要判断には使用しないでください。</div>
+    </div>
+  </div>
+</body>
+</html>
