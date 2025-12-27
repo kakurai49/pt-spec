@@ -4,188 +4,196 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#0b0f14">
+  <meta name="color-scheme" content="dark">
   <title>BEAT楽器 — 動く仕様書（Responsive / WebAudio）</title>
   <link rel="stylesheet" href="vega_theme.css">
 
   <style>
-    :root{
-      --bg:#0b0f14; --panel:#121a24; --panel2:#0f1620;
-      --txt:#e6edf3; --muted:#9fb0c0; --accent:#7ee787; --warn:#ff7b72;
-      --line:#223042;
-      --radius:16px;
-      --shadow: 0 10px 30px rgba(0,0,0,.35);
-      --stepSize: 34px;
-    }
-    *{ box-sizing:border-box; }
-    html,body{ height:100%; }
-    body{
-      margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Hiragino Kaku Gothic ProN", "Noto Sans JP", Arial, "Apple Color Emoji","Segoe UI Emoji";
-      background: radial-gradient(1200px 700px at 20% 0%, #112033 0%, var(--bg) 55%);
-      color: var(--txt);
-    }
-    a{ color: var(--accent); }
-    .wrap{
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 16px 14px 44px;
-    }
-    header{
-      display:flex; align-items:flex-start; justify-content:space-between; gap:14px;
-      margin: 10px 0 14px;
-    }
-    .title{ display:flex; flex-direction:column; gap:6px; }
-    h1{ margin:0; font-size: 20px; letter-spacing:.3px; }
-    .subtitle{ color: var(--muted); font-size: 13px; line-height: 1.4; }
+    :root { --stepSize: 34px; }
 
-    .badge{
-      background: linear-gradient(180deg, rgba(126,231,135,.18), rgba(126,231,135,.08));
-      border: 1px solid rgba(126,231,135,.25);
+    .spec-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.04));
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card .hd {
+      padding: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .card .hd h2 {
+      margin: 0;
+      font-size: 14px;
+      letter-spacing: 0.2px;
+    }
+
+    .card .bd { padding: 14px; }
+
+    .muted { color: var(--muted); }
+
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Noto Sans Mono", "Liberation Mono", monospace;
+    }
+
+    .badge {
+      background: linear-gradient(135deg, rgba(124, 247, 255, 0.16), rgba(167, 139, 250, 0.12));
+      border: 1px solid rgba(124, 247, 255, 0.35);
       padding: 10px 12px;
       border-radius: 14px;
       box-shadow: var(--shadow);
       min-width: 260px;
     }
-    .badge .row{ display:flex; justify-content:space-between; gap:10px; }
-    .badge .k{ color:var(--muted); font-size:12px; }
-    .badge .v{ font-weight:600; font-size:12px; }
 
-    main{
-      display:grid;
-      grid-template-columns: 1.2fr .8fr;
-      gap: 14px;
-    }
-    .card{
-      background: linear-gradient(180deg, rgba(18,26,36,.92), rgba(15,22,32,.92));
-      border: 1px solid rgba(255,255,255,.06);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow:hidden;
-    }
-    .card .hd{
-      padding: 12px 12px 10px;
-      border-bottom: 1px solid rgba(255,255,255,.06);
-      display:flex; align-items:center; justify-content:space-between; gap:12px;
-      flex-wrap: wrap;
-    }
-    .card .hd h2{
-      margin:0;
-      font-size:14px;
-      letter-spacing:.2px;
-    }
-    .card .bd{ padding: 12px; }
-    .muted{ color: var(--muted); }
-    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Noto Sans Mono", "Liberation Mono", monospace; }
+    .badge .row { display: flex; justify-content: space-between; gap: 10px; }
+    .badge .k { color: var(--muted); font-size: 12px; }
+    .badge .v { font-weight: 650; font-size: 12px; color: var(--text); }
 
-    .controls{
-      display:grid;
+    .controls {
+      display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
     }
-    .ctrl{
-      background: rgba(0,0,0,.18);
-      border: 1px solid rgba(255,255,255,.06);
+
+    .ctrl {
+      background: rgba(0, 0, 0, 0.22);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 14px;
       padding: 10px;
     }
-    .ctrl label{
-      display:flex; justify-content:space-between; gap:10px;
-      font-size: 12px; color: var(--muted);
-      margin-bottom: 8px;
-    }
-    input[type="range"]{ width:100%; }
 
-    .btns{
-      display:flex; gap:10px; flex-wrap:wrap;
-      align-items:center;
-    }
-    button{
-      border:1px solid rgba(255,255,255,.1);
-      background: rgba(255,255,255,.06);
-      color: var(--txt);
-      padding: 10px 12px;
-      border-radius: 14px;
-      cursor:pointer;
-      font-weight:600;
-      letter-spacing:.2px;
-      touch-action: manipulation;
-      user-select:none;
-      -webkit-tap-highlight-color: transparent;
-    }
-    button.primary{
-      background: linear-gradient(180deg, rgba(126,231,135,.25), rgba(126,231,135,.12));
-      border-color: rgba(126,231,135,.3);
-    }
-    button.danger{
-      background: linear-gradient(180deg, rgba(255,123,114,.22), rgba(255,123,114,.10));
-      border-color: rgba(255,123,114,.25);
-    }
-    button:disabled{ opacity:.55; cursor:not-allowed; }
-
-    .gridWrap{ display:flex; flex-direction:column; gap:10px; }
-    .trackRow{
-      display:grid;
-      grid-template-columns: 70px 1fr;
+    .ctrl label {
+      display: flex;
+      justify-content: space-between;
       gap: 10px;
-      align-items:center;
-    }
-    .trackLabel{
       font-size: 12px;
       color: var(--muted);
-      display:flex; flex-direction:column; gap:2px;
+      margin-bottom: 8px;
     }
-    .trackLabel strong{ color: var(--txt); font-size: 13px; }
 
-    .steps{
-      display:grid;
+    input[type="range"] { width: 100%; accent-color: var(--accent); }
+
+    .btns {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    button {
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 14px;
+      cursor: pointer;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button.primary {
+      background: linear-gradient(135deg, rgba(124, 247, 255, 0.22), rgba(167, 139, 250, 0.16));
+      border-color: rgba(124, 247, 255, 0.35);
+    }
+
+    button.danger {
+      background: linear-gradient(135deg, rgba(255, 94, 94, 0.25), rgba(255, 94, 168, 0.14));
+      border-color: rgba(255, 94, 94, 0.38);
+    }
+
+    button:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .gridWrap { display: flex; flex-direction: column; gap: 10px; }
+
+    .trackRow {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .trackLabel {
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .trackLabel strong { color: var(--text); font-size: 13px; }
+
+    .steps {
+      display: grid;
       grid-template-columns: repeat(16, var(--stepSize));
       gap: 6px;
-      align-items:center;
-      justify-content:flex-start;
-      overflow-x:auto;
+      align-items: center;
+      justify-content: flex-start;
+      overflow-x: auto;
       padding-bottom: 4px;
       -webkit-overflow-scrolling: touch;
     }
-    .step{
+
+    .step {
       width: var(--stepSize);
       height: var(--stepSize);
       border-radius: 12px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.18);
-      display:flex;
-      align-items:center;
-      justify-content:center;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(0, 0, 0, 0.24);
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-size: 12px;
-      user-select:none;
-      cursor:pointer;
-      position:relative;
+      user-select: none;
+      cursor: pointer;
+      position: relative;
       touch-action: manipulation;
-    }
-    .step.on{
-      background: linear-gradient(180deg, rgba(126,231,135,.35), rgba(126,231,135,.15));
-      border-color: rgba(126,231,135,.35);
-    }
-    .step.playhead::after{
-      content:"";
-      position:absolute;
-      inset:-2px;
-      border-radius: 14px;
-      border: 2px solid rgba(126,231,135,.55);
-      pointer-events:none;
-      box-shadow: 0 0 0 4px rgba(126,231,135,.08);
+      color: var(--text);
     }
 
-    .spec{
-      display:flex;
-      flex-direction:column;
+    .step.on {
+      background: linear-gradient(135deg, rgba(124, 247, 255, 0.28), rgba(167, 139, 250, 0.18));
+      border-color: rgba(124, 247, 255, 0.45);
+    }
+
+    .step.playhead::after {
+      content: "";
+      position: absolute;
+      inset: -2px;
+      border-radius: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.6);
+      pointer-events: none;
+      box-shadow: 0 0 0 4px rgba(124, 247, 255, 0.15);
+    }
+
+    .spec {
+      display: flex;
+      flex-direction: column;
       gap: 10px;
       font-size: 13px;
       line-height: 1.55;
     }
-    .chip{
-      display:inline-flex;
-      background: rgba(0,0,0,.18);
-      border: 1px solid rgba(255,255,255,.06);
+
+    .chip {
+      display: inline-flex;
+      background: rgba(0, 0, 0, 0.24);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       padding: 6px 10px;
       border-radius: 999px;
       color: var(--muted);
@@ -193,70 +201,134 @@
       margin-right: 6px;
       margin-bottom: 6px;
     }
-    pre{
-      margin:0;
+
+    pre {
+      margin: 0;
       padding: 10px;
-      background: rgba(0,0,0,.22);
-      border: 1px solid rgba(255,255,255,.06);
+      background: rgba(0, 0, 0, 0.22);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 14px;
-      overflow:auto;
+      overflow: auto;
       font-size: 12px;
       color: #dbe7f2;
     }
 
-    .status{
-      display:flex; gap:10px; flex-wrap:wrap;
-      align-items:center;
+    .status {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
       padding: 10px;
-      background: rgba(0,0,0,.18);
-      border: 1px solid rgba(255,255,255,.06);
+      background: rgba(0, 0, 0, 0.22);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 14px;
     }
-    .dot{
-      width:10px;height:10px;border-radius:50%;
-      background: rgba(255,255,255,.25);
-    }
-    .dot.ok{ background: rgba(126,231,135,.85); }
-    .dot.bad{ background: rgba(255,123,114,.85); }
 
-    /* responsive */
-    @media (max-width: 900px){
-      main{ grid-template-columns: 1fr; }
-      header{ flex-direction:column; }
-      .badge{ width:100%; min-width: unset; }
-      .trackRow{ grid-template-columns: 60px 1fr; }
-      :root{ --stepSize: 38px; }
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.35);
     }
-    @media (max-width: 520px){
-      /* スマホは操作を大きく */
-      :root{ --stepSize: 40px; }
-      .controls{ grid-template-columns: 1fr; }
-      .btns{ width:100%; }
-      button{ width:100%; padding: 12px 14px; }
-      .card .hd{ align-items:stretch; }
+
+    .dot.ok { background: rgba(124, 247, 255, 0.85); }
+    .dot.bad { background: rgba(255, 94, 94, 0.85); }
+
+    canvas { max-width: 100%; }
+
+    @media (max-width: 960px) {
+      .spec-grid { grid-template-columns: 1fr; }
+      .trackRow { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 540px) {
+      :root { --stepSize: 40px; }
+      .controls { grid-template-columns: 1fr; }
+      .btns { width: 100%; }
+      button { width: 100%; padding: 12px 14px; }
+      .card .hd { align-items: stretch; }
     }
   </style>
 </head>
 
 <body>
-  <div class="wrap">
-    <header>
-      <div class="title">
-        <h1>BEAT楽器 — 動く仕様書</h1>
-        <div class="subtitle">
-          スマホ対応（レスポンシブ）／Web Audio API。<br/>
-          追加：<span class="mono">ブラウザ音声 ON/OFF</span>（WebAudioの生成/停止）を搭載。
+  <a class="skip" href="#main">本文へスキップ</a>
+  <canvas id="starfield" aria-hidden="true"></canvas>
+
+  <header class="course-header">
+    <div class="wrap">
+      <div class="nav">
+        <div class="brand">
+          <div class="logo" aria-hidden="true"></div>
+          <div>
+            <h1>Python Training</h1>
+            <p>VEGA Course | WebAudio Spec</p>
+          </div>
+        </div>
+        <nav aria-label="VEGAコースナビゲーション">
+          <div class="navlinks">
+            <a href="../index.html">トップページ</a>
+            <a href="./index.html">VEGAホーム</a>
+            <a href="./overview.html">概要</a>
+            <a href="./scope.html">スコープ</a>
+            <a href="./spec.html">仕様</a>
+          </div>
+          <div class="cta">
+            <a class="btn primary" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+            <a class="btn" href="./index.html"><span class="dot" aria-hidden="true"></span>Issue Backlog</a>
+          </div>
+          <button class="hamburger" id="hamburger" aria-expanded="false" aria-label="メニューを開く">
+            <span aria-hidden="true"></span>
+          </button>
+        </nav>
+      </div>
+    </div>
+    <div class="mobile" id="mobile">
+      <div class="mobilePanel" role="dialog" aria-label="モバイルメニュー">
+        <a href="../index.html">トップページ</a>
+        <a href="./index.html">VEGAホーム</a>
+        <a href="./overview.html">概要</a>
+        <a href="./scope.html">スコープ</a>
+        <a href="./spec.html">仕様</a>
+        <div class="row">
+          <a class="btn primary" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+          <a class="btn" href="./scope.html"><span class="dot" aria-hidden="true"></span>1週間メニュー</a>
         </div>
       </div>
+    </div>
+  </header>
 
-      <div class="badge" aria-label="runtime status">
-        <div class="row"><div class="k">Audio</div><div class="v mono" id="audioState">off</div></div>
-        <div class="row"><div class="k">BPM</div><div class="v mono" id="bpmView">120</div></div>
-        <div class="row"><div class="k">Step</div><div class="v mono" id="stepView">-</div></div>
-      </div>
-    </header>
+  <main id="main">
+    <div class="wrap flow">
+      <section class="panel course-hero">
+        <div class="page-header">
+          <p class="eyebrow">VEGA COURSE</p>
+          <h1>BEAT楽器 — 動く仕様書</h1>
+          <p class="lede">Web Audio API でブラウザ上にビートマシンを実装し、トップページの宇宙感に合わせたダークテーマへ統一しました。</p>
+        </div>
+        <div class="hero-actions">
+          <a class="btn primary" href="./index.html"><span class="dot" aria-hidden="true"></span>Issue Backlog</a>
+          <a class="btn" href="./overview.html"><span class="dot" aria-hidden="true"></span>観点設計</a>
+          <a class="btn" href="./scope.html"><span class="dot" aria-hidden="true"></span>1週間スコープ</a>
+        </div>
+        <div class="meta-grid">
+          <div class="meta-card">
+            <strong>Audio</strong>
+            <span class="mono" id="audioState">off</span>
+          </div>
+          <div class="meta-card">
+            <strong>BPM</strong>
+            <span class="mono" id="bpmView">120</span>
+          </div>
+          <div class="meta-card">
+            <strong>Step</strong>
+            <span class="mono" id="stepView">-</span>
+          </div>
+        </div>
+      </section>
 
-    <main>
+      <section class="panel">
+        <div class="spec-grid">
       <!-- left -->
       <section class="card">
         <div class="hd">
@@ -360,9 +432,16 @@ H: ----------------</pre>
           </div>
         </div>
       </aside>
-    </main>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div class="footer">
+    BEAT楽器 — WebAudio仕様 | トップページと調和したダークテーマ
   </div>
 
+  <script src="vega_shared.js"></script>
   <script>
     // -----------------------------
     // Model
