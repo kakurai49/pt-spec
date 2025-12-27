@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Eカード（カイジ）カードゲーム実装仕様書</title>
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1gD6rJvCqK0fV1c6pGmKZp9t0bqQ2d1z7d9mKk7tR8jQ2dN" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-0pQhJcH4pKq1f8VgG8WmY1v3H8J6bQx5fJYcJw4c0qQqvYyQ8g1Fq4n2gKx0nKQ7" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-+Qx8FQhZtqkqY7g8w8o2bFQmBv0cJt4b7uJrV4T0oFJQm9u9xjY1c8qjz2xqQm3q" crossorigin="anonymous"></script>
+
+  <!-- pop3_style.css (base) -->
+  <style>
+    @import url("./pop3_style.css");
+  </style>
+
+  <!-- 추가 CSS: 色管理アーキテクチャ + 高コントラスト + カラフルUI -->
+  <style>
+    /* =========================================================
+       Cascade Layers: base(=pop3_style.css) < tokens < base < components < utilities
+       ========================================================= */
+    @layer tokens, base, components, utilities;
+
+    @layer tokens {
+      :root {
+        color-scheme: light dark;
+
+        /* Core tokens: keep bg/fg paired to prevent invisible text */
+        --bg: #0b0f1a;
+        --fg: #f4f7ff;
+
+        --surface-1-bg: rgba(255,255,255,0.06);
+        --surface-1-fg: var(--fg);
+        --surface-2-bg: rgba(255,255,255,0.10);
+        --surface-2-fg: var(--fg);
+        --surface-3-bg: rgba(255,255,255,0.14);
+        --surface-3-fg: var(--fg);
+
+        --muted-fg: rgba(244,247,255,0.78);
+        --subtle-fg: rgba(244,247,255,0.62);
+        --border: rgba(244,247,255,0.18);
+
+        /* Accent palette */
+        --a1: #ff4fd8;
+        --a2: #2de2ff;
+        --a3: #7cff6b;
+        --a4: #ffd34d;
+        --a5: #b36bff;
+        --a6: #ff6b6b;
+
+        /* Interactive */
+        --link: var(--a2);
+        --link-hover: var(--a1);
+        --focus: rgba(45,226,255,0.45);
+
+        /* Shadows */
+        --shadow-1: 0 10px 30px rgba(0,0,0,0.35);
+        --shadow-2: 0 18px 60px rgba(0,0,0,0.45);
+
+        /* Typography */
+        --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", Meiryo, Arial, sans-serif;
+        --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+        /* Radius & spacing */
+        --r1: 12px;
+        --r2: 18px;
+        --r3: 24px;
+
+        --gap-1: 8px;
+        --gap-2: 12px;
+        --gap-3: 16px;
+        --gap-4: 24px;
+        --gap-5: 32px;
+
+        /* Gradient background */
+        --bg-grad:
+          radial-gradient(1200px 600px at 10% 10%, rgba(255,79,216,0.25), transparent 60%),
+          radial-gradient(1000px 600px at 90% 20%, rgba(45,226,255,0.22), transparent 55%),
+          radial-gradient(900px 700px at 40% 90%, rgba(124,255,107,0.16), transparent 60%),
+          linear-gradient(180deg, #070a12, #0b0f1a 40%, #05070f);
+
+        /* KaTeX sizes */
+        --katex-inline: 1.05em;
+        --katex-display: 1.10em;
+      }
+
+      /* Prefer higher contrast when requested */
+      @media (prefers-contrast: more) {
+        :root {
+          --surface-1-bg: rgba(255,255,255,0.10);
+          --surface-2-bg: rgba(255,255,255,0.16);
+          --surface-3-bg: rgba(255,255,255,0.22);
+          --border: rgba(244,247,255,0.28);
+          --muted-fg: rgba(244,247,255,0.88);
+          --subtle-fg: rgba(244,247,255,0.74);
+        }
+      }
+
+      /* Forced colors (Windows High Contrast) */
+      @media (forced-colors: active) {
+        :root {
+          --bg: Canvas;
+          --fg: CanvasText;
+          --surface-1-bg: Canvas;
+          --surface-1-fg: CanvasText;
+          --surface-2-bg: Canvas;
+          --surface-2-fg: CanvasText;
+          --surface-3-bg: Canvas;
+          --surface-3-fg: CanvasText;
+          --border: GrayText;
+          --link: LinkText;
+          --link-hover: LinkText;
+        }
+      }
+    }
+
+    @layer base {
+      html, body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        background: var(--bg-grad);
+        color: var(--fg);
+        font-family: var(--font-sans);
+        line-height: 1.75;
+        letter-spacing: 0.01em;
+        text-rendering: optimizeLegibility;
+      }
+
+      /* Override pop3_style body background safely without deleting it */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background: radial-gradient(900px 500px at 50% 0%, rgba(255,211,77,0.08), transparent 60%);
+        mix-blend-mode: screen;
+        opacity: 0.9;
+      }
+
+      a {
+        color: var(--link);
+        text-decoration-thickness: 2px;
+        text-underline-offset: 4px;
+      }
+      a:hover { color: var(--link-hover); }
+
+      :focus-visible {
+        outline: 3px solid var(--focus);
+        outline-offset: 3px;
+        border-radius: 10px;
+      }
+
+      .page {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 24px 18px 110px;
+      }
+
+      header.page-header {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        margin: 0 -18px 24px;
+        padding: 14px 18px;
+        backdrop-filter: blur(14px);
+        background: linear-gradient(90deg, rgba(255,79,216,0.18), rgba(45,226,255,0.16), rgba(124,255,107,0.12));
+        border-bottom: 1px solid var(--border);
+        box-shadow: var(--shadow-1);
+      }
+
+      header.page-header h1 {
+        margin: 0;
+        font-size: clamp(1.3rem, 2.2vw, 2.0rem);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      header.page-header .meta {
+        margin-top: 6px;
+        color: var(--muted-fg);
+        font-size: 0.95rem;
+      }
+
+      main {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: var(--gap-4);
+      }
+
+      @media (min-width: 980px) {
+        main {
+          grid-template-columns: 320px 1fr;
+          align-items: start;
+        }
+      }
+
+      aside.toc {
+        position: sticky;
+        top: 92px;
+        align-self: start;
+        padding: 16px;
+        border-radius: var(--r2);
+        background: var(--surface-1-bg);
+        color: var(--surface-1-fg);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-1);
+      }
+
+      aside.toc h2 {
+        margin: 0 0 10px;
+        font-size: 1.1rem;
+        letter-spacing: 0.04em;
+        color: var(--fg);
+      }
+
+      aside.toc ol {
+        margin: 0;
+        padding-left: 1.1em;
+      }
+
+      aside.toc li {
+        margin: 8px 0;
+        color: var(--muted-fg);
+      }
+
+      aside.toc a {
+        color: var(--muted-fg);
+        text-decoration: none;
+      }
+      aside.toc a:hover { color: var(--a2); text-decoration: underline; }
+
+      .content {
+        min-width: 0;
+      }
+
+      section.card {
+        border-radius: var(--r3);
+        background: var(--surface-1-bg);
+        color: var(--surface-1-fg);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-2);
+        overflow: hidden;
+      }
+
+      section.card > .card-head {
+        padding: 16px 18px;
+        border-bottom: 1px solid var(--border);
+        background: linear-gradient(90deg, rgba(255,79,216,0.20), rgba(45,226,255,0.14), rgba(124,255,107,0.10));
+      }
+
+      section.card > .card-head h2 {
+        margin: 0;
+        font-size: 1.25rem;
+        color: var(--fg);
+        letter-spacing: 0.03em;
+      }
+
+      section.card > .card-body {
+        padding: 18px;
+      }
+
+      /* Markdown-ish elements styling */
+      .content h1, .content h2, .content h3, .content h4 {
+        scroll-margin-top: 120px;
+      }
+
+      .content h3 {
+        margin-top: 26px;
+        margin-bottom: 10px;
+        font-size: 1.1rem;
+      }
+
+      .content p {
+        margin: 10px 0;
+        color: var(--fg);
+      }
+
+      .content ul, .content ol {
+        margin: 10px 0 10px 1.2em;
+        color: var(--muted-fg);
+      }
+
+      .content li { margin: 6px 0; }
+
+      .content blockquote {
+        margin: 16px 0;
+        padding: 12px 14px;
+        border-left: 5px solid var(--a2);
+        background: rgba(45,226,255,0.10);
+        color: var(--fg);
+        border-radius: 12px;
+      }
+
+      .content table {
+        width: 100%;
+        border-collapse: collapse;
+        overflow: hidden;
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        background: rgba(255,255,255,0.04);
+      }
+      .content th, .content td {
+        border-bottom: 1px solid var(--border);
+        padding: 10px 10px;
+        vertical-align: top;
+      }
+      .content th {
+        text-align: left;
+        background: rgba(255,211,77,0.10);
+        color: var(--fg);
+      }
+      .content tr:hover td {
+        background: rgba(255,79,216,0.06);
+      }
+
+      .content code, .content pre {
+        font-family: var(--font-mono);
+      }
+
+      .content pre {
+        background: rgba(0,0,0,0.45);
+        color: #f6f7fb;
+        border: 1px solid rgba(244,247,255,0.18);
+        border-radius: 14px;
+        padding: 14px;
+        overflow-x: auto;
+        box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+      }
+
+      .content code {
+        background: rgba(0,0,0,0.35);
+        border: 1px solid rgba(244,247,255,0.14);
+        border-radius: 10px;
+        padding: 0.1em 0.4em;
+        color: #ffffff;
+        white-space: break-spaces;
+      }
+
+      .badge-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 10px 0 0;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: rgba(255,255,255,0.06);
+        color: var(--muted-fg);
+        font-size: 0.92rem;
+      }
+
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        background: var(--a2);
+        box-shadow: 0 0 0 3px rgba(45,226,255,0.20);
+      }
+
+      footer.page-footer {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding: 10px 16px;
+        background: rgba(0,0,0,0.55);
+        border-top: 1px solid var(--border);
+        backdrop-filter: blur(10px);
+        color: var(--muted-fg);
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        font-size: 0.92rem;
+      }
+
+      footer.page-footer .hint {
+        color: var(--subtle-fg);
+      }
+
+      /* KaTeX sizing & overflow */
+      .katex {
+        font-size: var(--katex-inline) !important;
+        overflow-x: auto;
+        overflow-y: hidden;
+        max-width: 100%;
+        white-space: nowrap;
+      }
+      .katex-display {
+        font-size: var(--katex-display) !important;
+        margin: 0.7em 0;
+        overflow-x: auto;
+        max-width: 100%;
+      }
+    }
+
+    @layer components {
+      /* Section accent rails */
+      section.card[data-accent="a1"] { --accent: var(--a1); }
+      section.card[data-accent="a2"] { --accent: var(--a2); }
+      section.card[data-accent="a3"] { --accent: var(--a3); }
+      section.card[data-accent="a4"] { --accent: var(--a4); }
+      section.card[data-accent="a5"] { --accent: var(--a5); }
+      section.card[data-accent="a6"] { --accent: var(--a6); }
+
+      section.card::before {
+        content: "";
+        display: block;
+        height: 6px;
+        background: linear-gradient(90deg, var(--accent, var(--a2)), rgba(255,255,255,0.0));
+      }
+
+      .callout {
+        margin: 14px 0;
+        padding: 12px 14px;
+        border-radius: 14px;
+        border: 1px solid rgba(244,247,255,0.18);
+        background: rgba(255,255,255,0.06);
+        color: var(--muted-fg);
+      }
+
+      .callout strong { color: var(--fg); }
+      .callout[data-kind="warn"] {
+        border-color: rgba(255,211,77,0.35);
+        background: rgba(255,211,77,0.10);
+      }
+      .callout[data-kind="info"] {
+        border-color: rgba(45,226,255,0.35);
+        background: rgba(45,226,255,0.10);
+      }
+      .callout[data-kind="ok"] {
+        border-color: rgba(124,255,107,0.30);
+        background: rgba(124,255,107,0.08);
+      }
+
+      .two-col {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      @media (min-width: 820px) {
+        .two-col { grid-template-columns: 1fr 1fr; }
+      }
+    }
+
+    @layer utilities {
+      .muted { color: var(--muted-fg); }
+      .subtle { color: var(--subtle-fg); }
+      .tight { margin-top: 6px; }
+      .sr-only {
+        position:absolute;
+        width:1px;height:1px;
+        padding:0;margin:-1px;
+        overflow:hidden;clip:rect(0,0,0,0);
+        white-space:nowrap;border:0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="page-header">
+    <div class="page">
+      <h1>Eカード（カイジ）カードゲーム実装仕様書</h1>
+      <div class="meta">
+        pop3_style.css をベースに、コントラスト強化＆トークン管理（bg/fgペア）＋ KaTeX 数式レンダリング対応
+      </div>
+      <div class="badge-row" aria-label="仕様メタ情報">
+        <span class="badge"><span class="dot"></span>HTML レイアウト</span>
+        <span class="badge"><span class="dot" style="background: var(--a4); box-shadow: 0 0 0 3px rgba(255,211,77,0.20);"></span>高コントラスト</span>
+        <span class="badge"><span class="dot" style="background: var(--a5); box-shadow: 0 0 0 3px rgba(179,107,255,0.20);"></span>KaTeX</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="page">
+    <main>
+      <aside class="toc" aria-label="目次">
+        <h2>目次</h2>
+        <ol>
+          <li><a href="#doc">原文（Markdown）</a></li>
+          <li><a href="#notes">実装メモ</a></li>
+        </ol>
+        <div class="callout" data-kind="info">
+          <strong>ヒント:</strong> セクション見出しをクリックで該当位置へ移動します。
+        </div>
+      </aside>
+
+      <div class="content">
+        <section class="card" id="doc" data-accent="a2">
+          <div class="card-head">
+            <h2>原文（Markdown）</h2>
+          </div>
+          <div class="card-body">
+
+<h1>Implementation Spec ECard DTD 2</h1>
+<p>以下は、Eカード（カイジ）カードゲーム実装仕様書です。</p>
+<h2>1. 概要</h2>
+<p>本仕様書では、Eカード（カイジ）カードゲームの実装について記述します。ゲームはカード配布、ターン制、勝敗判定、UI表示などを含みます。</p>
+<h2>2. 用語</h2>
+<ul>
+<li><strong>皇帝</strong>：皇帝カード（Eカード）</li>
+<li><strong>市民</strong>：市民カード</li>
+<li><strong>奴隷</strong>：奴隷カード</li>
+</ul>
+<h2>3. ゲームルール</h2>
+<h3>3.1 カード構成</h3>
+<ul>
+<li>皇帝側：皇帝1枚、市民4枚（計5枚）</li>
+<li>奴隷側：奴隷1枚、市民4枚（計5枚）</li>
+</ul>
+<h3>3.2 勝敗判定</h3>
+<ul>
+<li>皇帝 vs 奴隷 → 奴隷の勝ち</li>
+<li>皇帝 vs 市民 → 皇帝の勝ち</li>
+<li>市民 vs 奴隷 → 市民の勝ち</li>
+<li>市民 vs 市民 → 引き分け</li>
+</ul>
+<h3>3.3 交換ルール</h3>
+<p>各ターン、両者は1枚ずつカードを選択して同時に出します。出したカードは場に出され、次のターンに進みます。全ターン終了後に勝敗を判定します。</p>
+<h2>4. 実装仕様</h2>
+<h3>4.1 データ構造</h3>
+<pre><code class="language-js">type Card = "E" | "S" | "C"; // Emperor, Slave, Citizen
+type Hand = Card[];
+type TurnResult = "WIN" | "LOSE" | "DRAW";
+</code></pre>
+<h3>4.2 ゲームフロー</h3>
+<ol>
+<li>初期化：カード配布</li>
+<li>ターン開始：プレイヤーがカード選択</li>
+<li>同時出し：両者のカードを公開</li>
+<li>結果判定：ターン結果計算</li>
+<li>ターン終了：カードを捨てる</li>
+<li>全ターン終了後：総合勝敗判定</li>
+</ol>
+<h3>4.3 UI要件</h3>
+<ul>
+<li>手札表示</li>
+<li>選択中カードのハイライト</li>
+<li>ターン結果の表示</li>
+<li>最終勝敗の表示</li>
+</ul>
+<h2>5. 数式・ロジック</h2>
+<p>勝敗判定関数は以下のように定義されます：</p>
+<p>$$
+f(a, b) =
+\begin{cases}
+\text{WIN} &amp; (a=\text{Slave} \wedge b=\text{Emperor}) \\
+\text{WIN} &amp; (a=\text{Emperor} \wedge b=\text{Citizen}) \\
+\text{WIN} &amp; (a=\text{Citizen} \wedge b=\text{Slave}) \\
+\text{DRAW} &amp; (a=\text{Citizen} \wedge b=\text{Citizen}) \\
+\text{LOSE} &amp; \text{otherwise}
+\end{cases}
+$$</p>
+<h2>6. 拡張</h2>
+<ul>
+<li>AIプレイヤー追加</li>
+<li>マルチプレイヤー対応</li>
+<li>アニメーション演出</li>
+</ul>
+
+          </div>
+        </section>
+
+        <section class="card" id="notes" data-accent="a4">
+          <div class="card-head">
+            <h2>実装メモ</h2>
+          </div>
+          <div class="card-body">
+            <div class="two-col">
+              <div class="callout" data-kind="ok">
+                <strong>色管理:</strong> 背景/文字色を必ずペア（bg/fg）で定義し、コンポーネントはそのペアのみ参照します。
+              </div>
+              <div class="callout" data-kind="warn">
+                <strong>KaTeX:</strong> pre/code 内も auto-render 対象にし、さらに「区切りなしの数式っぽい code」を追加処理で KaTeX 化します。
+              </div>
+            </div>
+            <p class="muted">
+              ※ pop3_style.css の既存スタイルは削除せず、上書きは CSS Variables と Layer で安全に行っています。
+            </p>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <footer class="page-footer" role="contentinfo">
+    <div>© Eカード 実装仕様書ビューア</div>
+    <div class="hint">KaTeX: $$...$$ / \( ... \) / \[ ... \] / pre/code 内もレンダリング</div>
+  </footer>
+
+  <script>
+    // KaTeX auto-render: include pre/code blocks as well
+    document.addEventListener("DOMContentLoaded", function () {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          // Allow math in code/pre by NOT ignoring them
+          ignoredTags: ["script", "noscript", "style", "textarea"],
+          delimiters: [
+            { left: "$$", right: "$$", display: true },
+            { left: "\\[", right: "\\]", display: true },
+            { left: "\\(", right: "\\)", display: false },
+            { left: "$", right: "$", display: false }
+          ],
+          throwOnError: false
+        });
+      }
+
+      // Extra: auto-detect "math-ish" code spans without delimiters (e.g., contains ∈ ⊆ λ × etc.)
+      // This keeps original text, wrapping it for KaTeX rendering.
+      const mathish = /[∈⊆⊂⊇⊃≈≠≤≥±×÷λμσΣπΠ∞√∧∨→←↔∑∏]/;
+      const codeNodes = Array.from(document.querySelectorAll("code"));
+      for (const code of codeNodes) {
+        // Skip code blocks already processed by auto-render (KaTeX generates .katex)
+        if (code.querySelector(".katex")) continue;
+        const text = code.textContent || "";
+        if (!text) continue;
+        if (mathish.test(text) && !/^\s*(\$\$|\\\(|\\\[)/.test(text)) {
+          // Preserve original text in data attribute
+          code.classList.add("math-raw");
+          code.setAttribute("data-raw", text);
+
+          // Attempt to render as KaTeX inline
+          try {
+            const span = document.createElement("span");
+            katex.render(text, span, { throwOnError: false, displayMode: false });
+            // Replace visible content only (raw preserved)
+            code.textContent = "";
+            code.appendChild(span);
+          } catch (e) {
+            // If fails, keep original
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

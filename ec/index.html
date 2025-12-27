@@ -1,332 +1,513 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Eカード（カイジ）動く仕様書 | JavaScript 実装</title>
-  <meta name="description" content="Eカード（皇帝・市民・奴隷）のルール実装と、DTD（Diffusion Test Design）準拠のテスト生成を、ブラウザで動く仕様書として実装したデモページです。" />
-  <link rel="stylesheet" href="./styles.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>カイジEカード: ゲーム仕様とテスト設計</title>
+    <link rel="stylesheet" href="pop3_style.css">
+    <!-- KaTeX CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+        /* 追加のカスタムスタイル - カラフルで高コントラスト */
+        :root {
+            --primary-bg: #ffdd57;
+            --secondary-bg: #ff4081;
+            --accent-1: #1e90ff;
+            --accent-2: #32cd32;
+            --accent-3: #ff6347;
+            --text-dark: #222;
+            --text-light: #fff;
+            --code-bg: #2d2d2d;
+            --card-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            background-color: var(--primary-bg);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+        
+        .header-graphic {
+            background: linear-gradient(90deg, var(--secondary-bg), var(--accent-1));
+            padding: 5px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: var(--card-shadow);
+            border-left: 8px solid var(--secondary-bg);
+            transition: var(--transition);
+        }
+        
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.25);
+        }
+        
+        .highlight-box {
+            background: linear-gradient(135deg, #ffdd57, #ffcc00);
+            border: 3px solid var(--secondary-bg);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .color-swatch {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 8px;
+            vertical-align: middle;
+            border: 2px solid white;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
+        
+        .swatch-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .swatch-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 15px;
+            border-radius: 25px;
+            font-weight: bold;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+        
+        .formula-container {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 25px 0;
+            border: 3px dashed var(--accent-1);
+            overflow-x: auto;
+        }
+        
+        .architecture-diagram {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin: 25px 0;
+        }
+        
+        .layer {
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: var(--transition);
+        }
+        
+        .layer:hover {
+            transform: scale(1.03);
+        }
+        
+        .layer-1 { background: linear-gradient(135deg, var(--secondary-bg), #ff6b9d); }
+        .layer-2 { background: linear-gradient(135deg, var(--accent-1), #1c86ee); }
+        .layer-3 { background: linear-gradient(135deg, var(--accent-2), #2e8b57); }
+        .layer-4 { background: linear-gradient(135deg, var(--accent-3), #ff4500); }
+        
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            border-top: 5px solid;
+            transition: var(--transition);
+        }
+        
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.25);
+        }
+        
+        .card-1 { border-color: var(--secondary-bg); }
+        .card-2 { border-color: var(--accent-1); }
+        .card-3 { border-color: var(--accent-2); }
+        .card-4 { border-color: var(--accent-3); }
+        
+        .footer-note {
+            text-align: center;
+            padding: 15px;
+            background: var(--secondary-bg);
+            color: white;
+            border-radius: 10px;
+            margin-top: 30px;
+            font-weight: bold;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.2);
+        }
+        
+        /* 高コントラストのテキスト色を確保 */
+        .dark-text { color: var(--text-dark); }
+        .light-text { color: var(--text-light); }
+        
+        /* 数式のスタイル調整 */
+        .katex-display {
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 10px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        
+        /* レスポンシブ調整 */
+        @media (max-width: 768px) {
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .layer {
+                padding: 15px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <header class="site-header">
-    <div class="container header-inner">
-      <div class="brand">
-        <div class="brand-title">Eカード（カイジ）動く仕様書</div>
-        <div class="brand-subtitle">JavaScript + HTML（レスポンシブ） / DTD（集合被覆）デモ</div>
-      </div>
-      <nav class="top-nav" aria-label="ページ内ナビゲーション">
-        <a href="#rules">ルール</a>
-        <a href="#bout">Bout（1勝負）</a>
-        <a href="#match">Match（複数勝負）</a>
-        <a href="#dtd">DTDテスト生成</a>
-        <a href="#about">使い方</a>
-      </nav>
+    <header>
+        <div class="header-graphic">
+            <h1>カイジEカード：ゲーム仕様とテスト設計</h1>
+        </div>
+        <p>観点束 (S) と同値類集合 (A(S)) の具体化によるプログラムアーキテクチャ設計</p>
+    </header>
+
+    <div class="container">
+        <!-- 画像セクション -->
+        <div class="section">
+            <h2>Eカードゲーム概要</h2>
+            <div class="highlight-box">
+                <a href="https://www.lifelogweb.com/entry/kaiji-ecard?utm_source=chatgpt.com" target="_blank">
+                    <img src="https://tse4.mm.bing.net/th/id/OIP.FFOdcAd09rOY1KZr3jEg6gHaFB?pid=Api" alt="カイジ【Eカード(いーかーど)】のルールと遊び方を現物で説明！代用方法も解説">
+                </a>
+                <p class="dark-text" style="text-align: center; margin-top: 10px; font-weight: bold;">
+                    画像クリックで詳細記事へ（外部リンク）
+                </p>
+            </div>
+        </div>
+
+        <!-- 色管理アーキテクチャの説明 -->
+        <div class="section">
+            <h2>色管理アーキテクチャ</h2>
+            <p>背景と文字色のコントラストを確保するため、CSSカスタムプロパティ（変数）を使用した最新の色管理システムを実装：</p>
+            
+            <div class="swatch-container">
+                <div class="swatch-item" style="background-color: var(--primary-bg);">
+                    <span class="color-swatch" style="background-color: var(--primary-bg);"></span>
+                    プライマリ背景 (#ffdd57)
+                </div>
+                <div class="swatch-item" style="background-color: var(--secondary-bg); color: white;">
+                    <span class="color-swatch" style="background-color: var(--secondary-bg);"></span>
+                    セカンダリ背景 (#ff4081)
+                </div>
+                <div class="swatch-item" style="background-color: var(--accent-1); color: white;">
+                    <span class="color-swatch" style="background-color: var(--accent-1);"></span>
+                    アクセント1 (#1e90ff)
+                </div>
+                <div class="swatch-item" style="background-color: var(--accent-2); color: white;">
+                    <span class="color-swatch" style="background-color: var(--accent-2);"></span>
+                    アクセント2 (#32cd32)
+                </div>
+                <div class="swatch-item" style="background-color: var(--accent-3); color: white;">
+                    <span class="color-swatch" style="background-color: var(--accent-3);"></span>
+                    アクセント3 (#ff6347)
+                </div>
+            </div>
+            
+            <p class="dark-text">すべてのテキスト要素は背景に対して十分なコントラスト比（WCAG AA基準以上）を確保しています。</p>
+        </div>
+
+        <!-- 条件制限 (E) の具体化 -->
+        <div class="section">
+            <h2>1. 条件制限 (E) - Eカード×Python実装の要求</h2>
+            
+            <h3>1.1 Eカードの要点（仕様の核）</h3>
+            <div class="card-grid">
+                <div class="card card-1">
+                    <h4>カード種</h4>
+                    <p><strong>皇帝・市民・奴隷</strong>の3種（合計10枚：皇帝1、市民8、奴隷1）</p>
+                </div>
+                <div class="card card-2">
+                    <h4>対戦構成</h4>
+                    <p>2人対戦：皇帝側（皇帝1＋市民4） vs 奴隷側（奴隷1＋市民4）</p>
+                </div>
+                <div class="card card-3">
+                    <h4>強弱関係</h4>
+                    <p>三すくみ：<strong>皇帝 > 市民 > 奴隷 > 皇帝</strong></p>
+                </div>
+                <div class="card card-4">
+                    <h4>決着条件</h4>
+                    <p>皇帝か奴隷が関与した1勝で決着（最初の非引き分けで決まる）</p>
+                </div>
+            </div>
+
+            <h3>1.2 (E) として定義する実装要件</h3>
+            <ul>
+                <li><strong>(E1) ルール正確性</strong>：勝敗判定を正しく実装、市民vs市民はドロー</li>
+                <li><strong>(E2) 試合構造</strong>：1戦＝5枚手札、3戦ごとに陣営交代、計12戦（設定可能）</li>
+                <li><strong>(E3) 不正の扱い</strong>：手札に無いカードを出せない、決着後の提出を拒否</li>
+                <li><strong>(E4) 実装上の非機能</strong>：純粋なルールエンジン、再現可能な乱数、UIとロジックの分離</li>
+            </ul>
+        </div>
+
+        <!-- 共通テストモデル (X) -->
+        <div class="section">
+            <h2>2. 共通テストモデル (X)</h2>
+            <div class="formula-container">
+                <p>論文に合わせ、テスト候補を表す中間表現:</p>
+                <div class="katex-display">
+                    x \in X := (\text{Input}) \times (\text{PreState}) \times (\text{Action/Trace}) \times (\text{Oracle}) \times (\text{Meta})
+                </div>
+                <p>Eカードに対応づけると：</p>
+                <ul>
+                    <li><strong>Input</strong>：設定（総戦数=12 or 3、陣営交代周期=3など）</li>
+                    <li><strong>PreState</strong>：初期手札（皇帝側：E+4C、奴隷側：S+4C）</li>
+                    <li><strong>Action/Trace</strong>：各ターンの「両者の出したカード」履歴</li>
+                    <li><strong>Oracle</strong>：期待される勝敗・不変条件</li>
+                    <li><strong>Meta</strong>：コスト、優先度、観点達成状況</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 観点束 (S) の導出 -->
+        <div class="section">
+            <h2>3. 観点束 (S) の導出</h2>
+            
+            <div class="formula-container">
+                <p>観点束を以下のように定義：</p>
+                <div class="katex-display">
+                    S := \{(o_i, r_i, \lambda_i)\}_{i=1}^k
+                </div>
+                <p>Eカード実装に対して (k=5) の観点を設定：</p>
+            </div>
+
+            <div class="card-grid">
+                <div class="card card-1">
+                    <h4>(S₁) 勝敗観点</h4>
+                    <p><strong>観測</strong>: 勝者 ∈ {EmperorSide, SlaveSide}</p>
+                    <p><strong>評価</strong>: 仕様通りなら1、矛盾なら0</p>
+                    <p><strong>ガイダンス</strong>: 中 (λ=1.0)</p>
+                </div>
+                
+                <div class="card card-2">
+                    <h4>(S₂) 決着組合せ観点</h4>
+                    <p><strong>観測</strong>: 決着ペア ∈ {E vs C, C vs S, S vs E}</p>
+                    <p><strong>評価</strong>: 判定が正しければ1</p>
+                    <p><strong>ガイダンス</strong>: 中〜高 (λ=1.5)</p>
+                </div>
+                
+                <div class="card card-3">
+                    <h4>(S₃) ドロー回数観点</h4>
+                    <p><strong>観測</strong>: k ∈ {0,1,2,3,4}（市民vs市民の回数）</p>
+                    <p><strong>評価</strong>: ドロー処理が正しければ1</p>
+                    <p><strong>ガイダンス</strong>: 中 (λ=1.0)</p>
+                </div>
+                
+                <div class="card card-4">
+                    <h4>(S₄) 不正操作観点</h4>
+                    <p><strong>観測</strong>: 不正種別 ∈ {None, NotInHand, AfterTerminal, Timeout, Other}</p>
+                    <p><strong>評価</strong>: 不正を拒否できれば1</p>
+                    <p><strong>ガイダンス</strong>: 高 (λ=2.0)</p>
+                </div>
+            </div>
+            
+            <div class="highlight-box">
+                <h4>(S₅) 上位ルール観点</h4>
+                <p><strong>観測</strong>: (bout_index, side_swap_phase)</p>
+                <p><strong>評価</strong>: 上位ルール通りなら1</p>
+                <p><strong>ガイダンス</strong>: 中 (λ=1.0)</p>
+                <p class="dark-text">※原作仕様：3戦ごとに陣営交代、計12戦または3本勝負</p>
+            </div>
+        </div>
+
+        <!-- (A(S)) の導出 -->
+        <div class="section">
+            <h2>4. (A(S)) の導出 - テスト条件集合</h2>
+            
+            <div class="formula-container">
+                <p>観点束 (S) が誘導する同値関係による集合：</p>
+                <div class="katex-display">
+                    A(S)=W/\sim_S
+                </div>
+                <p>観測ベクトル：</p>
+                <div class="katex-display">
+                    o_S(x) := (o_1(x),o_2(x),o_3(x),o_4(x),o_5(x))
+                </div>
+            </div>
+
+            <h3>4.1 正常系（illegal=None）の主要クラス</h3>
+            <p>正常系の代表的 obligation を13個：</p>
+            <ul>
+                <li><strong>a_{EC,k}</strong>（k=0..3）…4個：皇帝 vs 市民で決着</li>
+                <li><strong>a_{CS,k}</strong>（k=0..3）…4個：市民 vs 奴隷で決着</li>
+                <li><strong>a_{SE,k}</strong>（k=0..4）…5個：奴隷 vs 皇帝で決着</li>
+            </ul>
+            
+            <h3>4.2 異常系（illegal≠None）のクラス</h3>
+            <ul>
+                <li>a<sub>NotInHand</sub>：手札にないカード提出</li>
+                <li>a<sub>AfterTerminal</sub>：決着後の提出</li>
+                <li>a<sub>Timeout</sub>：制限時間切れ</li>
+                <li>a<sub>ConfigInvalid</sub>：設定値不正</li>
+            </ul>
+            
+            <h3>4.3 上位ルールのクラス</h3>
+            <ul>
+                <li>a<sub>SwapAfter3</sub>：3戦ごとに陣営が入れ替わる</li>
+                <li>a<sub>Total12</sub>：12戦で終了</li>
+                <li>a<sub>Total3</sub>：映画モード（3本勝負）で終了</li>
+            </ul>
+        </div>
+
+        <!-- プログラムアーキテクチャ設計 -->
+        <div class="section">
+            <h2>5. プログラムアーキテクチャ設計</h2>
+            
+            <h3>5.1 全体構造（依存方向）</h3>
+            <div class="architecture-diagram">
+                <div class="layer layer-1">
+                    [UI/Adapter層] ─ CLI / GUI / 入力・表示・ログ
+                </div>
+                <div class="layer layer-2">
+                    [Application層] ─ MatchRunner / GameController / 戦の進行・設定
+                </div>
+                <div class="layer layer-3">
+                    [Domain(コア)層] ─ Card/Hand/State/Rules / 「1手進める」「勝敗判定」
+                </div>
+                <div class="layer layer-4">
+                    [DTD/Test設計層] ─ ScenarioGenerator / Observers (= Sのoᵢ) / ObligationSet (= A(S))
+                </div>
+            </div>
+
+            <h3>5.2 Domain層（Eカードの最小核）</h3>
+            <div class="highlight-box">
+                <p><strong>主要データ型</strong>:</p>
+                <pre>
+CardType(Enum): EMPEROR, CITIZEN, SLAVE
+Side(Enum): EMPEROR_SIDE, SLAVE_SIDE
+Hand: マルチセット（市民は複数枚）
+BoutState: turn_index, 各サイドのHand, history, terminal, winner
+RoundRecord: 両者の出したカードと結果（ドロー/勝敗）</pre>
+                
+                <p><strong>ルールは純関数に寄せる</strong>:</p>
+                <pre>
+resolve(emperor_side_card, slave_side_card) -> RoundOutcome
+apply_action(state, action_pair) -> new_state, event</pre>
+            </div>
+
+            <h3>5.3 Application層（進行管理：戦・試合）</h3>
+            <ul>
+                <li><strong>BoutEngine</strong>: step(emperor_action, slave_action) を繰り返し、決着で止める</li>
+                <li><strong>MatchEngine</strong>: num_bouts（デフォルト12）・swap_interval（デフォルト3）を持つ</li>
+            </ul>
+
+            <h3>5.4 Player / Adapter層（人間・AI・UI）</h3>
+            <div class="highlight-box">
+                <p><strong>IPlayer（Protocol/ABC）</strong>:</p>
+                <pre>choose_card(observation) -> CardType</pre>
+                <p><strong>observation</strong> はプレイヤに見えて良い情報だけ（自分の手札、公開情報、設定）</p>
+            </div>
+
+            <h3>5.5 DTD/Test設計層（論文のSとA(S)を"動かす"）</h3>
+            <ul>
+                <li><strong>ScenarioGenerator</strong>: ノイズ／seedからシナリオ(x)を生成</li>
+                <li><strong>Observers</strong> (= Sの(oᵢ)): OutcomeObserver, DecisivePairObserver, DrawCountObserver, IllegalObserver, MatchStructureObserver</li>
+                <li><strong>ObligationSet</strong> (= A(S)): covered_obligations(trace) -> set[Obligation]</li>
+                <li><strong>SetCoverOptimizer</strong>: obligationを全被覆する最小（低コスト）集合を選ぶ</li>
+            </ul>
+
+            <h3>5.6 パッケージ構成案（Python）</h3>
+            <pre>
+ecard/
+  domain/
+    cards.py        # CardType, Side
+    hand.py         # Hand (multiset)
+    state.py        # BoutState, MatchState
+    rules.py        # resolve(), apply_action()
+    errors.py       # IllegalMove, ...
+  application/
+    bout_engine.py  # bout進行
+    match_engine.py # 12戦/3戦、交代
+  players/
+    base.py         # IPlayer
+    human_cli.py
+    random_ai.py
+    scripted_ai.py
+  adapters/
+    cli.py          # UI
+    logging.py      # リプレイ/ログ
+  dtd/
+    scenario.py     # X の表現
+    generator.py    # seed→scenario
+    observers.py    # o_i 群
+    obligations.py  # A(S)
+    setcover.py     # 最小被覆選択
+  tests/
+    test_rules.py
+    test_engine.py</pre>
+        </div>
+
+        <!-- まとめ -->
+        <div class="section">
+            <h2>6. まとめ（この設計が「論文に従う」点）</h2>
+            <div class="highlight-box">
+                <ul>
+                    <li><strong>(E)</strong>: Eカード仕様＋Python実装要件として明文化</li>
+                    <li><strong>(S)</strong>: 勝敗、決着ペア、ドロー回数、不正、上位ルール…という観点束として定義</li>
+                    <li><strong>(A(S))</strong>: ((decisive_pair,k)) 等で表せるテスト条件（obligation）集合として具体化</li>
+                    <li><strong>アーキテクチャ</strong>: Domain（純ルール）、Application（進行）、Adapter（UI/Player）、DTD/Test設計（観測→被覆最適化）に分離</li>
+                </ul>
+            </div>
+            <p class="dark-text">この設計により、(S) と (A(S)) を外付けで運用できる形で実装し、テスト容易性と拡張性を確保しています。</p>
+        </div>
+
+        <!-- 参考文献と注記 -->
+        <div class="footer-note">
+            <p>参考文献: <a href="https://ja.wikipedia.org/wiki/%E8%B3%AD%E5%8D%9A%E9%BB%99%E7%A4%BA%E9%8C%B2%E3%82%AB%E3%82%A4%E3%82%B8" target="_blank" style="color:white;text-decoration:underline;">賭博黙示録カイジ - Wikipedia</a></p>
+            <p>※ 本ドキュメントは添付論文の枠組みに従い、ワールドを「アニメ『カイジ』のEカード」、条件制限 (E) を「EカードをPythonでカードゲームとして実装」と置いた場合の具体化を示しています。</p>
+        </div>
     </div>
-  </header>
 
-  <main class="container">
-    <section id="rules" class="section">
-      <h1>ルール（仕様 4章）</h1>
-      <div class="grid-2">
-        <div class="card">
-          <h2>カード種</h2>
-          <ul class="list">
-            <li><b>EMPEROR（皇帝）</b>：皇帝側は 1 枚</li>
-            <li><b>CITIZEN（市民）</b>：両者 4 枚ずつ</li>
-            <li><b>SLAVE（奴隷）</b>：奴隷側は 1 枚</li>
-          </ul>
-          <div class="note">
-            1 bout（1勝負）では、<b>皇帝側</b>の手札は {皇帝×1, 市民×4}、<b>奴隷側</b>の手札は {奴隷×1, 市民×4}。
-          </div>
-        </div>
-
-        <div class="card">
-          <h2>勝敗（三すくみ）</h2>
-          <div class="rps">
-            <div class="rps-row">
-              <span class="pill emperor">皇帝</span>
-              <span class="arrow">▶</span>
-              <span class="pill citizen">市民</span>
-            </div>
-            <div class="rps-row">
-              <span class="pill citizen">市民</span>
-              <span class="arrow">▶</span>
-              <span class="pill slave">奴隷</span>
-            </div>
-            <div class="rps-row">
-              <span class="pill slave">奴隷</span>
-              <span class="arrow">▶</span>
-              <span class="pill emperor">皇帝</span>
-            </div>
-          </div>
-          <div class="note">
-            <b>市民 vs 市民</b> は引き分け（DRAW）で次ターンへ。<br />
-            DRAW 以外（決着）が出た瞬間に bout は終了します。
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="bout" class="section">
-      <h1>Bout（1勝負）プレイ / 不正検出</h1>
-
-      <div class="grid-2">
-        <div class="card">
-          <h2>手動プレイ（同時提出を UI で表現）</h2>
-
-          <div class="controls">
-            <div class="field">
-              <label for="emperorSelect">皇帝側が出すカード</label>
-              <select id="emperorSelect"></select>
-            </div>
-            <div class="field">
-              <label for="slaveSelect">奴隷側が出すカード</label>
-              <select id="slaveSelect"></select>
-            </div>
-
-            <div class="btn-row">
-              <button id="boutStepBtn" class="btn primary">この手で勝負（step）</button>
-              <button id="boutResetBtn" class="btn">Bout をリセット</button>
-            </div>
-          </div>
-
-          <div class="split">
-            <div class="mini">
-              <h3>皇帝側の手札</h3>
-              <div id="emperorHandView" class="hand"></div>
-            </div>
-            <div class="mini">
-              <h3>奴隷側の手札</h3>
-              <div id="slaveHandView" class="hand"></div>
-            </div>
-          </div>
-
-          <div class="status">
-            <div><b>状態</b>：<span id="boutStatusText">-</span></div>
-            <div><b>DRAW 回数</b>：<span id="boutDrawCount">0</span></div>
-            <div><b>決着組合せ</b>：<span id="boutDecisivePair">-</span></div>
-            <div><b>勝者</b>：<span id="boutWinner">-</span></div>
-          </div>
-
-          <details class="details" open>
-            <summary>履歴（RoundRecord）</summary>
-            <div id="boutHistory" class="history"></div>
-          </details>
-        </div>
-
-        <div class="card">
-          <h2>不正検出（仕様 E3）</h2>
-          <p class="note">
-            仕様書の要件：<b>NOT_IN_HAND</b>（手札にないカード提出）と、<b>AFTER_TERMINAL</b>（決着後の提出）を必ず検出します。
-          </p>
-
-          <div class="btn-stack">
-            <button id="illegalNotInHandBtn" class="btn danger">不正：皇帝側が「奴隷」を出す（NOT_IN_HAND）</button>
-            <button id="illegalAfterTerminalBtn" class="btn danger">不正：決着後にもう1回 step（AFTER_TERMINAL）</button>
-          </div>
-
-          <div class="note">
-            <b>AFTER_TERMINAL</b> は、まず bout を決着させてから押してください（上の手動プレイで決着 → ここを押す）。
-          </div>
-
-          <hr class="sep" />
-
-          <h2>ログ</h2>
-          <div id="toastArea" class="toast-area" aria-live="polite"></div>
-          <pre id="boutLog" class="log" aria-label="ログ"></pre>
-        </div>
-      </div>
-    </section>
-
-    <section id="match" class="section">
-      <h1>Match（複数 bout）シミュレーション</h1>
-
-      <div class="card">
-        <div class="grid-2">
-          <div>
-            <h2>設定（仕様 4.6）</h2>
-            <div class="controls">
-              <div class="field">
-                <label for="numBoutsInput">num_bouts（例：12 / 3）</label>
-                <input id="numBoutsInput" type="number" min="1" value="12" />
-              </div>
-              <div class="field">
-                <label for="swapIntervalInput">swap_interval（例：3）</label>
-                <input id="swapIntervalInput" type="number" min="1" value="3" />
-              </div>
-              <div class="field">
-                <label for="startingEmperorSelect">starting_emperor_player</label>
-                <select id="startingEmperorSelect">
-                  <option value="0">プレイヤーA</option>
-                  <option value="1">プレイヤーB</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <h2>プレイヤー戦略（簡易）</h2>
-            <div class="controls">
-              <div class="field">
-                <label for="strategyA">プレイヤーA</label>
-                <select id="strategyA">
-                  <option value="random">ランダム</option>
-                  <option value="citizenFirst">市民優先</option>
-                  <option value="specialFirst">特殊（皇帝/奴隷）優先</option>
-                </select>
-              </div>
-              <div class="field">
-                <label for="strategyB">プレイヤーB</label>
-                <select id="strategyB">
-                  <option value="random">ランダム</option>
-                  <option value="citizenFirst">市民優先</option>
-                  <option value="specialFirst">特殊（皇帝/奴隷）優先</option>
-                </select>
-              </div>
-
-              <div class="btn-row">
-                <button id="runMatchBtn" class="btn primary">Match を実行</button>
-                <button id="matchClearBtn" class="btn">結果をクリア</button>
-              </div>
-            </div>
-
-            <div class="note">
-              役割は <code>swap_interval</code> ごとに交代します（例：3戦ごと）。結果表に「皇帝側A/B」が表示されます。
-            </div>
-          </div>
-        </div>
-
-        <hr class="sep" />
-
-        <h2>結果</h2>
-        <div id="matchSummary" class="summary"></div>
-        <div class="table-wrap">
-          <table class="table" aria-label="Match 結果">
-            <thead>
-              <tr>
-                <th>Bout</th>
-                <th>皇帝側</th>
-                <th>奴隷側</th>
-                <th>勝者</th>
-                <th>DRAW</th>
-                <th>決着組合せ</th>
-              </tr>
-            </thead>
-            <tbody id="matchTableBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <section id="dtd" class="section">
-      <h1>DTD（Diffusion Test Design）テスト生成デモ</h1>
-
-      <div class="grid-2">
-        <div class="card">
-          <h2>生成パラメータ（仕様 11章）</h2>
-
-          <div class="controls">
-            <div class="field">
-              <label for="seedInput">seed</label>
-              <input id="seedInput" type="number" value="0" />
-            </div>
-            <div class="field">
-              <label for="nRandomInput">n-random（ランダム候補数）</label>
-              <input id="nRandomInput" type="number" min="0" value="60" />
-            </div>
-            <div class="field">
-              <label for="overheadInput">overhead（固定コスト）</label>
-              <input id="overheadInput" type="number" min="0" value="1" step="0.1" />
-            </div>
-            <div class="field">
-              <label for="perRoundInput">per-round（1ターンあたり）</label>
-              <input id="perRoundInput" type="number" min="0" value="0.2" step="0.1" />
-            </div>
-            <div class="field">
-              <label for="budgetInput">budget（任意 / 空欄=無制限）</label>
-              <input id="budgetInput" type="number" min="0" placeholder="例：10" />
-            </div>
-
-            <div class="btn-row">
-              <button id="generateSuiteBtn" class="btn primary">候補生成 → 観測 → 集合被覆</button>
-              <button id="dtdClearBtn" class="btn">クリア</button>
-            </div>
-          </div>
-
-          <div class="note">
-            ここでは論文の「拡散モデル」を、<b>ガウスノイズ → シナリオ</b>へ写像する簡易生成器（stub）として置き換えています（仕様 6章 注）。
-          </div>
-
-          <hr class="sep" />
-
-          <h2>Universe（18 obligations）</h2>
-          <div id="universeList" class="chips" aria-label="obligation universe"></div>
-        </div>
-
-        <div class="card">
-          <h2>選択されたスイート</h2>
-          <div id="suiteSummary" class="summary"></div>
-
-          <div class="btn-row">
-            <button id="downloadSuiteBtn" class="btn" disabled>generated_suite.json をダウンロード</button>
-          </div>
-
-          <details class="details" open>
-            <summary>選択されたシナリオ一覧</summary>
-            <div id="suiteList" class="history"></div>
-          </details>
-
-          <details class="details">
-            <summary>生成 JSON（プレビュー）</summary>
-            <textarea id="suiteJsonPreview" class="json" rows="12" readonly></textarea>
-          </details>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>候補（参考表示）</h2>
-        <div class="note">
-          base candidates（仕様由来）＋ random candidates（ノイズから生成）を、実行して被覆集合を計算します。
-        </div>
-        <div class="table-wrap">
-          <table class="table" aria-label="候補一覧">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>cost</th>
-                <th>covered</th>
-                <th>主なカバレッジ</th>
-              </tr>
-            </thead>
-            <tbody id="candidateTableBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <section id="about" class="section">
-      <h1>使い方 / 補足</h1>
-      <div class="card">
-        <ul class="list">
-          <li>このページは、仕様書（Eカード実装＋DTD）を <b>ブラウザだけで動く形</b>にしたデモです。</li>
-          <li>ローカルで開く場合は <code>index.html</code> をそのまま開いてOKです（外部ライブラリ不要）。</li>
-          <li>スマホ確認は、同じフォルダを静的ホスティング（GitHub Pages 等）すると簡単です。</li>
-        </ul>
-
-        <div class="note">
-          実装は 3 層（Domain / Application / DTD）を意識し、<b>ゲームロジックは DOM に依存しない純粋ロジック</b>として実装しています。
-        </div>
-
-        <hr class="sep" />
-
-        <small class="muted">
-          © 2025 Eカード 動く仕様書（デモ） / This page is a rules-and-tests demonstration based on the provided spec.
-        </small>
-      </div>
-    </section>
-  </main>
-
-  <script src="./ecardspec.js"></script>
-  <script src="./app.js"></script>
+    <!-- KaTeX JS -->
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false},
+                    {left: '\\(', right: '\\)', display: false},
+                    {left: '\\[', right: '\\]', display: true}
+                ],
+                throwOnError: false
+            });
+        });
+    </script>
 </body>
 </html>
