@@ -4,179 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BEATを作る楽器 - 3ヶ月学習計画</title>
-    <link rel="stylesheet" href="pop3_style.css">
+    <link rel="stylesheet" href="altair-theme.css">
     <!-- KaTeX for Math Rendering -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
     <style>
-        /* カラフルなカラーパレットをCSS変数で定義 */
-        :root {
-            --color-primary: #FF4081;
-            --color-secondary: #1E90FF;
-            --color-accent-1: #FFDD57;
-            --color-accent-2: #9C27B0;
-            --color-accent-3: #4CAF50;
-            --color-accent-4: #FF9800;
-            --color-dark: #222222;
-            --color-light: #FFFFFF;
-            --color-gray: #F4F4F4;
-            --shadow-pop: 5px 5px 0px var(--color-dark);
-            --shadow-glow: 0 0 15px currentColor;
-        }
-
-        /* カラー管理アーキテクチャ：背景と文字色を強制コントラスト */
-        .bg-primary { background-color: var(--color-primary); color: var(--color-light); }
-        .bg-secondary { background-color: var(--color-secondary); color: var(--color-light); }
-        .bg-accent1 { background-color: var(--color-accent-1); color: var(--color-dark); }
-        .bg-accent2 { background-color: var(--color-accent-2); color: var(--color-light); }
-        .bg-accent3 { background-color: var(--color-accent-3); color: var(--color-light); }
-        .bg-accent4 { background-color: var(--color-accent-4); color: var(--color-dark); }
-        .bg-dark { background-color: var(--color-dark); color: var(--color-light); }
-        .bg-light { background-color: var(--color-light); color: var(--color-dark); }
-        .bg-gray { background-color: var(--color-gray); color: var(--color-dark); }
-
-        /* カラフルなセクション見出し */
-        .section-title {
-            border-left: 10px solid;
-            padding-left: 15px;
-            margin-top: 40px;
-            font-size: 1.8rem;
-            text-transform: uppercase;
-            font-weight: bold;
-            border-radius: 0 10px 10px 0;
-            box-shadow: var(--shadow-pop);
-        }
-
-        .section-1 { border-color: var(--color-primary); }
-        .section-2 { border-color: var(--color-secondary); }
-        .section-3 { border-color: var(--color-accent-2); }
-        .section-4 { border-color: var(--color-accent-3); }
-        .section-5 { border-color: var(--color-accent-4); }
-
-        /* 型レシピカード */
-        .recipe-card {
-            display: inline-block;
-            margin: 10px;
-            padding: 15px;
-            border-radius: 10px;
-            font-weight: bold;
-            box-shadow: var(--shadow-pop);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            cursor: default;
-            min-width: 200px;
+        header {
             text-align: center;
         }
 
-        .recipe-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-glow);
+        header p {
+            color: var(--muted);
         }
 
-        /* 週間メニューカード */
-        .week-card {
-            border: 3px solid;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 25px;
-            background: var(--color-light);
-            box-shadow: var(--shadow-pop);
-            transition: all 0.3s ease;
+        .container {
+            max-width: var(--max);
         }
 
-        .week-card:hover {
-            transform: scale(1.02);
-            box-shadow: 10px 10px 0px var(--color-dark);
-        }
-
-        .week-number {
-            display: inline-block;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-weight: bold;
-            color: white;
-            margin-bottom: 15px;
-            font-size: 1.2rem;
-        }
-
-        /* 型カード */
-        .type-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 15px;
-            margin: 20px 0;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-        }
-
-        .type-card h3 {
-            margin-top: 0;
-            text-align: center;
-            font-size: 1.5rem;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
-
-        /* ポップアート風リスト */
-        .pop-list {
-            list-style: none;
-            padding-left: 0;
-        }
-
-        .pop-list li {
-            padding: 10px 15px;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            position: relative;
-            padding-left: 50px;
-            font-weight: bold;
-            box-shadow: 3px 3px 0px rgba(0,0,0,0.1);
-        }
-
-        .pop-list li:before {
-            content: "♪";
-            position: absolute;
-            left: 15px;
-            font-size: 1.5rem;
-        }
-
-        /* パターン表示 */
-        .pattern-display {
-            font-family: 'Courier New', monospace;
-            background: var(--color-dark);
-            color: #00ff00;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 15px 0;
-            overflow-x: auto;
-            border: 2px solid var(--color-accent-3);
-            box-shadow: inset 0 0 10px rgba(0,255,0,0.2);
-        }
-
-        /* ハイライト */
-        .highlight {
-            background: linear-gradient(transparent 60%, var(--color-accent-1) 60%);
-            padding: 0 5px;
-            font-weight: bold;
-        }
-
-        /* レスポンシブ調整 */
-        @media (max-width: 768px) {
-            .recipe-card {
-                min-width: 150px;
-                padding: 10px;
-                font-size: 0.9rem;
-            }
-            
-            .week-card {
-                padding: 15px;
-            }
+        .week-card:hover,
+        .recipe-card:hover,
+        .character:hover {
+            transform: translateY(-2px);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 18px 38px rgba(0, 0, 0, 0.45);
         }
     </style>
 </head>
 <body>
     <header class="bg-primary">
-        <h1>BEATを作る楽器<br>3ヶ月学習計画</h1>
-        <p>簡易ドラムマシン／ステップシーケンサ開発ロードマップ</p>
+        <div class="page-wrap">
+            <h1>BEATを作る楽器<br>3ヶ月学習計画</h1>
+            <p>簡易ドラムマシン／ステップシーケンサ開発ロードマップ</p>
+        </div>
     </header>
 
     <div class="container">
@@ -262,7 +122,7 @@
             <h2 class="section-title section-4">90日メニュー (12週間 + 最終6日)</h2>
             
             <!-- Week 1 -->
-            <div class="week-card" style="border-color: var(--color-primary);">
+            <div class="week-card section-1">
                 <div class="week-number bg-primary">Week 1: テンポ＝型（A1–A3）</div>
                 <ul class="pop-list">
                     <li class="bg-gray">Day1: int/float と bpm（A1）</li>
@@ -276,64 +136,64 @@
             </div>
 
             <!-- Week 2-6 -->
-            <div class="week-card" style="border-color: var(--color-secondary);">
+            <div class="week-card section-2">
                 <div class="week-number bg-secondary">Week 2: パターン文字列を型にする（A7/A8）</div>
                 <p>トラック文字列変換、Pattern dataclass化、エラー処理</p>
             </div>
 
-            <div class="week-card" style="border-color: var(--color-accent-2);">
+            <div class="week-card section-3">
                 <div class="week-number bg-accent2">Week 3: コレクション変換（A11/A12）</div>
                 <p>パターンのシフト、ミュート、グルーピング</p>
             </div>
 
-            <div class="week-card" style="border-color: var(--color-accent-3);">
+            <div class="week-card section-4">
                 <div class="week-number bg-accent3">Week 4: イベント生成＝ジェネレータ（A9/A10）</div>
                 <p>Event dataclass、イテレータ、パイプライン完成</p>
             </div>
 
-            <div class="week-card" style="border-color: var(--color-accent-4);">
+            <div class="week-card section-5">
                 <div class="week-number bg-accent4">Week 5: 失敗を型として固定（A24中心）</div>
                 <p>例外設計、Result型、EP→BVAテスト自動化</p>
             </div>
 
-            <div class="week-card" style="border-color: var(--color-primary);">
+            <div class="week-card section-1">
                 <div class="week-number bg-primary">Week 6: モジュール化＆CLI（A20前段）</div>
                 <p>モジュール分割、CLI引数、Config dataclass</p>
             </div>
 
             <!-- Week 7-12 -->
-            <div class="week-card" style="border-color: var(--color-secondary);">
+            <div class="week-card section-2">
                 <div class="week-number bg-secondary">Week 7: 音の最小単位（A13/A17）</div>
                 <p>AudioBuffer型、サイン波合成、WAV書き出し</p>
             </div>
 
-            <div class="week-card" style="border-color: var(--color-accent-2);">
+            <div class="week-card section-3">
                 <div class="week-number bg-accent2">Week 8: ドラム音合成（A13/A16）</div>
                 <p>Kick/Snare/HiHat合成、正規化/クリップ戦略</p>
             </div>
 
-            <div class="week-card" style="border-color: var(--color-accent-3);">
+            <div class="week-card section-4">
                 <div class="week-number bg-accent3">Week 9: Hit配置とミックス（A14/A15）</div>
                 <p>Hit配置、複数トラックレンダリング、ミックス</p>
             </div>
 
-            <div class="week-card" style="border-color: var(--color-accent-4);">
+            <div class="week-card section-5">
                 <div class="week-number bg-accent4">Week 10: 保存と再利用（A19/A11）</div>
                 <p>JSON保存/復元、パターン変換、アレンジ基礎</p>
             </div>
 
-            <div class="week-card" style="border-color: var(--color-primary);">
+            <div class="week-card section-1">
                 <div class="week-number bg-primary">Week 11: BeatMachine（A20/A21）</div>
                 <p>BeatMachineクラス、依存性注入、統合テスト</p>
             </div>
 
-            <div class="week-card" style="border-color: var(--color-secondary);">
+            <div class="week-card section-2">
                 <div class="week-number bg-secondary">Week 12: 最終プロジェクト設計（A22/A23/A6）</div>
                 <p>Song定義、Swing導入、編集コマンド状態機械</p>
             </div>
 
-            <div class="week-card" style="border-color: #FF5722;">
-                <div class="week-number" style="background: #FF5722;">最終6日: 磨き・提出物化</div>
+            <div class="week-card section-4">
+                <div class="week-number bg-accent4">最終6日: 磨き・提出物化</div>
                 <ul class="pop-list">
                     <li class="bg-gray">Day85: アレンジ完成（A23）</li>
                     <li class="bg-gray">Day86: Swing/Accent調整（A6）</li>
