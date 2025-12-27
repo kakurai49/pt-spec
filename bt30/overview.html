@@ -10,10 +10,6 @@
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
     <style>
-        header {
-            text-align: center;
-        }
-
         header p {
             color: var(--muted);
         }
@@ -32,14 +28,54 @@
     </style>
 </head>
 <body>
-    <header class="bg-primary">
-        <div class="page-wrap">
+    <a class="skip" href="#main">本文へスキップ</a>
+    <canvas id="starfield" aria-hidden="true"></canvas>
+    <header class="course-header">
+        <div class="wrap nav">
+            <div class="brand">
+                <div class="logo" aria-hidden="true"></div>
+                <div>
+                    <h1>Python Training</h1>
+                    <p>ALTAIR Course | BEAT楽器</p>
+                </div>
+            </div>
+            <nav aria-label="ALTAIRナビゲーション">
+                <div class="navlinks">
+                    <a href="../index.html">トップページ</a>
+                    <a href="./index.html">ALTAIRホーム</a>
+                    <a href="./overview.html">概要</a>
+                    <a href="./scope.html">スコープ</a>
+                    <a href="./spec.html">仕様</a>
+                </div>
+                <div class="cta">
+                    <a class="btn primary" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+                    <a class="btn" href="./spec.html"><span class="dot" aria-hidden="true"></span>デモを見る</a>
+                </div>
+                <button class="hamburger" id="hamburger" aria-expanded="false" aria-label="メニューを開く">
+                    <span aria-hidden="true"></span>
+                </button>
+            </nav>
+        </div>
+        <div class="mobile" id="mobile">
+            <div class="mobilePanel" role="dialog" aria-label="モバイルメニュー">
+                <a href="../index.html">トップページ</a>
+                <a href="./index.html">ALTAIRホーム</a>
+                <a href="./overview.html">概要</a>
+                <a href="./scope.html">スコープ</a>
+                <a href="./spec.html">仕様</a>
+                <div class="row">
+                    <a class="btn primary" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+                    <a class="btn" href="./spec.html"><span class="dot" aria-hidden="true"></span>仕様を試す</a>
+                </div>
+            </div>
+        </div>
+        <div class="wrap page-wrap">
             <h1>BEATを作る楽器<br>3ヶ月学習計画</h1>
             <p>簡易ドラムマシン／ステップシーケンサ開発ロードマップ</p>
         </div>
     </header>
 
-    <div class="container">
+    <div id="main" class="container">
         <!-- 導入セクション -->
         <section>
             <h2 class="section-title section-1">コンセプト: 型レンズによる学習設計</h2>
@@ -290,6 +326,7 @@ hihat: x-x-x-x-x-x-x-x-
         <p>BEATを作る楽器 - 型レンズ学習計画 &copy; 2023 | 論文モデル: <span class="katex">G:(W,E)\rightarrow(S,A(S))</span></p>
     </div>
 
+    <script src="altair_shared.js"></script>
     <script>
         // KaTeXの追加設定
         document.addEventListener("DOMContentLoaded", function() {

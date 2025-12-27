@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Beat Instrument — 動く仕様書</title>
   <link rel="stylesheet" href="altair-theme.css" />
+  <meta name="color-scheme" content="dark" />
   <style>
     :root{
       --bg: var(--bg0);
@@ -231,15 +232,55 @@
     }
   </style>
 </head>
-<body>
-  <header>
-    <div class="page-wrap">
+  <body>
+  <a class="skip" href="#main">本文へスキップ</a>
+  <canvas id="starfield" aria-hidden="true"></canvas>
+  <header class="course-header">
+    <div class="wrap nav">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Python Training</h1>
+          <p>ALTAIR Course | BEAT楽器</p>
+        </div>
+      </div>
+      <nav aria-label="ALTAIRナビゲーション">
+        <div class="navlinks">
+          <a href="../index.html">トップページ</a>
+          <a href="./index.html">ALTAIRホーム</a>
+          <a href="./overview.html">概要</a>
+          <a href="./scope.html">スコープ</a>
+          <a href="./spec.html">仕様</a>
+        </div>
+        <div class="cta">
+          <a class="btn primary" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+          <a class="btn" href="./index.html"><span class="dot" aria-hidden="true"></span>Indexへ戻る</a>
+        </div>
+        <button class="hamburger" id="hamburger" aria-expanded="false" aria-label="メニューを開く">
+          <span aria-hidden="true"></span>
+        </button>
+      </nav>
+    </div>
+    <div class="mobile" id="mobile">
+      <div class="mobilePanel" role="dialog" aria-label="モバイルメニュー">
+        <a href="../index.html">トップページ</a>
+        <a href="./index.html">ALTAIRホーム</a>
+        <a href="./overview.html">概要</a>
+        <a href="./scope.html">スコープ</a>
+        <a href="./spec.html">仕様</a>
+        <div class="row">
+          <a class="btn primary" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+          <a class="btn" href="./index.html"><span class="dot" aria-hidden="true"></span>Indexへ戻る</a>
+        </div>
+      </div>
+    </div>
+    <div class="wrap page-wrap" style="padding:16px 16px 0;">
       <h1>Beat Instrument — 動く仕様書</h1>
       <p>16-step ドラムマシン（Kick / Snare / HiHat）。スマホは <strong>Playタップで音声が有効化</strong>されます。音のON/OFFもあります。</p>
     </div>
   </header>
 
-  <main>
+  <main id="main">
     <section class="panel controls" aria-label="コントロール">
       <div class="controls-top">
         <div class="transport">
@@ -882,5 +923,6 @@
 
     })();
   </script>
+  <script src="altair_shared.js"></script>
 </body>
 </html>

@@ -4,16 +4,14 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Eカード（カイジ）カードゲーム実装仕様書</title>
+  <meta name="color-scheme" content="dark">
+  <link rel="stylesheet" href="../bt30/altair-theme.css">
+  <link rel="stylesheet" href="../course_dark.css">
 
   <!-- KaTeX -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1gD6rJvCqK0fV1c6pGmKZp9t0bqQ2d1z7d9mKk7tR8jQ2dN" crossorigin="anonymous">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-0pQhJcH4pKq1f8VgG8WmY1v3H8J6bQx5fJYcJw4c0qQqvYyQ8g1Fq4n2gKx0nKQ7" crossorigin="anonymous"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-+Qx8FQhZtqkqY7g8w8o2bFQmBv0cJt4b7uJrV4T0oFJQm9u9xjY1c8qjz2xqQm3q" crossorigin="anonymous"></script>
-
-  <!-- pop3_style.css (base) -->
-  <style>
-    @import url("./pop3_style.css");
-  </style>
 
   <!-- 추가 CSS: 色管理アーキテクチャ + 高コントラスト + カラフルUI -->
   <style>
@@ -160,15 +158,15 @@
       }
 
       header.page-header {
-        position: sticky;
-        top: 0;
-        z-index: 30;
+        position: relative;
+        z-index: 12;
         margin: 0 -18px 24px;
         padding: 14px 18px;
         backdrop-filter: blur(14px);
-        background: linear-gradient(90deg, rgba(255,79,216,0.18), rgba(45,226,255,0.16), rgba(124,255,107,0.12));
+        background: linear-gradient(90deg, rgba(124, 247, 255, 0.14), rgba(167, 139, 250, 0.12));
         border-bottom: 1px solid var(--border);
         box-shadow: var(--shadow-1);
+        border-radius: 0 0 16px 16px;
       }
 
       header.page-header h1 {
@@ -467,21 +465,65 @@
 </head>
 
 <body>
-  <header class="page-header">
-    <div class="page">
-      <h1>Eカード（カイジ）カードゲーム実装仕様書</h1>
-      <div class="meta">
-        pop3_style.css をベースに、コントラスト強化＆トークン管理（bg/fgペア）＋ KaTeX 数式レンダリング対応
+  <a class="skip" href="#main">本文へスキップ</a>
+  <canvas id="starfield" aria-hidden="true"></canvas>
+  <header class="course-header">
+    <div class="wrap nav">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Python Training</h1>
+          <p>RIGEL Course | Eカード</p>
+        </div>
       </div>
-      <div class="badge-row" aria-label="仕様メタ情報">
-        <span class="badge"><span class="dot"></span>HTML レイアウト</span>
-        <span class="badge"><span class="dot" style="background: var(--a4); box-shadow: 0 0 0 3px rgba(255,211,77,0.20);"></span>高コントラスト</span>
-        <span class="badge"><span class="dot" style="background: var(--a5); box-shadow: 0 0 0 3px rgba(179,107,255,0.20);"></span>KaTeX</span>
+      <nav aria-label="RIGELナビゲーション">
+        <div class="navlinks">
+          <a href="../index.html">トップページ</a>
+          <a href="./index.html">RIGELホーム</a>
+          <a href="./scope.html">スコープ</a>
+          <a href="./ecard_spec.html">仕様書</a>
+          <a href="./spec.html">動く仕様</a>
+        </div>
+        <div class="cta">
+          <a class="btn primary" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+          <a class="btn" href="./spec.html"><span class="dot" aria-hidden="true"></span>デモを見る</a>
+        </div>
+        <button class="hamburger" id="hamburger" aria-expanded="false" aria-label="メニューを開く">
+          <span aria-hidden="true"></span>
+        </button>
+      </nav>
+    </div>
+    <div class="mobile" id="mobile">
+      <div class="mobilePanel" role="dialog" aria-label="モバイルメニュー">
+        <a href="../index.html">トップページ</a>
+        <a href="./index.html">RIGELホーム</a>
+        <a href="./scope.html">スコープ</a>
+        <a href="./ecard_spec.html">仕様書</a>
+        <a href="./spec.html">動く仕様</a>
+        <div class="row">
+          <a class="btn primary" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+          <a class="btn" href="./spec.html"><span class="dot" aria-hidden="true"></span>仕様を試す</a>
+        </div>
       </div>
     </div>
   </header>
 
   <div class="page">
+    <header class="page-header">
+      <div class="page">
+        <h1>Eカード（カイジ）カードゲーム実装仕様書</h1>
+        <div class="meta">
+          RIGELコースをトップページ調のダークテーマで統一
+        </div>
+        <div class="badge-row" aria-label="仕様メタ情報">
+          <span class="badge"><span class="dot"></span>HTML レイアウト</span>
+          <span class="badge"><span class="dot" style="background: var(--a4); box-shadow: 0 0 0 3px rgba(255,211,77,0.20);"></span>高コントラスト</span>
+          <span class="badge"><span class="dot" style="background: var(--a5); box-shadow: 0 0 0 3px rgba(179,107,255,0.20);"></span>KaTeX</span>
+        </div>
+      </div>
+    </header>
+
+    <main id="main">
     <main>
       <aside class="toc" aria-label="目次">
         <h2>目次</h2>
@@ -584,18 +626,17 @@ $$</p>
               </div>
             </div>
             <p class="muted">
-              ※ pop3_style.css の既存スタイルは削除せず、上書きは CSS Variables と Layer で安全に行っています。
+              ※ 旧popテーマ依存を排除し、CSS Variables / Layer でダークテーマに統一しています。
             </p>
           </div>
         </section>
       </div>
     </main>
+    <footer class="page-footer" role="contentinfo">
+      <div>© Eカード 実装仕様書ビューア</div>
+      <div class="hint">KaTeX: $$...$$ / \( ... \) / \[ ... \] / pre/code 内もレンダリング</div>
+    </footer>
   </div>
-
-  <footer class="page-footer" role="contentinfo">
-    <div>© Eカード 実装仕様書ビューア</div>
-    <div class="hint">KaTeX: $$...$$ / \( ... \) / \[ ... \] / pre/code 内もレンダリング</div>
-  </footer>
 
   <script>
     // KaTeX auto-render: include pre/code blocks as well
@@ -642,5 +683,6 @@ $$</p>
       }
     });
   </script>
+  <script src="../bt30/altair_shared.js"></script>
 </body>
 </html>

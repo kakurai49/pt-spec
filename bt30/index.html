@@ -6,15 +6,13 @@
   <title>GitHub Issue Pack: 「BEATを作る楽器」MVP（簡易ドラムマシン／ステップシーケンサ）</title>
 
   <link rel="stylesheet" href="altair-theme.css" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <meta name="color-scheme" content="dark" />
 
   <!-- ✅ KaTeX -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghG0G+N4WmV5+Kf+zC2l6Fq5qV6H5Uu" crossorigin="anonymous">
 
   <style>
-    header {
-      text-align: center;
-    }
-
     header .page-wrap {
       text-align: center;
     }
@@ -46,14 +44,55 @@
 </head>
 
 <body>
-  <header>
-    <div class="page-wrap">
+  <a class="skip" href="#main">本文へスキップ</a>
+  <canvas id="starfield" aria-hidden="true"></canvas>
+
+  <header class="course-header">
+    <div class="wrap nav">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Python Training</h1>
+          <p>ALTAIR Course | BEAT楽器</p>
+        </div>
+      </div>
+      <nav aria-label="ALTAIRナビゲーション">
+        <div class="navlinks">
+          <a href="../index.html">トップページ</a>
+          <a href="./index.html">ALTAIRホーム</a>
+          <a href="./overview.html">概要</a>
+          <a href="./scope.html">スコープ</a>
+          <a href="./spec.html">仕様</a>
+        </div>
+        <div class="cta">
+          <a class="btn primary" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+          <a class="btn" href="./spec.html"><span class="dot" aria-hidden="true"></span>デモを見る</a>
+        </div>
+        <button class="hamburger" id="hamburger" aria-expanded="false" aria-label="メニューを開く">
+          <span aria-hidden="true"></span>
+        </button>
+      </nav>
+    </div>
+    <div class="mobile" id="mobile">
+      <div class="mobilePanel" role="dialog" aria-label="モバイルメニュー">
+        <a href="../index.html">トップページ</a>
+        <a href="./index.html">ALTAIRホーム</a>
+        <a href="./overview.html">概要</a>
+        <a href="./scope.html">スコープ</a>
+        <a href="./spec.html">仕様</a>
+        <div class="row">
+          <a class="btn primary" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+          <a class="btn" href="./spec.html"><span class="dot" aria-hidden="true"></span>仕様を試す</a>
+        </div>
+      </div>
+    </div>
+    <div class="wrap page-wrap">
       <h1>GitHub Issue Pack: 「BEATを作る楽器」MVP</h1>
       <p>ALTAIRコースのサブページをトップのダークグラデーションに統一。</p>
     </div>
   </header>
 
-  <main class="container">
+  <main id="main" class="container">
     <div class="top-note">
       <span class="badge">STYLE</span> ALTAIRテーマ（トップページ調のガラス質感）
       <span class="badge">MATH</span> KaTeX（pre内/外とも）
@@ -70,6 +109,8 @@
   </main>
 
   <div class="footer">© BEATを作る楽器 — Issue Pack HTML</div>
+
+  <script src="altair_shared.js"></script>
 
   <!-- ✅ 情報全文（ここに“そのまま”埋め込み：一字一句削除なし） -->
   <script id="source-md" type="text/plain">以下は、アップロードされた学習計画（「BEATを作る楽器 - 3ヶ月学習計画」）を、そのまま **Codex/コーディングエージェントに貼れる粒度**へ落とし込み、**GitHub Issues の束**として再構成した「詳細定義」です。
