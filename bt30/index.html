@@ -5,334 +5,57 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>GitHub Issue Pack: 「BEATを作る楽器」MVP（簡易ドラムマシン／ステップシーケンサ）</title>
 
-  <!-- ✅ 指定CSS（添付pop3_style.css） -->
-  <link rel="stylesheet" href="pop3_style.css" />
+  <link rel="stylesheet" href="altair-theme.css" />
 
   <!-- ✅ KaTeX -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghG0G+N4WmV5+Kf+zC2l6Fq5qV6H5Uu" crossorigin="anonymous">
 
-  <!-- ✅ 追加CSS：強コントラスト + カラフル（色トークン/OKLCH/レイヤーで色管理） -->
   <style>
-    /*
-      Color Architecture (Modern):
-      - Design Tokens via CSS Custom Properties
-      - OKLCH (perceptual uniform) with fallback
-      - CSS Layers for predictable override
-      - Supports: prefers-color-scheme / prefers-contrast / reduced-motion
-    */
-    @layer tokens, base, components, utilities, overrides;
-
-    @layer tokens {
-      :root {
-        /* Fallback (hex) */
-        --c-bg: #ffdd57;          /* pop yellow */
-        --c-surface: #ffffff;     /* card surface */
-        --c-text: #0b0b0f;        /* near-black */
-        --c-muted: #2a2a33;
-
-        --c-accent: #ff4081;      /* pop pink */
-        --c-accent-2: #1e90ff;    /* pop blue */
-        --c-accent-3: #00c853;    /* pop green */
-        --c-warn: #ff6d00;        /* pop orange */
-
-        --c-border: #0b0b0f;
-        --c-shadow: rgba(0,0,0,.25);
-
-        --c-code-bg: #0b0b0f;
-        --c-code-text: #f7f7fb;
-        --c-code-border: #00e5ff;
-
-        --c-quote-bg: #fff6cc;
-        --c-quote-border: #0b0b0f;
-
-        --radius: 16px;
-        --radius-sm: 10px;
-
-        --stroke: 3px;
-        --stroke-sm: 2px;
-
-        --shadow-pop:
-          0 14px 0 rgba(0,0,0,.18),
-          0 0 0 var(--stroke) var(--c-border);
-      }
-
-      /* Prefer OKLCH when supported */
-      @supports (color: oklch(50% 0.2 250)) {
-        :root{
-          --c-bg: oklch(92% 0.16 98);
-          --c-surface: oklch(99% 0.01 95);
-          --c-text: oklch(15% 0.02 270);
-          --c-muted: oklch(35% 0.03 270);
-
-          --c-accent: oklch(65% 0.25 12);
-          --c-accent-2: oklch(60% 0.23 250);
-          --c-accent-3: oklch(70% 0.23 145);
-          --c-warn: oklch(75% 0.25 55);
-
-          --c-border: oklch(15% 0.02 270);
-          --c-shadow: color-mix(in oklch, black 25%, transparent);
-
-          --c-code-bg: oklch(18% 0.02 270);
-          --c-code-text: oklch(98% 0.01 270);
-          --c-code-border: oklch(80% 0.23 210);
-
-          --c-quote-bg: oklch(96% 0.06 95);
-          --c-quote-border: oklch(15% 0.02 270);
-        }
-      }
-
-      /* Dark mode */
-      @media (prefers-color-scheme: dark) {
-        :root{
-          --c-bg: #0b0b0f;
-          --c-surface: #12121a;
-          --c-text: #f7f7fb;
-          --c-muted: #c9c9d6;
-
-          --c-border: #f7f7fb;
-          --c-shadow: rgba(0,0,0,.55);
-
-          --c-code-bg: #000000;
-          --c-code-text: #f7f7fb;
-          --c-quote-bg: #1b1b24;
-        }
-      }
-
-      /* High contrast preference */
-      @media (prefers-contrast: more) {
-        :root{
-          --c-text: #000000;
-          --c-muted: #111111;
-          --c-border: #000000;
-          --stroke: 4px;
-          --stroke-sm: 3px;
-
-          --c-code-bg: #000000;
-          --c-code-text: #ffffff;
-        }
-      }
-
-      /* Reduce motion */
-      @media (prefers-reduced-motion: reduce) {
-        * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
-      }
+    header {
+      text-align: center;
     }
 
-    @layer base {
-      html { scroll-behavior: smooth; }
-      body {
-        background-color: var(--c-bg) !important;
-        color: var(--c-text) !important;
-
-        /* subtle pop pattern without killing readability */
-        background-image:
-          radial-gradient(circle at 12px 12px, color-mix(in srgb, var(--c-accent) 18%, transparent) 2px, transparent 3px),
-          radial-gradient(circle at 28px 28px, color-mix(in srgb, var(--c-accent-2) 16%, transparent) 2px, transparent 3px);
-        background-size: 40px 40px;
-      }
-
-      header{
-        background-color: var(--c-accent) !important;
-        color: var(--c-surface) !important;
-        border-bottom: var(--stroke) solid var(--c-border);
-      }
-
-      .container{
-        background-color: var(--c-surface) !important;
-        color: var(--c-text) !important;
-        border: var(--stroke) solid var(--c-border);
-        box-shadow: var(--shadow-pop);
-      }
-
-      a{
-        color: var(--c-accent-2) !important;
-        text-decoration-thickness: 2px;
-        text-underline-offset: 3px;
-      }
-      a:hover{
-        color: var(--c-accent) !important;
-      }
-
-      /* Footer: fixedだと本文に被ることがあるため、上書きして安全化 */
-      .footer{
-        position: static !important;
-        margin-top: 24px;
-        border-top: var(--stroke) solid var(--c-border);
-      }
-
-      /* Typography & spacing */
-      .md-content{
-        line-height: 1.75;
-        font-size: 16px;
-      }
-
-      /* Headings with pop outlines */
-      .md-content h1,
-      .md-content h2,
-      .md-content h3,
-      .md-content h4{
-        color: var(--c-text) !important;
-        text-transform: none;
-        letter-spacing: .2px;
-        margin-top: 1.2em;
-        padding: .35em .55em;
-        border: var(--stroke-sm) solid var(--c-border);
-        border-radius: var(--radius-sm);
-        box-shadow: 6px 6px 0 var(--c-shadow);
-      }
-      .md-content h1{ background: linear-gradient(90deg, color-mix(in srgb, var(--c-accent) 25%, var(--c-surface)), var(--c-surface)); }
-      .md-content h2{ background: linear-gradient(90deg, color-mix(in srgb, var(--c-accent-2) 22%, var(--c-surface)), var(--c-surface)); }
-      .md-content h3{ background: linear-gradient(90deg, color-mix(in srgb, var(--c-accent-3) 22%, var(--c-surface)), var(--c-surface)); }
-      .md-content h4{ background: linear-gradient(90deg, color-mix(in srgb, var(--c-warn) 22%, var(--c-surface)), var(--c-surface)); }
-
-      .md-content hr{
-        border: none;
-        height: 10px;
-        margin: 24px 0;
-        background:
-          repeating-linear-gradient(
-            90deg,
-            var(--c-border) 0 10px,
-            transparent 10px 18px
-          );
-        border-radius: 999px;
-      }
-
-      /* Blockquote pop callout */
-      .md-content blockquote{
-        background: var(--c-quote-bg);
-        border-left: 10px solid var(--c-quote-border);
-        margin: 16px 0;
-        padding: 12px 14px;
-        border-radius: var(--radius-sm);
-        box-shadow: 6px 6px 0 var(--c-shadow);
-      }
-
-      /* Code blocks: high contrast */
-      pre{
-        background-color: var(--c-code-bg) !important;
-        color: var(--c-code-text) !important;
-        border: var(--stroke-sm) solid var(--c-code-border);
-        border-radius: var(--radius-sm);
-      }
-      pre code{
-        color: inherit !important;
-      }
-
-      /* Inline code: keep visible even on colored surfaces */
-      .md-content code{
-        background: color-mix(in srgb, var(--c-accent-2) 18%, transparent);
-        border: 1px solid color-mix(in srgb, var(--c-border) 55%, transparent);
-        border-radius: 8px;
-        padding: 0 .35em;
-        color: var(--c-text) !important;
-      }
-
-      /* Tables: stronger contrast */
-      table{
-        border: var(--stroke) solid var(--c-border);
-        border-radius: var(--radius-sm);
-        overflow: hidden;
-      }
-      th{
-        background: color-mix(in srgb, var(--c-accent) 25%, var(--c-surface)) !important;
-        color: var(--c-text) !important;
-      }
-
-      /* Details (raw text) */
-      details.raw{
-        margin-top: 22px;
-        border: var(--stroke-sm) dashed var(--c-border);
-        border-radius: var(--radius);
-        padding: 10px 12px;
-        background: color-mix(in srgb, var(--c-accent-3) 10%, var(--c-surface));
-      }
-      details.raw summary{
-        cursor: pointer;
-        font-weight: 800;
-      }
-      #raw-pre{
-        background: color-mix(in srgb, var(--c-border) 6%, var(--c-surface));
-        color: var(--c-text);
-        border: var(--stroke-sm) solid var(--c-border);
-        border-radius: var(--radius-sm);
-        padding: 12px;
-        overflow-x: auto;
-        white-space: pre-wrap;
-        word-break: break-word;
-      }
-
-      /* KaTeX (already in pop3_style.css, but ensure contrast in dark mode too) */
-      .katex,
-      .katex-display{
-        color: inherit;
-      }
-
-      /* Focus */
-      :focus-visible{
-        outline: 4px solid var(--c-accent-2);
-        outline-offset: 3px;
-      }
+    header .page-wrap {
+      text-align: center;
     }
 
-    @layer components{
-      .top-note{
-        border: var(--stroke-sm) solid var(--c-border);
-        border-radius: var(--radius);
-        padding: 12px 14px;
-        background: linear-gradient(
-          90deg,
-          color-mix(in srgb, var(--c-warn) 18%, var(--c-surface)),
-          color-mix(in srgb, var(--c-accent) 16%, var(--c-surface))
-        );
-        box-shadow: 6px 6px 0 var(--c-shadow);
-        margin-bottom: 16px;
-      }
-      .badge{
-        display: inline-block;
-        padding: 2px 10px;
-        border-radius: 999px;
-        border: var(--stroke-sm) solid var(--c-border);
-        background: var(--c-surface);
-        box-shadow: 3px 3px 0 var(--c-shadow);
-        font-weight: 800;
-      }
-      .katex-inline-code{
-        display: inline-block;
-        vertical-align: baseline;
-        padding: 0 .15em;
-      }
+    main.container {
+      max-width: var(--max);
     }
 
-    @layer utilities{
-      .sr-only{
-        position:absolute;
-        width:1px;
-        height:1px;
-        padding:0;
-        margin:-1px;
-        overflow:hidden;
-        clip:rect(0,0,0,0);
-        white-space:nowrap;
-        border:0;
-      }
+    .md-content h1,
+    .md-content h2,
+    .md-content h3,
+    .md-content h4 {
+      padding: 6px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 12px 26px rgba(0, 0, 0, 0.35);
+      background: rgba(0, 0, 0, 0.25);
     }
 
-    @layer overrides{
-      /* pop3_style.css の body color が薄くなる環境があるので固定 */
-      body, .container, .md-content, #raw-pre { color: var(--c-text) !important; }
+    details.raw {
+      margin-top: 22px;
+    }
+
+    #raw-pre {
+      white-space: pre-wrap;
+      word-break: break-word;
     }
   </style>
 </head>
 
 <body>
   <header>
-    GitHub Issue Pack: 「BEATを作る楽器」MVP
+    <div class="page-wrap">
+      <h1>GitHub Issue Pack: 「BEATを作る楽器」MVP</h1>
+      <p>ALTAIRコースのサブページをトップのダークグラデーションに統一。</p>
+    </div>
   </header>
 
   <main class="container">
     <div class="top-note">
-      <span class="badge">STYLE</span> pop3_style.css + 追加CSS（強コントラスト/色トークン管理）　
+      <span class="badge">STYLE</span> ALTAIRテーマ（トップページ調のガラス質感）
       <span class="badge">MATH</span> KaTeX（pre内/外とも）
     </div>
 
