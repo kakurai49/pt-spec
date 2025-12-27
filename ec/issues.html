@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Epic: Eカード＋DTD テスト生成 トラッキング</title>
+    <link rel="stylesheet" href="pop3_style.css">
+    <!-- KaTeX の CSS と JS を追加 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"
+        onload="renderMathInElement(document.body);"></script>
+    <!-- 追加のカラーマネジメントと装飾スタイル -->
+    <style>
+        :root {
+            /* カラーパレット定義 */
+            --primary-bg: #ffdd57;
+            --secondary-bg: #ff4081;
+            --accent-1: #1e90ff;
+            --accent-2: #ffcc00;
+            --text-dark: #222;
+            --text-light: #fff;
+            --container-bg: #fff;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --error: #e74c3c;
+            --border-radius: 15px;
+            --shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--primary-bg) 0%, var(--accent-2) 100%);
+            color: var(--text-dark);
+            background-attachment: fixed;
+        }
+
+        header {
+            background: linear-gradient(90deg, var(--secondary-bg) 0%, #ff0066 100%);
+            color: var(--text-light);
+            border-bottom: 5px solid var(--accent-2);
+        }
+
+        .container {
+            background-color: var(--container-bg);
+            border: 5px solid var(--secondary-bg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: linear-gradient(45deg, var(--secondary-bg), var(--accent-1), var(--accent-2));
+            z-index: -1;
+            filter: blur(20px);
+            opacity: 0.3;
+        }
+
+        h2 {
+            background: linear-gradient(90deg, var(--secondary-bg), var(--accent-1));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: inline-block;
+            padding: 0 10px;
+            border-bottom: 3px solid var(--secondary-bg);
+        }
+
+        .character {
+            background: linear-gradient(145deg, #ffffff, #ffed99);
+            border-left: 10px solid var(--secondary-bg);
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .character:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 15px 15px 30px rgba(0, 0, 0, 0.25);
+        }
+
+        .character::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--secondary-bg), var(--accent-1), var(--accent-2));
+        }
+
+        .metadata {
+            background: linear-gradient(90deg, rgba(255, 64, 129, 0.1), rgba(30, 144, 255, 0.1));
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 5px solid var(--accent-1);
+        }
+
+        .metadata-item {
+            display: inline-block;
+            margin-right: 20px;
+            font-weight: bold;
+        }
+
+        .metadata-key {
+            color: var(--secondary-bg);
+            font-weight: bold;
+        }
+
+        .labels {
+            display: inline-block;
+            padding: 5px 15px;
+            background: linear-gradient(90deg, var(--secondary-bg), var(--accent-1));
+            color: white;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin: 5px;
+        }
+
+        pre {
+            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+            border-left: 5px solid var(--accent-1);
+            color: var(--text-dark);
+            position: relative;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        pre::before {
+            content: '📄';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.2em;
+            opacity: 0.5;
+        }
+
+        a {
+            background: linear-gradient(90deg, transparent 50%, var(--accent-1) 50%);
+            background-size: 200% 100%;
+            background-position: 100% 0;
+            transition: all 0.3s ease;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        a:hover {
+            background-position: 0 0;
+            color: var(--text-light) !important;
+            text-decoration: none;
+        }
+
+        .footer {
+            background: linear-gradient(90deg, var(--secondary-bg) 0%, #ff0066 100%);
+            color: var(--text-light);
+            border-top: 5px solid var(--accent-2);
+        }
+
+        /* ステータス表示 */
+        .status {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-left: 10px;
+            font-size: 0.8em;
+            vertical-align: middle;
+        }
+
+        .status.epic {
+            background: linear-gradient(90deg, #9b59b6, #8e44ad);
+            color: white;
+        }
+
+        .status.setup {
+            background: linear-gradient(90deg, #2ecc71, #27ae60);
+            color: white;
+        }
+
+        .status.domain {
+            background: linear-gradient(90deg, #3498db, #2980b9);
+            color: white;
+        }
+
+        .status.application {
+            background: linear-gradient(90deg, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        .status.players {
+            background: linear-gradient(90deg, #f39c12, #d35400);
+            color: white;
+        }
+
+        .status.dtd {
+            background: linear-gradient(90deg, #1abc9c, #16a085);
+            color: white;
+        }
+
+        .status.scripts {
+            background: linear-gradient(90deg, #34495e, #2c3e50);
+            color: white;
+        }
+
+        .status.documentation {
+            background: linear-gradient(90deg, #7f8c8d, #95a5a6);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🎴 Epic: Eカード＋DTD テスト生成 トラッキング</h1>
+    </header>
+
+    <div class="container">
+        <div class="character">
+            <h2>Title: [ec] Epic: Eカード＋DTD テスト生成（S/A(S)/集合被覆）を完了までトラッキング <span class="status epic">epic</span> <span class="status tracking">tracking</span></h2>
+            <div class="metadata">
+                <div class="metadata-item"><span class="metadata-key">Key:</span> SBX-EC-001</div>
+                <div class="metadata-item"><span class="metadata-key">Project:</span> ec</div>
+                <div class="metadata-item"><span class="metadata-key">Path:</span> .</div>
+                <div class="metadata-item"><span class="metadata-key">Labels:</span> 
+                    <span class="labels">epic</span>
+                    <span class="labels">tracking</span>
+                </div>
+            </div>
+            <h3>目的</h3>
+            <p>添付仕様書に基づき、3層（Domain / Application / DTD）で Eカードを実装し、DTD方式のテスト生成（候補生成→観測→集合被覆→pytest生成）まで完成させる。</p>
+            
+            <h3>スコープ（仕様準拠）</h3>
+            <ul>
+                <li>Domain: ルール（勝敗判定、手札消費、終了判定）、例外（IllegalType）、データ構造</li>
+                <li>Application: bout 実行、match 実行、swap_interval による陣営交代</li>
+                <li>DTD: 観測（S）、要求集合（A(S)=obligations）、候補生成、集合被覆（greedy set cover）</li>
+                <li>scripts/generate_tests.py: JSON＋pytest 生成</li>
+            </ul>
+            
+            <h3>非スコープ</h3>
+            <ul>
+                <li>GUI / ネットワーク対戦</li>
+                <li>原作の心理戦強制</li>
+                <li>金銭・ペナルティ制度</li>
+            </ul>
+            
+            <h3>完了条件（Definition of Done）</h3>
+            <ul>
+                <li>Domain の純粋ロジックが pytest で網羅される</li>
+                <li>match の swap_interval 交代が正しく動作する</li>
+                <li>obligations（18個）を base/random 候補＋greedy set cover で被覆できる</li>
+                <li>scripts/generate_tests.py 実行で
+                    <ul>
+                        <li>generated_suite.json</li>
+                        <li>tests_generated.py</li>
+                    </ul>
+                    が生成され、pytest -q tests_generated.py が通る
+                </li>
+            </ul>
+            
+            <h3>依存Issue</h3>
+            <ul>
+                <li>SBX-EC-002 ～ SBX-EC-018</li>
+            </ul>
+        </div>
+
+        <div class="character">
+            <h2>Title: [ec] リポジトリ雛形（ec パッケージ構造／pytest 基盤） <span class="status setup">setup</span> <span class="status tests">tests</span></h2>
+            <div class="metadata">
+                <div class="metadata-item"><span class="metadata-key">Key:</span> SBX-EC-002</div>
+                <div class="metadata-item"><span class="metadata-key">Project:</span> ec</div>
+                <div class="metadata-item"><span class="metadata-key">Path:</span> ec/__init__.py</div>
+                <div class="metadata-item"><span class="metadata-key">Labels:</span> 
+                    <span class="labels">setup</span>
+                    <span class="labels">tests</span>
+                </div>
+            </div>
+            <h3>Goal</h3>
+            <p>仕様書のモジュール分割（Domain/Application/DTD/players）に沿って Python パッケージを作り、pytest が動く最小基盤を用意する。</p>
+            
+            <h3>作成するディレクトリ／ファイル</h3>
+            <ul>
+                <li>ec/__init__.py</li>
+                <li>ec/domain/__init__.py</li>
+                <li>ec/application/__init__.py</li>
+                <li>ec/players/__init__.py</li>
+                <li>ec/dtd/__init__.py</li>
+                <li>scripts/generate_tests.py（このIssueでは空でもよい）</li>
+                <li>tests/test_smoke_imports.py</li>
+            </ul>
+            
+            <h3>期待する構造</h3>
+            <pre>
+- ec/
+  - domain/
+  - application/
+  - players/
+  - dtd/
+- scripts/
+- tests/</pre>
+            
+            <h3>制約</h3>
+            <ul>
+                <li>Python 3.x</li>
+                <li>Domain 層は I/O を持たない（print しない / ファイル操作しない）</li>
+                <li>依存は最小（標準ライブラリ＋pytest）</li>
+            </ul>
+            
+            <h3>テスト計画</h3>
+            <p>tests/test_smoke_imports.py</p>
+            <ul>
+                <li>import ec が成功する</li>
+                <li>import ec.domain / ec.application / ec.players / ec.dtd が成功する</li>
+            </ul>
+            
+            <h3>Done</h3>
+            <ul>
+                <li>pytest -q が fail 0 で終了する</li>
+            </ul>
+        </div>
+
+        <div class="character">
+            <h2>Title: [ec] Domain: IllegalType（不正分類）と IllegalMoveError（例外） <span class="status domain">domain</span> <span class="status tests">tests</span></h2>
+            <div class="metadata">
+                <div class="metadata-item"><span class="metadata-key">Key:</span> SBX-EC-003</div>
+                <div class="metadata-item"><span class="metadata-key">Project:</span> ec</div>
+                <div class="metadata-item"><span class="metadata-key">Path:</span> ec/domain/errors.py</div>
+                <div class="metadata-item"><span class="metadata-key">Labels:</span> 
+                    <span class="labels">domain</span>
+                    <span class="labels">tests</span>
+                </div>
+            </div>
+            <h3>Goal</h3>
+            <p>仕様書の「例外は意味のある型（IllegalType）で表現し、テストで分類可能」を満たす。</p>
+            
+            <h3>実装要件</h3>
+            <p>不正検出（最低限）</p>
+            <ul>
+                <li>NOT_IN_HAND（手札にないカード提出）</li>
+                <li>AFTER_TERMINAL（bout 終了後の提出）</li>
+            </ul>
+            
+            <h3>実装内容</h3>
+            <p>ec/domain/errors.py を作成し、以下を実装する。</p>
+            <ul>
+                <li>IllegalType（Enum）
+                    <ul>
+                        <li>NOT_IN_HAND</li>
+                        <li>AFTER_TERMINAL</li>
+                    </ul>
+                </li>
+                <li>IllegalMoveError(Exception)
+                    <ul>
+                        <li>属性:
+                            <ul>
+                                <li>illegal_type: IllegalType</li>
+                                <li>message: str</li>
+                                <li>details: dict[str, object] | None（任意。side/card/round 等を格納できる）</li>
+                            </ul>
+                        </li>
+                        <li>__str__ に "{illegal_type}: {message}" を含める</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <h3>テスト</h3>
+            <p>tests/test_domain_errors.py</p>
+            <ul>
+                <li>IllegalType のメンバが存在すること</li>
+                <li>IllegalMoveError の属性参照が可能なこと</li>
+                <li>str(e) に illegal_type と message が含まれること</li>
+            </ul>
+            
+            <h3>Done</h3>
+            <ul>
+                <li>pytest で illegal_type による分類が機械的にできる</li>
+            </ul>
+        </div>
+
+        <div class="character">
+            <h2>Title: [ec] Domain: CardType/Side/DecisivePair と decisive_pair_from_cards <span class="status domain">domain</span> <span class="status tests">tests</span></h2>
+            <div class="metadata">
+                <div class="metadata-item"><span class="metadata-key">Key:</span> SBX-EC-004</div>
+                <div class="metadata-item"><span class="metadata-key">Project:</span> ec</div>
+                <div class="metadata-item"><span class="metadata-key">Path:</span> ec/domain/cards.py</div>
+                <div class="metadata-item"><span class="metadata-key">Labels:</span> 
+                    <span class="labels">domain</span>
+                    <span class="labels">tests</span>
+                </div>
+            </div>
+            <h3>Goal</h3>
+            <p>仕様書 8.1 cards.py を実装し、決着組合せ（DecisivePair）を判定できるようにする。</p>
+            
+            <h3>実装内容</h3>
+            <p>ec/domain/cards.py に以下を実装する。</p>
+            <ul>
+                <li>CardType（Enum）
+                    <ul>
+                        <li>EMPEROR, CITIZEN, SLAVE</li>
+                    </ul>
+                </li>
+                <li>Side（Enum）
+                    <ul>
+                        <li>EMPEROR_SIDE, SLAVE_SIDE</li>
+                    </ul>
+                </li>
+                <li>DecisivePair（Enum）
+                    <ul>
+                        <li>EMPEROR_VS_CITIZEN</li>
+                        <li>CITIZEN_VS_SLAVE</li>
+                        <li>SLAVE_VS_EMPEROR</li>
+                    </ul>
+                </li>
+                <li>decisive_pair_from_cards(emperor_card: CardType, slave_card: CardType) -> DecisivePair | None
+                    <ul>
+                        <li>CITIZEN vs CITIZEN は None（DRAWで決着ペアなし）</li>
+                        <li>(EMPEROR, CITIZEN) -> EMPEROR_VS_CITIZEN</li>
+                        <li>(CITIZEN, SLAVE) -> CITIZEN_VS_SLAVE</li>
+                        <li>(EMPEROR, SLAVE) -> SLAVE_VS_EMPEROR</li>
+                        <li>上記以外は None でよい（発生しない想定）</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <h3>テスト</h3>
+            <p>tests/test_domain_cards.py</p>
+            <ul>
+                <li>Enum のメンバが揃っている</li>
+                <li>decisive_pair_from_cards の 4ケース（3決着+DRAW）が仕様通り</li>
+            </ul>
+            
+            <h3>Done</h3>
+            <ul>
+                <li>後続 rules.py がこの関数を利用できる</li>
+            </ul>
+        </div>
+
+        <div class="character">
+            <h2>Title: [ec] Domain: Hand（マルチセット）実装 <span class="status domain">domain</span> <span class="status tests">tests</span></h2>
+            <div class="metadata">
+                <div class="metadata-item"><span class="metadata-key">Key:</span> SBX-EC-005</div>
+                <div class="metadata-item"><span class="metadata-key">Project:</span> ec</div>
+                <div class="metadata-item"><span class="metadata-key">Path:</span> ec/domain/hand.py</div>
+                <div class="metadata-item"><span class="metadata-key">Labels:</span> 
+                    <span class="labels">domain</span>
+                    <span class="labels">tests</span>
+                </div>
+            </div>
+            <h3>Goal</h3>
+            <p>仕様書 8.2 hand.py：手札の残数管理（マルチセット）を提供する。</p>
+            
+            <h3>実装内容</h3>
+            <p>ec/domain/hand.py に Hand を実装する（dataclass 推奨）</p>
+            <ul>
+                <li>内部: dict[CardType, int]</li>
+                <li>classmethod
+                    <ul>
+                        <li>emperor_side_hand(): EMPEROR=1, CITIZEN=4, SLAVE=0</li>
+                        <li>slave_side_hand(): SLAVE=1, CITIZEN=4, EMPEROR=0</li>
+                    </ul>
+                </li>
+                <li>methods
+                    <ul>
+                        <li>has(card) -> bool（残数>0）</li>
+                        <li>remove(card) -> None（残数0なら ValueError）</li>
+                        <li>remaining(card) -> int</li>
+                        <li>copy() -> Hand（深いコピー）</li>
+                        <li>total_cards() -> int（任意）</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <h3>制約</h3>
+            <ul>
+                <li>Domain 層：I/O なし</li>
+                <li>copy が正しく独立していること（テストで保証）</li>
+            </ul>
+            
+            <h3>テスト</h3>
+            <p>tests/test_domain_hand.py</p>
+            <ul>
+                <li>emperor_side_hand の初期枚数が正しい</li>
+                <li>slave_side_hand の初期枚数が正しい</li>
+                <li>remove により remaining が減る</li>
+                <li>remaining==0 の remove は ValueError</li>
+                <li>copy が独立（片方 remove してももう片方へ影響しない）</li>
+            </ul>
+            
+            <h3>Done</h3>
+            <ul>
+                <li>rules.step の「手札にないカード」判定の基盤が揃う</li>
+            </ul>
+        </div>
+
+        <div class="character">
+            <h2>Title: [ec] Domain: BoutState / RoundRecord / RoundOutcome（状態と履歴） <span class="status domain">domain</span> <span class="status tests">tests</span></h2>
+            <div class="metadata">
+                <div class="metadata-item"><span class="metadata-key">Key:</span> SBX-EC-006</div>
+                <div class="metadata-item"><span class="metadata-key">Project:</span> ec</div>
+                <div class="metadata-item"><span class="metadata-key">Path:</span> ec/domain/state.py</div>
+                <div class="metadata-item"><span class="metadata-key">Labels:</span> 
+                    <span class="labels">domain</span>
+                    <span class="labels">tests</span>
+                </div>
+            </div>
+            <h3>Goal</h3>
+            <p>仕様書の state 構造（bout の状態遷移を表現）を実装する。</p>
+            
+            <h3>実装内容</h3>
+            <p>ec/domain/state.py に以下を実装する。</p>
+            <ul>
+                <li>RoundOutcome（Enum 推奨）
+                    <ul>
+                        <li>DRAW</li>
+                        <li>EMPEROR_WIN（EMPEROR_SIDE の勝ち）</li>
+                        <li>SLAVE_WIN（SLAVE_SIDE の勝ち）</li>
+                    </ul>
+                </li>
+                <li>RoundRecord（dataclass, frozen 推奨）
+                    <ul>
+                        <li>round_index: int（0-based）</li>
+                        <li>emperor_card: CardType</li>
+                        <li>slave_card: CardType</li>
+                        <li>outcome: RoundOutcome</li>
+                        <li>decisive_pair: DecisivePair | None</li>
+                    </ul>
+                </li>
+                <li>BoutState（dataclass 推奨）
+                    <ul>
+                        <li>emperor_hand: Hand</li>
+                        <li>slave_hand: Hand</li>
+                        <li>terminal: bool</li>
+                        <li>winner: Side | None</li>
+                        <li>history: list[RoundRecord]</li>
+                        <li>decisive_pair: DecisivePair | None（terminal 時のみ非 None）</li>
+                    </ul>
+                </li>
+                <li>BoutState.initial() -> BoutState
+                    <ul>
+                        <li>emperor_hand=Hand.emperor_side_hand()</li>
+                        <li>slave_hand=Hand.slave_side_hand()</li>
+                        <li>terminal=False, winner=None, history=[], decisive_pair=None</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <h3>補足</h3>
+            <p>draw 回数は history の outcome==DRAW の個数で算出できるようにする（DTD 観測 o3 用）</p>
+            
+            <h3>テスト</h3>
+            <p>tests/test_domain_state.py</p>
+            <ul>
+                <li>BoutState.initial() の手札枚数が仕様通り</li>
+                <li>初期 terminal=False, winner=None, history==[] を満たす</li>
+                <li>RoundRecord が生成できる</li>
+            </ul>
+            
+            <h3>Done</h3>
+            <ul>
+                <li>rules.step が BoutState を入出力として扱える土台が完成</li>
+            </ul>
+        </div>
+
+        <div class="character">
+            <h2>Title: [ec] Domain: ルール（resolve_round / step）＋不正検出 <span class="status domain">domain</span> <span class="status tests">tests</span></h2>
+            <div class="metadata">
+                <div class="metadata-item"><span class="metadata-key">Key:</span> SBX-EC-007</div>
+                <div class="metadata-item"><span class="metadata-key">Project:</span> ec</div>
+                <div class="metadata-item"><span class="metadata-key">Path:</span> ec/domain/rules.py</div>
+                <div class="metadata-item"><span class="metadata-key">Labels:</span> 
+                    <span class="labels">domain</span>
+                    <span class="labels">tests</span>
+                </div>
+            </div>
+            <h3>Goal</h3>
+            <p>仕様書 8.3 rules.py の中核を実装する。</p>
+            <ul>
+                <li>勝敗判定</li>
+                <li>手札消費</li>
+                <li>DRAW 継続／非DRAW 即終了</li>
+                <li>不正検出（NOT_IN_HAND / AFTER_TERMINAL）</li>
+            </ul>
+            
+            <h3>実装内容</h3>
+            <p>ec/domain/rules.py を作成し、以下を実装する。</p>
+            
+            <p>1) resolve_round(emperor_card: CardType, slave_card: CardType) -> RoundOutcome</p>
+            <ul>
+                <li>CITIZEN vs CITIZEN => DRAW</li>
+                <li>EMPEROR vs CITIZEN => EMPEROR_WIN</li>
+                <li>CITIZEN vs SLAVE => EMPEROR_WIN</li>
+                <li>EMPEROR vs SLAVE => SLAVE_WIN</li>
+                <li>上記以外（仕様上起きない入力）は ValueError でもよい（仕様外を早期検出）</li>
+            </ul>
+            
+            <p>2) step(state: BoutState, emperor_card: CardType, slave_card: CardType) -> BoutState</p>
+            <ul>
+                <li>state.terminal==True:
+                    <ul>
+                        <li>IllegalMoveError(IllegalType.AFTER_TERMINAL, ...) を送出</li>
+                    </ul>
+                </li>
+                <li>手札に提出カードが無い場合:
+                    <ul>
+                        <li>IllegalMoveError(IllegalType.NOT_IN_HAND, details={"side":..., "card":...}) を送出</li>
+                    </ul>
+                </li>
+                <li>正常系:
+                    <ul>
+                        <li>両者の手札からカードを1枚消費（copy を使い入力 state を破壊しない）</li>
+                        <li>resolve_round で outcome 判定</li>
+                        <li>decisive_pair は decisive_pair_from_cards(emperor_card, slave_card) を使用</li>
+                        <li>RoundRecord を history に追加（round_index=len(history)）</li>
+                        <li>DRAW: terminal=False のまま</li>
+                        <li>非DRAW:
+                            <ul>
+                                <li>terminal=True</li>
+                                <li>winner 設定（EMPEROR_WIN=>EMPEROR_SIDE / SLAVE_WIN=>SLAVE_SIDE）</li>
+                                <li>state.decisive_pair も設定</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <h3>テスト</h3>
+            <p>tests/test_domain_rules.py</p>
+            
+            <p>resolve_round:</p>
+            <ul>
+                <li>3すくみ 3ケース＋DRAW が仕様通り</li>
+            </ul>
+            
+            <p>step 正常系:</p>
+            <ul>
+                <li>DRAW では terminal=False のまま、手札が減り history が増える</li>
+                <li>非DRAW では terminal=True、winner と decisive_pair が入る</li>
+            </ul>
+            
+            <p>step 不正:</p>
+            <ul>
+                <li>初手で slave が EMPEROR を出す（手札にない）=> NOT_IN_HAND</li>
+                <li>terminal 後に step を呼ぶ => AFTER_TERMINAL</li>
+            </ul>
+            
+            <p>手札消費:</p>
+            <ul>
+                <li>出したカードの残数が 1 減る（両者）</li>
+            </ul>
+            
+            <h3>Done</h3>
+            <ul>
+                <li>仕様書 4章（ルール）と 5章（不正検出）を満たす</li>
+            </ul>
+        </div>
+
+        <div class="character">
+            <h2>Title: [ec] Application: BoutRunner（逐次実行）実装 <span class="status application">application</span> <span class="status tests">tests</span></h2>
+            <div class="metadata">
+                <div class="metadata-item"><span class="metadata-key">Key:</span> SBX-EC-008</div>
+                <div class="metadata-item"><span class="metadata-key">Project:</span> ec</div>
+                <div class="metadata-item"><span class="metadata-key">Path:</span> ec/application/bout_engine.py</div>
+                <div class="metadata-item"><span class="metadata-key">Labels:</span> 
+                    <span class="labels">application</span>
+                    <span class="labels">tests</span>
+                </div>
+            </div>
+            <h3>Goal</h3>
+            <p>仕様書 9.1 bout_engine.py：Domain の step を使って bout を安全に実行できるようにする。</p>
+            
+            <h3>実装内容</h3>
+            <p>ec/application/bout_engine.py を作成し、以下を実装する。</p>
+            <ul>
+                <li>class BoutRunner
+                    <ul>
+                        <li>__init__(initial_state: BoutState | None = None)
+                            <ul>
+                                <li>None の場合 BoutState.initial()</li>
+                            </ul>
+                        </li>
+                        <li>property state -> BoutState</li>
+                        <li>step(emperor_card: CardType, slave_card: CardType) -> BoutState
+                            <ul>
+                                <li>内部 state を更新し、更新後 state を返す</li>
+                            </ul>
+                        </li>
+                        <li>run_until_terminal(moves: list[tuple[CardType, CardType]]) -> BoutState
+                            <ul>
+                                <li>moves を順に適用して terminal になるまで実行</li>
+                                <li>moves が尽きても terminal にならない場合は ValueError</li>
+                            </ul>
+                        </li>
+                        <li>try_step_after_terminal(emperor_card: CardType, slave_card: CardType) -> IllegalMoveError
+                            <ul>
+                                <li>いったん terminal まで進めた後に追加 step を試し、
+                                    必ず IllegalMoveError(AFTER_TERMINAL) を捕捉して返す（テスト用ユーティリティ）</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <h3>テスト</h3>
+            <p>tests/test_application_bout_engine.py</p>
+            <ul>
+                <li>1手で決着する moves を与えたら terminal=True</li>
+                <li>DRAW→DRAW→決着 の moves で draw 回数が history から数えられる</li>
+                <li>terminal 後に try_step_after_terminal すると AFTER_TERMINAL が返る</li>
+            </ul>
+            
+            <h3>Done</h3>
+            <ul>
+                <li>Application 層の bout オーケストレーションが安定動作する</li>
+            </ul>
+        </div>
+
+        <div class="character">
+            <h2>Title: [ec] Players: IPlayer と PlayerObservation の定義 <span class="status players">players</span> <span class="status tests">tests</span></h2>
+            <div class="metadata">
+                <div class="metadata-item"><span class="metadata-key">Key:</span> SBX-EC-009</div>
+                <div class="metadata-item"><span class="metadata-key">Project:</span> ec</div>
+                <div class="metadata-item"><span class="metadata-key">Path:</span> ec/players/base.py</div>
+                <div class="metadata-item"><span class="metadata-key">Labels:</span> 
+                    <span class="labels">players</span>
+                    <span class="labels">tests</span>
+                </div>
+            </div>
+            <h3>Goal</h3>
+            <p>仕様書 players/base.py：プレイヤー実装を差し替え可能にするインターフェースを実装する。</p>
+            
+            <h3>実装内容</h3>
+            <p>ec/players/base.py を作成し、以下を実装する。</p>
+            <ul>
+                <li>PlayerObservation（dataclass, frozen 推奨）
+                    <ul>
+                        <li>bout_index: int</li>
+                        <li>round_index: int</li>
+                        <li>side: Side（このプレイヤーがこの bout で担当する Side）</li>
+                        <li>my_hand: Hand（参照透過性のため copy 推奨）</li>
+                        <li>opponent_hand_size: int（任意だが便利）</li>
+                    </ul>
+                </li>
+                <li>IPlayer（Protocol または ABC）
+                    <ul>
+                        <li>name: str（任意）</li>
+                        <li>choose_card(self, obs: PlayerObservation) -> CardType</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <h3>制約</h3>
+            <ul>
+                <li>I/O は不要（print しない）</li>
+                <li>Domain の Hand / BoutState を直接破壊しない</li>
+            </ul>
+            
+            <h3>テスト</h3>
+            <p>tests/test_players_base.py</p>
+            <ul>
+                <li>PlayerObservation が生成できる</li>
+                <li>ダミー実装（choose_card を返すクラス）で choose_card が呼べる</li>
+            </ul>
+            
+            <h3>Done</h3>
+            <ul>
+                <li>match_engine が IPlayer を使って bout を回せる土台が完成</li>
+            </ul>
+        </div>
+
+        <div class="character">
+            <h2>Title: [ec] Players: ScriptedPlayer / MatchScriptedPlayer（決め打ち手） <span class="status players">players</span> <span class="status tests">tests</span></h2>
+            <div class="metadata">
+                <div class="metadata-item"><span class="metadata-key">Key:</span> SBX-EC-010</div>
+                <div class="metadata-item"><span class="metadata-key">Project:</span> ec</div>
+                <div class="metadata-item"><span class="metadata-key">Path:</span> ec/players/scripted.py</div>
+                <div class="metadata-item"><span class="metadata-key">Labels:</span> 
+                    <span class="labels">players</span>
+                    <span class="labels">tests</span>
+                </div>
+            </div>
+            <h3>Goal</h3>
+            <p>仕様書 players/scripted.py：テスト生成や deterministic 実行に使えるプレイヤーを用意する。</p>
+            
+            <h3>実装内容</h3>
+            <p>ec/players/scripted.py を作成し、以下を実装する。</p>
+            
+            <p>1) ScriptedPlayer</p>
+            <ul>
+                <li>初期化: ScriptedPlayer(script: list[CardType], name: str="scripted")</li>
+                <li>choose_card(obs) で script を順に返す</li>
+                <li>script が尽きたら ValueError（ランダム化しない）</li>
+            </ul>
+            
+            <p>2) MatchScriptedPlayer</p>
+            <ul>
+                <li>初期化例:
+                    <ul>
+                        <li>MatchScriptedPlayer(per_bout_scripts: dict[int, list[CardType]], name: str="match_scripted")</li>
+                    </ul>
+                </li>
+                <li>choose_card(obs) は obs.bout_index に対応する script を使用し、ラウンドごとに順に返す</li>
+                <li>指定 bout_index の script が無い場合は ValueError</li>
+                <li>その bout の script が尽きた場合は ValueError</li>
+            </ul>
+            
+            <h3>テスト</h3>
+            <p>tests/test_players_scripted.py</p>
+            <ul>
+                <li>ScriptedPlayer:
+                    <ul>
+                        <li>2回 choose_card で script[0], script[1] が返る</li>
+                        <li>3回目で ValueError</li>
+                    </ul>
+                </li>
+                <li>MatchScriptedPlayer:
+                    <ul>
+                        <li>bout_index=0 と 1 で別 script が消費される</li>
+                        <li>未定義 bout_index で ValueError</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <h3>Done</h3>
+            <ul>
+                <li>DTD の execute_scenario が意図した手順を再現できる</li>
+            </ul>
+        </div>
+
+        <div class="character">
+            <h2>Title: [ec] Application: MatchConfig／role swap／run_match 実装 <span class="status application">application</span> <span class="status tests">tests</span></h2>
+            <div class="metadata">
+                <div class="metadata-item"><span class="metadata-key">Key:</span> SBX-EC-011</div>
+                <div class="metadata-item"><span class="metadata-key">Project:</span> ec</div>
+                <div class="metadata-item"><span class="metadata-key">Path:</span> ec/application/match_engine.py</div>
+                <div class="metadata-item"><span class="metadata-key">Labels:</span> 
+                    <span class="labels">application</span>
+                    <span class="labels">tests</span>
+                </div>
+            </div>
+            <h3>Goal</h3>
+            <p>仕様書 4.6 / 9.2：match（複数 bout）と swap_interval による陣営交代を実装する。</p>
+            
+            <h3>実装内容</h3>
+            <p>ec/application/match_engine.py を作成し、以下を実装する。</p>
+            
+            <p>1) MatchConfig（dataclass, frozen 推奨）</p>
+            <ul>
+                <li>num_bouts: int（例：12, 3）</li>
+                <li>swap_interval: int（例：3）</li>
+                <li>starting_emperor_player: int（0 or 1）</li>
+            </ul>
+            
+            <p>2) role_assignment_for_bout(config: MatchConfig, bout_index: int) -> tuple[int, int]</p>
+            <ul>
+                <li>returns (emperor_player_index, slave_player_index)</li>
+                <li>交代規則:
+                    <ul>
+                        <li>block = bout_index // swap_interval</li>
+                        <li>block が偶数: starting_emperor_player が emperor</li>
+                        <li>block が奇数: 逆</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <p>3) 結果モデル（提案：dataclass）</p>
+            <ul>
+                <li>BoutResult
+                    <ul>
+                        <li>bout_index: int</li>
+                        <li>winner: Side | None</li>
+                        <li>decisive_pair: DecisivePair | None</li>
+                        <li>draw_count: int</li>
+                        <li>rounds_played: int</li>
+                        <li>illegal_type: IllegalType | None</li>
+                        <li>emperor_player_index: int</li>
+                        <li>slave_player_index: int</li>
+                    </ul>
+                </li>
+                <li>MatchResult
+                    <ul>
+                        <li>config: MatchConfig</li>
+                        <li>bouts: list[BoutResult]</li>
+                        <li>aborted_by_illegal: bool</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <p>4) run_bout_with_players(bout_index: int, emperor_player: IPlayer, slave_player: IPlayer, emperor_player_index: int, slave_player_index: int) -> BoutResult</p>
+            <ul>
+                <li>BoutRunner を使って 1 bout 実行</li>
+                <li>各 round で PlayerObservation を作り両者 choose_card</li>
+                <li>runner.step</li>
+                <li>terminal で終了</li>
+                <li>IllegalMoveError が起きたら BoutResult.illegal_type に記録して bout 終了（match 側で中断できるようにする）</li>
+                <li>安全上 max_rounds=5 超過なら RuntimeError（理論上超えない）</li>
+            </ul>
+            
+            <p>5) run_match(player0: IPlayer, player1: IPlayer, config: MatchConfig) -> MatchResult</p>
+            <ul>
+                <li>bout_index=0..num_bouts-1 を実行</li>
+                <li>role_assignment_for_bout に従い players の役割を割当</li>
+                <li>どこかで illegal が出たら即中断（aborted_by_illegal=True）</li>
+            </ul>
+            
+            <h3>テスト</h3>
+            <p>tests/test_application_match_engine.py</p>
+            
+            <p>role_assignment:</p>
+            <ul>
+                <li>num_bouts=12, swap_interval=3, starting=0 のとき
+                    <ul>
+                        <li>bout 0-2: emperor=0</li>
+                        <li>bout 3-5: emperor=1</li>
+                        <li>bout 6-8: emperor=0</li>
+                        <li>bout 9-11: emperor=1</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <p>run_match（正常）:</p>
+            <ul>
+                <li>3 bout の match が 3結果を返す</li>
+            </ul>
+            
+            <p>swap 検証用フィールド:</p>
+            <ul>
+                <li>emperor_player_index が BoutResult に入ること（DTD swap_ok 判定で必要）</li>
+            </ul>
+            
+            <p>run_match（不正で中断）:</p>
+            <ul>
+                <li>bout0 で NOT_IN_HAND を起こす Scripted を使うと aborted_by_illegal=True かつ bouts が 1件で止まる</li>
+            </ul>
+            
+            <h3>Done</h3>
+            <ul>
+                <li>仕様書の match/swap ルールを満たし、DTD 観測 o5 に必要な情報が result に揃う</li>
+            </ul>
+        </div>
+
+        <div class="character">
+            <h2>Title: [ec] DTD: Scenario（X）表現と JSON シリアライズ <span class="status dtd">dtd</span> <span class="status tests">tests</span></h2>
+            <div class="metadata">
+                <div class="metadata-item"><span class="metadata-key">Key:</span> SBX-EC-012</div>
+                <div class="metadata-item"><span class="metadata-key">Project:</span> ec</div>
+                <div class="metadata-item"><span class="metadata-key">Path:</span> ec/dtd/scenario.py</div>
+                <div class="metadata-item"><span class="metadata-key">Labels:</span> 
+                    <span class="labels">dtd</span>
+                    <span class="labels">tests</span>
+                </div>
+            </div>
+            <h3>Goal</h3>
+            <p>仕様書 dtd/scenario.py：構造化テスト表現 X をデータ化し、JSON に落とせる形にする。</p>
+            
+            <h3>実装内容</h3>
+            <p>ec/dtd/scenario.py を作成し、以下を実装する。</p>
+            
+            <p>1) Scenario（dataclass, frozen 推奨）</p>
+            <ul>
+                <li>scenario_id: str（例: "BASE_BOUT_EMPEROR_VS_CITIZEN_k0"）</li>
+                <li>match_config: MatchConfig</li>
+                <li>player0_scripts: dict[int, list[CardType]]</li>
+                <li>player1_scripts: dict[int, list[CardType]]</li>
+                <li>attempt_after_terminal: bool = False</li>
+                <li>after_terminal_cards: tuple[CardType, CardType] | None = None
+                    <ul>
+                        <li>AFTER_TERMINAL を試す場合に使用</li>
+                        <li>(emperor_side_card, slave_side_card) として保持（実際の player 割当は execute_scenario 側で処理）</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <p>2) ExecutionResult（dataclass）</p>
+            <ul>
+                <li>scenario_id: str</li>
+                <li>covered: set[str]（obligation IDs）</li>
+                <li>cost: float</li>
+                <li>match_result: MatchResult（デバッグ用。JSON に含めなくてもよい）</li>
+            </ul>
+            
+            <p>3) JSON helpers</p>
+            <ul>
+                <li>scenario_to_dict(s: Scenario) -> dict</li>
+                <li>scenario_from_dict(d: dict) -> Scenario</li>
+                <li>Enum（CardType/Side/DecisivePair/IllegalType）は文字列として保存する
+                    <ul>
+                        <li>例: "CITIZEN"</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <h3>テスト</h3>
+            <p>tests/test_dtd_scenario.py</p>
+            <ul>
+                <li>Scenario を dict 化して JSON round-trip（to_dict→json→from_dict）できる</li>
+                <li>CardType のシリアライズが期待通り（"EMPEROR"/"CITIZEN"/"SLAVE"）</li>
+            </ul>
+            
+            <h3>Done</h3>
+            <ul>
+                <li>scripts/generate_tests.py が Scenario を JSON 出力できる土台ができる</li>
+            </ul>
+        </div>
+
+        <div class="character">
+            <h2>Title: [ec] DTD: 観測（S の o1..o5）実装（observe_bout / observe_match） <span class="status dtd">dtd</span> <span class="status tests">tests</span></h2>
+            <div class="metadata">
+                <div class="metadata-item"><span class="metadata-key">Key:</span> SBX-EC-013</div>
+                <div class="metadata-item"><span class="metadata-key">Project:</span> ec</div>
+                <div class="metadata-item"><span class="metadata-key">Path:</span> ec/dtd/observers.py</div>
+                <div class="metadata-item"><span class="metadata-key">Labels:</span> 
+                    <span class="labels">dtd</span>
+                    <span class="labels">tests</span>
+                </div>
+            </div>
+            <h3>Goal</h3>
+            <p>仕様書 10.1 の観点束 S（o1..o5）をコードで観測できるようにする。</p>
+            
+            <h3>実装内容</h3>
+            <p>ec/dtd/observers.py を作成し、以下を実装する。</p>
+            
+            <p>1) observe_bout(br: BoutResult) -> dict[str, object]</p>
+            <ul>
+                <li>o1: winner（Side|None）</li>
+                <li>o2: decisive_pair（DecisivePair|None）</li>
+                <li>o3: draw_count（int）</li>
+                <li>o4: illegal_type（IllegalType|None）</li>
+            </ul>
+            
+            <p>2) observe_match(mr: MatchResult) -> dict[str, object]</p>
+            <ul>
+                <li>o5: match structure
+                    <ul>
+                        <li>num_bouts</li>
+                        <li>swap_interval</li>
+                        <li>swap_ok（bool）</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <p>swap_ok の定義（決定的でテスト可能にする）</p>
+            <ul>
+                <li>swap_ok=True の条件:
+                    <ul>
+                        <li>config.swap_interval > 0</li>
+                        <li>全ての BoutResult に emperor_player_index が入っている</li>
+                        <li>期待される role_assignment_for_bout(config, i) の emperor_player_index と一致している</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <h3>テスト</h3>
+            <p>tests/test_dtd_observers.py</p>
+            <ul>
+                <li>BoutResult から winner/decisive_pair/draw_count/illegal_type が観測できる</li>
+                <li>swap_ok:
+                    <ul>
+                        <li>正しい role 履歴を持つ MatchResult で True</li>
+                        <li>1つでもズレた履歴を持つ MatchResult で False</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <h3>Done</h3>
+            <ul>
+                <li>obligations 判定（A(S)）に必要な観測値が揃う</li>
+            </ul>
+        </div>
+
+        <div class="character">
+            <h2>Title: [ec] DTD: obligations（A(S)）universe（18）と被覆判定 <span class="status dtd">dtd</span> <span class="status tests">tests</span></h2>
+            <div class="metadata">
+                <div class="metadata-item"><span class="metadata-key">Key:</span> SBX-EC-014</div>
+                <div class="metadata-item"><span class="metadata-key">Project:</span> ec</div>
+                <div class="metadata-item"><span class="metadata-key">Path:</span> ec/dtd/obligations.py</div>
+                <div class="metadata-item"><span class="metadata-key">Labels:</span> 
+                    <span class="labels">dtd</span>
+                    <span class="labels">tests</span>
+                </div>
+            </div>
+            <h3>Goal</h3>
+            <p>仕様書 10.2：obligation ID（合計18）を列挙し、観測結果から covered obligations を算出できるようにする。</p>
+            
+            <h3>Universe（必須：合計18）</h3>
+            <p>(A) bout 群（13個）</p>
+            <ul>
+                <li>BOUT:EMPEROR_VS_CITIZEN:k（k=0..3）</li>
+                <li>BOUT:CITIZEN_VS_SLAVE:k（k=0..3）</li>
+                <li>BOUT:SLAVE_VS_EMPEROR:k（k=0..4）</li>
+            </ul>
+            
+            <p>(B) 不正（2個）</p>
+            <ul>
+                <li>ILLEGAL:NOT_IN_HAND</li>
+                <li>ILLEGAL:AFTER_TERMINAL</li>
+            </ul>
+            
+            <p>(C) match 構造（3個）</p>
+            <ul>
+                <li>MATCH:TOTAL12</li>
+                <li>MATCH:TOTAL3</li>
+                <li>MATCH:SWAP_AFTER_3</li>
+            </ul>
+            
+            <h3>実装内容</h3>
+            <p>ec/dtd/obligations.py に以下を実装する。</p>
+            <ul>
+                <li>universe_obligations() -> set[str]
+                    <ul>
+                        <li>上記18個を返す</li>
+                    </ul>
+                </li>
+                <li>covered_obligations_from_match_observation(match_obs: dict[str, object]) -> set[str]
+                    <ul>
+                        <li>num_bouts==12 -> MATCH:TOTAL12</li>
+                        <li>num_bouts==3 -> MATCH:TOTAL3</li>
+                        <li>swap_interval==3 and swap_ok==True -> MATCH:SWAP_AFTER_3</li>
+                    </ul>
+                </li>
+                <li>covered_obligations_from_bout_observation(bout_obs: dict[str, object]) -> set[str]
+                    <ul>
+                        <li>illegal_type があれば ILLEGAL:* を付与</li>
+                        <li>decisive_pair と draw_count により BOUT:* を付与（範囲外 k は付与しない）</li>
+                    </ul>
+                </li>
+                <li>covered_obligations(match_obs, bout_obs_list) -> set[str]
+                    <ul>
+                        <li>match + 各 bout の union</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <h3>テスト</h3>
+            <p>tests/test_dtd_obligations.py</p>
+            <ul>
+                <li>universe が 18個である</li>
+                <li>BOUT 範囲チェック:
+                    <ul>
+                        <li>EMPEROR_VS_CITIZEN の k=3 は付与されるが k=4 は付与されない</li>
+                    </ul>
+                </li>
+                <li>illegal 観測で ILLEGAL:* が付与される</li>
+                <li>match 観測で TOTAL12/TOTAL3/SWAP_AFTER_3 が付与される</li>
+            </ul>
+            
+            <h3>Done</h3>
+            <ul>
+                <li>DTD の集合被覆で使用する要求集合が確定する</li>
+            </ul>
+        </div>
+
+        <div class="character">
+            <h2>Title: [ec] DTD: greedy weighted set cover 実装 <span class="status dtd">dtd</span> <span class="status tests">tests</span></h2>
+            <div class="metadata">
+                <div class="metadata-item"><span class="metadata-key">Key:</span> SBX-EC-015</div>
+                <div class="metadata-item"><span class="metadata-key">Project:</span> ec</div>
+                <div class="metadata-item"><span class="metadata-key">Path:</span> ec/dtd/setcover.py</div>
+                <div class="metadata-item"><span class="metadata-key">Labels:</span> 
+                    <span class="labels">dtd</span>
+                    <span class="labels">tests</span>
+                </div>
+            </div>
+            <h3>Goal</h3>
+            <p>仕様書 11.1：集合被覆（コスト最小寄り）を greedy で実装する。</p>
+            
+            <h3>実装内容</h3>
+            <p>ec/dtd/setcover.py を作成し、以下を実装する。</p>
+            
+            <p>- greedy_set_cover(
+                universe: set[str],
+                candidates: list[tuple[str, set[str], float]],
+                budget: float | None = None
+                ) -> tuple[list[str], set[str]]</p>
+            
+            <p>candidates 要素:</p>
+            <ul>
+                <li>(candidate_id, covered_set, cost)</li>
+            </ul>
+            
+            <p>戻り値:</p>
+            <ul>
+                <li>(selected_ids, uncovered_set)</li>
+            </ul>
+            
+            <p>greedy ルール（決定的にする）</p>
+            <ol>
+                <li>gain = 未被覆のうち新規に覆える数</li>
+                <li>score = gain / cost を最大化する候補を選ぶ</li>
+                <li>同点なら:
+                    <ul>
+                        <li>cost が小さい方</li>
+                        <li>さらに同点なら candidate_id の辞書順</li>
+                    </ul>
+                </li>
+            </ol>
+            
+            <p>budget:</p>
+            <ul>
+                <li>指定があれば合計コストが budget を超えない範囲で選ぶ</li>
+                <li>完全被覆できない場合 uncovered が残ってよい</li>
+            </ul>
+            
+            <h3>テスト</h3>
+            <p>tests/test_dtd_setcover.py</p>
+            <ul>
+                <li>小さな手作り例で期待 selected が得られる</li>
+                <li>budget 制約で選択が止まり uncovered が残るケース</li>
+                <li>tie-break が決定的（同点候補で id 順に安定）</li>
+            </ul>
+            
+            <h3>Done</h3>
+            <ul>
+                <li>scripts/generate_tests.py から呼べる</li>
+            </ul>
+        </div>
+
+        <div class="character">
+            <h2>Title: [ec] DTD: execute_scenario ＋ base/random 候補生成（generator） <span class="status dtd">dtd</span> <span class="status tests">tests</span></h2>
+            <div class="metadata">
+                <div class="metadata-item"><span class="metadata-key">Key:</span> SBX-EC-016</div>
+                <div class="metadata-item"><span class="metadata-key">Project:</span> ec</div>
+                <div class="metadata-item"><span class="metadata-key">Path:</span> ec/dtd/generator.py</div>
+                <div class="metadata-item"><span class="metadata-key">Labels:</span> 
+                    <span class="labels">dtd</span>
+                    <span class="labels">tests</span>
+                </div>
+            </div>
+            <h3>Goal</h3>
+            <p>仕様書 11章：候補生成（base + random）と、実行して covered/cost を評価する execute_scenario を実装する。</p>
+            
+            <h3>実装内容</h3>
+            <p>ec/dtd/generator.py を作成し、以下を実装する。</p>
+            
+            <p>1) execute_scenario(
+                scenario: Scenario,
+                overhead: float = 1.0,
+                per_round: float = 1.0
+                ) -> ExecutionResult</p>
+            
+            <p>挙動:</p>
+            <ul>
+                <li>scenario から MatchScriptedPlayer を組み立て run_match 実行</li>
+                <li>observe_match / observe_bout を取り covered_obligations(...) を算出</li>
+                <li>cost を計算:
+                    <ul>
+                        <li>cost = overhead + per_round * total_rounds</li>
+                        <li>total_rounds = sum(bout.rounds_played)</li>
+                        <li>attempt_after_terminal=True の場合:
+                            <ul>
+                                <li>AFTER_TERMINAL の追加試行を行い、illegal_type=AFTER_TERMINAL を観測できるようにする</li>
+                                <li>追加コストとして per_round を 1 回分加算してよい（固定でOK）</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <p>AFTER_TERMINAL の実装指針（どれか一つで良い）</p>
+            <ul>
+                <li>方針A: scenario.match_config.num_bouts==1 に限定し、BoutRunner を直接使って
+                    <ul>
+                        <li>決着まで実行</li>
+                        <li>after_terminal_cards で追加 step を行い IllegalMoveError を捕捉</li>
+                        <li>BoutResult.illegal_type=AFTER_TERMINAL をセットした MatchResult を合成する</li>
+                    </ul>
+                </li>
+                <li>方針B: run_bout_with_players に「after_terminal 試行」オプションを追加して実行中に注入する
+                    どちらでも良いが、pytest で deterministic に検証できること。</li>
+            </ul>
+            
+            <p>2) generate_base_candidates() -> list[Scenario]
+                最低限、以下を生成できること（推奨：プログラムで全列挙）</p>
+            
+            <p>(BOUT obligations: 13個を単体で作る。match_config.num_bouts=1 でOK)</p>
+            <ul>
+                <li>EMPEROR_VS_CITIZEN k=0..3:
+                    <ul>
+                        <li>k回 DRAW（CITIZEN vs CITIZEN）後に (EMPEROR, CITIZEN) で決着</li>
+                    </ul>
+                </li>
+                <li>CITIZEN_VS_SLAVE k=0..3:
+                    <ul>
+                        <li>k回 DRAW 後に (CITIZEN, SLAVE) で決着</li>
+                    </ul>
+                </li>
+                <li>SLAVE_VS_EMPEROR k=0..4:
+                    <ul>
+                        <li>k回 DRAW 後に (EMPEROR, SLAVE) で決着</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <p>(ILLEGAL: 2個)</p>
+            <ul>
+                <li>ILLEGAL:NOT_IN_HAND:
+                    <ul>
+                        <li>例: slave 側が EMPEROR を出す（手札にない）</li>
+                    </ul>
+                </li>
+                <li>ILLEGAL:AFTER_TERMINAL:
+                    <ul>
+                        <li>1手で決着 → その後 attempt_after_terminal=True で追加提出を試す</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <p>(MATCH structure: 3個)</p>
+            <ul>
+                <li>MATCH:TOTAL12（num_bouts=12）</li>
+                <li>MATCH:TOTAL3（num_bouts=3）</li>
+                <li>MATCH:SWAP_AFTER_3（swap_interval=3 で swap_ok=True が観測される）
+                    <ul>
+                        <li>推奨: TOTAL12 と SWAP_AFTER_3 は同一シナリオで同時被覆してよい</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <p>3) generate_random_candidates(seed: int, n: int) -> list[Scenario]</p>
+            <ul>
+                <li>random.Random(seed) を使用</li>
+                <li>rng.gauss(0,1) を使った “それっぽい” 生成（厳密さ不要）</li>
+                <li>ただし Scenario が実行不能（script不足）にならないようにする
+                    <ul>
+                        <li>各 bout は最大 5 手以内に必ず終わる script にする（CITIZEN で引き分け→最後に決着カード等）</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <h3>テスト</h3>
+            <p>tests/test_dtd_generator.py</p>
+            <ul>
+                <li>generate_base_candidates が空でない</li>
+                <li>base 候補の一部を execute_scenario して:
+                    <ul>
+                        <li>期待する BOUT obligation が covered に含まれる（例: BOUT:EMPEROR_VS_CITIZEN:k0）</li>
+                        <li>期待する ILLEGAL obligation が covered に含まれる（NOT_IN_HAND / AFTER_TERMINAL）</li>
+                        <li>match 構造の obligation の少なくとも1つが covered に含まれる</li>
+                    </ul>
+                </li>
+                <li>generate_random_candidates(seed=0,n=5) が
+                    <ul>
+                        <li>例外で落ちない（実行可能）</li>
+                        <li>deterministic（同seedで同じ scenario_id 群になる）</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <h3>Done</h3>
+            <ul>
+                <li>scripts/generate_tests.py が「候補生成→観測→集合被覆」を実行できる</li>
+            </ul>
+        </div>
+
+        <div class="character">
+            <h2>Title: [ec] scripts/generate_tests.py 実装（JSON＋pytest 生成） <span class="status scripts">scripts</span> <span class="status tests">tests</span></h2>
+            <div class="metadata">
+                <div class="metadata-item"><span class="metadata-key">Key:</span> SBX-EC-017</div>
+                <div class="metadata-item"><span class="metadata-key">Project:</span> ec</div>
+                <div class="metadata-item"><span class="metadata-key">Path:</span> scripts/generate_tests.py</div>
+                <div class="metadata-item"><span class="metadata-key">Labels:</span> 
+                    <span class="labels">scripts</span>
+                    <span class="labels">tests</span>
+                </div>
+            </div>
+            <h3>Goal</h3>
+            <p>仕様書 11.2 / 12章：CLI を提供し generated_suite.json と tests_generated.py を生成できるようにする。</p>
+            
+            <h3>実装内容</h3>
+            <p>scripts/generate_tests.py を実装する。</p>
+            
+            <p>CLI（argparse）</p>
+            <ul>
+                <li>--seed（int, default=0）</li>
+                <li>--n-random（int, default=60）</li>
+                <li>--budget（float, optional）</li>
+                <li>--overhead（float, default=1.0）</li>
+                <li>--per-round（float, default=1.0）</li>
+                <li>--out-json（str, default="generated_suite.json"）</li>
+                <li>--out-pytest（str, default="tests_generated.py"）</li>
+            </ul>
+            
+            <p>処理フロー</p>
+            <ol>
+                <li>候補生成
+                    <ul>
+                        <li>base = generate_base_candidates()</li>
+                        <li>rnd = generate_random_candidates(seed, n_random)</li>
+                        <li>candidates = base + rnd</li>
+                    </ul>
+                </li>
+                <li>実行・観測
+                    <ul>
+                        <li>各 scenario を execute_scenario して
+                            <ul>
+                                <li>covered: set[str]</li>
+                                <li>cost: float</li>
+                            </ul>
+                            を得る</li>
+                    </ul>
+                </li>
+                <li>集合被覆
+                    <ul>
+                        <li>universe = universe_obligations()</li>
+                        <li>greedy_set_cover(universe, candidates=(scenario_id, covered, cost), budget=budget)</li>
+                    </ul>
+                </li>
+                <li>JSON 出力（generated_suite.json）
+                    最低限この構造で固定する（字段名固定）
+                    <ul>
+                        <li>universe: list[str]</li>
+                        <li>selected: list[ {scenario: dict, expected_covered: list[str], cost: float} ]</li>
+                        <li>uncovered: list[str]</li>
+                        <li>meta: {seed, n_random, overhead, per_round}</li>
+                    </ul>
+                </li>
+                <li>pytest 出力（tests_generated.py）
+                    <ul>
+                        <li>JSON を読み込み、各 selected scenario を再実行して
+                            <ul>
+                                <li>set(expected_covered).issubset(actual_covered)</li>
+                            </ul>
+                            を assert する parameterized test を生成する</li>
+                        <li>生成ファイル単体で pytest -q tests_generated.py が通ること</li>
+                        <li>import は ec パッケージに合わせる
+                            <ul>
+                                <li>例: from ec.dtd.generator import execute_scenario</li>
+                                <li>例: from ec.dtd.scenario import scenario_from_dict</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ol>
+            
+            <h3>テスト（スクリプト自体）</h3>
+            <p>tests/test_generate_tests_script.py</p>
+            <ul>
+                <li>tmp_path を使って出力先を一時ディレクトリにする</li>
+                <li>JSON が生成される</li>
+                <li>tests_generated.py が生成される</li>
+                <li>selected が空ではない（base があるため）</li>
+                <li>expected_covered が universe の部分集合である</li>
+            </ul>
+            
+            <h3>Done</h3>
+            <ul>
+                <li>仕様書の最小手順通りに動作し、生成 pytest が import error にならない</li>
+            </ul>
+        </div>
+
+        <div class="character">
+            <h2>Title: [ec] 統合スモークテスト＋README（生成→pytest 実行手順を固定） <span class="status documentation">documentation</span> <span class="status tests">tests</span> <span class="status ci">ci</span></h2>
+            <div class="metadata">
+                <div class="metadata-item"><span class="metadata-key">Key:</span> SBX-EC-018</div>
+                <div class="metadata-item"><span class="metadata-key">Project:</span> ec</div>
+                <div class="metadata-item"><span class="metadata-key">Path:</span> README.md</div>
+                <div class="metadata-item"><span class="metadata-key">Labels:</span> 
+                    <span class="labels">documentation</span>
+                    <span class="labels">tests</span>
+                    <span class="labels">ci</span>
+                </div>
+            </div>
+            <h3>Goal</h3>
+            <p>「生成→pytest 実行が通る」を CI/ローカルで再現できる形に固定する。</p>
+            
+            <h3>実装内容</h3>
+            <p>1) README.md を作成/更新</p>
+            <ul>
+                <li>最小手順を明記
+                    <ul>
+                        <li>python scripts/generate_tests.py --seed 0 --n-random 60</li>
+                        <li>pytest -q tests_generated.py</li>
+                    </ul>
+                </li>
+                <li>生成物:
+                    <ul>
+                        <li>generated_suite.json</li>
+                        <li>tests_generated.py</li>
+                    </ul>
+                    の説明</li>
+                <li>obligations（18個）の概要と、なぜ set cover するかを簡潔に記載</li>
+            </ul>
+            
+            <p>2) 統合テスト（軽量）を追加
+                tests/test_integration_generated_suite.py
+                方針:</p>
+            <ul>
+                <li>scripts/generate_tests.py の main 相当を短時間で実行する
+                    <ul>
+                        <li>推奨: --n-random 0（base のみ）で完全被覆できる設計なら uncovered==[] を期待</li>
+                        <li>base のみで完全被覆が難しい場合:
+                            <ul>
+                                <li>--n-random 30 など最小限にして deterministic に uncovered==[] を満たす</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>出力2ファイルができること</li>
+                <li>JSON の uncovered が空であること（完全被覆できること）</li>
+            </ul>
+            
+            <h3>Done</h3>
+            <ul>
+                <li>README の手順でローカル再現できる</li>
+                <li>pytest -q が（統合テスト込みで）通る</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Epic: Eカード＋DTD テスト生成 トラッキング | SBX-EC-001 ～ SBX-EC-018 | 完了までトラッキング</p>
+    </div>
+
+    <script>
+        // 数式の自動レンダリング
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false},
+                    {left: '\\(', right: '\\)', display: false},
+                    {left: '\\[', right: '\\]', display: true}
+                ],
+                throwOnError: false
+            });
+        });
+    </script>
+</body>
+</html>
