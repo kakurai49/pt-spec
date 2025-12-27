@@ -1,0 +1,855 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Eカード（カイジ）カードゲーム実装仕様書</title>
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" crossorigin="anonymous" />
+
+  <style>
+    /* =========  Cascade Layers（色管理アーキテクチャ） =========
+       - pop3_style.css を「下層（base）」として取り込み
+       - tokens（色設計トークン）→ base（全体適用）→ components（部品）→ utilities（補助）
+       - すべての“色”は「背景トークン」と「文字トークン」をペアで管理（見えない事故を防ぐ）
+    */
+    @layer pop3, tokens, base, components, utilities;
+
+    /* ✅ 添付CSS（pop3_style.css）を使用 */
+    @import url("pop3_style.css") layer(pop3);
+
+    @layer tokens {
+      :root {
+        /* ---- Neutral (surface/text) ---- */
+        --page-bg: #0b0f1a;
+        --page-fg: #f8fafc;
+
+        --surface-1-bg: #ffffff;
+        --surface-1-fg: #111827;
+
+        --surface-2-bg: #fff7cc;  /* meta / callout */
+        --surface-2-fg: #1f2937;
+
+        --surface-3-bg: #0f172a;  /* code block */
+        --surface-3-fg: #e2e8f0;
+
+        --border-color: #111827;
+        --muted-fg: #334155;
+
+        /* ---- Accents (bg + on-bg, and "ink" for text-on-white) ---- */
+        --accent-pink-bg: #ff4081;
+        --accent-pink-on: #ffffff;
+        --accent-pink-ink: #b4004e;
+
+        --accent-blue-bg: #1e90ff;
+        --accent-blue-on: #041527;
+        --accent-blue-ink: #0055cc;
+
+        --accent-green-bg: #00d084;
+        --accent-green-on: #052216;
+        --accent-green-ink: #006b3c;
+
+        --accent-purple-bg: #8b5cf6;
+        --accent-purple-on: #ffffff;
+        --accent-purple-ink: #6d28d9;
+
+        --accent-orange-bg: #ff8a00;
+        --accent-orange-on: #1f1300;
+        --accent-orange-ink: #b34700;
+
+        --accent-red-bg: #ff3b30;
+        --accent-red-on: #ffffff;
+        --accent-red-ink: #a61b14;
+
+        --accent-teal-bg: #00c2d1;
+        --accent-teal-on: #001b1d;
+        --accent-teal-ink: #00606a;
+
+        /* ---- Links ---- */
+        --link: var(--accent-blue-ink);
+        --link-hover: var(--accent-pink-ink);
+
+        /* ---- Inline code ---- */
+        --inline-code-bg: #f1f5f9;
+        --inline-code-fg: #0f172a;
+
+        /* ---- Focus ---- */
+        --focus-ring: #ffd400;
+      }
+
+      /* OKLCH (対応ブラウザでは、より知覚均一で “映える” 調整が安定します) */
+      @supports (color: oklch(60% 0.1 0)) {
+        :root {
+          --page-bg: oklch(18% 0.03 265);
+          --page-fg: oklch(97% 0.01 260);
+
+          --surface-1-bg: oklch(99% 0 0);
+          --surface-1-fg: oklch(18% 0.02 255);
+
+          --surface-2-bg: oklch(96% 0.06 95);
+          --surface-2-fg: oklch(20% 0.02 255);
+
+          --surface-3-bg: oklch(20% 0.04 265);
+          --surface-3-fg: oklch(92% 0.01 260);
+
+          --accent-pink-bg: oklch(67% 0.25 350);
+          --accent-pink-ink: oklch(45% 0.22 350);
+
+          --accent-blue-bg: oklch(70% 0.18 250);
+          --accent-blue-ink: oklch(46% 0.18 250);
+
+          --accent-green-bg: oklch(76% 0.20 150);
+          --accent-green-ink: oklch(44% 0.14 150);
+
+          --accent-purple-bg: oklch(70% 0.20 300);
+          --accent-purple-ink: oklch(45% 0.18 295);
+
+          --accent-orange-bg: oklch(75% 0.20 60);
+          --accent-orange-ink: oklch(48% 0.16 55);
+
+          --accent-red-bg: oklch(63% 0.25 25);
+          --accent-red-ink: oklch(42% 0.20 25);
+
+          --accent-teal-bg: oklch(75% 0.16 200);
+          --accent-teal-ink: oklch(43% 0.10 200);
+
+          --inline-code-bg: oklch(96% 0.01 255);
+          --inline-code-fg: oklch(22% 0.03 265);
+
+          --border-color: oklch(22% 0.03 265);
+          --muted-fg: oklch(35% 0.03 265);
+
+          --focus-ring: oklch(86% 0.20 95);
+        }
+      }
+
+      /* 強コントラスト要求に追従（OS設定） */
+      @media (prefers-contrast: more) {
+        :root {
+          --page-bg: #000000;
+          --page-fg: #ffffff;
+          --border-color: #000000;
+          --muted-fg: #111111;
+        }
+      }
+
+      /* 強制配色モード（Windows等） */
+      @media (forced-colors: active) {
+        :root {
+          --page-bg: Canvas;
+          --page-fg: CanvasText;
+          --surface-1-bg: Canvas;
+          --surface-1-fg: CanvasText;
+          --surface-2-bg: Canvas;
+          --surface-2-fg: CanvasText;
+          --surface-3-bg: Canvas;
+          --surface-3-fg: CanvasText;
+          --link: LinkText;
+          --focus-ring: Highlight;
+        }
+      }
+    }
+
+    @layer base {
+      html {
+        color-scheme: light;
+        scroll-behavior: smooth;
+      }
+
+      body {
+        /* pop3_style.css の body を上書き（コントラスト強化） */
+        background: var(--page-bg);
+        color: var(--page-fg);
+        padding-bottom: 80px; /* 固定footer対策 */
+      }
+
+      /* 背景を “映え” させつつ、本文は .container の白地で可読性を確保 */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background:
+          radial-gradient(circle at 10% 20%, rgba(255, 64, 129, 0.25) 0, rgba(255, 64, 129, 0) 40%),
+          radial-gradient(circle at 90% 10%, rgba(30, 144, 255, 0.20) 0, rgba(30, 144, 255, 0) 45%),
+          radial-gradient(circle at 70% 90%, rgba(0, 208, 132, 0.18) 0, rgba(0, 208, 132, 0) 45%),
+          radial-gradient(circle at 15% 85%, rgba(255, 138, 0, 0.18) 0, rgba(255, 138, 0, 0) 45%);
+        mix-blend-mode: screen;
+        opacity: 0.9;
+      }
+
+      header {
+        background-color: var(--accent-pink-bg);
+        color: var(--accent-pink-on);
+        text-transform: none; /* 日本語主体なので過度な変換を避ける */
+      }
+
+      .header-inner {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 12px 16px;
+      }
+
+      .header-title {
+        font-size: clamp(1.6rem, 2.5vw, 2.4rem);
+        line-height: 1.2;
+      }
+
+      .header-subtitle {
+        font-size: clamp(0.95rem, 1.6vw, 1.1rem);
+        opacity: 0.95;
+        margin-top: 6px;
+      }
+
+      .container {
+        background: var(--surface-1-bg);
+        color: var(--surface-1-fg);
+        border: 3px solid var(--border-color);
+      }
+
+      a {
+        color: var(--link);
+      }
+      a:hover {
+        color: var(--link-hover);
+      }
+
+      /* 見出しの可読性（白背景×濃色） */
+      h1, h2, h3, h4, h5, h6 {
+        color: var(--surface-1-fg);
+      }
+
+      hr {
+        border: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--accent-pink-bg), var(--accent-blue-bg), var(--accent-green-bg), var(--accent-orange-bg));
+        border-radius: 999px;
+        margin: 18px 0;
+      }
+
+      /* コード（可読性 + コントラスト） */
+      pre {
+        background: var(--surface-3-bg);
+        color: var(--surface-3-fg);
+        border: 2px solid var(--border-color);
+      }
+
+      code {
+        background: var(--inline-code-bg);
+        color: var(--inline-code-fg);
+        padding: 0.15em 0.35em;
+        border-radius: 0.4em;
+      }
+
+      pre code {
+        background: transparent;
+        color: inherit;
+        padding: 0;
+      }
+
+      /* KaTeX は文字色を継承（背景を持たない） */
+      .katex {
+        color: inherit;
+      }
+
+      /* フォーカス可視化 */
+      :focus-visible {
+        outline: 4px solid var(--focus-ring);
+        outline-offset: 3px;
+      }
+
+      /* 小さな可読性改善 */
+      main {
+        line-height: 1.75;
+      }
+
+      p {
+        margin: 0.7em 0;
+      }
+
+      ul, ol {
+        padding-left: 1.25em;
+      }
+
+      li {
+        margin: 0.25em 0;
+      }
+
+      blockquote {
+        margin: 1em 0;
+      }
+    }
+
+    @layer components {
+      /* メタ情報ブロック */
+      .meta-block {
+        background: var(--surface-2-bg);
+        color: var(--surface-2-fg);
+        border: 2px solid var(--border-color);
+        border-radius: 14px;
+        padding: 14px 16px;
+        box-shadow: 8px 8px 0 rgba(0,0,0,0.18);
+      }
+
+      .meta-block code {
+        background: rgba(255,255,255,0.8);
+        color: var(--surface-2-fg);
+      }
+
+      /* 目次 */
+      .toc {
+        margin: 18px 0 6px;
+      }
+      .toc details {
+        border: 2px dashed var(--border-color);
+        border-radius: 14px;
+        padding: 10px 12px;
+        background: linear-gradient(135deg, rgba(255,64,129,0.10), rgba(30,144,255,0.08), rgba(0,208,132,0.08));
+      }
+      .toc summary {
+        cursor: pointer;
+        font-weight: 800;
+        color: var(--accent-pink-ink);
+        list-style: none;
+      }
+      .toc summary::-webkit-details-marker {
+        display: none;
+      }
+      .toc summary::after {
+        content: " ▾";
+        font-weight: 900;
+      }
+      .toc details[open] summary::after {
+        content: " ▴";
+      }
+      .toc-list {
+        margin: 10px 0 0;
+        padding-left: 1.2em;
+      }
+      .toc-list a {
+        text-decoration: none;
+      }
+      .toc-list a:hover {
+        text-decoration: underline;
+      }
+
+      /* セクションカード（h2単位） */
+      .section-block {
+        --section-accent-bg: var(--accent-pink-bg);
+        --section-accent-ink: var(--accent-pink-ink);
+        border-radius: 16px;
+        border: 2px solid var(--border-color);
+        padding: 14px 16px;
+        margin: 18px 0;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,1), rgba(255,255,255,1)) padding-box,
+          linear-gradient(90deg, var(--section-accent-bg), rgba(255,255,255,0)) border-box;
+        box-shadow: 10px 10px 0 rgba(0,0,0,0.14);
+      }
+
+      .section-block > h2 {
+        margin-top: 0;
+        color: var(--section-accent-ink);
+        border-bottom: 3px dotted var(--section-accent-bg);
+        padding-bottom: 8px;
+      }
+
+      /* セクション毎にアクセント色を回す */
+      .section-block[data-section-index="1"]  { --section-accent-bg: var(--accent-pink-bg);   --section-accent-ink: var(--accent-pink-ink); }
+      .section-block[data-section-index="2"]  { --section-accent-bg: var(--accent-blue-bg);   --section-accent-ink: var(--accent-blue-ink); }
+      .section-block[data-section-index="3"]  { --section-accent-bg: var(--accent-green-bg);  --section-accent-ink: var(--accent-green-ink); }
+      .section-block[data-section-index="4"]  { --section-accent-bg: var(--accent-purple-bg); --section-accent-ink: var(--accent-purple-ink); }
+      .section-block[data-section-index="5"]  { --section-accent-bg: var(--accent-orange-bg); --section-accent-ink: var(--accent-orange-ink); }
+      .section-block[data-section-index="6"]  { --section-accent-bg: var(--accent-teal-bg);   --section-accent-ink: var(--accent-teal-ink); }
+      .section-block[data-section-index="7"]  { --section-accent-bg: var(--accent-red-bg);    --section-accent-ink: var(--accent-red-ink); }
+      .section-block[data-section-index="8"]  { --section-accent-bg: var(--accent-pink-bg);   --section-accent-ink: var(--accent-pink-ink); }
+      .section-block[data-section-index="9"]  { --section-accent-bg: var(--accent-blue-bg);   --section-accent-ink: var(--accent-blue-ink); }
+      .section-block[data-section-index="10"] { --section-accent-bg: var(--accent-green-bg);  --section-accent-ink: var(--accent-green-ink); }
+      .section-block[data-section-index="11"] { --section-accent-bg: var(--accent-purple-bg); --section-accent-ink: var(--accent-purple-ink); }
+      .section-block[data-section-index="12"] { --section-accent-bg: var(--accent-orange-bg); --section-accent-ink: var(--accent-orange-ink); }
+      .section-block[data-section-index="13"] { --section-accent-bg: var(--accent-teal-bg);   --section-accent-ink: var(--accent-teal-ink); }
+
+      /* 引用（注釈） */
+      blockquote {
+        background: var(--surface-2-bg);
+        color: var(--surface-2-fg);
+        border-left: 10px solid var(--accent-purple-bg);
+        padding: 12px 14px;
+        border-radius: 12px;
+        box-shadow: 6px 6px 0 rgba(0,0,0,0.12);
+      }
+
+      /* KaTeX変換された数式（ラップ） */
+      .math-wrap {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 0.35em;
+      }
+      .math-raw {
+        /* 元の文字列は保持（削除しない）しつつ、表示はKaTeX優先 */
+        position: absolute !important;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0,0,0,0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      /* フッターは固定だと被りやすいので、見た目は踏襲しつつ安全に */
+      .footer {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(90deg, var(--accent-pink-bg), var(--accent-blue-bg));
+        color: var(--accent-pink-on);
+        border-top: 3px solid rgba(0,0,0,0.35);
+      }
+    }
+
+    @layer utilities {
+      .sr-only {
+        position: absolute !important;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0,0,0,0);
+        white-space: nowrap;
+        border: 0;
+      }
+    }
+  </style>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+  <script>
+
+    // KaTeX: pre/code 内外の数式をレンダリング（要求に合わせ、pre/code を無視しない）
+    document.addEventListener("DOMContentLoaded", () => {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            { left: "$$", right: "$$", display: true },
+            { left: "\[", right: "\]", display: true },
+            { left: "$", right: "$", display: false },
+            { left: "\(", right: "\)", display: false }
+          ],
+          // 重要：pre / code を除外しない（= pre/code 内も数式レンダリング対象）
+          ignoredTags: ["script", "noscript", "style", "textarea"],
+          throwOnError: false
+        });
+      }
+
+      // 追加：本ドキュメントにある「数式っぽい code」を、区切り文字なしでも KaTeX 化
+      // ※ 文字列は削除せず、.math-raw に保持したまま KaTeX を表示します。
+      const mathLike = /[∈⊆⊂≥≤→↦λπΣ×∀∃]/;
+      document.querySelectorAll("code").forEach((codeEl) => {
+        const raw = (codeEl.textContent || "").trim();
+        if (!raw) return;
+        if (!mathLike.test(raw)) return;
+
+        const inPre = !!codeEl.closest("pre");
+
+        // fenced code block を誤変換しない：
+        // - 複数行は「コード」である可能性が高いのでスキップ（数式は $$...$$ 等の区切り文字推奨）
+        if (inPre && raw.includes("
+")) return;
+
+        const wrap = document.createElement("span");
+        wrap.className = "math-wrap";
+
+        const katexTarget = document.createElement("span");
+        katexTarget.className = "math-katex";
+
+        const rawKeeper = document.createElement("code");
+        rawKeeper.className = "math-raw";
+        rawKeeper.textContent = raw;
+
+        wrap.appendChild(katexTarget);
+        wrap.appendChild(rawKeeper);
+
+        codeEl.replaceWith(wrap);
+
+        try {
+          katex.render(raw, katexTarget, {
+            throwOnError: false,
+            displayMode: false,
+            strict: "ignore"
+          });
+        } catch (e) {
+          // 万一失敗しても可読性を落とさない
+          katexTarget.textContent = raw;
+        }
+      });
+    });
+
+  </script>
+</head>
+
+<body>
+  <a class="sr-only" href="#content">本文へスキップ</a>
+
+  <header>
+    <div class="header-inner">
+      <div class="header-title">Eカード（カイジ）カードゲーム実装仕様書</div>
+      <div class="header-subtitle">Diffusion Test Design（DTD）準拠：観点束 S と A(S) に基づくテスト生成付き</div>
+    </div>
+  </header>
+
+  <div class="container">
+    <nav class="toc" aria-label="目次">
+      <details open>
+        <summary>目次（クリックで開閉）</summary>
+        <ol class="toc-list">
+  <li><a href="#sec-1">1. 目的と背景</a></li>
+  <li><a href="#sec-2">2. スコープ</a></li>
+  <li><a href="#sec-5">3. 用語・記号（論文準拠）</a></li>
+  <li><a href="#sec-6">4. ゲーム仕様（Eカード）</a></li>
+  <li><a href="#sec-13">5. 条件制限 E（実装要件）</a></li>
+  <li><a href="#sec-16">6. ソフトウェアアーキテクチャ</a></li>
+  <li><a href="#sec-18">7. モジュール仕様（ファイル一覧）</a></li>
+  <li><a href="#sec-19">8. Domain層 詳細仕様</a></li>
+  <li><a href="#sec-23">9. Application層 詳細仕様</a></li>
+  <li><a href="#sec-26">10. DTD層：観点束 S と A(S)</a></li>
+  <li><a href="#sec-32">11. テスト生成スクリプト仕様（scripts/generate_tests.py）</a></li>
+  <li><a href="#sec-37">12. 実行手順（最小）</a></li>
+  <li><a href="#sec-40">13. 受入基準（Definition of Done）</a></li>
+</ol>
+      </details>
+    </nav>
+
+    <main id="content" class="spec">
+      <section class="meta-block">
+<ul>
+<li>文書種別：実装仕様書（設計＋実装＋テスト生成）</li>
+<li>対象：アニメ『賭博黙示録カイジ』に登場する「Eカード」を題材としたカードゲーム実装</li>
+<li>実装言語：Python 3.x</li>
+<li>生成テスト設計：添付論文 <code>diffusion_test_design_paper.md</code> の枠組み（DTD）に準拠</li>
+<li>作成日：2025-12-26</li>
+</ul>
+<hr/>
+</section><section class="section-block" data-section-index="1"><h2 id="sec-1">1. 目的と背景</h2>
+<p>本仕様書は、以下を同時に満たす Python プログラムを定義する。</p>
+<ol>
+<li><strong>Eカード</strong>（皇帝・市民・奴隷の三すくみゲーム）を正しく実装し、CLI などの上位レイヤから呼び出せるようにする。</li>
+<li>添付論文が定義する枠組み（World-as-Noise, 観点束 S, 要求集合 A(S), 集合被覆）に従い、<br/>
+<strong>テスト候補の生成→観測（カバレッジ判定）→集合被覆によるスイート選択</strong>を行う <strong>テスト生成スクリプト</strong>を提供する。</li>
+</ol>
+<hr/>
+</section><section class="section-block" data-section-index="2"><h2 id="sec-2">2. スコープ</h2>
+<h3 id="sec-3">2.1 スコープ（実装対象）</h3>
+<ul>
+<li>Eカードの1回の勝負（本仕様では <strong>bout</strong> と呼ぶ）</li>
+<li>複数回の勝負を束ねた試合（本仕様では <strong>match</strong> と呼ぶ）</li>
+<li>3戦ごとの陣営交代、12戦/3戦などの上位ルール（設定可能）</li>
+<li>不正操作（手札にないカード／決着後の提出）の検出</li>
+<li>DTD 方式のテスト生成（候補生成・観測・集合被覆）</li>
+</ul>
+<h3 id="sec-4">2.2 非スコープ（今回は実装しない）</h3>
+<ul>
+<li>原作の心理戦（「無作為に出してはならない」）そのものの強制や、心理モデルの再現</li>
+<li>お金やペナルティ等の賭博・契約要素（点数制度など）</li>
+<li>GUI、ネットワーク対戦（ただしアーキテクチャ上は拡張可能）</li>
+</ul>
+<hr/>
+</section><section class="section-block" data-section-index="3"><h2 id="sec-5">3. 用語・記号（論文準拠）</h2>
+<p>添付論文（DTD）に従い、以下の記号を本仕様でも用いる。</p>
+<ul>
+<li><strong>世界 W</strong>：ノイズ seed の空間（論文では W=R^d, w~N(0,I)）</li>
+<li><strong>条件制限 E</strong>：仕様・評価基準（ルール正確性、堅牢性、上位ルール等）</li>
+<li><strong>テスト表現空間 X</strong>：構造化テスト表現<br/>
+<code>x ∈ X := (Input) × (PreState) × (Action/Trace) × (Oracle) × (Meta)</code></li>
+<li><strong>観点束 S</strong>：<code>S = {(o_i, r_i, λ_i)}</code>（観測関数・評価・重み）</li>
+<li><strong>テスト条件集合 A(S)</strong>：観点により誘導される同値類の集合（要求＝カバレッジ対象）</li>
+<li><strong>集合被覆</strong>：要求 A(S) を満たすテスト集合 T を最小コストで選ぶ最適化</li>
+</ul>
+<hr/>
+</section><section class="section-block" data-section-index="4"><h2 id="sec-6">4. ゲーム仕様（Eカード）</h2>
+<h3 id="sec-7">4.1 カード種</h3>
+<ul>
+<li><code>EMPEROR</code>（皇帝）：各 bout で皇帝側が 1 枚</li>
+<li><code>CITIZEN</code>（市民）：各 bout で両者が 4 枚ずつ（合計 8 枚）</li>
+<li><code>SLAVE</code>（奴隷）：各 bout で奴隷側が 1 枚</li>
+</ul>
+<h3 id="sec-8">4.2 役割（Side）</h3>
+<p>各 bout では 2 つの役割を定義する。</p>
+<ul>
+<li><code>EMPEROR_SIDE</code>：手札 = {皇帝1, 市民4}</li>
+<li><code>SLAVE_SIDE</code>：手札 = {奴隷1, 市民4}</li>
+</ul>
+<h3 id="sec-9">4.3 勝敗（三すくみ）</h3>
+<ul>
+<li>皇帝 &gt; 市民</li>
+<li>市民 &gt; 奴隷</li>
+<li>奴隷 &gt; 皇帝</li>
+<li>市民 vs 市民 は <strong>引き分け（DRAW）</strong></li>
+</ul>
+<h3 id="sec-10">4.4 1ターン（round）の進行</h3>
+<ol>
+<li>両者が同時にカードを 1 枚提出する（実装では同時提出を関数呼び出しで表現）。</li>
+<li>提出したカードを両者とも消費する。</li>
+<li>判定が DRAW（市民vs市民）なら次ターンへ。</li>
+<li>DRAW 以外なら、その時点で bout は <strong>即終了</strong>。</li>
+</ol>
+<h3 id="sec-11">4.5 bout の終了条件</h3>
+<ul>
+<li>最初の非 DRAW が出た時点で勝敗が決定して終了。</li>
+</ul>
+<h3 id="sec-12">4.6 match（複数 bout）の進行</h3>
+<ul>
+<li><code>num_bouts</code>（例：12, 3）を指定し、その回数ぶん bout を行う。</li>
+<li><code>swap_interval</code> を指定し、<code>swap_interval</code> 回ごとに陣営（EMPEROR<em>SIDE / SLAVE</em>SIDE）を入れ替える。
+<ul>
+<li>デフォルト：<code>num_bouts=12</code>, <code>swap_interval=3</code></li>
+</ul></li>
+</ul>
+<hr/>
+</section><section class="section-block" data-section-index="5"><h2 id="sec-13">5. 条件制限 E（実装要件）</h2>
+<h3 id="sec-14">5.1 機能要件</h3>
+<ul>
+<li><strong>E1 ルール正確性</strong>：4章のルールに基づき勝敗判定・状態遷移を正しく行う。</li>
+<li><strong>E2 試合構造</strong>：12戦/3戦、3戦ごとの交代を設定可能にする。</li>
+<li><strong>E3 不正検出</strong>：少なくとも以下を検出する。
+<ul>
+<li>手札にないカードを提出</li>
+<li>bout 終了後に追加の提出を試みる</li>
+</ul></li>
+<li><strong>E4 テスト生成</strong>：S と A(S) を入力（実装では既定値）としてテストを生成し、集合被覆で最小コストスイートを選択できる。</li>
+</ul>
+<h3 id="sec-15">5.2 非機能要件</h3>
+<ul>
+<li>ドメイン（ルール）層は I/O を持たず、テスト容易性を最優先する（純粋関数に寄せる）。</li>
+<li>例外は意味のある型（IllegalType）で表現し、テストで分類可能にする。</li>
+<li>モジュール分割により UI/AI/テスト生成を差し替え可能とする。</li>
+</ul>
+<hr/>
+</section><section class="section-block" data-section-index="6"><h2 id="sec-16">6. ソフトウェアアーキテクチャ</h2>
+<p>添付論文 9章の「LLM＋Python＋Diffusion」3層に合わせ、本実装では <strong>Domain/Application/DTD</strong> に分割する。</p>
+<h3 id="sec-17">6.1 層構造と責務</h3>
+<ol>
+<li><strong>Domain層（pure game logic）</strong>
+<ul>
+<li>ルール（勝敗判定、手札消費、終了判定）</li>
+<li>例外（不正分類）</li>
+<li>データ構造（カード、手札、状態、履歴）</li>
+</ul></li>
+<li><strong>Application層（orchestration）</strong>
+<ul>
+<li>bout をステップ実行する runner</li>
+<li>match を複数 bout として実行（陣営交代ロジック）</li>
+</ul></li>
+<li><strong>DTD層（test design）</strong>
+<ul>
+<li>観測（Sの o_i 実装）</li>
+<li>要求集合（A(S) の列挙）</li>
+<li>候補生成（W→X の生成器。現実の拡散モデルの代わりに stub を実装）</li>
+<li>集合被覆（greedy set cover）</li>
+</ul></li>
+</ol>
+<blockquote>
+<p>注：論文の “Diffusion/denoiser Fθ” は、本実装では <strong>「ガウスノイズ→シナリオ」へ写像する簡易生成器（stub）</strong>として提供する。<br/>
+  生成器を差し替えることで、将来、実拡散モデルにも接続可能。</p>
+</blockquote>
+<hr/>
+</section><section class="section-block" data-section-index="7"><h2 id="sec-18">7. モジュール仕様（ファイル一覧）</h2>
+<pre><code>ecard_dtd/
+  ecard_dtd/
+    domain/
+      cards.py     # CardType, Side, DecisivePair 等
+      hand.py      # Hand（マルチセット）
+      state.py     # BoutState, RoundRecord
+      rules.py     # resolve_round(), step()
+      errors.py    # IllegalMoveError, IllegalType
+    application/
+      bout_engine.py   # BoutRunner（逐次実行）
+      match_engine.py  # MatchConfig, run_match(), role swap
+    players/
+      base.py      # IPlayer, PlayerObservation
+      scripted.py  # ScriptedPlayer, MatchScriptedPlayer
+    dtd/
+      scenario.py     # Scenario（Xの実体）
+      observers.py    # observe_bout(), observe_match()（Sの o_i）
+      obligations.py  # A(S)（obligation ID列挙と被覆判定）
+      generator.py    # 生成器（base + random）と execute_scenario()
+      setcover.py     # greedy weighted set cover
+  scripts/
+    generate_tests.py  # テスト生成スクリプト（JSON/pytest生成）
+  tests/               # 任意（生成された pytest を置ける）
+</code></pre>
+<hr/>
+</section><section class="section-block" data-section-index="8"><h2 id="sec-19">8. Domain層 詳細仕様</h2>
+<h3 id="sec-20">8.1 <code>cards.py</code></h3>
+<ul>
+<li><code>CardType</code>: EMPEROR / CITIZEN / SLAVE</li>
+<li><code>Side</code>: EMPEROR<em>SIDE / SLAVE</em>SIDE</li>
+<li><code>DecisivePair</code>:  
+<ul>
+<li><code>EMPEROR_VS_CITIZEN</code>（E vs C）</li>
+<li><code>CITIZEN_VS_SLAVE</code>（C vs S）</li>
+<li><code>SLAVE_VS_EMPEROR</code>（S vs E）</li>
+</ul></li>
+<li><code>decisive_pair_from_cards(emperor_card, slave_card) -&gt; DecisivePair|None</code></li>
+</ul>
+<h3 id="sec-21">8.2 <code>hand.py</code></h3>
+<ul>
+<li><code>Hand</code>：カードの残数を管理するマルチセット</li>
+<li><code>Hand.emperor_side_hand()</code>：E1, C4</li>
+<li><code>Hand.slave_side_hand()</code>：S1, C4</li>
+<li><code>has()</code>, <code>remove()</code>, <code>remaining()</code>, <code>copy()</code></li>
+</ul>
+<h3 id="sec-22">8.3 <code>rules.py</code></h3>
+<ul>
+<li><code>resolve_round(emperor_card, slave_card) -&gt; RoundOutcome</code></li>
+<li><code>step(state, emperor_card, slave_card) -&gt; new_state</code>
+<ul>
+<li>AFTER<em>TERMINAL：state.terminal==True の場合 IllegalMoveError(AFTER</em>TERMINAL)</li>
+<li>NOT<em>IN</em>HAND：提出カードが手札にない場合 IllegalMoveError(NOT<em>IN</em>HAND)</li>
+<li>正常：カード消費→判定→履歴追加→非DRAWなら terminal/winner</li>
+</ul></li>
+</ul>
+<hr/>
+</section><section class="section-block" data-section-index="9"><h2 id="sec-23">9. Application層 詳細仕様</h2>
+<h3 id="sec-24">9.1 <code>bout_engine.py</code></h3>
+<ul>
+<li><code>BoutRunner</code>：
+<ul>
+<li>初期状態（皇帝側/奴隷側の手札）を生成</li>
+<li><code>step()</code>：1ターン進める</li>
+<li><code>run_until_terminal(moves)</code>：与えられた move 列を順に適用し terminal まで実行</li>
+<li><code>try_step_after_terminal()</code>：決着後の提出テスト用</li>
+</ul></li>
+</ul>
+<h3 id="sec-25">9.2 <code>match_engine.py</code></h3>
+<ul>
+<li><code>MatchConfig(num_bouts, swap_interval, starting_emperor_player)</code></li>
+<li><code>role_assignment_for_bout()</code>：bout index から役割割当（交代）を決定</li>
+<li><code>run_bout_with_players()</code>：IPlayer 2名で bout を実行</li>
+<li><code>run_match()</code>：複数 bout を実行し、途中で不正が出たら中断</li>
+</ul>
+<hr/>
+</section><section class="section-block" data-section-index="10"><h2 id="sec-26">10. DTD層：観点束 S と A(S)</h2>
+<h3 id="sec-27">10.1 観点束 S（本実装での定義）</h3>
+<p>本実装では、観点束 S を以下の観測で具体化する。</p>
+<ul>
+<li>o1: 勝者（winner）</li>
+<li>o2: 決着組合せ（DecisivePair）</li>
+<li>o3: DRAW 回数（draw_count）</li>
+<li>o4: 不正種別（IllegalType）</li>
+<li>o5: 試合構造（num<em>bouts, swap</em>interval, swap_ok）</li>
+</ul>
+<p>これらは <code>dtd/observers.py</code> に実装される。</p>
+<h3 id="sec-28">10.2 A(S)（要求＝カバレッジ対象）の列挙</h3>
+<p>本実装の A(S) は obligation ID の集合として定義する。</p>
+<h4 id="sec-29">(A) bout 群（13個）</h4>
+<ul>
+<li><code>BOUT:EMPEROR_VS_CITIZEN:k</code>（k=0..3）</li>
+<li><code>BOUT:CITIZEN_VS_SLAVE:k</code>（k=0..3）</li>
+<li><code>BOUT:SLAVE_VS_EMPEROR:k</code>（k=0..4）</li>
+</ul>
+<h4 id="sec-30">(B) 不正（2個）</h4>
+<ul>
+<li><code>ILLEGAL:NOT_IN_HAND</code></li>
+<li><code>ILLEGAL:AFTER_TERMINAL</code></li>
+</ul>
+<h4 id="sec-31">(C) match 構造（3個）</h4>
+<ul>
+<li><code>MATCH:TOTAL12</code></li>
+<li><code>MATCH:TOTAL3</code></li>
+<li><code>MATCH:SWAP_AFTER_3</code></li>
+</ul>
+<p>合計 18 個を既定の universe とする（<code>dtd/obligations.py</code>）。</p>
+<hr/>
+</section><section class="section-block" data-section-index="11"><h2 id="sec-32">11. テスト生成スクリプト仕様（scripts/generate_tests.py）</h2>
+<h3 id="sec-33">11.1 DTD アルゴリズム対応</h3>
+<p>添付論文 7章の DTD 手順に対応させる。</p>
+<ol>
+<li><strong>候補生成</strong>
+<ul>
+<li><code>generate_base_candidates()</code>：仕様由来の基底候補（確実に A(S) を満たせる候補）</li>
+<li><code>generate_random_candidates()</code>：ガウスノイズから match シナリオを生成する stub denoiser</li>
+</ul></li>
+<li><strong>観測／要求評価</strong>
+<ul>
+<li><code>execute_scenario()</code> がシナリオを実行し <code>covered</code>（被覆obligation集合）を計算</li>
+</ul></li>
+<li><strong>集合被覆選択</strong>
+<ul>
+<li><code>greedy_set_cover()</code> により最小コストスイートを選ぶ</li>
+</ul></li>
+</ol>
+<h3 id="sec-34">11.2 入出力</h3>
+<h4 id="sec-35">入力（コマンドライン引数）</h4>
+<ul>
+<li><code>--seed</code>：候補生成の乱数 seed</li>
+<li><code>--n-random</code>：ランダム候補数</li>
+<li><code>--budget</code>：任意のコスト予算（省略時は完全被覆を目指す）</li>
+<li><code>--overhead</code>：1シナリオあたりの固定コスト（テスト起動や環境準備の近似）</li>
+<li><code>--per-round</code>：1ターン（round）あたりのコスト</li>
+</ul>
+<h4 id="sec-36">出力</h4>
+<ul>
+<li><code>generated_suite.json</code>（既定）
+<ul>
+<li>選択されたシナリオ定義（X）と、その時点での期待被覆 <code>expected_covered</code></li>
+</ul></li>
+<li><code>tests_generated.py</code>（既定）
+<ul>
+<li>JSON を読み込み、再実行して <code>expected_covered ⊆ actual_covered</code> を検証する pytest</li>
+</ul></li>
+</ul>
+<hr/>
+</section><section class="section-block" data-section-index="12"><h2 id="sec-37">12. 実行手順（最小）</h2>
+<h3 id="sec-38">12.1 テストスイート生成</h3>
+<p>プロジェクトルートで：</p>
+<div class="codehilite">
+<pre><span></span><code>python<span class="w"> </span>scripts/generate_tests.py<span class="w"> </span>--seed<span class="w"> </span><span class="m">0</span><span class="w"> </span>--n-random<span class="w"> </span><span class="m">60</span>
+</code></pre>
+</div>
+<p>生成物：
+- <code>generated_suite.json</code>
+- <code>tests_generated.py</code></p>
+<h3 id="sec-39">12.2 pytest で検証</h3>
+<p>（pytest がある環境で）</p>
+<div class="codehilite">
+<pre><span></span><code>pytest<span class="w"> </span>-q<span class="w"> </span>tests_generated.py
+</code></pre>
+</div>
+<hr/>
+</section><section class="section-block" data-section-index="13"><h2 id="sec-40">13. 受入基準（Definition of Done）</h2>
+<ul>
+<li>ルール正確性：
+<ul>
+<li>少なくとも 3すくみ（E&gt;C, C&gt;S, S&gt;E）と DRAW（C=C）が期待通りに動作</li>
+</ul></li>
+<li>堅牢性：
+<ul>
+<li><code>NOT_IN_HAND</code> と <code>AFTER_TERMINAL</code> の不正が必ず検出できる</li>
+</ul></li>
+<li>上位ルール：
+<ul>
+<li><code>swap_interval=3</code> で、3戦ごとに陣営が交代する</li>
+</ul></li>
+<li>DTD テスト生成：
+<ul>
+<li>universe（18 obligations）を <strong>集合被覆で全被覆</strong>できる（未被覆が無い）</li>
+<li><code>generated_suite.json</code> と <code>tests_generated.py</code> が生成され、pytest で通る</li>
+</ul></li>
+</ul>
+<hr/>
+</section>
+    </main>
+  </div>
+
+  <footer class="footer">
+    <div style="max-width:1000px;margin:0 auto;padding:10px 16px;font-weight:700;">
+      Eカード（カイジ）カードゲーム実装仕様書 / HTML版（KaTeX対応） — 2025-12-26
+    </div>
+  </footer>
+</body>
+</html>

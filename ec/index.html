@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Eカード（カイジ）動く仕様書 | JavaScript 実装</title>
+  <meta name="description" content="Eカード（皇帝・市民・奴隷）のルール実装と、DTD（Diffusion Test Design）準拠のテスト生成を、ブラウザで動く仕様書として実装したデモページです。" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <div class="brand-title">Eカード（カイジ）動く仕様書</div>
+        <div class="brand-subtitle">JavaScript + HTML（レスポンシブ） / DTD（集合被覆）デモ</div>
+      </div>
+      <nav class="top-nav" aria-label="ページ内ナビゲーション">
+        <a href="#rules">ルール</a>
+        <a href="#bout">Bout（1勝負）</a>
+        <a href="#match">Match（複数勝負）</a>
+        <a href="#dtd">DTDテスト生成</a>
+        <a href="#about">使い方</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section id="rules" class="section">
+      <h1>ルール（仕様 4章）</h1>
+      <div class="grid-2">
+        <div class="card">
+          <h2>カード種</h2>
+          <ul class="list">
+            <li><b>EMPEROR（皇帝）</b>：皇帝側は 1 枚</li>
+            <li><b>CITIZEN（市民）</b>：両者 4 枚ずつ</li>
+            <li><b>SLAVE（奴隷）</b>：奴隷側は 1 枚</li>
+          </ul>
+          <div class="note">
+            1 bout（1勝負）では、<b>皇帝側</b>の手札は {皇帝×1, 市民×4}、<b>奴隷側</b>の手札は {奴隷×1, 市民×4}。
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>勝敗（三すくみ）</h2>
+          <div class="rps">
+            <div class="rps-row">
+              <span class="pill emperor">皇帝</span>
+              <span class="arrow">▶</span>
+              <span class="pill citizen">市民</span>
+            </div>
+            <div class="rps-row">
+              <span class="pill citizen">市民</span>
+              <span class="arrow">▶</span>
+              <span class="pill slave">奴隷</span>
+            </div>
+            <div class="rps-row">
+              <span class="pill slave">奴隷</span>
+              <span class="arrow">▶</span>
+              <span class="pill emperor">皇帝</span>
+            </div>
+          </div>
+          <div class="note">
+            <b>市民 vs 市民</b> は引き分け（DRAW）で次ターンへ。<br />
+            DRAW 以外（決着）が出た瞬間に bout は終了します。
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="bout" class="section">
+      <h1>Bout（1勝負）プレイ / 不正検出</h1>
+
+      <div class="grid-2">
+        <div class="card">
+          <h2>手動プレイ（同時提出を UI で表現）</h2>
+
+          <div class="controls">
+            <div class="field">
+              <label for="emperorSelect">皇帝側が出すカード</label>
+              <select id="emperorSelect"></select>
+            </div>
+            <div class="field">
+              <label for="slaveSelect">奴隷側が出すカード</label>
+              <select id="slaveSelect"></select>
+            </div>
+
+            <div class="btn-row">
+              <button id="boutStepBtn" class="btn primary">この手で勝負（step）</button>
+              <button id="boutResetBtn" class="btn">Bout をリセット</button>
+            </div>
+          </div>
+
+          <div class="split">
+            <div class="mini">
+              <h3>皇帝側の手札</h3>
+              <div id="emperorHandView" class="hand"></div>
+            </div>
+            <div class="mini">
+              <h3>奴隷側の手札</h3>
+              <div id="slaveHandView" class="hand"></div>
+            </div>
+          </div>
+
+          <div class="status">
+            <div><b>状態</b>：<span id="boutStatusText">-</span></div>
+            <div><b>DRAW 回数</b>：<span id="boutDrawCount">0</span></div>
+            <div><b>決着組合せ</b>：<span id="boutDecisivePair">-</span></div>
+            <div><b>勝者</b>：<span id="boutWinner">-</span></div>
+          </div>
+
+          <details class="details" open>
+            <summary>履歴（RoundRecord）</summary>
+            <div id="boutHistory" class="history"></div>
+          </details>
+        </div>
+
+        <div class="card">
+          <h2>不正検出（仕様 E3）</h2>
+          <p class="note">
+            仕様書の要件：<b>NOT_IN_HAND</b>（手札にないカード提出）と、<b>AFTER_TERMINAL</b>（決着後の提出）を必ず検出します。
+          </p>
+
+          <div class="btn-stack">
+            <button id="illegalNotInHandBtn" class="btn danger">不正：皇帝側が「奴隷」を出す（NOT_IN_HAND）</button>
+            <button id="illegalAfterTerminalBtn" class="btn danger">不正：決着後にもう1回 step（AFTER_TERMINAL）</button>
+          </div>
+
+          <div class="note">
+            <b>AFTER_TERMINAL</b> は、まず bout を決着させてから押してください（上の手動プレイで決着 → ここを押す）。
+          </div>
+
+          <hr class="sep" />
+
+          <h2>ログ</h2>
+          <div id="toastArea" class="toast-area" aria-live="polite"></div>
+          <pre id="boutLog" class="log" aria-label="ログ"></pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="match" class="section">
+      <h1>Match（複数 bout）シミュレーション</h1>
+
+      <div class="card">
+        <div class="grid-2">
+          <div>
+            <h2>設定（仕様 4.6）</h2>
+            <div class="controls">
+              <div class="field">
+                <label for="numBoutsInput">num_bouts（例：12 / 3）</label>
+                <input id="numBoutsInput" type="number" min="1" value="12" />
+              </div>
+              <div class="field">
+                <label for="swapIntervalInput">swap_interval（例：3）</label>
+                <input id="swapIntervalInput" type="number" min="1" value="3" />
+              </div>
+              <div class="field">
+                <label for="startingEmperorSelect">starting_emperor_player</label>
+                <select id="startingEmperorSelect">
+                  <option value="0">プレイヤーA</option>
+                  <option value="1">プレイヤーB</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h2>プレイヤー戦略（簡易）</h2>
+            <div class="controls">
+              <div class="field">
+                <label for="strategyA">プレイヤーA</label>
+                <select id="strategyA">
+                  <option value="random">ランダム</option>
+                  <option value="citizenFirst">市民優先</option>
+                  <option value="specialFirst">特殊（皇帝/奴隷）優先</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="strategyB">プレイヤーB</label>
+                <select id="strategyB">
+                  <option value="random">ランダム</option>
+                  <option value="citizenFirst">市民優先</option>
+                  <option value="specialFirst">特殊（皇帝/奴隷）優先</option>
+                </select>
+              </div>
+
+              <div class="btn-row">
+                <button id="runMatchBtn" class="btn primary">Match を実行</button>
+                <button id="matchClearBtn" class="btn">結果をクリア</button>
+              </div>
+            </div>
+
+            <div class="note">
+              役割は <code>swap_interval</code> ごとに交代します（例：3戦ごと）。結果表に「皇帝側A/B」が表示されます。
+            </div>
+          </div>
+        </div>
+
+        <hr class="sep" />
+
+        <h2>結果</h2>
+        <div id="matchSummary" class="summary"></div>
+        <div class="table-wrap">
+          <table class="table" aria-label="Match 結果">
+            <thead>
+              <tr>
+                <th>Bout</th>
+                <th>皇帝側</th>
+                <th>奴隷側</th>
+                <th>勝者</th>
+                <th>DRAW</th>
+                <th>決着組合せ</th>
+              </tr>
+            </thead>
+            <tbody id="matchTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="dtd" class="section">
+      <h1>DTD（Diffusion Test Design）テスト生成デモ</h1>
+
+      <div class="grid-2">
+        <div class="card">
+          <h2>生成パラメータ（仕様 11章）</h2>
+
+          <div class="controls">
+            <div class="field">
+              <label for="seedInput">seed</label>
+              <input id="seedInput" type="number" value="0" />
+            </div>
+            <div class="field">
+              <label for="nRandomInput">n-random（ランダム候補数）</label>
+              <input id="nRandomInput" type="number" min="0" value="60" />
+            </div>
+            <div class="field">
+              <label for="overheadInput">overhead（固定コスト）</label>
+              <input id="overheadInput" type="number" min="0" value="1" step="0.1" />
+            </div>
+            <div class="field">
+              <label for="perRoundInput">per-round（1ターンあたり）</label>
+              <input id="perRoundInput" type="number" min="0" value="0.2" step="0.1" />
+            </div>
+            <div class="field">
+              <label for="budgetInput">budget（任意 / 空欄=無制限）</label>
+              <input id="budgetInput" type="number" min="0" placeholder="例：10" />
+            </div>
+
+            <div class="btn-row">
+              <button id="generateSuiteBtn" class="btn primary">候補生成 → 観測 → 集合被覆</button>
+              <button id="dtdClearBtn" class="btn">クリア</button>
+            </div>
+          </div>
+
+          <div class="note">
+            ここでは論文の「拡散モデル」を、<b>ガウスノイズ → シナリオ</b>へ写像する簡易生成器（stub）として置き換えています（仕様 6章 注）。
+          </div>
+
+          <hr class="sep" />
+
+          <h2>Universe（18 obligations）</h2>
+          <div id="universeList" class="chips" aria-label="obligation universe"></div>
+        </div>
+
+        <div class="card">
+          <h2>選択されたスイート</h2>
+          <div id="suiteSummary" class="summary"></div>
+
+          <div class="btn-row">
+            <button id="downloadSuiteBtn" class="btn" disabled>generated_suite.json をダウンロード</button>
+          </div>
+
+          <details class="details" open>
+            <summary>選択されたシナリオ一覧</summary>
+            <div id="suiteList" class="history"></div>
+          </details>
+
+          <details class="details">
+            <summary>生成 JSON（プレビュー）</summary>
+            <textarea id="suiteJsonPreview" class="json" rows="12" readonly></textarea>
+          </details>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>候補（参考表示）</h2>
+        <div class="note">
+          base candidates（仕様由来）＋ random candidates（ノイズから生成）を、実行して被覆集合を計算します。
+        </div>
+        <div class="table-wrap">
+          <table class="table" aria-label="候補一覧">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>cost</th>
+                <th>covered</th>
+                <th>主なカバレッジ</th>
+              </tr>
+            </thead>
+            <tbody id="candidateTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="about" class="section">
+      <h1>使い方 / 補足</h1>
+      <div class="card">
+        <ul class="list">
+          <li>このページは、仕様書（Eカード実装＋DTD）を <b>ブラウザだけで動く形</b>にしたデモです。</li>
+          <li>ローカルで開く場合は <code>index.html</code> をそのまま開いてOKです（外部ライブラリ不要）。</li>
+          <li>スマホ確認は、同じフォルダを静的ホスティング（GitHub Pages 等）すると簡単です。</li>
+        </ul>
+
+        <div class="note">
+          実装は 3 層（Domain / Application / DTD）を意識し、<b>ゲームロジックは DOM に依存しない純粋ロジック</b>として実装しています。
+        </div>
+
+        <hr class="sep" />
+
+        <small class="muted">
+          © 2025 Eカード 動く仕様書（デモ） / This page is a rules-and-tests demonstration based on the provided spec.
+        </small>
+      </div>
+    </section>
+  </main>
+
+  <script src="./ecardspec.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
