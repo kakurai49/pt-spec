@@ -7,7 +7,7 @@
   <title>Python Training | Space Adventure</title>
     <meta
     name="description"
-    content="Training Course @Space Adventure — GitHub(PR)で進める、冒険感のあるPythonトレーニング。VEGA / ALTAIR / DENEB / SPICA の各コースへ最短でアクセス。"
+    content="Training Course @Space Adventure — GitHub(PR)で進める、冒険感のあるPythonトレーニング。VEGA / ALTAIR / DENEB / SPICA / RIGEL の各コースへ最短でアクセス。"
   />
 
   <style>
@@ -526,6 +526,14 @@
                   radial-gradient(540px 260px at 80% 35%, rgba(124,247,255,.14), transparent 62%),
                   radial-gradient(520px 220px at 55% 90%, rgba(167,139,250,.10), transparent 70%);
     }
+    .course.rigel{
+      border-color: rgba(255,211,110,.24);
+    }
+    .course.rigel::before{
+      background: radial-gradient(620px 260px at 24% 20%, rgba(255,211,110,.18), transparent 64%),
+                  radial-gradient(520px 240px at 78% 32%, rgba(255,94,168,.14), transparent 64%),
+                  radial-gradient(520px 220px at 60% 86%, rgba(45,226,255,.10), transparent 70%);
+    }
     .courseName h4{
       margin: 0;
       font-size: 22px;
@@ -955,10 +963,12 @@
                 スマホでも見やすいレスポンシブ対応。
                 <br />
                 さらに <span class="kbd">SPICA</span>（Beat Diffusion）で、<b>"条件付き生成"</b> を実装するクリエイティブコースも追加。
+                <span class="kbd">RIGEL</span> では、カイジのEカードを題材に<span class="kbd">観点束S / obligation A(S)</span> を動かすテスト設計と実装を学べます。
               </p>
 
               <div class="heroActions">
                 <a class="btn primary" href="#courses"><span class="dot" aria-hidden="true"></span>コース一覧へ</a>
+                <a class="btn" href="#rigel"><span class="dot" aria-hidden="true"></span>NEW: RIGEL</a>
                 <a class="btn" href="#spica"><span class="dot" aria-hidden="true"></span>NEW: SPICA</a>
                 <a class="btn" href="#flow"><span class="dot" aria-hidden="true"></span>進め方（GitHub/PR）</a>
                 <a class="btn" href="#faq"><span class="dot" aria-hidden="true"></span>よくある質問</a>
@@ -968,6 +978,7 @@
                 <span class="pill"><span class="spark" aria-hidden="true"></span>VEGA: <b>1日1時間 / 7日</b></span>
                 <span class="pill"><span class="spark" aria-hidden="true"></span>ALTAIR: <b>1日2時間 / 3ヶ月</b></span>
                 <span class="pill"><span class="spark" aria-hidden="true"></span>DENEB: <b>1日30分 / 7日</b></span>
+                <span class="pill"><span class="spark" aria-hidden="true"></span>RIGEL: <b>1日1時間 / 10日</b></span>
                 <span class="pill"><span class="spark" aria-hidden="true"></span>SPICA: <b>1日1時間 / 14日</b></span>
               </div>
             </div>
@@ -988,10 +999,11 @@
               <ul>
                 <li><span class="kbd">VEGA</span>：基礎〜全般を短期で攻略</li>
                 <li><span class="kbd">ALTAIR</span>：長期でじっくり鍛える</li>
+                <li><a href="ec/index.html"><span class="kbd">RIGEL</span>：Eカード（カイジ）で観点束Sとobligation A(S)を定義し、DTD（集合被覆）テスト生成まで動かす</a></li>
                 <li><a href="btd/overview.html"><span class="kbd">SPICA</span>：Beat Diffusionで“条件付き生成”をつくる（仕様→動くイメージ→設計→実装）</a></li>
                 <li><span class="kbd">DENEB</span>：QR→CSVを型ファーストで作る（1週間）</li>
                 <li><a href="qr/samples.html"><span class="kbd">DENEB Samples</span>：テスト用サンプルQR（フォーマット別）</a></li>
-                <li>各コースは <span class="kbd">scope / index / overview / spec</span> へ（DENEBは <span class="kbd">index / overview / spec / samples</span>、SPICAは <span class="kbd">overview / spec / design / implement</span>）</li>
+                <li>各コースは <span class="kbd">scope / index / overview / spec</span> へ（DENEBは <span class="kbd">index / overview / spec / samples</span>、SPICAは <span class="kbd">overview / spec / design / implement</span>、RIGELは <span class="kbd">scope / index / ecard_spec / spec</span>）</li>
               </ul>
             </div>
           </aside>
@@ -1003,7 +1015,7 @@
         <div class="secTitle">
           <div>
             <h3>コース</h3>
-            <p>画像メモにある構成（VEGA / ALTAIR / DENEB / SPICA）を、そのまま“かっこよく”整理してリンク化しています。</p>
+            <p>画像メモにある構成（VEGA / ALTAIR / DENEB / SPICA / RIGEL）を、そのまま“かっこよく”整理してリンク化しています。</p>
           </div>
         </div>
 
@@ -1163,6 +1175,87 @@
             <div class="courseFoot">
               <a class="btn" href="#flow"><span class="dot" aria-hidden="true"></span>提出フローを見る</a>
               <a class="btn primary" href="bt30/index.html"><span class="dot" aria-hidden="true"></span>ALTAIRを開始</a>
+            </div>
+          </article>
+
+          <!-- RIGEL -->
+          <article class="course rigel" id="rigel" aria-label="コース RIGEL">
+            <div class="courseHead">
+              <div class="courseName">
+                <span class="tag hot"><span class="chip" aria-hidden="true"></span>NEW コース RIGEL</span>
+                <h4>RIGEL</h4>
+                <p>
+                  カイジのEカードを題材に、<span class="kbd">条件制限E</span> / <span class="kbd">観点束S</span> / <span class="kbd">同値類A(S)</span> を定義し、
+                  Domain・Application・Player・DTD層へ分離した設計で学ぶコース。
+                  集合被覆で最小テスト集合を選ぶ DTD 実装と、ブラウザで動く仕様書つき。
+                </p>
+              </div>
+
+              <div class="courseMeta">
+                <div><b>学習目安</b></div>
+                <div>1日1時間 / 10日</div>
+              </div>
+            </div>
+
+            <div class="links" role="list">
+              <a class="linkCard" role="listitem" href="ec/scope.html">
+                <div class="ico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M8 7h8M8 11h8M8 15h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M6 3h12a2 2 0 0 1 2 2v14l-4-2-4 2-4-2-4 2V5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2" />
+                  </svg>
+                </div>
+                <div class="t">
+                  <b>Eカード実装仕様（Scope）</b>
+                  <small>ec/scope.html</small>
+                </div>
+              </a>
+
+              <a class="linkCard" role="listitem" href="ec/index.html">
+                <div class="ico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M7 7h10M7 12h10M7 17h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M4 6a2 2 0 0 1 2-2h12v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6Z" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                </div>
+                <div class="t">
+                  <b>観点束S / obligation A(S) と設計</b>
+                  <small>ec/index.html</small>
+                </div>
+              </a>
+
+              <a class="linkCard" role="listitem" href="ec/ecard_spec.html">
+                <div class="ico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M12 6v12M6 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M4 8c3-4 13-4 16 0M4 16c3 4 13 4 16 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <div class="t">
+                  <b>色管理付き仕様書（KaTeX版）</b>
+                  <small>ec/ecard_spec.html</small>
+                </div>
+              </a>
+
+              <a class="linkCard" role="listitem" href="ec/spec.html">
+                <div class="ico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M8 12h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M12 8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                </div>
+                <div class="t">
+                  <b>動く仕様書 + DTDデモ</b>
+                  <small>ec/spec.html</small>
+                </div>
+              </a>
+            </div>
+
+            <div class="courseFoot">
+              <a class="btn" href="#flow"><span class="dot" aria-hidden="true"></span>提出フローを見る</a>
+              <a class="btn" href="ec/spec.html"><span class="dot" aria-hidden="true"></span>動く仕様書を開く</a>
+              <a class="btn primary" href="ec/index.html"><span class="dot" aria-hidden="true"></span>RIGELを開始</a>
             </div>
           </article>
 
