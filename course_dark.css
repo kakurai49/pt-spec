@@ -1,0 +1,76 @@
+:root {
+  color-scheme: dark;
+}
+
+body {
+  background:
+    radial-gradient(1200px 700px at 70% 10%, rgba(167, 139, 250, 0.18), transparent 55%),
+    radial-gradient(900px 560px at 20% 25%, rgba(124, 247, 255, 0.16), transparent 55%),
+    linear-gradient(180deg, var(--bg0, #06070c), var(--bg1, #0b1024) 45%, var(--bg2, #120b2a));
+  color: var(--text, #e7edf7);
+}
+
+header,
+.container,
+.section,
+.section-block,
+.card,
+.panel,
+.footer,
+.highlight-box {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.04));
+  color: var(--text, #e7edf7);
+  border: 1px solid var(--line, rgba(255, 255, 255, 0.16));
+  border-radius: 14px;
+  box-shadow: var(--shadow, 0 16px 60px rgba(0, 0, 0, 0.55));
+}
+
+.container {
+  max-width: var(--max, 1120px);
+  margin: 32px auto;
+  padding: 22px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--line, rgba(255, 255, 255, 0.16));
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+th,
+td {
+  border: 1px solid var(--line, rgba(255, 255, 255, 0.12));
+  padding: 10px;
+}
+
+th {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text, #e7edf7);
+}
+
+tr:nth-child(even) td {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+pre {
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--text, #e7edf7);
+  border: 1px solid var(--line, rgba(255, 255, 255, 0.16));
+  border-left: 6px solid var(--accent, #7cf7ff);
+  border-radius: 12px;
+  padding: 14px;
+  overflow-x: auto;
+}
+
+a {
+  color: var(--accent, #7cf7ff);
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+}

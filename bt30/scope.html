@@ -7,10 +7,6 @@
     <link rel="stylesheet" href="altair-theme.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
     <style>
-        header {
-            text-align: center;
-        }
-
         header p {
             color: var(--muted);
         }
@@ -26,14 +22,54 @@
     </style>
 </head>
 <body>
-    <header>
-        <div class="page-wrap">
+    <a class="skip" href="#main">本文へスキップ</a>
+    <canvas id="starfield" aria-hidden="true"></canvas>
+    <header class="course-header">
+        <div class="wrap nav">
+            <div class="brand">
+                <div class="logo" aria-hidden="true"></div>
+                <div>
+                    <h1>Python Training</h1>
+                    <p>ALTAIR Course | BEAT楽器</p>
+                </div>
+            </div>
+            <nav aria-label="ALTAIRナビゲーション">
+                <div class="navlinks">
+                    <a href="../index.html">トップページ</a>
+                    <a href="./index.html">ALTAIRホーム</a>
+                    <a href="./overview.html">概要</a>
+                    <a href="./scope.html">スコープ</a>
+                    <a href="./spec.html">仕様</a>
+                </div>
+                <div class="cta">
+                    <a class="btn primary" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+                    <a class="btn" href="./spec.html"><span class="dot" aria-hidden="true"></span>デモを見る</a>
+                </div>
+                <button class="hamburger" id="hamburger" aria-expanded="false" aria-label="メニューを開く">
+                    <span aria-hidden="true"></span>
+                </button>
+            </nav>
+        </div>
+        <div class="mobile" id="mobile">
+            <div class="mobilePanel" role="dialog" aria-label="モバイルメニュー">
+                <a href="../index.html">トップページ</a>
+                <a href="./index.html">ALTAIRホーム</a>
+                <a href="./overview.html">概要</a>
+                <a href="./scope.html">スコープ</a>
+                <a href="./spec.html">仕様</a>
+                <div class="row">
+                    <a class="btn primary" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+                    <a class="btn" href="./spec.html"><span class="dot" aria-hidden="true"></span>仕様を試す</a>
+                </div>
+            </div>
+        </div>
+        <div class="wrap page-wrap">
             <h1>型駆動Python学習計画</h1>
             <p>論文モデル(G:(W,E)→(S,A(S)))を学習設計に転用</p>
         </div>
     </header>
 
-    <div class="container">
+    <div id="main" class="container">
         <div class="highlight-box">
             <p>🎯 <strong>1日2時間 × 3ヶ月（約90日 = 約180時間）のPythonトレーニング計画</strong></p>
             <p>✨ <strong>型選択レンズで「プログラミング＝型を選ぶこと」を体得</strong></p>
@@ -412,6 +448,7 @@
         <p>© 2023 - 高コントラストデザイン（WCAG準拠）</p>
     </div>
 
+    <script src="altair_shared.js"></script>
     <!-- KaTeXスクリプト -->
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>

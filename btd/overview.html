@@ -4,79 +4,74 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CIBG v0.1 仕様書 - Conditioned Iterative Beat Generator</title>
-    <link rel="stylesheet" href="pop3_style.css">
+    <meta name="color-scheme" content="dark">
+    <link rel="stylesheet" href="../bt30/altair-theme.css">
+    <link rel="stylesheet" href="../course_dark.css">
     <!-- KaTeX CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0rAv5pz0Ko6ij7KJqHYgD0MhOqA7EGxzFVEp1VA5KZOwtOKFAaCj1" crossorigin="anonymous">
     <style>
-        /* 色管理の最新アーキテクチャ: CSS変数で一貫性とコントラストを確保 */
         :root {
-            --primary-bg: #ffdd57;
-            --secondary-bg: #ff4081;
-            --accent-1: #1e90ff;
-            --accent-2: #00ffaa;
-            --accent-3: #ffaa00;
-            --text-dark: #222222;
-            --text-light: #ffffff;
-            --code-bg: #2d2d2d;
-            --table-header: #ff4081;
-            --table-row-odd: #ffedb3;
-            --table-row-even: #ffffff;
-            --shadow: rgba(0, 0, 0, 0.3);
-            --glow-pink: 0 0 20px #ff4081;
-            --glow-blue: 0 0 20px #1e90ff;
-            --border-radius: 15px;
+            --primary-bg: var(--bg0);
+            --secondary-bg: var(--accent2);
+            --accent-1: var(--accent);
+            --accent-2: var(--accent2);
+            --accent-3: var(--hot);
+            --text-dark: var(--text);
+            --text-light: var(--text);
+            --code-bg: rgba(0,0,0,0.35);
+            --table-header: rgba(255,255,255,0.08);
+            --table-row-odd: rgba(255,255,255,0.03);
+            --table-row-even: rgba(255,255,255,0.06);
+            --shadow: rgba(0, 0, 0, 0.45);
+            --glow-pink: 0 0 24px rgba(255,94,168,0.28);
+            --glow-blue: 0 0 24px rgba(124,247,255,0.24);
+            --border-radius: 18px;
         }
 
-        /* コントラスト強化とカラフルなスタイル追加 */
         body {
-            background: linear-gradient(135deg, var(--primary-bg) 0%, #ffcc00 100%);
+            background:
+                radial-gradient(1200px 700px at 70% 10%, rgba(167, 139, 250, 0.18), transparent 55%),
+                radial-gradient(900px 560px at 20% 25%, rgba(124, 247, 255, 0.16), transparent 55%),
+                linear-gradient(180deg, var(--bg0), var(--bg1) 45%, var(--bg2));
             color: var(--text-dark);
             font-family: 'Arial', sans-serif;
             line-height: 1.8;
         }
 
         header {
-            background: linear-gradient(90deg, var(--secondary-bg) 0%, #ff0066 100%);
             color: var(--text-light);
-            padding: 20px 0;
+            padding: 0;
             text-align: center;
-            box-shadow: var(--glow-pink);
-            border-bottom: 5px solid #ffaa00;
         }
 
         .container {
             max-width: 1200px;
             margin: 40px auto;
             padding: 30px;
-            background: rgba(255, 255, 255, 0.95);
+            background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.04));
             border-radius: var(--border-radius);
-            box-shadow: 0 10px 30px var(--shadow);
-            border: 3px solid var(--secondary-bg);
-            animation: popEffect 1s ease-in-out;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--line);
+            animation: popEffect 0.6s ease-in-out;
         }
 
         h1, h2, h3, h4 {
-            color: var(--secondary-bg);
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            color: var(--text);
             margin-top: 1.5em;
         }
 
         h1 {
-            font-size: 3.5rem;
-            background: linear-gradient(90deg, var(--secondary-bg), var(--accent-1));
+            font-size: clamp(32px, 4vw, 44px);
+            background: linear-gradient(90deg, rgba(124,247,255,0.92), rgba(167,139,250,0.9), rgba(255,94,168,0.9));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            animation: glow 2s infinite alternate;
         }
 
         h2 {
-            font-size: 2.5rem;
-            border-left: 10px solid var(--accent-1);
-            padding-left: 15px;
-            margin-bottom: 20px;
-            background: linear-gradient(90deg, #ff4081, #ff7700);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-size: clamp(24px, 3vw, 32px);
+            border-left: 6px solid var(--accent-1);
+            padding-left: 12px;
+            margin-bottom: 16px;
         }
 
         h3 {
@@ -93,14 +88,13 @@
 
         /* セクションブロックのカラフルなデザイン */
         .section-block {
-            background: linear-gradient(145deg, #ffffff, #ffeebb);
-            border: 3px solid;
-            border-image: linear-gradient(45deg, var(--accent-1), var(--accent-2)) 1;
+            background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
+            border: 1px solid var(--line);
             padding: 25px;
             margin: 30px 0;
             border-radius: var(--border-radius);
-            box-shadow: 5px 5px 15px var(--shadow);
-            transition: all 0.4s ease;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
         }
 
         .section-block:hover {
@@ -113,22 +107,24 @@
             border-collapse: collapse;
             width: 100%;
             margin: 25px 0;
-            border-radius: 10px;
+            border-radius: 14px;
             overflow: hidden;
-            box-shadow: 0 5px 15px var(--shadow);
+            box-shadow: var(--shadow);
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--line);
         }
 
         th {
-            background: linear-gradient(90deg, var(--table-header), #ff0066);
-            color: var(--text-light);
+            background: var(--table-header);
+            color: var(--text);
             padding: 15px;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             text-align: center;
         }
 
         td {
             padding: 12px 15px;
-            border: 2px solid #ffaa00;
+            border: 1px solid var(--line);
         }
 
         tr:nth-child(odd) {
@@ -141,15 +137,15 @@
 
         /* コードブロックのカラフルデザイン */
         pre {
-            background: linear-gradient(135deg, var(--code-bg) 0%, #3a3a3a 100%);
-            color: #00ffaa;
+            background: var(--code-bg);
+            color: var(--text);
             padding: 20px;
             border-radius: 10px;
-            border-left: 8px solid var(--accent-2);
+            border-left: 6px solid var(--accent-1);
             overflow-x: auto;
             font-family: 'Courier New', monospace;
             font-size: 1.1rem;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.5), 0 5px 15px var(--shadow);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.25), 0 5px 15px var(--shadow);
             margin: 20px 0;
         }
 
@@ -198,21 +194,21 @@
 
         /* フッターのカラフルデザイン */
         .footer {
-            background: linear-gradient(90deg, var(--secondary-bg) 0%, #ff0066 100%);
+            background: rgba(255,255,255,0.06);
             color: var(--text-light);
             text-align: center;
             padding: 20px;
             margin-top: 50px;
-            border-top: 5px solid #ffaa00;
+            border-top: 1px solid var(--line);
             box-shadow: 0 -5px 20px var(--shadow);
             font-weight: bold;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
         }
 
         /* 引用ブロックのカラフルデザイン */
         blockquote {
             border-left: 10px solid var(--accent-3);
-            background: linear-gradient(90deg, rgba(255,170,0,0.1) 0%, rgba(255,170,0,0.05) 100%);
+            background: linear-gradient(90deg, rgba(255,170,0,0.08) 0%, rgba(255,170,0,0.04) 100%);
             padding: 20px;
             margin: 25px 0;
             border-radius: 0 var(--border-radius) var(--border-radius) 0;
@@ -267,12 +263,54 @@
     </style>
 </head>
 <body>
+    <a class="skip" href="#main">本文へスキップ</a>
+    <canvas id="starfield" aria-hidden="true"></canvas>
+    <header class="course-header">
+        <div class="wrap nav">
+            <div class="brand">
+                <div class="logo" aria-hidden="true"></div>
+                <div>
+                    <h1>Python Training</h1>
+                    <p>SPICA Course | Beat Diffusion</p>
+                </div>
+            </div>
+            <nav aria-label="SPICAナビゲーション">
+                <div class="navlinks">
+                    <a href="../index.html">トップページ</a>
+                    <a href="./overview.html">概要</a>
+                    <a href="./spec.html">動くイメージ</a>
+                    <a href="./design.html">設計</a>
+                    <a href="./implement.html">実装</a>
+                </div>
+                <div class="cta">
+                    <a class="btn primary" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+                    <a class="btn" href="./spec.html"><span class="dot" aria-hidden="true"></span>デモを見る</a>
+                </div>
+                <button class="hamburger" id="hamburger" aria-expanded="false" aria-label="メニューを開く">
+                    <span aria-hidden="true"></span>
+                </button>
+            </nav>
+        </div>
+        <div class="mobile" id="mobile">
+            <div class="mobilePanel" role="dialog" aria-label="モバイルメニュー">
+                <a href="../index.html">トップページ</a>
+                <a href="./overview.html">概要</a>
+                <a href="./spec.html">動くイメージ</a>
+                <a href="./design.html">設計</a>
+                <a href="./implement.html">実装</a>
+                <div class="row">
+                    <a class="btn primary" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+                    <a class="btn" href="./spec.html"><span class="dot" aria-hidden="true"></span>デモを見る</a>
+                </div>
+            </div>
+        </div>
+    </header>
     <header class="floating">
         <h1>CIBG v0.1 仕様書</h1>
         <p style="font-size: 1.5rem; margin-top: 10px;">Conditioned Iterative Beat Generator - 拡散＝白色ノイズから条件でノイズ除去して具体ビートへ</p>
     </header>
 
-    <div class="container">
+    <main id="main" class="container">
         <div class="section-block">
             <h2>モデル名</h2>
             <p><strong style="font-size: 1.8rem; color: var(--secondary-bg);">CIBG（Conditioned Iterative Beat Generator） v0.1</strong><br>
@@ -763,7 +801,7 @@
             <p><strong>必要なら、この仕様をそのまま <span style="color: #ff0066;">フォルダ構成・クラス設計・JSON Schema・Operator実装優先順位</span>まで落として、「明日から書ける設計」にします。</strong><br>
             ただ、あなたの要求「最も現実性のある実装しやすいモデル」という意味では、上の <strong>CIBG v0.1（反復リファイン型）</strong>が最短で強いです。</p>
         </div>
-    </div>
+    </main>
 
     <div class="footer">
         <p>CIBG v0.1 仕様書 - Conditioned Iterative Beat Generator | "拡散＝白色ノイズから条件でノイズ除去して具体ビートへ"</p>
@@ -781,5 +819,6 @@
             ],
             throwOnError: false
         });"></script>
+    <script src="../bt30/altair_shared.js"></script>
 </body>
 </html>
