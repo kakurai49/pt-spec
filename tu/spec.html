@@ -3,70 +3,59 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>動く仕様書（JavaScriptで実行）</title>
-  <style>
-:root{
-  --bg:#0b1020;
-  --panel:#111a33;
-  --text:#eef2ff;
-  --muted:#b8c0ff;
-  --accent:#7c5cff;
-  --accent2:#35d0ba;
-  --warn:#ffcc66;
-  --bad:#ff6b6b;
-  --good:#63f2a1;
-  --code:#0a0f1f;
-  --border:rgba(255,255,255,.12);
-  --shadow: 0 8px 24px rgba(0,0,0,.35);
-}
-*{box-sizing:border-box}
-html,body{margin:0;padding:0;background:linear-gradient(180deg, var(--bg), #050714);color:var(--text);font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;line-height:1.6}
-a{color:var(--accent2);text-decoration:none}
-a:hover{text-decoration:underline}
-.container{max-width:1100px;margin:0 auto;padding:24px}
-.header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin:12px 0 18px}
-.brand h1{font-size:22px;margin:0}
-.brand p{margin:6px 0 0;color:var(--muted);font-size:13px}
-.nav{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end}
-.nav a{display:inline-block;padding:8px 12px;border:1px solid var(--border);border-radius:999px;background:rgba(255,255,255,.03)}
-.nav a.active{border-color:rgba(124,92,255,.8);box-shadow: 0 0 0 3px rgba(124,92,255,.15) inset}
-.card{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--shadow);margin:14px 0}
-.card h2{margin:0 0 10px;font-size:18px}
-.card h3{margin:16px 0 8px;font-size:15px}
-.badge{display:inline-block;padding:2px 10px;border-radius:999px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--muted);font-size:12px}
-.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
-.col-6{grid-column:span 6}
-.col-4{grid-column:span 4}
-.col-8{grid-column:span 8}
-.col-12{grid-column:span 12}
-@media (max-width: 920px){
-  .col-6,.col-4,.col-8{grid-column:span 12}
-  .header{flex-direction:column;align-items:stretch}
-  .nav{justify-content:flex-start}
-}
-hr{border:0;border-top:1px solid var(--border);margin:16px 0}
-ul{margin:8px 0 8px 22px}
-li{margin:4px 0}
-table{width:100%;border-collapse:collapse;border:1px solid var(--border);border-radius:12px;overflow:hidden}
-th,td{padding:10px 10px;border-bottom:1px solid var(--border);vertical-align:top}
-th{background:rgba(255,255,255,.05);text-align:left;font-weight:600}
-tr:last-child td{border-bottom:0}
-pre{background:var(--code);border:1px solid var(--border);padding:12px;border-radius:12px;overflow:auto}
-code{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Noto Sans Mono", monospace;font-size: 12.5px}
-.callout{border-left:4px solid var(--accent);padding:12px 14px;background:rgba(124,92,255,.08);border-radius:12px}
-.callout.warn{border-left-color: var(--warn);background:rgba(255,204,102,.08)}
-.callout.good{border-left-color: var(--good);background:rgba(99,242,161,.08)}
-.callout.bad{border-left-color: var(--bad);background:rgba(255,107,107,.08)}
-.kpi{display:flex;gap:12px;flex-wrap:wrap}
-.kpi .item{flex:1;min-width:160px;border:1px solid var(--border);border-radius:12px;padding:12px;background:rgba(255,255,255,.03)}
-.kpi .item .n{font-size:22px;font-weight:700}
-.kpi .item .t{color:var(--muted);font-size:12px}
-.footer{color:var(--muted);font-size:12px;margin:18px 0 0}
-.small{font-size:12px;color:var(--muted)}
-</style>
+  <meta name="color-scheme" content="dark" />
+  <title>動く仕様書（JavaScriptで実行） | SIRIUS</title>
+  <link rel="stylesheet" href="sirius-theme.css">
 </head>
-<body>
-  <div class="container">
+<body class="sirius-page">
+  <a class="skip" href="#main">本文へスキップ</a>
+  <canvas id="starfield" aria-hidden="true"></canvas>
+
+  <header class="course-header">
+    <div class="wrap nav">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Python Training</h1>
+          <p>SIRIUS Course | タロット占いフルスタック</p>
+        </div>
+      </div>
+
+      <nav aria-label="SIRIUSナビゲーション">
+        <div class="navlinks">
+          <a href="../index.html">トップページ</a>
+          <a href="overview.html">概要</a>
+          <a href="implement_spec.html">実装仕様書</a>
+          <a href="issues.html">Issue集</a>
+          <a class="active" href="spec.html">動く仕様書</a>
+        </div>
+        <div class="cta">
+          <a class="btn" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+          <a class="btn primary" href="#main"><span class="dot" aria-hidden="true"></span>実行エリアへ</a>
+        </div>
+        <button class="hamburger" id="hamburger" aria-expanded="false" aria-label="メニューを開く">
+          <span aria-hidden="true"></span>
+        </button>
+      </nav>
+    </div>
+
+    <div class="mobile" id="mobile">
+      <div class="mobilePanel" role="dialog" aria-label="モバイルメニュー">
+        <a href="../index.html">トップページ</a>
+        <a href="overview.html">概要</a>
+        <a href="implement_spec.html">実装仕様書</a>
+        <a href="issues.html">Issue集</a>
+        <a class="active" href="spec.html">動く仕様書</a>
+        <div class="row">
+          <a class="btn" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+          <a class="btn primary" href="#main"><span class="dot" aria-hidden="true"></span>実行エリアへ</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="container content-stack">
+<div class="container">
     <div class="header">
       <div class="brand">
         <h1>動く仕様書（JavaScriptで実行）</h1>
@@ -2106,5 +2095,8 @@ document.getElementById("question").value = "今の自分に必要なメッセ�
       <div class="small">注意：占い結果は娯楽目的です。医療・法律・投資などの重要判断には使用しないでください。</div>
     </div>
   </div>
+  </main>
+
+  <script src="../bt30/altair_shared.js"></script>
 </body>
 </html>
