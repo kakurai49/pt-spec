@@ -3,19 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark">
     <title>BEAT楽器トレーニング計画 - VEGAコース</title>
     <link rel="stylesheet" href="vega_theme.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
 </head>
 <body>
-  <div class="wrap">
-    <header class="page-header">
-      <p class="eyebrow">VEGA COURSE</p>
-      <h1>BEAT楽器トレーニング計画</h1>
-      <p class="lede">GitHub Issues Backlog: Python「BEAT楽器」（ミニ・ドラムマシン）— トップページのスペース感に合わせたダークテーマで整理しました。</p>
-    </header>
+  <a class="skip" href="#main">本文へスキップ</a>
+  <canvas id="starfield" aria-hidden="true"></canvas>
 
-    <main class="flow">
+  <header class="course-header">
+    <div class="wrap">
+      <div class="nav">
+        <div class="brand">
+          <div class="logo" aria-hidden="true"></div>
+          <div>
+            <h1>Python Training</h1>
+            <p>VEGA Course | BEAT楽器</p>
+          </div>
+        </div>
+        <nav aria-label="VEGAコースナビゲーション">
+          <div class="navlinks">
+            <a href="../index.html">トップページ</a>
+            <a href="./index.html">VEGAホーム</a>
+            <a href="./overview.html">概要</a>
+            <a href="./scope.html">スコープ</a>
+            <a href="./spec.html">仕様</a>
+          </div>
+          <div class="cta">
+            <a class="btn primary" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+            <a class="btn" href="./spec.html"><span class="dot" aria-hidden="true"></span>デモを見る</a>
+          </div>
+          <button class="hamburger" id="hamburger" aria-expanded="false" aria-label="メニューを開く">
+            <span aria-hidden="true"></span>
+          </button>
+        </nav>
+      </div>
+    </div>
+    <div class="mobile" id="mobile">
+      <div class="mobilePanel" role="dialog" aria-label="モバイルメニュー">
+        <a href="../index.html">トップページ</a>
+        <a href="./index.html">VEGAホーム</a>
+        <a href="./overview.html">概要</a>
+        <a href="./scope.html">スコープ</a>
+        <a href="./spec.html">仕様</a>
+        <div class="row">
+          <a class="btn primary" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+          <a class="btn" href="./spec.html"><span class="dot" aria-hidden="true"></span>仕様を試す</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <div class="wrap flow">
+      <section class="panel course-hero">
+        <div class="page-header">
+          <p class="eyebrow">VEGA COURSE</p>
+          <h1>BEAT楽器トレーニング計画</h1>
+          <p class="lede">GitHub Issues Backlog: Python「BEAT楽器」（ミニ・ドラムマシン）— トップページのスペース感に合わせたダークテーマで整理しました。</p>
+        </div>
+        <div class="hero-actions">
+          <a class="btn primary" href="./overview.html"><span class="dot" aria-hidden="true"></span>概要（観点設計）</a>
+          <a class="btn" href="./scope.html"><span class="dot" aria-hidden="true"></span>1週間スコープ</a>
+          <a class="btn" href="./spec.html"><span class="dot" aria-hidden="true"></span>動く仕様書</a>
+        </div>
+        <div class="meta-grid">
+          <div class="meta-card">
+            <strong>成果物</strong>
+            beat.wav / ASCII可視化 / CLIパイプライン
+          </div>
+          <div class="meta-card">
+            <strong>想定ペース</strong>
+            1日1時間 × 7日（初心者OK）
+          </div>
+          <div class="meta-card">
+            <strong>トーン</strong>
+            宇宙を感じるダークテーマとグラデーション
+          </div>
+        </div>
+      </section>
+
       <section class="panel flow">
         <div class="math-container">
           <p><strong>時間解像度の計算式:</strong></p>
@@ -808,6 +876,7 @@ H:x-x-x-x-x-x-x-x-</code></pre>
             <p>イベント時間: \(t_{\text{event}} = n_{\text{step}} \times t_{\text{step}}\)</p>
             <p>サンプル位置: \(s_{\text{pos}} = \lfloor t_{\text{event}} \times f_s \rfloor\)</p>
         </div>
+      </div>
     </main>
     
     <div class="footer">
@@ -830,6 +899,6 @@ H:x-x-x-x-x-x-x-x-</code></pre>
             });
         });
     </script>
-  </div>
+    <script src="vega_shared.js"></script>
 </body>
 </html>

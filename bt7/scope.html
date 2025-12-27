@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark">
     <title>Python学習メニュー設計 - 型選択工学による1週間カリキュラム</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
@@ -32,15 +33,82 @@
     </style>
 </head>
 <body>
-  <div class="wrap">
-    <header class="page-header">
-        <p class="eyebrow">VEGA COURSE</p>
-        <h1>Python学習メニュー設計 - 型選択工学による1週間カリキュラム</h1>
-        <p class="lede">トップページと同じダークスペーストーンで、1日1時間×1週間の計画を読みやすく整理しました。</p>
-    </header>
+  <a class="skip" href="#main">本文へスキップ</a>
+  <canvas id="starfield" aria-hidden="true"></canvas>
 
-    <main class="flow">
-        <section class="panel flow">
+  <header class="course-header">
+    <div class="wrap">
+      <div class="nav">
+        <div class="brand">
+          <div class="logo" aria-hidden="true"></div>
+          <div>
+            <h1>Python Training</h1>
+            <p>VEGA Course | Scope</p>
+          </div>
+        </div>
+        <nav aria-label="VEGAコースナビゲーション">
+          <div class="navlinks">
+            <a href="../index.html">トップページ</a>
+            <a href="./index.html">VEGAホーム</a>
+            <a href="./overview.html">概要</a>
+            <a href="./scope.html">スコープ</a>
+            <a href="./spec.html">仕様</a>
+          </div>
+          <div class="cta">
+            <a class="btn primary" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+            <a class="btn" href="./index.html"><span class="dot" aria-hidden="true"></span>Issue Backlog</a>
+          </div>
+          <button class="hamburger" id="hamburger" aria-expanded="false" aria-label="メニューを開く">
+            <span aria-hidden="true"></span>
+          </button>
+        </nav>
+      </div>
+    </div>
+    <div class="mobile" id="mobile">
+      <div class="mobilePanel" role="dialog" aria-label="モバイルメニュー">
+        <a href="../index.html">トップページ</a>
+        <a href="./index.html">VEGAホーム</a>
+        <a href="./overview.html">概要</a>
+        <a href="./scope.html">スコープ</a>
+        <a href="./spec.html">仕様</a>
+        <div class="row">
+          <a class="btn primary" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+          <a class="btn" href="./spec.html"><span class="dot" aria-hidden="true"></span>デモを見る</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <div class="wrap flow">
+      <section class="panel course-hero">
+        <div class="page-header">
+            <p class="eyebrow">VEGA COURSE</p>
+            <h1>Python学習メニュー設計 - 型選択工学による1週間カリキュラム</h1>
+            <p class="lede">トップページと同じダークスペーストーンで、1日1時間×1週間の計画を読みやすく整理しました。</p>
+        </div>
+        <div class="hero-actions">
+          <a class="btn primary" href="./overview.html"><span class="dot" aria-hidden="true"></span>概要へ</a>
+          <a class="btn" href="./index.html"><span class="dot" aria-hidden="true"></span>Issue Backlog</a>
+          <a class="btn" href="./spec.html"><span class="dot" aria-hidden="true"></span>仕様を見る</a>
+        </div>
+        <div class="meta-grid">
+          <div class="meta-card">
+            <strong>スコープ</strong>
+            1日1時間 × 7日で A(S) を被覆する演習セット
+          </div>
+          <div class="meta-card">
+            <strong>視認性</strong>
+            背景と文字色をトップページと同一トーンに調整
+          </div>
+          <div class="meta-card">
+            <strong>モバイル</strong>
+            テーブルも横スクロールで崩れないレスポンシブ
+          </div>
+        </div>
+      </section>
+
+      <section class="panel flow">
         <div class="scope-section section-1">
             <h2>論文の枠組みをPython学習に応用</h2>
             <p>以下では、添付論文の枠組み</p>
@@ -137,6 +205,7 @@
             <h3>✅ \((A(S))\)：この1週間で押さえる"型選択パターン"の等価クラス（10個）</h3>
             <p>7時間なので、全部は無理です。初心者が「型選択の核」を掴める最小セットとして <strong>10クラス</strong>に絞ります。</p>
             
+            <div class="table-wrap">
             <table>
                 <thead>
                     <tr>
@@ -231,6 +300,7 @@
                     </tr>
                 </tbody>
             </table>
+            </div>
             
             <p>※ <code>record</code> は最初は <code>tuple</code> や <code>dict</code> でよいです。後で <code>dataclass</code> に昇格させます（これが「型を選ぶ」の練習）。</p>
         </div>
@@ -487,12 +557,12 @@
             </ul>
         </div>
         </section>
+      </div>
     </main>
 
     <div class="footer">
         Python学習メニュー設計 - 型選択工学による1週間カリキュラム © 2023 | VEGAコース調整
     </div>
-  </div>
 
     <script>
         // KaTeXの自動レンダリング設定
@@ -508,5 +578,6 @@
             });
         });
     </script>
+    <script src="vega_shared.js"></script>
 </body>
 </html>

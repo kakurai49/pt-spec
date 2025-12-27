@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark">
     <title>BEAT楽器トレーニング計画 - 型を選択する工学</title>
     <link rel="stylesheet" href="vega_theme.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
@@ -27,22 +28,85 @@
             font-size: 1.1em;
             color: var(--text);
         }
-
-        .table-wrap {
-            overflow-x: auto;
-        }
     </style>
 </head>
 <body>
-  <div class="wrap">
-    <header class="page-header">
-        <p class="eyebrow">VEGA COURSE</p>
-        <h1>🎵 BEAT楽器トレーニング計画 🥁</h1>
-        <p class="lede">トップページの宇宙感に合わせたダークトーンに統一し、「プログラミング＝型を選択する工学」の学習導線を整理しました。</p>
-    </header>
+  <a class="skip" href="#main">本文へスキップ</a>
+  <canvas id="starfield" aria-hidden="true"></canvas>
 
-    <main class="flow">
-        <section class="panel flow">
+  <header class="course-header">
+    <div class="wrap">
+      <div class="nav">
+        <div class="brand">
+          <div class="logo" aria-hidden="true"></div>
+          <div>
+            <h1>Python Training</h1>
+            <p>VEGA Course | Overview</p>
+          </div>
+        </div>
+        <nav aria-label="VEGAコースナビゲーション">
+          <div class="navlinks">
+            <a href="../index.html">トップページ</a>
+            <a href="./index.html">VEGAホーム</a>
+            <a href="./overview.html">概要</a>
+            <a href="./scope.html">スコープ</a>
+            <a href="./spec.html">仕様</a>
+          </div>
+          <div class="cta">
+            <a class="btn primary" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+            <a class="btn" href="./scope.html"><span class="dot" aria-hidden="true"></span>学習メニュー</a>
+          </div>
+          <button class="hamburger" id="hamburger" aria-expanded="false" aria-label="メニューを開く">
+            <span aria-hidden="true"></span>
+          </button>
+        </nav>
+      </div>
+    </div>
+    <div class="mobile" id="mobile">
+      <div class="mobilePanel" role="dialog" aria-label="モバイルメニュー">
+        <a href="../index.html">トップページ</a>
+        <a href="./index.html">VEGAホーム</a>
+        <a href="./overview.html">概要</a>
+        <a href="./scope.html">スコープ</a>
+        <a href="./spec.html">仕様</a>
+        <div class="row">
+          <a class="btn primary" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+          <a class="btn" href="./spec.html"><span class="dot" aria-hidden="true"></span>デモを見る</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <div class="wrap flow">
+      <section class="panel course-hero">
+        <div class="page-header">
+            <p class="eyebrow">VEGA COURSE</p>
+            <h1>🎵 BEAT楽器トレーニング計画 🥁</h1>
+            <p class="lede">トップページの宇宙感に合わせたダークトーンに統一し、「プログラミング＝型を選択する工学」の学習導線を整理しました。</p>
+        </div>
+        <div class="hero-actions">
+          <a class="btn primary" href="./index.html"><span class="dot" aria-hidden="true"></span>Issue Backlog</a>
+          <a class="btn" href="./scope.html"><span class="dot" aria-hidden="true"></span>1週間メニュー</a>
+          <a class="btn" href="./spec.html"><span class="dot" aria-hidden="true"></span>WebAudio仕様</a>
+        </div>
+        <div class="meta-grid">
+          <div class="meta-card">
+            <strong>骨格</strong>
+            観点 (S) と A(S) で型選択パターンを可視化
+          </div>
+          <div class="meta-card">
+            <strong>ペース</strong>
+            1日1時間 × 7日 / スマホでも読みやすい
+          </div>
+          <div class="meta-card">
+            <strong>カラー</strong>
+            トップページと同一のダーク + ネオンアクセント
+          </div>
+        </div>
+      </section>
+
+      <section class="panel flow">
         <div class="training-section section-1">
             <h2>前回の設計（論文の枠組み）</h2>
             <div class="math-container">
@@ -127,6 +191,7 @@
             <h3>✅ (A(S))：ビート楽器で身につける「型選択パターン」10クラス</h3>
             <p>（= 7時間で"被覆"したい離散条件集合。各クラスに代表演習を1つ置きます）</p>
             
+            <div class="table-wrap">
             <table>
                 <thead>
                     <tr>
@@ -221,6 +286,7 @@
                     </tr>
                 </tbody>
             </table>
+            </div>
             <blockquote>
                 <p>この (A(S)) を、1日1時間×7日でできるだけ少ない演習で"被覆"する（論文の set cover / hitting set の発想）＝今回のメニュー設計です。</p>
             </blockquote>
@@ -373,12 +439,12 @@ H:x-x-x-x-x-x-x-x-</pre>
             </ul>
         </div>
         </section>
+      </div>
     </main>
 
     <div class="footer">
         <p>BEAT楽器トレーニング計画 — VEGAコース | 宇宙感ダークテーマに統一</p>
     </div>
-  </div>
 
     <!-- KaTeX JS -->
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
@@ -392,5 +458,6 @@ H:x-x-x-x-x-x-x-x-</pre>
             ],
             throwOnError: false
         });"></script>
+    <script src="vega_shared.js"></script>
 </body>
 </html>
