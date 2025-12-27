@@ -7,284 +7,41 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+    <link rel="stylesheet" href="vega_theme.css">
     <style>
-        /* ベースCSS - pop3_style.cssの内容 */
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #ffdd57; /* Bold pop art colors */
-            color: #333;
+        .scope-section {
+            border-radius: var(--r);
+            padding: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(0, 0, 0, 0.32);
+            box-shadow: var(--shadow);
         }
 
-        header {
-            background-color: #ff4081;
-            color: white;
-            padding: 10px 0;
-            text-align: center;
-            position: relative;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-            text-transform: uppercase;
-            font-weight: bold;
-            font-size: 2.5rem;
-            animation: glow 1.5s infinite alternate;
+        .scope-section + .scope-section {
+            margin-top: 18px;
         }
 
-        @media (max-width: 768px) {
-            header {
-                font-size: 1.8rem; /* Smaller font for mobile devices */
-            }
-        }
-
-        @keyframes glow {
-            from {
-                text-shadow: 0 0 10px #ff4081, 0 0 20px #ff4081;
-            }
-            to {
-                text-shadow: 0 0 30px #ff4081, 0 0 40px #ff4081;
-            }
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: white;
-            border-radius: 15px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-            animation: popEffect 1s ease-in-out;
-        }
-
-        @keyframes popEffect {
-            0% {
-                transform: scale(0.8);
-                opacity: 0.6;
-            }
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        h2 {
-            color: #ff4081;
-            font-size: 2rem;
-            font-weight: bold;
-        }
-
-        a {
-            text-decoration: none;
-            color: #1e90ff;
-            font-weight: bold;
-            transition: all 0.3s ease;
-        }
-
-        a:hover {
-            text-decoration: underline;
-            color: #ff4081;
-            text-shadow: 0 0 5px #ff4081;
-        }
-
-        img {
-            width: 100%;
-            max-width: 400px;
-            height: auto;
-            display: block;
-            margin: 10px auto;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        }
-
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-
-        th, td {
-            border: 2px solid black;
-            padding: 8px;
-            text-align: left;
-        }
-
-        pre {
-            background-color: #f4f4f4;
-            padding: 10px;
-            border-radius: 5px;
-            overflow-x: auto; /* Allow horizontal scrolling */
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            font-family: 'Courier New', Courier, monospace;
-            max-width: 100%; /* Ensure it fits within the container */
-            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
-        }
-
-        .footer {
-            text-align: center;
-            padding: 10px;
-            background-color: #ff4081;
-            color: white;
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-        }
-
-        .character {
-            margin-bottom: 30px;
-            border: 3px solid #ff4081;
-            padding: 20px;
-            border-radius: 10px;
-            background: #ffdd57;
-            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        .character:hover {
-            transform: scale(1.05);
-            background-color: #ffcc00;
-            box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                width: 90%;
-            }
-        }
-
-        /* KaTeXの数式がはみ出ないようにするためのスタイル */
-        .katex {
-            font-size: 1.1em !important; /* 数式のフォントサイズを調整 */
-            overflow-x: auto; /* 横スクロールを許可 */
-            overflow-y: hidden; /* 縦スクロールは不要 */
-            max-width: 100%; /* コンテナ幅に合わせる */
-            white-space: nowrap; /* 数式が折り返されないようにする */
+        .scope-section h2 {
+            margin-top: 0;
         }
 
         .katex-display {
-            margin: 0.5em 0; /* 数式の上下の余白を調整 */
-            overflow-x: auto; /* 横スクロールを許可 */
-            max-width: 100%; /* コンテナ幅に合わせる */
-        }
-
-        /* 追加のカラフルなスタイル - 色管理アーキテクチャ */
-        :root {
-            --primary-bg: #ffdd57;
-            --secondary-bg: #ff4081;
-            --accent-1: #1e90ff;
-            --accent-2: #32cd32;
-            --accent-3: #ff6347;
-            --text-dark: #333333;
-            --text-light: #ffffff;
-            --card-bg: #ffffff;
-            --shadow-color: rgba(0, 0, 0, 0.2);
-        }
-
-        /* セクションごとの色分け */
-        .section-1 { background-color: rgba(255, 105, 180, 0.1); border-left: 5px solid #ff69b4; padding: 15px; margin: 20px 0; border-radius: 0 10px 10px 0; }
-        .section-2 { background-color: rgba(30, 144, 255, 0.1); border-left: 5px solid #1e90ff; padding: 15px; margin: 20px 0; border-radius: 0 10px 10px 0; }
-        .section-3 { background-color: rgba(50, 205, 50, 0.1); border-left: 5px solid #32cd32; padding: 15px; margin: 20px 0; border-radius: 0 10px 10px 0; }
-        .section-4 { background-color: rgba(255, 99, 71, 0.1); border-left: 5px solid #ff6347; padding: 15px; margin: 20px 0; border-radius: 0 10px 10px 0; }
-        .section-5 { background-color: rgba(138, 43, 226, 0.1); border-left: 5px solid #8a2be2; padding: 15px; margin: 20px 0; border-radius: 0 10px 10px 0; }
-
-        /* テーブルスタイルの強化 */
-        th {
-            background-color: var(--secondary-bg);
-            color: var(--text-light);
-            font-weight: bold;
-        }
-
-        tr:nth-child(even) {
-            background-color: rgba(255, 64, 129, 0.1);
-        }
-
-        tr:nth-child(odd) {
-            background-color: rgba(255, 221, 87, 0.2);
-        }
-
-        /* コードブロックのスタイル強化 */
-        pre code {
-            display: block;
-            padding: 15px;
-            border-radius: 8px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            font-weight: bold;
-        }
-
-        /* 数式コンテナのスタイル */
-        .math-container {
-            background-color: rgba(255, 255, 255, 0.9);
-            padding: 15px;
-            border-radius: 10px;
-            margin: 15px 0;
-            border: 2px dashed var(--accent-1);
-            text-align: center;
-        }
-
-        /* 日別カリキュラムのスタイル */
-        .day-card {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            padding: 20px;
-            margin: 20px 0;
-            box-shadow: 0 8px 16px var(--shadow-color);
-            border-top: 8px solid;
-            transition: transform 0.3s ease;
-        }
-
-        .day-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .day-1 { border-top-color: #ff4081; }
-        .day-2 { border-top-color: #1e90ff; }
-        .day-3 { border-top-color: #32cd32; }
-        .day-4 { border-top-color: #ff6347; }
-        .day-5 { border-top-color: #8a2be2; }
-        .day-6 { border-top-color: #ffa500; }
-        .day-7 { border-top-color: #00ced1; }
-
-        .time-slot {
-            background-color: rgba(255, 64, 129, 0.2);
-            padding: 8px;
-            border-radius: 6px;
-            margin: 10px 0;
-            font-weight: bold;
-            color: var(--text-dark);
-        }
-
-        /* ヘッダーナビゲーション */
-        .nav-container {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin: 20px 0;
-        }
-
-        .nav-btn {
-            padding: 10px 20px;
-            background-color: var(--accent-1);
-            color: white;
-            border: none;
-            border-radius: 30px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .nav-btn:hover {
-            background-color: var(--secondary-bg);
-            transform: scale(1.05);
+            font-size: 1.1em;
+            color: var(--text);
         }
     </style>
 </head>
 <body>
-    <header>
-        Python学習メニュー設計 - 型選択工学による1週間カリキュラム
+  <div class="wrap">
+    <header class="page-header">
+        <p class="eyebrow">VEGA COURSE</p>
+        <h1>Python学習メニュー設計 - 型選択工学による1週間カリキュラム</h1>
+        <p class="lede">トップページと同じダークスペーストーンで、1日1時間×1週間の計画を読みやすく整理しました。</p>
     </header>
 
-    <div class="container">
-        <div class="section-1">
+    <main class="flow">
+        <section class="panel flow">
+        <div class="scope-section section-1">
             <h2>論文の枠組みをPython学習に応用</h2>
             <p>以下では、添付論文の枠組み</p>
             <div class="math-container">
@@ -293,7 +50,7 @@
             <p>（世界 \((W)\) と制約 \((E)\) から、観点 \((S)\) と離散条件 \((A(S))\) を設計する）を、<strong>「Python学習メニュー設計」</strong>にそのまま当てはめて、1日1時間×1週間のトレーニング計画を作ります。</p>
         </div>
 
-        <div class="section-2">
+        <div class="scope-section section-2">
             <h2>1. 設計対象を論文の記号で定義する</h2>
             
             <h3>世界 \((W)\)：この1週間で扱う「Pythonプログラミング世界」</h3>
@@ -338,7 +95,7 @@
             </ul>
         </div>
 
-        <div class="section-3">
+        <div class="scope-section section-3">
             <h2>2. 中間生成物①：観点 \((S)\) を設計する（何を区別したいか）</h2>
             <p>論文では観点 \((S)\) を「観測関数 \((o_S: W \to O_S)\)」として扱います。
             ここでは <strong>学習者が書いた小さなプログラム</strong> \((w \in W)\) を観測して、</p>
@@ -366,7 +123,7 @@
             <p>この \((S)\) はまさに「プログラミングとは型を選択する工学」を、観測可能な形に落としたものです。</p>
         </div>
 
-        <div class="section-4">
+        <div class="scope-section section-4">
             <h2>3. 中間生成物②：\((A(S))\) を設計する（離散的な"学習条件"の集合）</h2>
             <p>論文では</p>
             <div class="math-container">
@@ -380,7 +137,8 @@
             <h3>✅ \((A(S))\)：この1週間で押さえる"型選択パターン"の等価クラス（10個）</h3>
             <p>7時間なので、全部は無理です。初心者が「型選択の核」を掴める最小セットとして <strong>10クラス</strong>に絞ります。</p>
             
-            <table>
+            <div class="table-scroll">
+                <table>
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -474,11 +232,12 @@
                     </tr>
                 </tbody>
             </table>
+            </div>
             
             <p>※ <code>record</code> は最初は <code>tuple</code> や <code>dict</code> でよいです。後で <code>dataclass</code> に昇格させます（これが「型を選ぶ」の練習）。</p>
         </div>
 
-        <div class="section-5">
+        <div class="scope-section section-5">
             <h2>4. 1日1時間×1週間メニュー（A(S)を被覆する"代表演習集合"）</h2>
             <p>論文の「テストスイート選択＝被覆問題」の発想に沿って言うと、</p>
             
@@ -708,7 +467,7 @@
             </div>
         </div>
 
-        <div class="section-1">
+        <div class="scope-section section-1">
             <h2>5. まとめ：この設計が論文モデルに沿っている点（短く整理）</h2>
             
             <ul>
@@ -720,7 +479,7 @@
             </ul>
         </div>
 
-        <div class="section-3">
+        <div class="scope-section section-3">
             <h2>追加提案</h2>
             <p>もし、あなたが望むなら次の追加も作れます（質問は不要です、どちらでも続けられます）：</p>
             
@@ -729,11 +488,13 @@
                 <li>A(S) の各クラスに対する <strong>"よくある誤り"＝エラー推測（経験ベース）</strong> の観点追加（論文4.5のノリで）</li>
             </ul>
         </div>
-    </div>
+        </section>
+    </main>
 
     <div class="footer">
-        Python学習メニュー設計 - 型選択工学による1週間カリキュラム © 2023
+        Python学習メニュー設計 - 型選択工学による1週間カリキュラム © 2023 | VEGAコース調整
     </div>
+  </div>
 
     <script>
         // KaTeXの自動レンダリング設定

@@ -4,329 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BEAT楽器トレーニング計画 - 型を選択する工学</title>
-    <link rel="stylesheet" href="pop3_style.css">
-    <!-- KaTeX CSS -->
+    <link rel="stylesheet" href="vega_theme.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
-    <!-- 改善された色管理アーキテクチャ -->
     <style>
-        /* ============================================
-           カラーマネジメントシステム - コントラスト保証
-           ============================================ */
-        :root {
-            /* プライマリーカラーパレット - 明るい順に定義 */
-            --color-primary-100: #ffebf3;
-            --color-primary-200: #ffb8d9;
-            --color-primary-300: #ff85bf;
-            --color-primary-400: #ff4081; /* メイン */
-            --color-primary-500: #e6006c;
-            --color-primary-600: #b30054;
-            --color-primary-700: #80003d;
-            
-            /* セカンダリーカラーパレット - 明るい順に定義 */
-            --color-secondary-100: #fff9e6;
-            --color-secondary-200: #ffed99;
-            --color-secondary-300: #ffe14d;
-            --color-secondary-400: #ffdd57; /* メイン */
-            --color-secondary-500: #e6c74e;
-            --color-secondary-600: #b39d3d;
-            --color-secondary-700: #80712c;
-            
-            /* アクセントカラーパレット */
-            --color-accent-blue-100: #e6f2ff;
-            --color-accent-blue-400: #1e90ff;
-            --color-accent-blue-700: #0066cc;
-            
-            --color-accent-green-100: #e6ffe6;
-            --color-accent-green-400: #32cd32;
-            --color-accent-green-700: #228b22;
-            
-            --color-accent-orange-100: #fff5e6;
-            --color-accent-orange-400: #ffa500;
-            --color-accent-orange-700: #cc8400;
-            
-            --color-accent-purple-100: #f0e6ff;
-            --color-accent-purple-400: #9370db;
-            --color-accent-purple-700: #6a5acd;
-            
-            --color-accent-red-100: #ffe6e6;
-            --color-accent-red-400: #ff6347;
-            --color-accent-red-700: #cc4c38;
-            
-            /* ニュートラルカラーパレット */
-            --color-neutral-white: #ffffff;
-            --color-neutral-light: #f8f9fa;
-            --color-neutral-gray: #6c757d;
-            --color-neutral-dark: #343a40;
-            --color-neutral-black: #222222;
-            
-            /* テキストカラーパレット - コントラスト保証用 */
-            --text-on-light: #222222;    /* 明背景用の暗い文字 */
-            --text-on-dark: #ffffff;     /* 暗背景用の明るい文字 */
-            --text-on-primary: #ffffff;  /* プライマリ背景用 */
-            --text-on-secondary: #222222;/* セカンダリ背景用 */
-            
-            /* セーフカラーペア - 背景と文字の組み合わせを保証 */
-            --safe-bg-light: var(--color-neutral-white);
-            --safe-text-light: var(--text-on-light);
-            
-            --safe-bg-dark: var(--color-neutral-dark);
-            --safe-text-dark: var(--text-on-dark);
-            
-            --safe-bg-primary: var(--color-primary-400);
-            --safe-text-primary: var(--text-on-primary);
-            
-            --safe-bg-secondary: var(--color-secondary-400);
-            --safe-text-secondary: var(--text-on-secondary);
-            
-            /* シャドウ */
-            --shadow-default: 0 0 20px rgba(0, 0, 0, 0.2);
-            --shadow-heavy: 0 0 30px rgba(0, 0, 0, 0.4);
-        }
-        
-        /* コントラストチェック用ユーティリティクラス */
-        .contrast-check {
-            /* 将来的にJavaScriptで動的にチェックするためのフック */
-            background-color: var(--current-bg);
-            color: var(--current-text);
-        }
-        
-        /* ============================================
-           セクションスタイル - コントラスト保証付き
-           ============================================ */
-        .section-1 {
-            /* 背景: 青系の明るめの色、文字: 白 */
-            background-color: var(--color-accent-blue-400);
-            color: var(--text-on-dark);
-            border: 3px solid var(--color-accent-blue-700);
-        }
-        
-        .section-2 {
-            /* 背景: 緑系、文字: 白 */
-            background-color: var(--color-accent-green-400);
-            color: var(--text-on-dark);
-            border: 3px solid var(--color-accent-green-700);
-        }
-        
-        .section-3 {
-            /* 背景: 明るい黄色、文字: 黒 */
-            background-color: var(--color-secondary-400);
-            color: var(--text-on-light);
-            border: 3px solid var(--color-secondary-600);
-        }
-        
-        .section-4 {
-            /* 背景: 紫系、文字: 白 */
-            background-color: var(--color-accent-purple-400);
-            color: var(--text-on-dark);
-            border: 3px solid var(--color-accent-purple-700);
-        }
-        
-        .section-5 {
-            /* 背景: 赤系、文字: 白 */
-            background-color: var(--color-accent-red-400);
-            color: var(--text-on-dark);
-            border: 3px solid var(--color-accent-red-700);
-        }
-        
-        /* セクション内の見出しもコントラスト保証 */
-        .section-1 h2, .section-1 h3, .section-1 h4 {
-            color: var(--color-neutral-white);
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-        }
-        
-        .section-2 h2, .section-2 h3, .section-2 h4 {
-            color: var(--color-neutral-white);
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-        }
-        
-        .section-3 h2, .section-3 h3, .section-3 h4 {
-            color: var(--color-neutral-black);
-            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
-        }
-        
-        .section-4 h2, .section-4 h3, .section-4 h4 {
-            color: var(--color-neutral-white);
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-        }
-        
-        .section-5 h2, .section-5 h3, .section-5 h4 {
-            color: var(--color-neutral-white);
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-        }
-        
-        /* セクション内のリンクもコントラスト保証 */
-        .section-1 a {
-            color: var(--color-secondary-400);
-            text-decoration: underline;
-        }
-        
-        .section-2 a {
-            color: var(--color-secondary-400);
-            text-decoration: underline;
-        }
-        
-        .section-3 a {
-            color: var(--color-accent-blue-700);
-            text-decoration: underline;
-        }
-        
-        .section-4 a {
-            color: var(--color-secondary-400);
-            text-decoration: underline;
-        }
-        
-        .section-5 a {
-            color: var(--color-secondary-400);
-            text-decoration: underline;
-        }
-        
-        /* セクション共通スタイル */
         .training-section {
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 30px;
-            box-shadow: var(--shadow-default);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .training-section:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-heavy);
-        }
-        
-        /* ============================================
-           テーブルスタイル - コントラスト保証付き
-           ============================================ */
-        table {
-            background-color: var(--color-neutral-white);
-            border: 3px solid var(--color-neutral-black);
-        }
-        
-        th {
-            background-color: var(--color-primary-400);
-            color: var(--text-on-primary);
-            font-weight: bold;
-            text-align: center;
-            padding: 12px;
-        }
-        
-        td {
-            background-color: var(--color-neutral-white);
-            color: var(--text-on-light);
-            padding: 10px;
-            border: 1px solid var(--color-neutral-gray);
-        }
-        
-        tr:nth-child(even) td {
-            background-color: var(--color-neutral-light);
-        }
-        
-        tr:hover td {
-            background-color: var(--color-primary-100);
-        }
-        
-        /* ============================================
-           コードブロック - 明るい文字と暗い背景
-           ============================================ */
-        pre {
-            background-color: var(--color-neutral-black);
-            color: #00ff00; /* 高い可読性の緑 */
-            border-left: 5px solid var(--color-primary-400);
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
-            padding: 15px;
-            overflow-x: auto;
-        }
-        
-        /* 数式コンテナ - 明るい背景に暗い文字 */
-        .math-container {
-            background-color: var(--color-neutral-white);
-            color: var(--text-on-light);
-            border: 2px dashed var(--color-primary-400);
-            border-radius: 10px;
+            border-radius: var(--r);
             padding: 20px;
-            margin: 20px 0;
-            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(0, 0, 0, 0.32);
+            box-shadow: var(--shadow);
         }
-        
-        /* リストアイテムの可読性向上 */
-        li {
-            margin-bottom: 8px;
-            line-height: 1.6;
+
+        .training-section + .training-section {
+            margin-top: 18px;
         }
-        
-        /* 引用ブロックの可読性向上 */
-        blockquote {
-            background-color: rgba(255, 255, 255, 0.9);
-            color: var(--text-on-light);
-            border-left: 5px solid var(--color-primary-400);
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 0 10px 10px 0;
+
+        .training-section h2 {
+            margin-top: 0;
         }
-        
-        /* レスポンシブ調整 */
-        @media (max-width: 768px) {
-            .training-section {
-                padding: 15px;
-            }
-            
-            .math-container {
-                padding: 10px;
-                overflow-x: auto;
-            }
-            
-            table {
-                font-size: 0.9em;
-            }
+
+        .katex-display {
+            font-size: 1.1em;
+            color: var(--text);
         }
-        
-        /* ヘッダー強化 - コントラスト保証 */
-        header {
-            background: linear-gradient(135deg, var(--color-primary-400), var(--color-primary-600));
-            color: var(--text-on-primary);
-            border-bottom: 5px solid var(--color-neutral-black);
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        }
-        
-        /* フッター強化 - コントラスト保証 */
-        .footer {
-            background: linear-gradient(135deg, var(--color-primary-400), var(--color-primary-600));
-            color: var(--text-on-primary);
-            border-top: 5px solid var(--color-neutral-black);
-            font-weight: bold;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-        }
-        
-        /* コンテナの背景を明るくして文字を暗く */
-        .container {
-            background-color: var(--color-neutral-white);
-            color: var(--text-on-light);
-        }
-        
-        /* ボディの背景もコントラスト保証 */
-        body {
-            background-color: var(--color-secondary-400);
-            color: var(--text-on-secondary);
-        }
-        
-        /* KaTeX 数式のコントラスト保証 */
-        .katex {
-            color: var(--text-on-light) !important;
-        }
-        
-        .math-container .katex {
-            color: inherit !important;
+
+        .table-wrap {
+            overflow-x: auto;
         }
     </style>
 </head>
 <body>
-    <header>
+  <div class="wrap">
+    <header class="page-header">
+        <p class="eyebrow">VEGA COURSE</p>
         <h1>🎵 BEAT楽器トレーニング計画 🥁</h1>
-        <p>「プログラミング＝型を選択する工学」の実践</p>
+        <p class="lede">トップページの宇宙感に合わせたダークトーンに統一し、「プログラミング＝型を選択する工学」の学習導線を整理しました。</p>
     </header>
 
-    <div class="container">
+    <main class="flow">
+        <section class="panel flow">
         <div class="training-section section-1">
             <h2>前回の設計（論文の枠組み）</h2>
             <div class="math-container">
@@ -411,7 +127,8 @@
             <h3>✅ (A(S))：ビート楽器で身につける「型選択パターン」10クラス</h3>
             <p>（= 7時間で"被覆"したい離散条件集合。各クラスに代表演習を1つ置きます）</p>
             
-            <table>
+            <div class="table-scroll">
+                <table>
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -504,7 +221,8 @@
                         <td>parse→validate→schedule→render→export を分割して完成</td>
                     </tr>
                 </tbody>
-            </table>
+                </table>
+            </div>
             <blockquote>
                 <p>この (A(S)) を、1日1時間×7日でできるだけ少ない演習で"被覆"する（論文の set cover / hitting set の発想）＝今回のメニュー設計です。</p>
             </blockquote>
@@ -656,11 +374,13 @@ H:x-x-x-x-x-x-x-x-</pre>
                 <li>どの型を選ぶかで、設計の"やりやすさ"が変わる<br>→ ここがあなたの骨格そのもの</li>
             </ul>
         </div>
-    </div>
+        </section>
+    </main>
 
     <div class="footer">
-        <p>BEAT楽器トレーニング計画 &copy; 2023 - 「型を選択する工学」の実践</p>
+        <p>BEAT楽器トレーニング計画 — VEGAコース | 宇宙感ダークテーマに統一</p>
     </div>
+  </div>
 
     <!-- KaTeX JS -->
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
