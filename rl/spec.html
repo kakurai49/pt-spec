@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <title>SIRIUS RL | Spec（Banditデモ）</title>
+  <link rel="stylesheet" href="../course_dark.css" />
+  <link rel="stylesheet" href="rl-theme.css" />
+  <style>
+    .demo-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 14px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+    }
+
+    label span { display: block; margin-bottom: 6px; color: var(--muted); font-size: 13px; }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(0, 0, 0, 0.25);
+      color: var(--text);
+      font-size: 14px;
+    }
+    textarea { min-height: 92px; resize: vertical; }
+
+    .chart-card { background: rgba(0,0,0,0.24); border:1px solid rgba(255,255,255,0.12); border-radius: 16px; padding: 12px; }
+    #chart { width: 100%; height: 260px; display: block; }
+
+    .counts { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+    .count-row { display: grid; grid-template-columns: 80px 1fr auto auto; align-items: center; gap: 10px; }
+    .count-bar { height: 10px; background: rgba(124,247,255,0.28); border-radius: 999px; position: relative; overflow: hidden; }
+    .count-bar span { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(124,247,255,0.32), rgba(167,139,250,0.26)); }
+    .count-meta { color: var(--muted); font-size: 12px; }
+
+    .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-top: 10px; }
+    .metric { border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 12px; background: rgba(0,0,0,0.24); }
+    .metric b { display: block; margin-bottom: 6px; color: var(--text); }
+
+    @media (max-width: 960px) {
+      .demo-grid { grid-template-columns: 1fr; }
+      .count-row { grid-template-columns: 70px 1fr auto; }
+    }
+  </style>
+</head>
+<body class="rl-page">
+  <a class="skip" href="#main">本文へスキップ</a>
+  <canvas id="starfield" aria-hidden="true"></canvas>
+
+  <header class="course-header">
+    <div class="wrap nav">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Python Training</h1>
+          <p>SIRIUS (RL) | Spec</p>
+        </div>
+      </div>
+
+      <nav aria-label="SIRIUS (RL) ナビゲーション">
+        <div class="navlinks">
+          <a href="../index.html">Homeへ戻る</a>
+          <a href="scope.html">Scope</a>
+          <a href="index.html">Index</a>
+          <a href="overview.html">Overview</a>
+          <a class="active" href="spec.html">Spec</a>
+        </div>
+        <div class="cta">
+          <a class="btn" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+          <a class="btn primary" href="#demo"><span class="dot" aria-hidden="true"></span>デモを実行</a>
+        </div>
+        <button class="hamburger" id="hamburger" aria-expanded="false" aria-label="メニューを開く">
+          <span aria-hidden="true"></span>
+        </button>
+      </nav>
+    </div>
+
+    <div class="mobile" id="mobile">
+      <div class="mobilePanel" role="dialog" aria-label="モバイルメニュー">
+        <a href="../index.html">Homeへ戻る</a>
+        <a href="scope.html">Scope</a>
+        <a href="index.html">Index</a>
+        <a href="overview.html">Overview</a>
+        <a class="active" href="spec.html">Spec</a>
+        <div class="row">
+          <a class="btn" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+          <a class="btn primary" href="#demo"><span class="dot" aria-hidden="true"></span>デモを実行</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="wrap rl-content">
+    <section class="rl-card rl-hero">
+      <p class="eyebrow">SIRIUS (Reinforcement Learning)</p>
+      <h1>Spec / Banditデモ</h1>
+      <p class="lede">
+        外部ライブラリなしのブラウザデモ。腕数 K と p を指定し、アルゴリズム（random / ε-greedy / UCB）を切り替えて報酬と後悔を確認できます。
+      </p>
+      <div class="hero-actions">
+        <a class="btn primary" href="#demo"><span class="dot" aria-hidden="true"></span>パラメータを設定</a>
+        <a class="btn" href="overview.html"><span class="dot" aria-hidden="true"></span>Overviewへ戻る</a>
+        <a class="btn" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>Homeへ戻る</a>
+      </div>
+      <div class="subnav" aria-label="SIRIUS (RL) 内部ナビゲーション">
+        <a href="scope.html">Scope</a>
+        <a href="index.html">Index</a>
+        <a href="overview.html">Overview</a>
+        <a class="active" href="spec.html">Spec</a>
+      </div>
+    </section>
+
+    <section class="rl-card rl-stack" id="demo">
+      <div class="badge">パラメータを設定して実行</div>
+      <div class="demo-grid">
+        <form id="banditForm" class="rl-stack">
+          <div class="form-grid">
+            <label>
+              <span>腕の本数 K</span>
+              <input type="number" name="arms" min="2" value="4" />
+            </label>
+            <label>
+              <span>試行ステップ数</span>
+              <input type="number" name="steps" min="10" value="500" />
+            </label>
+            <label>
+              <span>アルゴリズム</span>
+              <select name="algo">
+                <option value="random">random</option>
+                <option value="epsilon">ε-greedy</option>
+                <option value="ucb">UCB1</option>
+              </select>
+            </label>
+            <label>
+              <span>ε（ε-greedy）</span>
+              <input type="number" name="epsilon" step="0.01" min="0" max="1" value="0.10" />
+            </label>
+            <label>
+              <span>探索係数 c（UCB）</span>
+              <input type="number" name="ucbC" step="0.1" min="0" value="1.2" />
+            </label>
+            <label>
+              <span>seed（任意の文字列）</span>
+              <input type="text" name="seed" value="sirius" />
+            </label>
+          </div>
+          <label>
+            <span>各腕の成功確率 p[i]（カンマ / 改行区切り）</span>
+            <textarea name="probs">0.15, 0.35, 0.55, 0.75</textarea>
+          </label>
+          <div class="hero-actions">
+            <button class="btn primary" type="submit"><span class="dot" aria-hidden="true"></span>実行</button>
+            <button class="btn" type="button" id="fillSamples"><span class="dot" aria-hidden="true"></span>サンプル値をセット</button>
+          </div>
+        </form>
+
+        <div class="rl-stack">
+          <div class="metrics">
+            <div class="metric"><b>累積報酬</b><span id="rewardTotal">-</span></div>
+            <div class="metric"><b>累積後悔</b><span id="regretTotal">-</span></div>
+            <div class="metric"><b>ベスト腕のp*</b><span id="bestP">-</span></div>
+            <div class="metric"><b>ステップ数</b><span id="stepCount">-</span></div>
+          </div>
+          <div class="chart-card">
+            <canvas id="chart" aria-label="累積報酬と後悔の推移"></canvas>
+          </div>
+          <div>
+            <h3 style="margin-bottom:6px;">腕ごとの選択回数</h3>
+            <div id="counts" class="counts" aria-live="polite"></div>
+          </div>
+        </div>
+      </div>
+      <div class="callout">結果とパラメータはGitHubのIssue/PRに貼り付けて、同じ seed と p を指定すれば再現できます。</div>
+    </section>
+  </main>
+
+  <script src="../bt30/altair_shared.js"></script>
+  <script>
+    (() => {
+      const form = document.getElementById('banditForm');
+      const rewardTotal = document.getElementById('rewardTotal');
+      const regretTotal = document.getElementById('regretTotal');
+      const bestP = document.getElementById('bestP');
+      const stepCount = document.getElementById('stepCount');
+      const countsEl = document.getElementById('counts');
+      const chart = document.getElementById('chart');
+      const fillSamples = document.getElementById('fillSamples');
+      let lastRewards = [0];
+      let lastRegrets = [0];
+
+      const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
+
+      const hashSeed = (str) => {
+        let h = 1779033703 ^ str.length;
+        for (let i = 0; i < str.length; i++) {
+          h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+          h = (h << 13) | (h >>> 19);
+        }
+        return () => {
+          h = Math.imul(h ^ (h >>> 16), 2246822507);
+          h = Math.imul(h ^ (h >>> 13), 3266489909);
+          h ^= h >>> 16;
+          return h >>> 0;
+        };
+      };
+
+      const mulberry32 = (a) => {
+        return () => {
+          a |= 0;
+          a = (a + 0x6d2b79f5) | 0;
+          let t = Math.imul(a ^ (a >>> 15), 1 | a);
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      };
+
+      const makeRng = (seed) => mulberry32(hashSeed(seed || 'sirius')());
+
+      const parseProbabilities = (value, k) => {
+        const raw = value
+          .split(/[\,\n\s]+/)
+          .map((v) => v.trim())
+          .filter(Boolean)
+          .map((n) => clamp(parseFloat(n), 0, 1))
+          .filter((n) => !Number.isNaN(n));
+        if (raw.length === 0) {
+          raw.push(0.2, 0.4, 0.6);
+        }
+        const base = raw.length;
+        const probs = [];
+        for (let i = 0; i < k; i++) {
+          const src = raw[i % base];
+          probs.push(typeof src === 'number' ? src : Math.max(0.05, Math.min(0.9, (i + 1) / (k + 2))));
+        }
+        return probs;
+      };
+
+
+      const drawChart = (rewards, regrets) => {
+        const ctx = chart.getContext('2d');
+        const width = chart.clientWidth || 640;
+        const height = 260;
+        const dpr = Math.min(2, window.devicePixelRatio || 1);
+        chart.width = width * dpr;
+        chart.height = height * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, width, height);
+
+        const maxVal = Math.max(1, ...rewards, ...regrets);
+        const step = rewards.length > 1 ? width / (rewards.length - 1) : width;
+
+        ctx.strokeStyle = 'rgba(255,255,255,0.16)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, height - 20);
+        ctx.lineTo(width, height - 20);
+        ctx.stroke();
+
+        const drawLine = (data, color) => {
+          ctx.strokeStyle = color;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          data.forEach((v, i) => {
+            const x = i * step;
+            const y = height - 20 - (v / maxVal) * (height - 40);
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          });
+          ctx.stroke();
+        };
+
+        drawLine(rewards, 'rgba(124,247,255,0.9)');
+        drawLine(regrets, 'rgba(255,94,168,0.9)');
+      };
+
+      const renderCounts = (counts, probs) => {
+        const max = Math.max(1, ...counts);
+        countsEl.innerHTML = counts
+          .map((c, i) => {
+            const width = (c / max) * 100;
+            return `
+              <div class="count-row">
+                <div class="count-meta">Arm ${i + 1}</div>
+                <div class="count-bar" aria-hidden="true"><span style="width:${width}%"></span></div>
+                <div class="count-meta">${c} 回</div>
+                <div class="count-meta">p=${probs[i].toFixed(2)}</div>
+              </div>
+            `;
+          })
+          .join('');
+      };
+
+      const simulate = (event) => {
+        event?.preventDefault();
+        const k = Math.max(2, parseInt(form.elements.arms.value, 10) || 2);
+        const steps = Math.max(10, parseInt(form.elements.steps.value, 10) || 100);
+        const epsilon = clamp(parseFloat(form.elements.epsilon.value) || 0, 0, 1);
+        const algo = form.elements.algo.value;
+        const ucbC = Math.max(0, parseFloat(form.elements.ucbC.value) || 1.2);
+        const probs = parseProbabilities(form.elements.probs.value, k);
+        const best = Math.max(...probs);
+        const rng = makeRng(form.elements.seed.value || 'sirius');
+
+        const counts = Array.from({ length: k }, () => 0);
+        const q = Array.from({ length: k }, () => 0);
+        let totalReward = 0;
+        let totalRegret = 0;
+        const rewardHistory = [];
+        const regretHistory = [];
+
+        const pickArgmax = (arr) => {
+          let idx = 0;
+          let val = -Infinity;
+          for (let i = 0; i < arr.length; i++) {
+            if (arr[i] > val) {
+              val = arr[i];
+              idx = i;
+            }
+          }
+          return idx;
+        };
+
+        for (let step = 0; step < steps; step++) {
+          let arm = 0;
+          if (algo === 'random') {
+            arm = Math.floor(rng() * k);
+          } else if (algo === 'epsilon') {
+            if (rng() < epsilon) arm = Math.floor(rng() * k);
+            else arm = pickArgmax(q);
+          } else {
+            // UCB1
+            const untried = counts.findIndex((c) => c === 0);
+            if (untried !== -1) arm = untried;
+            else {
+              const total = step + k;
+              const scores = q.map((mean, i) => mean + ucbC * Math.sqrt(Math.log(total) / counts[i]));
+              arm = pickArgmax(scores);
+            }
+          }
+
+          const reward = rng() < probs[arm] ? 1 : 0;
+          counts[arm] += 1;
+          const n = counts[arm];
+          q[arm] += (reward - q[arm]) / n;
+          totalReward += reward;
+          totalRegret += best - probs[arm];
+          rewardHistory.push(totalReward);
+          regretHistory.push(totalRegret);
+        }
+
+        rewardTotal.textContent = totalReward.toFixed(2);
+        regretTotal.textContent = totalRegret.toFixed(2);
+        bestP.textContent = best.toFixed(3);
+        stepCount.textContent = steps;
+        renderCounts(counts, probs);
+        lastRewards = rewardHistory;
+        lastRegrets = regretHistory;
+        drawChart(lastRewards, lastRegrets);
+      };
+
+      fillSamples?.addEventListener('click', () => {
+        form.elements.probs.value = '0.05, 0.12, 0.4, 0.65, 0.82';
+        form.elements.arms.value = 5;
+        form.elements.steps.value = 800;
+        form.elements.epsilon.value = 0.08;
+        form.elements.algo.value = 'epsilon';
+        simulate();
+      });
+
+      form?.addEventListener('submit', simulate);
+      window.addEventListener('resize', () => drawChart(lastRewards, lastRegrets));
+      simulate();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <title>SIRIUS RL | Scope</title>
+  <link rel="stylesheet" href="../course_dark.css" />
+  <link rel="stylesheet" href="rl-theme.css" />
+</head>
+<body class="rl-page">
+  <a class="skip" href="#main">本文へスキップ</a>
+  <canvas id="starfield" aria-hidden="true"></canvas>
+
+  <header class="course-header">
+    <div class="wrap nav">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Python Training</h1>
+          <p>SIRIUS (RL) | Scope</p>
+        </div>
+      </div>
+
+      <nav aria-label="SIRIUS (RL) ナビゲーション">
+        <div class="navlinks">
+          <a href="../index.html">Homeへ戻る</a>
+          <a class="active" href="scope.html">Scope</a>
+          <a href="index.html">Index</a>
+          <a href="overview.html">Overview</a>
+          <a href="spec.html">Spec</a>
+        </div>
+        <div class="cta">
+          <a class="btn" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+          <a class="btn primary" href="spec.html"><span class="dot" aria-hidden="true"></span>動く仕様書</a>
+        </div>
+        <button class="hamburger" id="hamburger" aria-expanded="false" aria-label="メニューを開く">
+          <span aria-hidden="true"></span>
+        </button>
+      </nav>
+    </div>
+
+    <div class="mobile" id="mobile">
+      <div class="mobilePanel" role="dialog" aria-label="モバイルメニュー">
+        <a href="../index.html">Homeへ戻る</a>
+        <a class="active" href="scope.html">Scope</a>
+        <a href="index.html">Index</a>
+        <a href="overview.html">Overview</a>
+        <a href="spec.html">Spec</a>
+        <div class="row">
+          <a class="btn" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+          <a class="btn primary" href="spec.html"><span class="dot" aria-hidden="true"></span>Banditデモ</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="wrap rl-content">
+    <section class="rl-card rl-hero">
+      <p class="eyebrow">SIRIUS (Reinforcement Learning)</p>
+      <h1>Scope / 到達イメージ</h1>
+      <p class="lede">
+        Bandit → MDP → Q-learning を 14日プランで動かしながら、RLの基本とGitHub運用を重ねて体験するコース。
+        Scopeでは「どこまで作るか」と「動く姿」を最短で共有します。
+      </p>
+      <div class="hero-actions">
+        <a class="btn primary" href="index.html"><span class="dot" aria-hidden="true"></span>Indexへ</a>
+        <a class="btn" href="spec.html"><span class="dot" aria-hidden="true"></span>Banditデモを開く</a>
+        <a class="btn" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>Homeへ戻る</a>
+      </div>
+      <div class="subnav" aria-label="SIRIUS (RL) 内部ナビゲーション">
+        <a class="active" href="scope.html">Scope</a>
+        <a href="index.html">Index</a>
+        <a href="overview.html">Overview</a>
+        <a href="spec.html">Spec</a>
+      </div>
+    </section>
+
+    <section class="rl-card rl-stack">
+      <div class="badge">ゴールと制約</div>
+      <div class="stat-list">
+        <div class="stat"><strong>期間の目安</strong><span>1日1時間 × 14日</span></div>
+        <div class="stat"><strong>環境</strong><span>ブラウザでデモ確認（外部CDNなし） / GitHubでPR提出</span></div>
+        <div class="stat"><strong>観点</strong><span>探索・活用のバランス、状態遷移、価値推定</span></div>
+        <div class="stat"><strong>出口</strong><span>Bandit可視化 → MDP設計 → Q-learningプロトタイプ</span></div>
+      </div>
+      <div class="callout">
+        「動く仕様書」で腕ごとの報酬・後悔を可視化し、Issue / PR / テストで学習ログを残す前提です。
+      </div>
+    </section>
+
+    <section class="rl-card rl-stack">
+      <div class="badge">到達する「動く姿」</div>
+      <ul>
+        <li>Bandit（K腕・p[i]可変）をブラウザで操作し、アルゴリズム別の報酬/後悔/選択回数を確認できる。</li>
+        <li>MDPの小さな例（状態・行動・遷移・報酬）が文章で定義され、Issueに落とし込める。</li>
+        <li>Q-learningの更新式とハイパーパラメータが、テスト観点（S, A(S)）と紐づいた形で説明される。</li>
+        <li>GitHub運用：Issueで課題提示 → PRで提出 → テストで採点、を想定した導線が全ページに存在。</li>
+      </ul>
+    </section>
+
+    <section class="rl-card rl-stack">
+      <div class="badge">Scope（範囲）</div>
+      <div class="rl-grid">
+        <div>
+          <h3>Bandit</h3>
+          <p class="lede">K腕・p[i]入力・seed再現・ランダム / ε-greedy / UCB の切替。</p>
+          <ul>
+            <li>累積報酬・累積後悔のプロット</li>
+            <li>腕ごとの選択回数と推定値を表示</li>
+            <li>シード入力でGitHub上の議論を再現</li>
+          </ul>
+        </div>
+        <div>
+          <h3>MDP</h3>
+          <p class="lede">状態・行動・遷移確率の最小サンプルを提示し、価値の更新を文章で整備。</p>
+          <ul>
+            <li>4〜6状態のミニ環境を想定</li>
+            <li>報酬設計とエピソードの流れを表で整理</li>
+            <li>後続のQ-learning課題への橋渡し</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Q-learning</h3>
+          <p class="lede">更新式、学習率、割引率、εスケジュールの説明を、テスト観点と紐づける。</p>
+          <ul>
+            <li>状態-行動価値表の例と初期化方針</li>
+            <li>エピソード数・探索率の推奨レンジ</li>
+            <li>「正しく減衰しているか」をチェックするテスト観点</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="rl-card rl-stack">
+      <div class="badge">観点束 S と A(S)</div>
+      <p>このコースで観測する軸（S）と離散条件（A(S)）の素案：</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>観点 S</th><th>例</th><th>A(S)（離散条件）</th></tr></thead>
+          <tbody>
+            <tr><td>探索率</td><td>ε の変化パターン</td><td>固定 / ステップ減衰 / エピソード減衰</td></tr>
+            <tr><td>価値推定</td><td>初期値 / 更新式</td><td>楽観初期化 / ゼロ初期化 / 逐次平均</td></tr>
+            <tr><td>報酬設計</td><td>+1 / 0 / -1 の付け方</td><td>成功時のみ +1 / 失敗で -1 / 遷移コスト型</td></tr>
+            <tr><td>状態遷移</td><td>終端の扱い</td><td>終端即終了 / ペナルティ付与 / ループ許可</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="../bt30/altair_shared.js"></script>
+</body>
+</html>
