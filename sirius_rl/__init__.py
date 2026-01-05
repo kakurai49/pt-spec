@@ -5,4 +5,5 @@ __all__ = [
     "utils",
     "eval",
     "algorithms",
+    "agents",
 ]
