@@ -133,6 +133,19 @@
       </div>
       <div class="callout warn">A_j に含めた義務は証拠ログとセットで残してください。影響なしの場合も「A_j: none」を明記するとレビューがスムーズです。</div>
     </section>
+
+    <section class="rl-card rl-stack">
+      <div class="badge">Mission 01: Bandit</div>
+      <h2>探索と活用の入口を自前実装で体験</h2>
+      <p>Bernoulli Bandit を題材に、ε-greedy / UCB / Thompson Sampling を自前で実装し、統計的にベンチマークします。外部RLライブラリは禁止、seedとステップ数を固定して再現性を確保してください。</p>
+      <div class="callout good">提出物（目安）</div>
+      <ul>
+        <li><code>sirius_rl/agents/bandit.py</code> に 3エージェント（EpsilonGreedyAgent, UCB1Agent, ThompsonSamplingBernoulliAgent）を実装。</li>
+        <li><code>sirius_rl/eval/bandit_bench.py</code> で複数seed平均の reward / regret を計測するハーネスを追加。</li>
+        <li><code>tests/test_bandit_agents.py</code> で random baseline より平均regretが低いことを統計的に確認。</li>
+      </ul>
+      <div class="callout warn">CIを安定させるため、seedとステップ数を明示し、判定は平均値/相対評価で設定してください。</div>
+    </section>
   </main>
 
   <script src="../bt30/altair_shared.js"></script>
