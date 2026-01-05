@@ -123,6 +123,37 @@
       </ul>
       <div class="callout good">ブラウザだけで完結するデモを土台に、バックエンドやPython実装を追加してもOK。まずはここで「動く仕様書」を手に入れてください。</div>
     </section>
+
+    <section class="rl-card rl-stack">
+      <div class="badge">Python基盤</div>
+      <p>Issue03 以降で追加される Python 実装の骨格は <code>sirius_rl/</code> パッケージに集約しました。</p>
+      <ul>
+        <li><code>sirius_rl/env/base.py</code> に Env プロトコル（<code>reset(seed)</code>, <code>step(action)</code>）と <code>StepResult</code> を定義。</li>
+        <li><code>sirius_rl/utils/seed.py</code> で RNG を統一、<code>sirius_rl/utils/logging.py</code> で JSONL ログ（<code>run_id/seed/t/episode/reward/info</code>）。</li>
+        <li><code>sirius_rl/eval/runner.py</code> がエピソード評価と平均報酬/後悔計算を担当。</li>
+      </ul>
+      <div class="callout info">seed を固定すれば同じ評価結果・ログが得られ、CI での再現性が確保されます。</div>
+    </section>
+
+    <section class="rl-card rl-stack">
+      <div class="badge">Bandit (環境/後悔)</div>
+      <p><code>sirius_rl/env/bandit.py</code> では Bernoulli Bandit を実装し、<code>sirius_rl/eval/regret.py</code> で期待後悔を算出します。</p>
+      <ul>
+        <li>アクションは腕の番号（0..K-1）、報酬は {0,1} のベルヌーイ。</li>
+        <li>同一 seed なら報酬系列と評価結果が一致。</li>
+        <li>ベースライン方策（例: 一様ランダム）も <code>evaluate_policy</code> で簡単に評価可能。</li>
+      </ul>
+    </section>
+
+    <section class="rl-card rl-stack">
+      <div class="badge">GridWorld &amp; DP</div>
+      <p>状態を持つ MDP 例として GridWorld を <code>sirius_rl/env/gridworld.py</code> に実装。Value/Policy Iteration は <code>sirius_rl/algorithms/dp.py</code>。</p>
+      <ul>
+        <li>行動は上下左右（0..3）。壁や終端状態を含むグリッドを <code>model()</code> でテーブル化。</li>
+        <li>step_penalty・終端報酬を使って最短経路に近い方策が得られる。</li>
+        <li>テストは小規模グリッドで高速に実行できるよう設計。</li>
+      </ul>
+    </section>
   </main>
 
   <script src="../bt30/altair_shared.js"></script>
