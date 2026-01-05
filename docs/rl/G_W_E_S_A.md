@@ -80,3 +80,11 @@
 - PR本文では docs/rl/PR_GATE.md のテンプレを用い、A_j に上記IDを列挙してください。
 - seed・CI時間・ログスキーマは “E（制約）” を守る形で調整します。
 - W/E/S/A(S) への追加・変更は新しいIssueでレビューし、ここに追記します。
+
+## 実装メモ（Python基盤）
+- `sirius_rl/env/base.py` に Envインターフェース（`reset(seed)`/`step(action)`）と `StepResult` を定義。
+- `sirius_rl/utils/seed.py` の `create_rng` で乱数生成器を統一（標準ライブラリのみ）。
+- `sirius_rl/utils/logging.py` の `JsonlLogger` は `{run_id, seed, t, episode, reward, info}` を固定スキーマでJSONL出力。
+- `sirius_rl/eval/runner.py` は方策と環境を与えて複数エピソードを回し、平均報酬や後悔（regret）を計算。
+- `sirius_rl/env/bandit.py` で Bernoulli Bandit、`sirius_rl/eval/regret.py` で期待後悔を算出。
+- `sirius_rl/env/gridworld.py` と `sirius_rl/algorithms/dp.py` で GridWorld + Value/Policy Iteration を提供。
