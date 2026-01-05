@@ -6,4 +6,5 @@ __all__ = [
     "eval",
     "algorithms",
     "agents",
+    "obs",
 ]
