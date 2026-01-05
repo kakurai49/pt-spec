@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <title>SIRIUS RL | Index</title>
+  <link rel="stylesheet" href="../course_dark.css" />
+  <link rel="stylesheet" href="rl-theme.css" />
+</head>
+<body class="rl-page">
+  <a class="skip" href="#main">本文へスキップ</a>
+  <canvas id="starfield" aria-hidden="true"></canvas>
+
+  <header class="course-header">
+    <div class="wrap nav">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Python Training</h1>
+          <p>SIRIUS (RL) | Index</p>
+        </div>
+      </div>
+
+      <nav aria-label="SIRIUS (RL) ナビゲーション">
+        <div class="navlinks">
+          <a href="../index.html">Homeへ戻る</a>
+          <a href="scope.html">Scope</a>
+          <a class="active" href="index.html">Index</a>
+          <a href="overview.html">Overview</a>
+          <a href="spec.html">Spec</a>
+        </div>
+        <div class="cta">
+          <a class="btn" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+          <a class="btn primary" href="spec.html"><span class="dot" aria-hidden="true"></span>Banditデモ</a>
+        </div>
+        <button class="hamburger" id="hamburger" aria-expanded="false" aria-label="メニューを開く">
+          <span aria-hidden="true"></span>
+        </button>
+      </nav>
+    </div>
+
+    <div class="mobile" id="mobile">
+      <div class="mobilePanel" role="dialog" aria-label="モバイルメニュー">
+        <a href="../index.html">Homeへ戻る</a>
+        <a href="scope.html">Scope</a>
+        <a class="active" href="index.html">Index</a>
+        <a href="overview.html">Overview</a>
+        <a href="spec.html">Spec</a>
+        <div class="row">
+          <a class="btn" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+          <a class="btn primary" href="spec.html"><span class="dot" aria-hidden="true"></span>Banditデモ</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="wrap rl-content">
+    <section class="rl-card rl-hero">
+      <p class="eyebrow">SIRIUS (Reinforcement Learning)</p>
+      <h1>Index / 進め方</h1>
+      <p class="lede">
+        GitHub運用（Issue → PR → テスト採点）で、Bandit → MDP → Q-learning を14日で攻略。
+        ここでは毎日の進め方と、提出物の粒度をまとめています。
+      </p>
+      <div class="hero-actions">
+        <a class="btn primary" href="spec.html"><span class="dot" aria-hidden="true"></span>Banditデモへ</a>
+        <a class="btn" href="scope.html"><span class="dot" aria-hidden="true"></span>Scopeを確認</a>
+        <a class="btn" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>Homeへ戻る</a>
+      </div>
+      <div class="subnav" aria-label="SIRIUS (RL) 内部ナビゲーション">
+        <a href="scope.html">Scope</a>
+        <a class="active" href="index.html">Index</a>
+        <a href="overview.html">Overview</a>
+        <a href="spec.html">Spec</a>
+      </div>
+    </section>
+
+    <section class="rl-card rl-stack">
+      <div class="badge">GitHub運用（標準フロー）</div>
+      <ol>
+        <li><b>Issueを読む</b>：課題のScope/期待アウトプットを把握し、疑問はコメントで整理。</li>
+        <li><b>ブランチを切る</b>：小さなステップでPRを積み上げ、1PR=1テーマを意識。</li>
+        <li><b>テストを走らせる</b>：Banditデモはブラウザで、Q-learning以降はユニットテスト（任意）で観点を確認。</li>
+        <li><b>PRを出す</b>：試行回数・所要時間・得られた報酬/後悔の変化を簡潔に記録。</li>
+        <li><b>レビュー＆再挑戦</b>：フィードバックをIssueに反映し、seed付きで再現できる状態を保つ。</li>
+      </ol>
+      <div class="callout warn">Banditデモは seed / パラメータ付きで共有できるので、PR説明に実行条件を必ず残してください。</div>
+    </section>
+
+    <section class="rl-card rl-stack">
+      <div class="badge">14日ラフプラン</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Day</th><th>テーマ</th><th>提出例</th></tr></thead>
+          <tbody>
+            <tr><td>1-2</td><td>Bandit UI確認・seed再現</td><td>p配列とアルゴリズム切替のスクショ/メモ</td></tr>
+            <tr><td>3-5</td><td>ε-greedy / UCB の比較</td><td>累積報酬/後悔の差分、選択回数の表</td></tr>
+            <tr><td>6-8</td><td>MDPミニ環境の設計</td><td>状態・行動・遷移表、報酬の考え方</td></tr>
+            <tr><td>9-11</td><td>Q-learning 素振り</td><td>更新式の確認、学習率/割引率の試行ログ</td></tr>
+            <tr><td>12-14</td><td>まとめとテスト観点整理</td><td>A(S)リストと再現手順、次の改善案</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="rl-card rl-stack">
+      <div class="badge">Mission（プレースホルダ）</div>
+      <div class="rl-grid">
+        <div class="stat">
+          <strong>Mission 01</strong>
+          <span>自分のp配列でBanditを回し、ε-greedyとrandomを比較。seedと結果をIssueに貼る。</span>
+        </div>
+        <div class="stat">
+          <strong>Mission 02</strong>
+          <span>MDPの状態遷移表を作り、報酬設計の意図を短く説明。PRで図や表を共有。</span>
+        </div>
+        <div class="stat">
+          <strong>Mission 03</strong>
+          <span>Q-learningの学習率・割引率を2パターン試し、エピソード報酬の推移をまとめる。</span>
+        </div>
+      </div>
+      <div class="callout good">ミッションはリポジトリのIssue化を想定。PRテンプレに「seed」「アルゴリズム」「ステップ数」を記録するだけで再現性が保てます。</div>
+    </section>
+  </main>
+
+  <script src="../bt30/altair_shared.js"></script>
+</body>
+</html>

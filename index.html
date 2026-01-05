@@ -1003,6 +1003,7 @@
                 <li><span class="kbd">ALTAIR</span>：長期でじっくり鍛える</li>
                 <li><a href="ec/index.html"><span class="kbd">RIGEL</span>：Eカード（カイジ）で観点束Sとobligation A(S)を定義し、DTD（集合被覆）テスト生成まで動かす</a></li>
                 <li><a href="btd/overview.html"><span class="kbd">SPICA</span>：Beat Diffusionで“条件付き生成”をつくる（仕様→動くイメージ→設計→実装）</a></li>
+                <li><a href="rl/index.html"><span class="kbd">SIRIUS</span>：Bandit→MDP→Q-learning をGitHub運用で攻略するRLコース</a></li>
                 <li><span class="kbd">DENEB</span>：QR→CSVを型ファーストで作る（1週間）</li>
                 <li><a href="qr/samples.html"><span class="kbd">DENEB Samples</span>：テスト用サンプルQR（フォーマット別）</a></li>
                 <li>各コースは <span class="kbd">scope / index / overview / spec</span> へ（DENEBは <span class="kbd">index / overview / spec / samples</span>、SPICAは <span class="kbd">overview / spec / design / implement</span>、RIGELは <span class="kbd">scope / index / ecard_spec / spec</span>）</li>
@@ -1276,14 +1277,14 @@
           </article>
 
           <!-- SIRIUS -->
-          <article class="course" id="sirius" aria-label="コース SIRIUS">
+          <article class="course" id="sirius" aria-label="コース SIRIUS（強化学習）">
             <div class="courseHead">
               <div class="courseName">
                 <span class="tag hot"><span class="chip" aria-hidden="true"></span>NEW コース SIRIUS</span>
                 <h4>SIRIUS</h4>
                 <p>
-                  タロット占いを題材に、CLI / REST API / Web UI / 自動テストまで作るフルスタックコース。
-                  spread / seed再現 / 正逆位置の仕様を「動く仕様書」で即確認しながら進めます。
+                  Bandit → MDP → Q-learning を小さなステップで動かしながら進める強化学習コース。
+                  GitHub（Issue → PR → テスト採点）の運用で、Scope / Index / Overview / Spec を回す導線を揃えています。
                 </p>
               </div>
 
@@ -1294,7 +1295,7 @@
             </div>
 
             <div class="links" role="list">
-              <a class="linkCard" role="listitem" href="tu/overview.html">
+              <a class="linkCard" role="listitem" href="rl/scope.html">
                 <div class="ico" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none">
                     <path d="M12 6v12M6 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -1302,12 +1303,12 @@
                   </svg>
                 </div>
                 <div class="t">
-                  <b>概要・アーキテクチャ</b>
-                  <small>tu/overview.html</small>
+                  <b>スコープ / 到達イメージ</b>
+                  <small>rl/scope.html</small>
                 </div>
               </a>
 
-              <a class="linkCard" role="listitem" href="tu/implement_spec.html">
+              <a class="linkCard" role="listitem" href="rl/index.html">
                 <div class="ico" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none">
                     <path d="M7 7h10M7 12h10M7 17h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -1315,12 +1316,12 @@
                   </svg>
                 </div>
                 <div class="t">
-                  <b>実装仕様書</b>
-                  <small>tu/implement_spec.html</small>
+                  <b>学習手順 / GitHub運用</b>
+                  <small>rl/index.html</small>
                 </div>
               </a>
 
-              <a class="linkCard" role="listitem" href="tu/issues.html">
+              <a class="linkCard" role="listitem" href="rl/overview.html">
                 <div class="ico" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none">
                     <path d="M7 6h10M7 10h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -1329,12 +1330,12 @@
                   </svg>
                 </div>
                 <div class="t">
-                  <b>GitHub Issue集</b>
-                  <small>tu/issues.html</small>
+                  <b>世界観 / Overview</b>
+                  <small>rl/overview.html</small>
                 </div>
               </a>
 
-              <a class="linkCard" role="listitem" href="tu/spec.html">
+              <a class="linkCard" role="listitem" href="rl/spec.html">
                 <div class="ico" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none">
                     <path d="M8 12h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -1343,16 +1344,16 @@
                   </svg>
                 </div>
                 <div class="t">
-                  <b>動く仕様書</b>
-                  <small>tu/spec.html</small>
+                  <b>動く仕様書（Banditデモ）</b>
+                  <small>rl/spec.html</small>
                 </div>
               </a>
             </div>
 
             <div class="courseFoot">
               <a class="btn" href="#flow"><span class="dot" aria-hidden="true"></span>提出フローを見る</a>
-              <a class="btn" href="tu/spec.html"><span class="dot" aria-hidden="true"></span>動く仕様書を開く</a>
-              <a class="btn primary" href="tu/overview.html"><span class="dot" aria-hidden="true"></span>SIRIUSを開始</a>
+              <a class="btn" href="rl/spec.html"><span class="dot" aria-hidden="true"></span>動く仕様書を開く</a>
+              <a class="btn primary" href="rl/index.html"><span class="dot" aria-hidden="true"></span>SIRIUSを開始</a>
             </div>
           </article>
 
