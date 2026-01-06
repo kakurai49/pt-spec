@@ -1,5 +1,5 @@
 desktop/node_modules
-desktop/dist
-desktop/app
+desktop/dist/
+desktop/app/
 npm-debug.log*
 *.log

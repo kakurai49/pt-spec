@@ -1,20 +1,15 @@
-"use strict";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import fsExtra from "fs-extra";
 
-const fs = require("fs");
-const path = require("path");
-const fse = require("fs-extra");
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const repoRoot = path.resolve(__dirname, "..", "..");
 const destinationRoot = path.resolve(__dirname, "..", "app");
 
-const assets = [
-  "index.html",
-  "index2.html",
-  "bt7",
-  "bt30",
-  "qr",
-  "course_dark.css"
-];
+const assets = ["index.html", "index2.html", "bt7", "bt30", "qr"];
 
 async function copyAsset(assetPath) {
   const source = path.join(repoRoot, assetPath);
@@ -25,16 +20,18 @@ async function copyAsset(assetPath) {
     return;
   }
 
-  await fse.copy(source, destination, { dereference: true });
+  await fsExtra.copy(source, destination, { dereference: true });
   console.log(`[sync-web] Copied: ${assetPath}`);
 }
 
 async function main() {
-  await fse.emptyDir(destinationRoot);
+  await fsExtra.emptyDir(destinationRoot);
+
   for (const asset of assets) {
     // eslint-disable-next-line no-await-in-loop
     await copyAsset(asset);
   }
+
   console.log(`[sync-web] Assets synced to: ${destinationRoot}`);
 }
 

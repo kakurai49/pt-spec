@@ -3,7 +3,7 @@
 const { app, BrowserWindow, shell } = require("electron");
 const path = require("path");
 
-const ROOT_INDEX_HTML = path.resolve(__dirname, "..", "index.html");
+const APP_INDEX_HTML = path.resolve(__dirname, "app", "index.html");
 
 function isExternalUrl(url) {
   return /^https?:\/\//i.test(url);
@@ -38,7 +38,7 @@ function createWindow() {
     }
   });
 
-  mainWindow.loadFile(ROOT_INDEX_HTML);
+  mainWindow.loadFile(APP_INDEX_HTML);
 }
 
 app.whenReady().then(() => {
