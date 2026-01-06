@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, List, Optional
 
 from sirius_rl.env.base import Environment, StepResult
 from sirius_rl.utils.logging import JsonlLogger

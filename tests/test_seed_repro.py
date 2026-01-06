@@ -10,7 +10,9 @@ def test_runner_reproducible():
     probs = [0.2, 0.8]
     env1 = BernoulliBanditEnv(probs)
     env2 = BernoulliBanditEnv(probs)
-    policy = lambda obs: 1  # always pick the best arm
+
+    def policy(_: object) -> int:
+        return 1
 
     res1 = evaluate_policy(env1, policy, steps=10, episodes=3, seed=42)
     res2 = evaluate_policy(env2, policy, steps=10, episodes=3, seed=42)
