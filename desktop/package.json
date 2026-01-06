@@ -1,0 +1,49 @@
+{
+  "name": "pt-spec-desktop",
+  "version": "0.1.0",
+  "description": "Electron wrapper for local static assets",
+  "main": "main.js",
+  "author": "",
+  "license": "MIT",
+  "scripts": {
+    "clean": "rimraf dist app",
+    "sync-web": "node scripts/sync-web-assets.js",
+    "start": "npm run sync-web && electron .",
+    "dist:win": "npm run sync-web && electron-builder --win nsis",
+    "dist": "npm run sync-web && electron-builder"
+  },
+  "build": {
+    "appId": "com.ptspec.desktop",
+    "productName": "PT Spec Desktop",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "app/**",
+      "main.js",
+      "preload.js",
+      "package.json"
+    ],
+    "protocols": [
+      {
+        "name": "App Protocol",
+        "schemes": [
+          "app"
+        ]
+      }
+    ],
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  },
+  "devDependencies": {
+    "electron": "^30.0.9",
+    "electron-builder": "^24.13.3",
+    "fs-extra": "^11.2.0",
+    "rimraf": "^5.0.7"
+  }
+}
