@@ -20,12 +20,12 @@ async function copyAsset(assetPath) {
     return;
   }
 
-  await fsExtra.copy(source, destination, { dereference: true });
+  await fsExtra.copy(source, destination, { dereference: true, overwrite: true });
   console.log(`[sync-web] Copied: ${assetPath}`);
 }
 
 async function main() {
-  await fsExtra.emptyDir(destinationRoot);
+  await fsExtra.ensureDir(destinationRoot);
 
   for (const asset of assets) {
     // eslint-disable-next-line no-await-in-loop
