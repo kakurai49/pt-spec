@@ -5,6 +5,7 @@
 ## フォルダ構成
 - `web/`: ブラウザ版プロダクト向けのBacklog（導線・採点・環境・カリキュラム・観測・ビジネス要件）。
 - `desktop/`: Electronを使ったデスクトップ版向けのBacklog（オフライン化や配布、CIまでを含む）。
+- `desktop-e2e/`: 静的HTMLをElectron化しpywinautoでUIテスト自動化するためのBacklog（iPhone中心運用）。
 
 ## Web（ブラウザ版）
 - [S-GP（導線 / UI）](web/S-GP.md) - 画面導線やUI改善に関するタスク。
