@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <title>SIRIUS RL | 学習項目</title>
+  <link rel="stylesheet" href="../course_dark.css" />
+  <link rel="stylesheet" href="rl-theme.css" />
+</head>
+<body class="rl-page">
+  <a class="skip" href="#main">本文へスキップ</a>
+  <canvas id="starfield" aria-hidden="true"></canvas>
+
+  <header class="course-header">
+    <div class="wrap nav">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Python Training</h1>
+          <p>SIRIUS (RL) | 学習項目</p>
+        </div>
+      </div>
+
+      <nav aria-label="SIRIUS (RL) ナビゲーション">
+        <div class="navlinks">
+          <a href="../index.html">Homeへ戻る</a>
+          <a href="scope.html">Scope</a>
+          <a href="index.html">Index</a>
+          <a class="active" href="items.html">学習項目</a>
+          <a href="overview.html">Overview</a>
+          <a href="spec.html">Spec</a>
+        </div>
+        <div class="cta">
+          <a class="btn" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+          <a class="btn primary" href="spec.html"><span class="dot" aria-hidden="true"></span>Banditデモ</a>
+        </div>
+        <button class="hamburger" id="hamburger" aria-expanded="false" aria-label="メニューを開く">
+          <span aria-hidden="true"></span>
+        </button>
+      </nav>
+    </div>
+
+    <div class="mobile" id="mobile">
+      <div class="mobilePanel" role="dialog" aria-label="モバイルメニュー">
+        <a href="../index.html">Homeへ戻る</a>
+        <a href="scope.html">Scope</a>
+        <a href="index.html">Index</a>
+        <a class="active" href="items.html">学習項目</a>
+        <a href="overview.html">Overview</a>
+        <a href="spec.html">Spec</a>
+        <div class="row">
+          <a class="btn" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+          <a class="btn primary" href="spec.html"><span class="dot" aria-hidden="true"></span>Banditデモ</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="wrap rl-content">
+    <section class="rl-card rl-hero">
+      <p class="eyebrow">SIRIUS (Reinforcement Learning)</p>
+      <h1>学習項目 / Training Issues</h1>
+      <p class="lede">
+        受講者向けのトレーニングIssueを「学習項目」として集約しました。Bandit → MDP → Q-learning の順に、
+        seed固定・非flakyを前提とした提出物の粒度を確認できます。
+      </p>
+      <div class="hero-actions">
+        <a class="btn primary" href="index.html"><span class="dot" aria-hidden="true"></span>Indexへ戻る</a>
+        <a class="btn" href="scope.html"><span class="dot" aria-hidden="true"></span>Scope</a>
+        <a class="btn" href="spec.html"><span class="dot" aria-hidden="true"></span>Banditデモ</a>
+      </div>
+      <div class="subnav" aria-label="SIRIUS (RL) 内部ナビゲーション">
+        <a href="scope.html">Scope</a>
+        <a href="index.html">Index</a>
+        <a class="active" href="items.html">学習項目</a>
+        <a href="overview.html">Overview</a>
+        <a href="spec.html">Spec</a>
+      </div>
+    </section>
+
+    <section class="rl-card rl-stack">
+      <div class="badge">共通ルール</div>
+      <ul>
+        <li>seed / ステップ数 / アルゴリズムを提出物に明記し、再現できる形で共有する。</li>
+        <li>平均regretや成功率のような統計値で判定し、1テイクの偶然に依存しない。</li>
+        <li>1 Issue = 1テーマ。A_j（影響obligation）が分かるように、観点と証拠を対応づける。</li>
+      </ul>
+      <div class="callout warn">ログ追加は禁止。再現手順と期待値ベースの判定で、非flakyな提出を優先してください。</div>
+    </section>
+
+    <section class="rl-card rl-stack">
+      <div class="badge">ミッション別 学習項目</div>
+      <div class="rl-grid">
+        <div class="stat">
+          <strong>Mission 01: Bandit</strong>
+          <ul>
+            <li>p配列とseedを指定して ε-greedy / random / UCB を比較。累積報酬・期待後悔を表で共有。</li>
+            <li>腕ごとの選択回数・推定値をスクリーンショットまたは表で残す。</li>
+            <li>再現手順：seed / steps / ε または c（UCB）をIssue本文に記載。</li>
+          </ul>
+        </div>
+        <div class="stat">
+          <strong>Mission 02: GridWorld / DP</strong>
+          <ul>
+            <li>決定論的GridWorld（4〜6状態）の遷移表と報酬設計を文章・表で提示。</li>
+            <li>価値反復 or 方策反復を1ステップ示し、収束イメージを説明。</li>
+            <li>再現手順：状態集合 / 行動集合 / 遷移確率 / 割引率 / 反復回数を明記。</li>
+          </ul>
+        </div>
+        <div class="stat">
+          <strong>Mission 03: TD / Q-learning</strong>
+          <ul>
+            <li>学習率・割引率・εスケジュールを2パターン試し、平均報酬または成功率を比較。</li>
+            <li>学習済みQからgreedy policyを導出し、固定seedで success_rate ≥ 0.8 を目安に評価。</li>
+            <li>再現手順：episodes / seeds / 評価エピソード数 / 評価指標をIssue本文に記載。</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout good">各ミッションのアウトプットは docs/rl 配下の観点と結びつけ、A_j を列挙してレビューを軽量化してください。</div>
+    </section>
+
+    <section class="rl-card rl-stack">
+      <div class="badge">Issue提出フォーマット</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>項目</th><th>記入例</th></tr></thead>
+          <tbody>
+            <tr><td>Seed / Algorithm / Steps</td><td>seed=42, algo=epsilon-greedy(ε=0.1), steps=2000</td></tr>
+            <tr><td>Trials / Time Spent</td><td>trials=2, time=40min</td></tr>
+            <tr><td>Outcome</td><td>Pass（regretがrandomより-18%）、スクショ添付</td></tr>
+            <tr><td>A_j</td><td>A_cur.bandit.01, A_eval.bandit.regret</td></tr>
+            <tr><td>Notes</td><td>seed違いで同じ傾向を確認済み。UCBはc=1.0で安定。</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout warn">A_j は docs/rl/G_W_E_S_A.md や docs/rl/SIRIUS_S_column_issues.md を参照し、影響範囲と証拠を1行ずつ対応づけてください。</div>
+    </section>
+
+    <section class="rl-card rl-stack">
+      <div class="badge">提出前セルフチェック</div>
+      <ul>
+        <li>seedを変えても傾向が変わらないか（最低2 seedで確認）。</li>
+        <li>Banditは期待後悔、Q-learningは success_rate / avg_return のように統計値で比較しているか。</li>
+        <li>Issueタイトル・本文に学習条件を含め、PR本文で再掲できるようにしているか。</li>
+      </ul>
+      <div class="hero-actions">
+        <a class="btn primary" href="../docs/rl/SIRIUS_S_column_issues.md"><span class="dot" aria-hidden="true"></span>Issue原本を見る</a>
+        <a class="btn" href="../docs/rl/PR_GATE.md"><span class="dot" aria-hidden="true"></span>PR Gate に沿って準備</a>
+        <a class="btn" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>Homeへ戻る</a>
+      </div>
+    </section>
+  </main>
+
+  <script src="../bt30/altair_shared.js"></script>
+</body>
+</html>
