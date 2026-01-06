@@ -1,30 +1,31 @@
-# SIRIUS RL — Task Prompt (Implementation)
+---
+description: SIRIUS RL: produce a Codex-ready task prompt (minimal, issue-style)
+argument-hint: TITLE="..." PATHS="..." MISSION="m1|m2|m3|common" AJ="id1,id2" TESTS="pytest -q ..."
+---
 
-Use this prompt when sending implementation work to Codex. Keep it short and focused on paths, requirements, and verification.
+Title: $TITLE
 
-```
-You are working on the SIRIUS RL repository.
-Follow AGENTS.md (minimal diff, seed-fixed RNG, non-flaky tests, no print/log).
-
-Mission: <m1/m2/m3/common>
-Scope (S column): <gp/cur/env/obs/biz>
 Goal:
-- <bullet list of done conditions>
+- <What must be true when done?>
 
-Relevant paths:
-- <sirius_rl/... or docs/...>
+Context:
+- Mission: $MISSION
+- Relevant paths: $PATHS
+- Reference implementation/pattern: <optional>
+- Constraints: no new deps, no print/log, keep diffs minimal, keep CI fast & non-flaky
 
-Requirements / constraints:
-- No new dependencies
-- Deterministic env (if applicable)
-- RNG = local Generator seeded via input
-- No debug prints; keep CI fast
+A_j (affected obligations):
+- $AJ
 
-A_j (impacted obligations):
-- <id from docs/rl/obligations.md>
+Requirements:
+- [ ] <bullet requirements>
 
-Verification (fastest reproducible):
-- pytest -q <tests/...>  # keep short
+Verification:
+- Run:
+  - $TESTS
+- Acceptance criteria:
+  - <observable expected outcomes>
 
-Return only the code diff with minimal commentary.
-```
+Deliverable:
+- Implement + adjust/add minimal tests/docs if needed.
+- Report commands you ran and outcomes (brief).

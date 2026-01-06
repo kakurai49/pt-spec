@@ -1,1 +1,5 @@
 blank_issues_enabled: true
+contact_links:
+  - name: SIRIUS RL - obligations / pass criteria
+    url: https://example.com/CHANGE-ME
+    about: "A_j（影響obligation）と合格基準（CI非flaky）を確認してからIssueを作成してください。"

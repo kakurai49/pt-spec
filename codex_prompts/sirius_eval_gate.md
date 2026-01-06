@@ -1,25 +1,26 @@
-# SIRIUS RL — Evaluation / Gate Prompt
+---
+description: SIRIUS RL: Codex prompt for evaluation/tests (non-flaky gate)
+argument-hint: TITLE="..." PATHS="..." MISSION="m1|m2|m3" AJ="id1,id2" TEST="pytest -q tests/..."
+---
 
-Use this prompt for adding or hardening evaluation/CI gates. Focus on deterministic, seed-fixed checks.
+Title: $TITLE
 
-```
-You are working on the SIRIUS RL repository.
-Follow AGENTS.md (seed-fixed RNG, deterministic env, minimal diff, no logs).
-
-Mission: <m1/m2/m3>
-Gate objective:
-- <metric and threshold, e.g., success_rate >= 0.8 or expected_regret ratio>
+Goal:
+- Implement/adjust evaluation + tests so CI gate is stable (non-flaky).
 
 Context:
-- Target tests/bench files: <tests/... | sirius_rl/eval/...>
-- Env/setup params: <probs/horizon/episodes/seeds/tol>
-- Expectation: deterministic, non-flaky, short runtime
+- Mission: $MISSION
+- Target files: $PATHS
+- Non-flaky rules: seed-fixed, deterministic env, prefer expected metrics (e.g., expected regret)
 
-A_j (impacted obligations):
-- <eval.* or biz.* IDs from docs/rl/obligations.md>
+A_j (affected obligations):
+- $AJ
 
-Verification (must be CI-friendly):
-- pytest -q <narrowest test path>
+Requirements:
+- [ ] Define metrics + thresholds explicitly (ratio/absolute)
+- [ ] Failure message prints key numbers for debugging
+- [ ] Keep runtime low (CI-friendly)
 
-Report the final assertions and any seed values used.
-```
+Verification:
+- Run: $TEST
+- Expected: test passes reliably with fixed seeds.
