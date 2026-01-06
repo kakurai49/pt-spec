@@ -18,6 +18,16 @@ npm run start
 - 1200x820 のウィンドウが開き、`desktop/app/index.html` が表示されます。
 - セキュリティ設定は `nodeIntegration: false` / `contextIsolation: true` / `sandbox: true` で有効化しています。
 
+## Web 資産の同期
+
+ルートディレクトリで Web を更新したら、以下の順で同期・起動してください。
+
+```bash
+cd desktop
+npm run sync:web
+npm run start
+```
+
 ## Windows 向けビルド
 
 ```bash
@@ -25,4 +35,4 @@ cd desktop
 npm run dist:win
 ```
 
-`dist/` に NSIS インストーラが生成されます。Web 資産の同期は別 Issue で対応予定です。
+`dist/` に NSIS インストーラが生成されます。
