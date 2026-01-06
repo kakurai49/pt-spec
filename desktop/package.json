@@ -8,10 +8,31 @@
   "scripts": {
     "sync:web": "node ./scripts/sync-web-assets.mjs",
     "prestart": "npm run sync:web",
-    "start": "electron ."
+    "start": "electron .",
+    "dist:win": "npm run sync:web && electron-builder -w"
+  },
+  "build": {
+    "appId": "com.ptspec.desktop",
+    "productName": "PT Spec",
+    "files": [
+      "main.js",
+      "preload.js",
+      "app/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": true
+    }
   },
   "devDependencies": {
     "electron": "^30.0.9",
+    "electron-builder": "^26.0.12",
     "fs-extra": "^11.2.0"
   }
 }
