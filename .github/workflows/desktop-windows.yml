@@ -2,8 +2,8 @@ name: Desktop Windows Build
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - "v*"
   workflow_dispatch:
 
 jobs:
@@ -20,13 +20,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "lts/*"
+          cache: npm
+          cache-dependency-path: desktop/package-lock.json
 
       - name: Install dependencies
-        run: npm install
-
-      - name: Sync web assets
-        run: npm run sync-web
+        run: npm ci
 
       - name: Build Windows installer
         run: npm run dist:win
@@ -34,6 +33,6 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: desktop-dist-windows
-          path: desktop/dist/*
+          name: windows-installer
+          path: desktop/dist/*.exe
           if-no-files-found: error
