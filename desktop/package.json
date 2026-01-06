@@ -6,9 +6,12 @@
   "author": "",
   "license": "MIT",
   "scripts": {
+    "sync:web": "node ./scripts/sync-web-assets.mjs",
+    "prestart": "npm run sync:web",
     "start": "electron ."
   },
   "devDependencies": {
-    "electron": "^30.0.9"
+    "electron": "^30.0.9",
+    "fs-extra": "^11.2.0"
   }
 }
