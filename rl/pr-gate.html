@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <title>SIRIUS RL | PR Gate</title>
+  <link rel="stylesheet" href="../course_dark.css" />
+  <link rel="stylesheet" href="rl-theme.css" />
+  <style>
+    .gate-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+    .gate-card { border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 14px; background: rgba(255, 255, 255, 0.05); padding: 14px; }
+    .gate-card h3 { margin: 4px 0 8px; color: var(--text); }
+    .gate-card ul { margin: 0; padding-left: 18px; color: var(--muted); line-height: 1.7; }
+    .gate-card code { background: rgba(0, 0, 0, 0.2); padding: 2px 6px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.12); }
+    .note { border-left: 4px solid var(--accent); padding: 10px 12px; background: rgba(124, 247, 255, 0.08); border-radius: 12px; color: var(--muted); }
+    .list-inline { display: flex; flex-wrap: wrap; gap: 8px; padding: 0; margin: 6px 0 0; list-style: none; }
+    .pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.14); background: rgba(255, 255, 255, 0.06); color: var(--muted); }
+  </style>
+</head>
+<body class="rl-page">
+  <a class="skip" href="#main">本文へスキップ</a>
+  <canvas id="starfield" aria-hidden="true"></canvas>
+
+  <header class="course-header">
+    <div class="wrap nav">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Python Training</h1>
+          <p>SIRIUS (RL) | PR Gate</p>
+        </div>
+      </div>
+
+      <nav aria-label="SIRIUS (RL) ナビゲーション">
+        <div class="navlinks">
+          <a href="../index.html">Homeへ戻る</a>
+          <a href="scope.html">Scope</a>
+          <a href="index.html">Index</a>
+          <a class="active" href="items.html">学習項目</a>
+          <a href="overview.html">Overview</a>
+          <a href="spec.html">Spec</a>
+        </div>
+        <div class="cta">
+          <a class="btn" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+          <a class="btn primary" href="spec.html"><span class="dot" aria-hidden="true"></span>Banditデモ</a>
+        </div>
+        <button class="hamburger" id="hamburger" aria-expanded="false" aria-label="メニューを開く">
+          <span aria-hidden="true"></span>
+        </button>
+      </nav>
+    </div>
+
+    <div class="mobile" id="mobile">
+      <div class="mobilePanel" role="dialog" aria-label="モバイルメニュー">
+        <a href="../index.html">Homeへ戻る</a>
+        <a href="scope.html">Scope</a>
+        <a href="index.html">Index</a>
+        <a class="active" href="items.html">学習項目</a>
+        <a href="overview.html">Overview</a>
+        <a href="spec.html">Spec</a>
+        <div class="row">
+          <a class="btn" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+          <a class="btn primary" href="spec.html"><span class="dot" aria-hidden="true"></span>Banditデモ</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="wrap rl-content">
+    <section class="rl-card rl-hero">
+      <p class="eyebrow">SIRIUS (Reinforcement Learning)</p>
+      <h1>PR Gate</h1>
+      <p class="lede">
+        docs/rl/PR_GATE.md をもとに、PR本文のテンプレートと Gate 運用メモを整理しました。
+        A_j（影響obligation）とテスト証拠をセットで提示し、非flakyな提出を徹底してください。
+      </p>
+      <div class="hero-actions">
+        <a class="btn primary" href="items.html"><span class="dot" aria-hidden="true"></span>学習項目へ戻る</a>
+        <a class="btn" href="issue-source.html"><span class="dot" aria-hidden="true"></span>Issue原本を見る</a>
+      </div>
+    </section>
+
+    <section class="rl-card rl-stack">
+      <div class="badge">PRテンプレ（コピペ用）</div>
+      <div class="gate-card">
+        <h3>本文ブロック</h3>
+        <ul>
+          <li><b>Summary</b>: 何を変更したか（1〜3行）</li>
+          <li><b>Time / Trials / Outcome</b>: <code>Time: XX min / Trials: N</code>、Outcome: Pass | Fail | Partial</li>
+          <li><b>A_j (Impacted obligations)</b>: eval.00 / gp.01 / env.02 ... を1行1IDで列挙（影響なしは <code>A_j: none</code>）</li>
+          <li><b>Test Evidence</b>: 実行コマンドと結果ログ（例: <code>pytest tests/test_smoke.py</code>）。手動確認は手順とスクショ/seed。</li>
+          <li><b>Impact / Risk</b>: 影響範囲（UI, CI, env, docs など）、リスクと緩和策。</li>
+        </ul>
+        <div class="note">Seed / Algorithm / Steps / Time Spent / Trials / Outcome をPRで再掲し、再現手順を簡潔に。</div>
+      </div>
+    </section>
+
+    <section class="rl-card rl-stack">
+      <div class="badge">Gate運用メモ</div>
+      <div class="gate-grid">
+        <div class="gate-card">
+          <h3>A_j と証拠</h3>
+          <ul>
+            <li>A_j に含めた obligation にはテストログやスクリーンショットで裏付けを添付。</li>
+            <li>影響が波及した領域があれば Impact / Risk で明記して相談。</li>
+            <li>obligation は docs/rl/SIRIUS_S_column_issues.md を参照。</li>
+          </ul>
+        </div>
+        <div class="gate-card">
+          <h3>小さなPRを維持</h3>
+          <ul>
+            <li>影響範囲を小さく保ち、推定とレビューを容易にする。</li>
+            <li>検証コストを下げ、CI/手動チェックを短時間で終える。</li>
+            <li>学習サイクルを短縮し、失敗からのフィードバックを早く得る。</li>
+          </ul>
+        </div>
+        <div class="gate-card">
+          <h3>非flakyの徹底</h3>
+          <ul>
+            <li>seed固定・期待値ベースで判定（Banditは期待regret、TDはsuccess_rate）。</li>
+            <li>決定論的な環境を優先し、ログ追加は避ける。</li>
+            <li>CI時間を抑え、最小の episode / horizon / seeds にする。</li>
+          </ul>
+        </div>
+      </div>
+      <div class="note">最小差分を心がけ、既存デザインと命名に合わせてください。PRテンプレを崩さず、提出前にセルフチェック。</div>
+    </section>
+
+    <section class="rl-card rl-stack">
+      <div class="badge">セルフチェック（提出直前）</div>
+      <ul>
+        <li>Seed / Algorithm / Steps / Time Spent / Trials / Outcome をPR本文に記載したか。</li>
+        <li>テストコマンドを列挙し、結果ログまたはスクショを添付したか。</li>
+        <li>A_j を1行1IDで列挙し、影響なしなら <code>A_j: none</code> と明記したか。</li>
+      </ul>
+      <ul class="list-inline" aria-label="関連リンク">
+        <li><a class="pill" href="items.html"><span class="dot" aria-hidden="true"></span>学習項目へ戻る</a></li>
+        <li><a class="pill" href="issue-source.html"><span class="dot" aria-hidden="true"></span>Issue原本を見る</a></li>
+        <li><a class="pill" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>Homeへ戻る</a></li>
+      </ul>
+    </section>
+  </main>
+
+  <script src="../bt30/altair_shared.js"></script>
+</body>
+</html>
