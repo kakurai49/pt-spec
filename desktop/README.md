@@ -2,6 +2,27 @@
 
 リポジトリ直下の静的コンテンツをネイティブウィンドウで開く、Electron ベースの Windows デスクトップラッパーです。`app://bundle` という secure context のカスタムスキームで配信し、`getUserMedia` などの権限はこのスキーム経由のものだけを許可しています。
 
+## 背景
+
+- ブラウザ向けに積み上げた HTML/JS 資産をそのまま活用しつつ、オフライン動作やデバイス固有権限（カメラ）を安定して扱うために PC アプリ化しました。
+- Windows への配布・起動を Electron が肩代わりし、UI やルーティングは既存の Web コンテンツを流用することで開発コストを最小化しています。
+- Web 版との乖離を防ぐため、リポジトリ直下の静的ファイルをそのまま同梱するワークフローに寄せ、更新時も同じソースを参照する形にしています。
+
+## 仕組み（Web → PC アプリ化の流れ）
+
+1. リポジトリ直下の `index.html` / `index2.html` / `bt7` / `bt30` / `qr` など、Web 版で利用する静的コンテンツをビルド不要で取り込む。
+2. `npm run sync:web`（内部では `scripts/sync-web-assets.mjs`）で上記アセットを `desktop/app/` にコピーし、Electron が参照できる形に揃える。
+3. Electron の `BrowserWindow` から `app://bundle/index.html` をロードする。`app://bundle` は secure context として登録し、`media` 権限のみを許可。
+4. `http://` / `https://` の外部リンクは既定ブラウザで開くため、デスクトップアプリ内ではローカル配信された Web コンテンツだけが実行される。
+
+## デプロイ（配布手順）
+
+1. Web 資産を更新したら、リポジトリルートで `npm run sync:web` を実行し `desktop/app/` を最新化する。
+2. Windows 環境で `npm run dist:win` を実行すると、`desktop/dist/` に NSIS インストーラ（`PT Spec Setup <version>.exe`）が生成される。
+   - 署名する場合は electron-builder の証明書設定を行う（自己署名の場合、SmartScreen の警告が出る点に注意）。
+3. 配布は生成された `.exe` を共有するだけでよく、ユーザーはインストーラ実行後にスタートメニューから起動できる。
+4. Web 版の更新に追随する場合も同じ手順で再ビルドし、インストーラを配布すれば良い（アセットは `sync:web` で毎回取り込み）。
+
 ## 前提条件
 
 - Node.js LTS（推奨: v20 系）
