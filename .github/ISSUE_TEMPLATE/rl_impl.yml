@@ -1,0 +1,107 @@
+name: RL Implementation (SIRIUS)
+description: CUR/ENV/GP/OBS/BIZ など「実装・運用・ドキュメント」系のIssue
+title: "[S-?][M?] <short summary>"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **SIRIUS RL** 用の実装Issueフォームです。  
+        重要: **A_j（影響obligation）** を必ず入れてください（PRでも必須）。
+        
+        参考: `docs/rl/obligations.md`, `docs/rl/pass_criteria.md`
+
+  - type: dropdown
+    id: s_field
+    attributes:
+      label: S（領域）
+      options:
+        - cur（カリキュラム/アルゴリズム実装）
+        - env（環境）
+        - gp（導線/運用/再現性）
+        - obs（観測/可視化 ※CI外が基本）
+        - biz（合格定義/価値最大化）
+        - eval（評価/テスト）※評価は rl_eval フォーム推奨
+    validations:
+      required: true
+
+  - type: dropdown
+    id: mission
+    attributes:
+      label: Mission
+      options:
+        - common
+        - m1（bandit）
+        - m2（mdp/gridworld + dp）
+        - m3（td/q-learning）
+    validations:
+      required: true
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Type
+      options:
+        - feature
+        - docs
+        - ops
+        - analysis（CI外）
+        - refactor
+    validations:
+      required: true
+
+  - type: textarea
+    id: goal
+    attributes:
+      label: 目的 / Goal（何ができればOKか）
+      description: ユーザー価値とDone条件を短く。チェックリスト歓迎。
+      placeholder: |
+        - [ ] ...
+        - [ ] ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context（関連ファイル/参考実装/制約）
+      placeholder: |
+        Relevant paths:
+        - sirius_rl/...
+        Reference:
+        - ...
+        Constraints:
+        - No new deps
+        - No print/log
+    validations:
+      required: true
+
+  - type: textarea
+    id: aj
+    attributes:
+      label: A_j（影響obligation）
+      description: 1行1IDで列挙（例: eval.m1.bandit.bench.regret_mean）
+      placeholder: |
+        - gp.common.repro.seed_fixed
+        - ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification（再現/確認/テスト）
+      description: 最短のコマンドを列挙（CIを重くしない）。
+      placeholder: |
+        - pytest -q
+        - python -m ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: codex_prompt
+    attributes:
+      label: Codex prompt（そのままCodexに貼る用・任意）
+      description: 「短く」「パス明示」「検証手順」だけを書く（Less is more）。
+      render: text
+    validations:
+      required: false

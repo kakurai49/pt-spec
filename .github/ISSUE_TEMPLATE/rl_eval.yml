@@ -1,0 +1,87 @@
+name: RL Evaluation / Tests (SIRIUS)
+description: EVAL（bench / pytest / CIゲート）系のIssue
+title: "[S-EVAL][M?] <short summary>"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **評価・テスト・CIゲート** 用のIssueフォームです。  
+        重要: テストは **非flaky**（seed固定/期待値評価/決定論環境）を優先してください。
+
+  - type: dropdown
+    id: mission
+    attributes:
+      label: Mission
+      options:
+        - m1（bandit）
+        - m2（mdp/gridworld + dp）
+        - m3（td/q-learning）
+        - common
+    validations:
+      required: true
+
+  - type: textarea
+    id: goal
+    attributes:
+      label: 目的 / Goal（ゲート条件）
+      placeholder: |
+        - [ ] CIで安定して通る
+        - [ ] 失敗時にデバッグしやすい（数値が出る）
+    validations:
+      required: true
+
+  - type: textarea
+    id: metrics
+    attributes:
+      label: Metrics / Thresholds（数値・閾値）
+      description: 例: regret ratio / success_rate >= 0.8 など
+      placeholder: |
+        - success_rate >= 0.8
+        - eps_regret <= baseline_regret * 0.75
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context（対象ファイル/パラメータ/非flaky設計）
+      placeholder: |
+        Target files:
+        - tests/...
+        - sirius_rl/...
+        Params:
+        - probs=[0.1,0.2,0.8], T=500, seeds=10
+        Notes:
+        - regretは期待値で計算する
+    validations:
+      required: true
+
+  - type: textarea
+    id: aj
+    attributes:
+      label: A_j（影響obligation）
+      description: 1行1IDで列挙（例: eval.m3.td.success_rate.ge_0_8）
+      placeholder: |
+        - eval.m3.td.test.non_flaky_gate
+        - ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification（実行コマンド）
+      placeholder: |
+        - pytest -q
+        - pytest -q tests/test_bandit_agents.py
+    validations:
+      required: true
+
+  - type: textarea
+    id: codex_prompt
+    attributes:
+      label: Codex prompt（そのままCodexに貼る用・任意）
+      description: 「対象ファイル」「設計（非flaky）」「assert条件」「実行コマンド」を短く。
+      render: text
+    validations:
+      required: false

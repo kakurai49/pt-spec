@@ -1,18 +1,27 @@
 ## Summary
-- 変更内容を1〜3行で
+- What changed / why?
 
-## Time / Trials / Outcome
-- Time: XX min / Trials: N
-- Outcome: Pass | Fail | Partial
+## Reproducibility
+- Seed:
+- Algorithm:
+- Steps (horizon/episodes/T/max_steps etc):
 
-## A_j (Impacted obligations)
-- 例: gp.01, eval.02, env.00
-- 影響なしの場合は `A_j: none`
+## Experiment log (short)
+- Time Spent (min):
+- Trials (seeds count / runs):
+- Outcome: Pass / Fail
+- Notes:
 
-## Test Evidence
-- 実行コマンドと結果ログ（抜粋可）
-- 例: `pytest tests/test_smoke.py` / `ruff .`
+## A_j（影響obligation）
+<!-- 1行1IDで列挙 -->
+- 
 
-## Impact / Risk
-- 影響範囲（UI / CI / env / docs など）
-- リスクと緩和策（flake防止、seed固定、CI時間 など）
+## Verification
+<!-- 実行したコマンドと結果 -->
+- [ ] `pytest -q` (or minimal relevant tests)
+
+## Checklist
+- [ ] Diff is minimal and follows existing conventions
+- [ ] No print/debug logs added
+- [ ] RNG is reproducible (seed-fixed) where applicable
+- [ ] CI should remain fast / non-flaky
