@@ -7,8 +7,12 @@ from pathlib import Path
 from typing import Callable, Optional
 
 import pytest
-from pywinauto.application import Application
-from pywinauto.base_wrapper import BaseWrapper
+
+try:
+    from pywinauto.application import Application
+    from pywinauto.base_wrapper import BaseWrapper
+except ModuleNotFoundError:
+    pytest.skip("pywinauto is required for Windows UI automation tests.", allow_module_level=True)
 
 ARTIFACTS_DIR = Path(__file__).resolve().parents[1] / "artifacts"
 
