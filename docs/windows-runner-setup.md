@@ -70,6 +70,10 @@ PY
 - **runner が落ちた**: `run.cmd` のコンソールが閉じていないか確認し、ログイン後に再度 `run.cmd` を起動する。
 - **画面ロックで失敗する**: ロック解除後に再実行し、電源/ロック設定を再確認する。
 - **UIが掴めない/競合する**: 以前のテストで残ったアプリを終了してから runner を再起動する。
+- **`No module named pip` / `ssl module is not available` で `pip install` が失敗する**:
+  - 原因: `actions/setup-python` が参照する Python の SSL/ensurepip が欠けている（ツールキャッシュの破損など）。
+  - 対策: `C:\actions-runner\_work\_tool\Python\` を削除して再取得するか、公式インストーラで Python を再インストールする。
+  - 追加確認: `python -c "import ssl; print(ssl.OPENSSL_VERSION)"` が通ることを確認する。
 
 ## iPhone からの運用
 - GitHub のモバイル/ブラウザで **Actions → 対象ワークフロー → Run workflow** を実行できる。
