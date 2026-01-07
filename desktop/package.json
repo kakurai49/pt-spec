@@ -7,7 +7,7 @@
   "license": "MIT",
   "scripts": {
     "start": "electron .",
-    "sync:web": "node ./scripts/sync-web-assets.mjs",
+    "sync:web": "node ./scripts/sync-web.js",
     "dist:win": "electron-builder -w"
   },
   "build": {
