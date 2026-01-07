@@ -21,6 +21,51 @@
 - スリープ、画面オフ、ロックを無効化する（テスト実行時間を通じて画面が操作可能であることが必須）。
 - リモート接続を使う場合も、コンソールセッションが維持される方式で接続し、セッション切断やロックを避ける。
 
+## pywinauto 仮想環境の動作確認（依存ライブラリの確認）
+> 目的: pywinauto と周辺ライブラリ（pylon、pywin32、comtypes）がインポートできるかを **対話セッション上** で確認する。
+
+### 1) 仮想環境を有効化
+例: pywinauto の仮想環境が `C:\path\to\venv` にある場合
+
+```powershell
+cd C:\path\to\venv
+.\Scripts\Activate.ps1
+```
+
+### 2) バージョン確認（インストール済みの確認）
+```powershell
+python -m pip show pywinauto pypylon pywin32 comtypes
+```
+
+### 3) インポートのスモークテスト
+```powershell
+python - <<'PY'
+import pywinauto
+import pypylon
+import win32api
+import comtypes
+print("pywinauto", pywinauto.__version__)
+print("pypylon", pypylon.__version__)
+print("pywin32", win32api.__file__)
+print("comtypes", comtypes.__version__)
+PY
+```
+
+### 4) UI 制御の最小確認（電卓を開けるか）
+> ※ GUI セッション上で実行すること（ロック/切断状態では失敗しやすい）
+
+```powershell
+python - <<'PY'
+from pywinauto import Application
+
+app = Application(backend="uia").start("calc.exe")
+window = app.window(title_re=".*電卓.*|.*Calculator.*")
+window.wait("visible", timeout=10)
+app.kill()
+print("OK")
+PY
+```
+
 ## トラブル時の対処
 - **runner が落ちた**: `run.cmd` のコンソールが閉じていないか確認し、ログイン後に再度 `run.cmd` を起動する。
 - **画面ロックで失敗する**: ロック解除後に再実行し、電源/ロック設定を再確認する。
