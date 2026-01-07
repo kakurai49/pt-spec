@@ -37,3 +37,6 @@ pt-spec/
 ## RL関連ドキュメント
 - [RLコース設計ドキュメント](rl/G_W_E_S_A.md): W/E/S/A(S) とobligation ↔ Issue対応の一覧
 - [PR Gate (SIRIUS RL)](rl/PR_GATE.md): PR本文テンプレとゲート運用の方針
+
+## デスクトップ化パイプライン
+- [デスクトップ化パイプラインのアーキテクチャ & テスト結果まとめ](desktop_pipeline_report.md)
