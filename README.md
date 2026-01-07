@@ -24,3 +24,11 @@ pt-spec/
 ├── hp/                      # 宇宙テーマの別ホームページセット
 └── course_dark.css, requirements.txt ほか共有リソース
 ```
+
+## デスクトップ版のWeb資産更新
+
+デスクトップ版の静的アセットを更新するときは、以下の流れで同期してください。
+
+1. ルートのWeb資産を更新
+2. `desktop/` で `npm run sync:web` を実行
+3. `npm run start` でデスクトップ版を起動
