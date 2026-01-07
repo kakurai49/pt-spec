@@ -7,8 +7,14 @@
 ## self-hosted runner の追加手順
 1) GitHub の **Settings → Actions → Runners → New self-hosted runner** を開く。
 2) **Windows / x64** を選択し、表示される手順に従って runner をダウンロード・展開する（例: `C:\actions-runner`）。
-3) 管理者 PowerShell で表示された `config.cmd` を実行して登録する。
+3) 管理者 PowerShell で表示された `config.cmd --labels win-uia` を実行して登録する。
 4) **Windowsサービスとして登録しない**。GUIテストでは対話的なデスクトップが必要なため、ログインしたユーザーのセッションで `run.cmd` を起動し、そのまま開いておく。
+
+## win-uia ラベルの付与/確認
+- `ui-tests-windows` ジョブは `runs-on: [self-hosted, windows, win-uia]` を要求するため、**win-uia ラベルが必須**。
+- 既存 runner に後付けする場合は、`run.cmd` を停止したうえで `config.cmd --labels win-uia` を再実行する。
+  - ラベルが更新されない場合は `config.cmd remove` → `config.cmd --labels win-uia` で再登録する。
+- GitHub の **Settings → Actions → Runners** で該当 runner に `win-uia` が付いていることを確認する。
 
 ## 常時ログイン・ロック/スリープ無効化の指針
 - runner 用アカウントで常時ログインしたままにする。
