@@ -10,7 +10,7 @@ import pytest
 from pywinauto.application import Application
 from pywinauto.base_wrapper import BaseWrapper
 
-ARTIFACTS_DIR = Path(__file__).resolve().parent / "artifacts"
+ARTIFACTS_DIR = Path(__file__).resolve().parents[1] / "artifacts"
 
 
 @pytest.fixture(scope="session")
