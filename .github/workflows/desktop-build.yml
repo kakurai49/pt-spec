@@ -1,0 +1,55 @@
+name: Desktop Build
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js (LTS)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - name: Install dependencies
+        working-directory: desktop
+        run: npm ci
+
+      - name: Sync web
+        working-directory: desktop
+        run: npm run sync:web
+
+      - name: Build NSIS installer
+        working-directory: desktop
+        run: npm run dist:win
+
+      - name: Build unpacked directory
+        working-directory: desktop
+        run: npx electron-builder -w --dir
+
+      - name: Zip unpacked build
+        working-directory: desktop
+        run: |
+          Compress-Archive -Path dist/win-unpacked/* -DestinationPath dist/desktop-win-unpacked.zip
+
+      - name: Upload win-unpacked artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-win-unpacked
+          path: desktop/dist/desktop-win-unpacked.zip
+          retention-days: 7
+          if-no-files-found: error
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-win-installer
+          path: desktop/dist/*.exe
+          retention-days: 7
+          if-no-files-found: error
