@@ -1,26 +1,25 @@
-# Windows self-hosted runner setup for GUI E2E
+# Windows self-hosted runner セットアップ（GUI E2E向け）
 
-## Overview
-- Purpose: keep a Windows runner available as a regular user session (not a service) so pywinauto GUI tests can interact with Electron builds.
-- Scope: adding the runner via GitHub UI, keeping the desktop unlocked, and basic troubleshooting/operation tips.
+## 目的
+- GUIテスト（pywinauto）用に、Windows の通常ログインセッションで runner を動かし続ける。
+- サービス化せず、画面が操作可能な状態を維持する。
 
-## Add a Windows self-hosted runner
-1) Sign in to GitHub → repository **Settings → Actions → Runners → New self-hosted runner** (see the [GitHub runner setup guide](https://docs.github.com/en/actions/hosting-your-own-runners/adding-self-hosted-runners)).
-2) Choose **Windows** and **x64**, download the runner package, and extract it to a writable path (e.g., `C:\actions-runner`).
-3) From an elevated PowerShell (once), run the provided `config.cmd` command with your repository URL and token.
-4) **Do not install as a service**. For GUI tests, start the runner with `run.cmd` inside an interactive, logged-in user session and leave the window open.
+## self-hosted runner の追加手順
+1) GitHub の **Settings → Actions → Runners → New self-hosted runner** を開く。
+2) **Windows / x64** を選択し、表示される手順に従って runner をダウンロード・展開する（例: `C:\actions-runner`）。
+3) 管理者 PowerShell で表示された `config.cmd` を実行して登録する。
+4) **Windowsサービスとして登録しない**。GUIテストでは対話的なデスクトップが必要なため、ログインしたユーザーのセッションで `run.cmd` を起動し、そのまま開いておく。
 
-## Keep the GUI available
-- Stay signed in with the runner account; disable lock screen, sleep, and display power-off while tests are expected to run.
-- If remote access is needed, keep the session active (e.g., with VNC/remote desktop that preserves the console session). Closing/locking the session causes pywinauto to lose the UI.
-- Runner restarts should be manual (double-click `run.cmd` after login) to ensure tests attach to the visible desktop.
+## 常時ログイン・ロック/スリープ無効化の指針
+- runner 用アカウントで常時ログインしたままにする。
+- スリープ、画面オフ、ロックを無効化する（テスト実行時間を通じて画面が操作可能であることが必須）。
+- リモート接続を使う場合も、コンソールセッションが維持される方式で接続し、セッション切断やロックを避ける。
 
-## Troubleshooting
-- **Runner offline**: verify the `run.cmd` console is open and connected; re-run `run.cmd` after login if the window was closed or the PC rebooted.
-- **Tests failing due to locked screen**: unlock the desktop, rerun the workflow, and ensure sleep/lock timers are disabled.
-- **Stuck apps**: terminate stray Electron app instances before restarting the runner to avoid window-handle conflicts.
+## トラブル時の対処
+- **runner が落ちた**: `run.cmd` のコンソールが閉じていないか確認し、ログイン後に再度 `run.cmd` を起動する。
+- **画面ロックで失敗する**: ロック解除後に再実行し、電源/ロック設定を再確認する。
+- **UIが掴めない/競合する**: 以前のテストで残ったアプリを終了してから runner を再起動する。
 
-## Running workflows from iPhone
-- Use GitHub mobile web/UI to open **Actions → [workflow] → Run workflow**.
-- Confirm the self-hosted Windows runner is online before triggering; if not, ask someone to log in and start `run.cmd`.
-- Download build artifacts (e.g., `win-unpacked.zip`, `Setup.exe`, UI test logs/screenshots) directly from the Actions run detail page.
+## iPhone からの運用
+- GitHub のモバイル/ブラウザで **Actions → 対象ワークフロー → Run workflow** を実行できる。
+- 起動前に Windows runner が Online であることを確認する（Offline の場合は誰かにログインして `run.cmd` を起動してもらう）。
