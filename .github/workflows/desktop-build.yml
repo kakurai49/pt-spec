@@ -36,13 +36,13 @@ jobs:
       - name: Zip unpacked build
         working-directory: desktop
         run: |
-          Compress-Archive -Path dist/win-unpacked/* -DestinationPath dist/desktop-win-unpacked.zip
+          Compress-Archive -Path dist/win-unpacked/* -DestinationPath dist/win-unpacked.zip
 
       - name: Upload win-unpacked artifact
         uses: actions/upload-artifact@v4
         with:
           name: desktop-win-unpacked
-          path: desktop/dist/desktop-win-unpacked.zip
+          path: desktop/dist/win-unpacked.zip
           retention-days: 7
           if-no-files-found: error
 
@@ -53,3 +53,56 @@ jobs:
           path: desktop/dist/*.exe
           retention-days: 7
           if-no-files-found: error
+
+  ui-tests-windows:
+    runs-on: [self-hosted, windows, win-uia]
+    needs: build-windows
+    concurrency:
+      group: desktop-ui-tests-windows
+      cancel-in-progress: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download win-unpacked artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: desktop-win-unpacked
+
+      - name: Extract win-unpacked
+        run: |
+          Expand-Archive -Path win-unpacked.zip -DestinationPath win-unpacked
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install UI test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r automation/requirements.txt
+
+      - name: Set APP_EXE
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem -Path win-unpacked -Filter *.exe -Recurse | Select-Object -First 1
+          if (-not $exe) { throw "APP_EXE not found in win-unpacked" }
+          "APP_EXE=$($exe.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Run UI tests
+        shell: pwsh
+        run: |
+          pytest -q 2>&1 | Tee-Object -FilePath automation/pytest.log
+
+      - name: Upload UI test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-ui-test-artifacts
+          path: |
+            automation/pytest.log
+            automation/screenshots
+            automation/test-results
+          if-no-files-found: warn
+          retention-days: 7
