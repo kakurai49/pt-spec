@@ -17,7 +17,7 @@ EST_SIZE: M
 
 スコープ：
 - `desktop/` 配下に Electron 基本ファイル（`package.json`, `main.js`, `preload.js`, `README.md`, `app/` ダミー `index.html`）を追加。
-- `BrowserWindow(1200x820)` で `desktop/app/index.html` を `loadFile`。`ready-to-show` で表示開始。`window.open` は `shell.openExternal` に転送。
+- `BrowserWindow(1200x820)` で `app://bundle/index.html` を `loadURL`。`ready-to-show` で表示開始。`window.open` は `shell.openExternal` に転送。
 - `build.files` で `main.js`, `preload.js`, `app/**/*` を同梱し、`build.win.target: nsis` を設定。
 
 非スコープ：
@@ -26,7 +26,7 @@ EST_SIZE: M
 - CIビルド/テスト（Issue 5以降）
 
 受け入れ基準：
-- `cd desktop && npm install && npm run start` でWindowsにウィンドウが開き、`desktop/app/index.html` が表示される。
+- `cd desktop && npm install && npm run start` でWindowsにウィンドウが開き、`app://bundle/index.html` が表示される。
 - セキュリティ設定（`nodeIntegration:false`, `contextIsolation:true`, `sandbox:true`）が有効。
 
 ## H（How）/ Codex Prompt
@@ -38,12 +38,12 @@ EST_SIZE: M
   - build.files: main.js, preload.js, app/**/*
   - build.win.target: nsis
 - desktop/main.js:
-  - BrowserWindow(1200x820) で desktop/app/index.html を loadFile
+  - BrowserWindow(1200x820) で app://bundle/index.html を loadURL
   - nodeIntegration false, contextIsolation true, sandbox true, preload 有効
   - ready-to-showで表示（白フラッシュ防止）
   - window.openはshell.openExternalで外部ブラウザへ
 - desktop/preload.js: まずは空でOK
 - desktop/README.md: 開発起動とdist手順を記載
 
-既存Web資産は後続Issueで同期するので、現時点では desktop/app/index.html だけで動けばOK。
+既存Web資産は後続Issueで同期するので、現時点では app://bundle/index.html だけで動けばOK。
 ```

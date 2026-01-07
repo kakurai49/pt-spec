@@ -17,8 +17,9 @@ Webアプリ更新後に「Windows向けビルド → 配布 → デプロイ �
   |   ├─ npm ci
   |   ├─ npm run sync:web
   |   ├─ npm run dist:win (NSIS installer)
+  |   ├─ dist/*.exe を Setup.exe に正規化
   |   ├─ electron-builder -w --dir (unpacked)
-  |   └─ artifacts: win-unpacked.zip / Setup.exe
+  |   └─ artifacts: win-unpacked.zip / Setup.exe（正規化済み）
   |
   └─ job: ui-tests-windows (self-hosted, windows, win-uia)
       ├─ artifacts download
@@ -38,8 +39,8 @@ Webアプリ更新後に「Windows向けビルド → 配布 → デプロイ �
 | 1. Web更新 | 開発端末 or GitHub | HTMLや静的ファイルを更新しコミット | - | Git履歴（コミット） |
 | 2. ビルド準備 | GitHub Actions (windows-latest) | Node.jsセットアップ & 依存インストール | - | Actionsログ |
 | 3. Web同期 | GitHub Actions (windows-latest) | `npm run sync:web` で `desktop/app/` に同期 | - | Actionsログ |
-| 4. Windowsビルド | GitHub Actions (windows-latest) | NSIS/Unpackedビルド | - | `desktop-win-unpacked` / `desktop-win-installer` artifacts |
-| 5. 配布 | GitHub Actions | artifacts を保存 | - | artifacts（zip/exe） |
+| 4. Windowsビルド | GitHub Actions (windows-latest) | NSIS/Unpackedビルド + installer名を `Setup.exe` に正規化 | - | `desktop-win-unpacked` / `desktop-win-installer` artifacts |
+| 5. 配布 | GitHub Actions | artifacts を保存 | - | artifacts（zip/Setup.exe） |
 | 6. デプロイ | self-hosted runner | win-unpacked 展開 & EXE準備 | - | Actionsログ |
 | 7. UIテスト | self-hosted runner | `pytest -q` (pywinauto) | **UIテスト結果** | `desktop-ui-test-artifacts` (pytest.log / screenshots / test-results) |
 

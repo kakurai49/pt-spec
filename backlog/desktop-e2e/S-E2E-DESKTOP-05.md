@@ -9,7 +9,7 @@ EST_SIZE: L
 
 ## S（Spec）/ 仕様
 目的：
-- `push main` および `workflow_dispatch` でGitHub ActionsがElectronのWindows成果物を生成し、`win-unpacked.zip`（テスト用）と `Setup.exe`（配布用）をartifactとして残す。
+- `push main` および `workflow_dispatch` でGitHub ActionsがElectronのWindows成果物を生成し、`win-unpacked.zip`（テスト用）と `Setup.exe`（配布用、dist/*.exe を正規化）をartifactとして残す。
 
 スコープ：
 - `.github/workflows/desktop-build.yml` を追加（または既存ワークフローにジョブ追加）。
@@ -18,6 +18,7 @@ EST_SIZE: L
   - `cd desktop && npm ci`。
   - `npm run sync:web` でWeb資産同期。
   - `npm run dist:win` でNSISインストーラ生成。
+  - `dist/` 内のインストーラ `.exe` を `Setup.exe` に正規化。
   - `electron-builder -w --dir` で `win-unpacked` を生成しzip化。
   - `actions/upload-artifact` で `desktop-win-unpacked` と `desktop-win-installer` をアップロード（保持日数は短めで可）。
 
@@ -26,7 +27,7 @@ EST_SIZE: L
 - pywinauto実装（Issue 4）
 
 受け入れ基準：
-- `main` へのpushまたは手動実行でworkflowが成功し、Actions artifactに `win-unpacked.zip` と `Setup.exe` が保存される。
+- `main` へのpushまたは手動実行でworkflowが成功し、Actions artifactに `win-unpacked.zip` と `Setup.exe`（正規化済み）が保存される。
 
 ## H（How）/ Codex Prompt
 GitHub ActionsでElectronのWindows成果物を作るworkflowを追加してください。
@@ -40,6 +41,7 @@ GitHub ActionsでElectronのWindows成果物を作るworkflowを追加してく�
   - `cd desktop && npm ci`
   - `npm run sync:web`
   - `npm run dist:win`（NSIS installer）
+  - dist/*.exe を Setup.exe に正規化
   - 追加で `electron-builder -w --dir` も実行して win-unpacked を作りzip化（テスト用）
   - actions/upload-artifact で
     - artifact name: desktop-win-unpacked

@@ -31,12 +31,12 @@ EST_SIZE: XL
 
 ### タスクA（Issue 1相当）：Electron最小ラッパー追加
 - `desktop/` に Electron 基本ファイル（package.json, main.js, preload.js, README.md, app/index.htmlダミー）を追加。
-- BrowserWindow(1200x820) で `desktop/app/index.html` を `loadFile`。`ready-to-show` で表示。`window.open` を `shell.openExternal` に転送。
+- BrowserWindow(1200x820) で `app://bundle/index.html` を `loadURL`。`ready-to-show` で表示。`window.open` を `shell.openExternal` に転送。
 - セキュリティ：`nodeIntegration:false`、`contextIsolation:true`、`sandbox:true`。`build.win.target: nsis`、`build.files` に main.js/preload.js/app/*** を含める。
 - 受入れ：`cd desktop && npm install && npm run start` でWindows起動し、app/index.html表示。
 
 ### タスクB（Issue 2相当）：Web資産同期スクリプト
-- `npm run sync:web` を `desktop/package.json` に追加。Nodeスクリプトを `desktop/scripts/sync-web.js` 等で実装。
+- `npm run sync:web` を `desktop/package.json` に追加。Nodeスクリプトは `desktop/scripts/sync-web.js` を使用。
 - ルートから `index.html`, `index2.html`, `bt7/`, `bt30/`, `qr/`（存在分のみ）を `desktop/app/` にコピー。上書きでOK。
 - READMEに「Web更新→sync→start」手順を追記。
 - 受入れ：`npm run sync:web` 後に相対リンクが壊れず `npm run start` で閲覧できる。
@@ -56,7 +56,7 @@ EST_SIZE: XL
 ### タスクE（Issue 5相当）：ActionsでWindows成果物ビルド
 - `.github/workflows/desktop-build.yml` を追加。trigger: `push`(main) + `workflow_dispatch`。
 - ジョブ build-windows（runs-on: windows-latest）：checkout→Node LTS→`cd desktop && npm ci`→`npm run sync:web`→`npm run dist:win`（NSIS installer）→`electron-builder -w --dir` で `win-unpacked` 生成→zip化。
-- `actions/upload-artifact` で `desktop-win-unpacked`（win-unpacked.zip）と `desktop-win-installer`（Setup.exe）をアップロード（保存日数短め可）。
+- `actions/upload-artifact` で `desktop-win-unpacked`（win-unpacked.zip）と `desktop-win-installer`（Setup.exe, dist/*.exe から正規化）をアップロード（保存日数短め可）。
 - 受入れ：workflow成功しartifact2種が取得できる。
 
 ### タスクF（Issue 6相当）：self-hosted runnerでUIテスト

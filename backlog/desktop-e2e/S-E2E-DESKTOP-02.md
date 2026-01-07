@@ -13,7 +13,7 @@ EST_SIZE: M
 
 スコープ：
 - `npm run sync:web` のスクリプトを `desktop/package.json` に追加。
-- Node.jsスクリプト（例：`desktop/scripts/sync-web.js`）で以下をコピーする：
+- Node.jsスクリプト（`desktop/scripts/sync-web.js`）で以下をコピーする：
   - `index.html`, `index2.html`
   - `bt7/`, `bt30/`, `qr/` （存在するものだけ）
 - 既存ファイルは上書きでOK。相対リンクを壊さないようディレクトリ構造を維持。
@@ -32,12 +32,12 @@ desktop/ に Web資産同期機能を実装してください。
 
 要件:
 - desktop/package.json に "sync:web" スクリプトを追加
-- Node.js で動く同期スクリプトを desktop/scripts/sync-web.js などとして追加
+- Node.js で動く同期スクリプトを desktop/scripts/sync-web.js として追加
 - コピー元: リポジトリルート
 - コピー先: desktop/app
 - 対象: index.html, index2.html, bt7/, bt30/, qr/ （存在するものだけコピー）
 - 既存ファイルは上書き。不要ファイルは消しても良いが、まずは上書きでOK
-- これにより `desktop/app/index.html` からの相対リンクが壊れない状態を保証する
+- これにより `app://bundle/index.html` からの相対リンクが壊れない状態を保証する
 
 合わせて README に「Web更新→sync→start」の流れを追記してください。
 ```

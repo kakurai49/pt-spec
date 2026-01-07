@@ -1,6 +1,6 @@
 # デスクトップラッパー最小構成
 
-Electron で `desktop/app/index.html` を表示する最小セットです。既存の静的 HTML は後続の Issue で同期予定のため、現在はダミーの `index.html` を読み込ませています。
+Electron で `app://bundle/index.html` を表示する最小セットです（`desktop/app/` を配信）。既存の静的 HTML は後続の Issue で同期予定のため、現在はダミーの `index.html` を読み込ませています。
 
 ## 前提
 
@@ -15,7 +15,7 @@ npm install
 npm run start
 ```
 
-- 1200x820 のウィンドウが開き、`desktop/app/index.html` が表示されます。
+- 1200x820 のウィンドウが開き、`app://bundle/index.html` が表示されます。
 - セキュリティ設定は `nodeIntegration: false` / `contextIsolation: true` / `sandbox: true` で有効化しています。
 
 ## Web 資産の同期
@@ -35,7 +35,11 @@ cd desktop
 npm run dist:win
 ```
 
-`dist/` に NSIS インストーラが生成されます。
+`dist/` に `PT Spec Setup <version>.exe` 形式の NSIS インストーラが生成されます。GitHub Actions では `Setup.exe` に正規化して artifact に保存します。
+
+## CI（Windows self-hosted runner）
+
+UIテストは `runs-on: [self-hosted, windows, win-uia]` を要求します。セットアップ手順は `docs/windows-runner-setup.md` を参照してください。
 
 ## E2Eモード（PATHオーバーレイ）
 
