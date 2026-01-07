@@ -1,0 +1,4 @@
+pytest
+pywinauto
+pywin32
+pillow
