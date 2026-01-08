@@ -47,9 +47,14 @@ if (-not $procE2e.HasExited) {
 
 $startTime = (Get-Date).AddMinutes(-1 * $EventMinutes)
 "=== Application error events (last $EventMinutes minutes) ===" | Out-File -FilePath $eventInfo -Encoding utf8
-Get-WinEvent -FilterHashtable @{ LogName = "Application"; StartTime = $startTime } |
-    Where-Object { $_.Id -in 1000, 1001 } |
-    Select-Object TimeCreated, Id, LevelDisplayName, ProviderName, Message |
-    Format-List | Out-File -FilePath $eventInfo -Append -Encoding utf8
+$events = Get-WinEvent -FilterHashtable @{ LogName = "Application"; StartTime = $startTime } -ErrorAction SilentlyContinue |
+    Where-Object { $_.Id -in 1000, 1001 }
+if (-not $events) {
+    "No matching events found." | Out-File -FilePath $eventInfo -Append -Encoding utf8
+} else {
+    $events |
+        Select-Object TimeCreated, Id, LevelDisplayName, ProviderName, Message |
+        Format-List | Out-File -FilePath $eventInfo -Append -Encoding utf8
+}
 
 "Output directory: $sessionDir" | Write-Output
