@@ -117,10 +117,12 @@ jobs:
           python-version: '3.11'
           architecture: 'x64'
 
-      - name: Preflight - base Python health (toolcache/stdlib)
+      - name: Preflight - base Python health
         run: |
-          Write-Host "== python resolution =="
-          Get-Command python | Format-List
+          Write-Host "== pythonLocation =="
+          Write-Host $env:pythonLocation
+
+          Write-Host "== where python =="
           & where.exe python
 
           Write-Host "== base python =="
@@ -136,46 +138,68 @@ jobs:
           # Ensure clean venv
           Remove-Item -Recurse -Force .venv -ErrorAction SilentlyContinue
 
-          python -m venv --upgrade-deps .venv
+          $basePython = Join-Path $env:pythonLocation "python.exe"
+          if (-not (Test-Path $basePython)) {
+            Write-Host "WARN: base python not found at $basePython. Falling back to 'python' from PATH."
+            $basePython = "python"
+          }
+
+          # Create venv (no --upgrade-deps: avoid hidden pip execution during creation)
+          & $basePython -m venv .venv
+          if ($LASTEXITCODE -ne 0) { throw "venv creation failed (exit $LASTEXITCODE)" }
 
           if (-not (Test-Path ".venv\pyvenv.cfg")) { throw "pyvenv.cfg missing: venv creation failed" }
           Write-Host "== .venv\pyvenv.cfg =="
           Get-Content ".venv\pyvenv.cfg"
 
           # Validate venv base home stdlib exists
+          # NOTE: DO NOT use variable name $home (collides with PowerShell automatic variable $HOME)
           $homeLine = (Select-String -Path ".venv\pyvenv.cfg" -Pattern '^home\s*=' -ErrorAction SilentlyContinue | Select-Object -First 1).Line
           if ($homeLine) {
-            $home = ($homeLine -replace '^home\s*=\s*','').Trim()
-            Write-Host "venv base home: $home"
-            if (-not (Test-Path "$home\Lib\os.py")) {
+            $pyHomePath = ($homeLine -replace '^home\s*=\s*','').Trim()
+            Write-Host "venv base home: $pyHomePath"
+            $osPy = Join-Path $pyHomePath "Lib\os.py"
+            if (-not (Test-Path $osPy)) {
               Write-Host "== listing of base home directory =="
-              Get-ChildItem -Path $home -ErrorAction SilentlyContinue | Format-Table Name,Length
-              throw "Base Python stdlib not found: $home\Lib\os.py (toolcache may be broken/cleaned)"
+              Get-ChildItem -Path $pyHomePath -ErrorAction SilentlyContinue | Format-Table Name,Length
+              throw "Base Python stdlib not found: $osPy (toolcache may be broken/cleaned)"
             }
           } else {
             Write-Host "WARN: home line not found in pyvenv.cfg"
           }
 
-          # Confirm venv python can start
+          # Confirm venv python can start (ignore PYTHON* env vars with -E)
           .\.venv\Scripts\python.exe -E -c "import sys; print('venv ok:', sys.executable)"
+          if ($LASTEXITCODE -ne 0) { throw "venv python failed to start (exit $LASTEXITCODE)" }
+
+      - name: Upgrade pip (venv)
+        run: |
+          Remove-Item Env:PYTHONHOME -ErrorAction SilentlyContinue
+          Remove-Item Env:PYTHONPATH -ErrorAction SilentlyContinue
+          .\.venv\Scripts\python.exe -E -m pip install --upgrade pip
+          if ($LASTEXITCODE -ne 0) { throw "pip upgrade failed (exit $LASTEXITCODE)" }
 
       - name: Install UI test dependencies (venv)
         run: |
+          Remove-Item Env:PYTHONHOME -ErrorAction SilentlyContinue
+          Remove-Item Env:PYTHONPATH -ErrorAction SilentlyContinue
           .\.venv\Scripts\python.exe -E -m pip install -r automation/requirements.txt
+          if ($LASTEXITCODE -ne 0) { throw "pip install failed (exit $LASTEXITCODE)" }
 
       - name: Preflight UI test environment (venv)
         run: |
+          Remove-Item Env:PYTHONHOME -ErrorAction SilentlyContinue
+          Remove-Item Env:PYTHONPATH -ErrorAction SilentlyContinue
+
           .\.venv\Scripts\python.exe -E -V
           .\.venv\Scripts\python.exe -E -c "import sys; print(sys.executable); print(sys.version)"
           .\.venv\Scripts\python.exe -E -m pip --version
           .\.venv\Scripts\python.exe -E -m pip list
 
-          # Confirm venv can import stdlib modules
-          .\.venv\Scripts\python.exe -E -c "import os, ssl; print('os ok'); print('ssl:', ssl.OPENSSL_VERSION)"
-
       - name: Set APP_EXE
         run: |
           $excluded = @("chrome_crashpad_handler.exe", "Uninstall.exe")
+
           $rootCandidates = Get-ChildItem -Path win-unpacked -Filter *.exe -File |
             Where-Object { $excluded -notcontains $_.Name }
 
@@ -188,7 +212,7 @@ jobs:
 
           if (-not $exeCandidates) { throw "APP_EXE not found in win-unpacked" }
 
-          # deterministic: size desc, fullname asc
+          # deterministic: length desc then fullname asc
           $exe = $exeCandidates | Sort-Object @{Expression='Length';Descending=$true}, @{Expression='FullName';Descending=$false} | Select-Object -First 1
 
           Write-Host "Selected APP_EXE: $($exe.FullName)"
@@ -196,13 +220,12 @@ jobs:
 
       - name: Run UI tests
         run: |
-          # Avoid host env pollution affecting Python prefix resolution
           Remove-Item Env:PYTHONHOME -ErrorAction SilentlyContinue
           Remove-Item Env:PYTHONPATH -ErrorAction SilentlyContinue
 
           New-Item -ItemType Directory -Force -Path "automation" | Out-Null
 
-          # Use venv python directly; ignore PYTHON* env vars with -E; capture all streams with *>&1
+          # Use venv python; ignore PYTHON* env vars with -E; capture all streams
           .\.venv\Scripts\python.exe -E -X faulthandler -m pytest -q *>&1 | Tee-Object -FilePath automation/pytest.log
           exit $LASTEXITCODE
 
