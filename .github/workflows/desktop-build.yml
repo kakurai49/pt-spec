@@ -65,6 +65,9 @@ jobs:
   ui-tests-windows:
     runs-on: [self-hosted, windows, win-uia]
     needs: build-windows
+    defaults:
+      run:
+        shell: powershell
     concurrency:
       group: desktop-ui-tests-windows
       cancel-in-progress: false
@@ -97,14 +100,12 @@ jobs:
           python -m pip install -r automation/requirements.txt
 
       - name: Set APP_EXE
-        shell: pwsh
         run: |
           $exe = Get-ChildItem -Path win-unpacked -Filter *.exe -Recurse | Select-Object -First 1
           if (-not $exe) { throw "APP_EXE not found in win-unpacked" }
           "APP_EXE=$($exe.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Run UI tests
-        shell: pwsh
         run: |
           pytest -q 2>&1 | Tee-Object -FilePath automation/pytest.log
 
