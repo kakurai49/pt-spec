@@ -109,6 +109,12 @@ jobs:
         run: |
           pytest -q 2>&1 | Tee-Object -FilePath automation/pytest.log
 
+      - name: Collect diagnostics on failure
+        if: failure()
+        run: |
+          if (-not $env:APP_EXE) { throw "APP_EXE is not set" }
+          ./automation/collect_windows_diagnostics.ps1 -AppExe "$env:APP_EXE"
+
       - name: Upload UI test artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -116,6 +122,7 @@ jobs:
           name: desktop-ui-test-artifacts
           path: |
             automation/pytest.log
+            automation/artifacts
             automation/screenshots
             automation/test-results
           if-no-files-found: warn
