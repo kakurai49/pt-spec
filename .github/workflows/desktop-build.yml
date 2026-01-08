@@ -41,18 +41,6 @@ jobs:
         working-directory: desktop
         run: npx electron-builder -w --dir
 
-      - name: Verify win-unpacked includes ffmpeg.dll
-        working-directory: desktop
-        shell: pwsh
-        run: |
-          if (-not (Test-Path "dist\win-unpacked\ffmpeg.dll")) {
-            Write-Host "== dist\win-unpacked listing =="
-            Get-ChildItem -Path "dist\win-unpacked" | Format-Table Name,Length
-            throw "ffmpeg.dll not found in dist\win-unpacked"
-          }
-          Write-Host "ffmpeg.dll sha256:"
-          Get-FileHash "dist\win-unpacked\ffmpeg.dll" -Algorithm SHA256 | Format-List
-
       - name: Zip unpacked build
         working-directory: desktop
         run: |
@@ -74,6 +62,56 @@ jobs:
           retention-days: 7
           if-no-files-found: error
 
+      # --- ここからが「ゼロベース安定化」の追加 ---
+      # self-hosted で setup-python を使わず、GitHub-hosted 側で “正常な Python ランタイム” を作って渡す
+      - name: Setup Python for UI tests (hosted runner)
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11.9'
+          architecture: 'x64'
+
+      - name: Package Python runtime as artifact (portable)
+        shell: pwsh
+        run: |
+          python -c "import sys; print('python:', sys.executable); print('prefix:', sys.prefix); print(sys.version)"
+          $prefix = python -c "import sys; print(sys.prefix)"
+
+          # 標準ライブラリがあることをここで保証（self-hosted 側の壊れた toolcache を回避するため）
+          if (-not (Test-Path "$prefix\Lib\os.py")) {
+            Write-Host "== python prefix listing =="
+            Get-ChildItem -Path $prefix | Format-Table Name,Length
+            throw "Hosted python prefix is missing stdlib (Lib\\os.py). Cannot create portable runtime."
+          }
+
+          Remove-Item -Force python-runtime.zip -ErrorAction SilentlyContinue
+          Compress-Archive -Path "$prefix\*" -DestinationPath "python-runtime.zip"
+
+      - name: Build wheels for UI tests (optional but recommended)
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          Remove-Item -Recurse -Force ui-wheels -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force ui-wheels | Out-Null
+
+          # automation/requirements.txt を “wheel として固定” して self-hosted 側でのブレを無くす
+          python -m pip download -r automation/requirements.txt -d ui-wheels
+
+      - name: Upload Python runtime artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-python-runtime-win-x64
+          path: python-runtime.zip
+          retention-days: 7
+          if-no-files-found: error
+
+      - name: Upload Python wheels artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-python-wheels-win-x64
+          path: ui-wheels
+          retention-days: 7
+          if-no-files-found: error
+
   ui-tests-windows:
     runs-on: [self-hosted, windows, win-uia]
     needs: build-windows
@@ -83,6 +121,7 @@ jobs:
     concurrency:
       group: desktop-ui-tests-windows
       cancel-in-progress: false
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -91,110 +130,79 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: desktop-win-unpacked
+          path: artifacts/win-unpacked
+
+      - name: Download Python runtime artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ui-python-runtime-win-x64
+          path: artifacts/python-runtime
+
+      - name: Download Python wheels artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ui-python-wheels-win-x64
+          path: artifacts/python-wheels
 
       - name: Extract win-unpacked
         run: |
           Remove-Item -Recurse -Force win-unpacked -ErrorAction SilentlyContinue
-          Expand-Archive -Path win-unpacked.zip -DestinationPath win-unpacked
+          Expand-Archive -Path artifacts/win-unpacked/win-unpacked.zip -DestinationPath win-unpacked
 
-      - name: Preflight - verify win-unpacked and ffmpeg.dll
+      - name: Extract Python runtime
         run: |
-          Write-Host "== win-unpacked root listing =="
-          Get-ChildItem -Path win-unpacked | Format-Table Name,Length
+          Remove-Item -Recurse -Force python-dist -ErrorAction SilentlyContinue
+          Expand-Archive -Path artifacts/python-runtime/python-runtime.zip -DestinationPath python-dist
 
-          if (-not (Test-Path "win-unpacked\ffmpeg.dll")) {
-            Write-Host "ffmpeg.dll not found at win-unpacked root. Searching recursively..."
-            Get-ChildItem -Path win-unpacked -Filter ffmpeg.dll -Recurse -ErrorAction SilentlyContinue | Format-Table FullName,Length
+          if (-not (Test-Path "python-dist\python.exe")) {
+            Write-Host "== python-dist listing =="
+            Get-ChildItem -Path python-dist | Format-Table Name,Length
+            throw "python-dist\\python.exe not found after extraction"
+          }
+
+          if (-not (Test-Path "python-dist\Lib\os.py")) {
+            Write-Host "== python-dist listing =="
+            Get-ChildItem -Path python-dist | Format-Table Name,Length
+            throw "python-dist is missing stdlib (Lib\\os.py). The runtime artifact is broken."
+          }
+
+      - name: Create venv using bundled Python (NO setup-python on self-hosted)
+        run: |
+          Remove-Item -Recurse -Force .venv -ErrorAction SilentlyContinue
+
+          # ここで必ず “bundle した python” を使う（self-hosted の壊れた toolcache を踏まない）
+          .\python-dist\python.exe -m venv .venv
+          if ($LASTEXITCODE -ne 0) { throw "venv creation failed (exit $LASTEXITCODE)" }
+
+          .\.venv\Scripts\python.exe -m pip install --upgrade pip
+          if ($LASTEXITCODE -ne 0) { throw "pip upgrade failed (exit $LASTEXITCODE)" }
+
+      - name: Install UI test dependencies (prefer wheels, fallback online)
+        run: |
+          $ErrorActionPreference = "Stop"
+          try {
+            .\.venv\Scripts\python.exe -m pip install --no-index --find-links artifacts/python-wheels -r automation/requirements.txt
+          } catch {
+            Write-Host "Offline wheel install failed; falling back to online pip install..."
+            .\.venv\Scripts\python.exe -m pip install -r automation/requirements.txt
+          }
+
+      - name: Preflight UI test environment
+        run: |
+          .\.venv\Scripts\python.exe -V
+          .\.venv\Scripts\python.exe -c "import sys; print(sys.executable); print(sys.version)"
+          .\.venv\Scripts\python.exe -m pip list
+
+          Write-Host "== win-unpacked root listing =="
+          Get-ChildItem win-unpacked | Format-Table Name,Length
+
+          if (-not (Test-Path win-unpacked\ffmpeg.dll)) {
+            Write-Host "ffmpeg.dll not found at root, searching recursively..."
+            Get-ChildItem -Path win-unpacked -Filter ffmpeg.dll -Recurse | Format-Table FullName,Length
             throw "ffmpeg.dll not found in win-unpacked"
           }
 
-          Write-Host "ffmpeg.dll sha256:"
-          Get-FileHash "win-unpacked\ffmpeg.dll" -Algorithm SHA256 | Format-List
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-          architecture: 'x64'
-
-      - name: Preflight - base Python health
-        run: |
-          Write-Host "== pythonLocation =="
-          Write-Host $env:pythonLocation
-
-          Write-Host "== where python =="
-          & where.exe python
-
-          Write-Host "== base python =="
-          python -V
-          python -c "import sys, os; print('exe:', sys.executable); print('prefix:', sys.prefix); print('has os.py:', os.path.exists(os.path.join(sys.prefix,'Lib','os.py')))"
-
-      - name: Create venv (clean) + validate base stdlib
-        run: |
-          # Host env pollution can break Python prefix resolution
-          Remove-Item Env:PYTHONHOME -ErrorAction SilentlyContinue
-          Remove-Item Env:PYTHONPATH -ErrorAction SilentlyContinue
-
-          # Ensure clean venv
-          Remove-Item -Recurse -Force .venv -ErrorAction SilentlyContinue
-
-          $basePython = Join-Path $env:pythonLocation "python.exe"
-          if (-not (Test-Path $basePython)) {
-            Write-Host "WARN: base python not found at $basePython. Falling back to 'python' from PATH."
-            $basePython = "python"
-          }
-
-          # Create venv (no --upgrade-deps: avoid hidden pip execution during creation)
-          & $basePython -m venv .venv
-          if ($LASTEXITCODE -ne 0) { throw "venv creation failed (exit $LASTEXITCODE)" }
-
-          if (-not (Test-Path ".venv\pyvenv.cfg")) { throw "pyvenv.cfg missing: venv creation failed" }
-          Write-Host "== .venv\pyvenv.cfg =="
-          Get-Content ".venv\pyvenv.cfg"
-
-          # Validate venv base home stdlib exists
-          # NOTE: DO NOT use variable name $home (collides with PowerShell automatic variable $HOME)
-          $homeLine = (Select-String -Path ".venv\pyvenv.cfg" -Pattern '^home\s*=' -ErrorAction SilentlyContinue | Select-Object -First 1).Line
-          if ($homeLine) {
-            $pyHomePath = ($homeLine -replace '^home\s*=\s*','').Trim()
-            Write-Host "venv base home: $pyHomePath"
-            $osPy = Join-Path $pyHomePath "Lib\os.py"
-            if (-not (Test-Path $osPy)) {
-              Write-Host "== listing of base home directory =="
-              Get-ChildItem -Path $pyHomePath -ErrorAction SilentlyContinue | Format-Table Name,Length
-              throw "Base Python stdlib not found: $osPy (toolcache may be broken/cleaned)"
-            }
-          } else {
-            Write-Host "WARN: home line not found in pyvenv.cfg"
-          }
-
-          # Confirm venv python can start (ignore PYTHON* env vars with -E)
-          .\.venv\Scripts\python.exe -E -c "import sys; print('venv ok:', sys.executable)"
-          if ($LASTEXITCODE -ne 0) { throw "venv python failed to start (exit $LASTEXITCODE)" }
-
-      - name: Upgrade pip (venv)
-        run: |
-          Remove-Item Env:PYTHONHOME -ErrorAction SilentlyContinue
-          Remove-Item Env:PYTHONPATH -ErrorAction SilentlyContinue
-          .\.venv\Scripts\python.exe -E -m pip install --upgrade pip
-          if ($LASTEXITCODE -ne 0) { throw "pip upgrade failed (exit $LASTEXITCODE)" }
-
-      - name: Install UI test dependencies (venv)
-        run: |
-          Remove-Item Env:PYTHONHOME -ErrorAction SilentlyContinue
-          Remove-Item Env:PYTHONPATH -ErrorAction SilentlyContinue
-          .\.venv\Scripts\python.exe -E -m pip install -r automation/requirements.txt
-          if ($LASTEXITCODE -ne 0) { throw "pip install failed (exit $LASTEXITCODE)" }
-
-      - name: Preflight UI test environment (venv)
-        run: |
-          Remove-Item Env:PYTHONHOME -ErrorAction SilentlyContinue
-          Remove-Item Env:PYTHONPATH -ErrorAction SilentlyContinue
-
-          .\.venv\Scripts\python.exe -E -V
-          .\.venv\Scripts\python.exe -E -c "import sys; print(sys.executable); print(sys.version)"
-          .\.venv\Scripts\python.exe -E -m pip --version
-          .\.venv\Scripts\python.exe -E -m pip list
+          Get-FileHash win-unpacked\ffmpeg.dll -Algorithm SHA256
 
       - name: Set APP_EXE
         run: |
@@ -212,21 +220,20 @@ jobs:
 
           if (-not $exeCandidates) { throw "APP_EXE not found in win-unpacked" }
 
-          # deterministic: length desc then fullname asc
-          $exe = $exeCandidates | Sort-Object @{Expression='Length';Descending=$true}, @{Expression='FullName';Descending=$false} | Select-Object -First 1
+          # deterministic: size desc, fullname asc
+          $exe = $exeCandidates |
+            Sort-Object @{Expression='Length';Descending=$true}, @{Expression='FullName';Descending=$false} |
+            Select-Object -First 1
 
           Write-Host "Selected APP_EXE: $($exe.FullName)"
           "APP_EXE=$($exe.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
       - name: Run UI tests
         run: |
-          Remove-Item Env:PYTHONHOME -ErrorAction SilentlyContinue
-          Remove-Item Env:PYTHONPATH -ErrorAction SilentlyContinue
-
           New-Item -ItemType Directory -Force -Path "automation" | Out-Null
 
-          # Use venv python; ignore PYTHON* env vars with -E; capture all streams
-          .\.venv\Scripts\python.exe -E -X faulthandler -m pytest -q *>&1 | Tee-Object -FilePath automation/pytest.log
+          # python.exe 経由に固定（pytest.exe stub/ PATH 汚染を踏まない）
+          .\.venv\Scripts\python.exe -X faulthandler -m pytest -q *>&1 | Tee-Object -FilePath automation/pytest.log
           exit $LASTEXITCODE
 
       - name: Collect Windows EventLog on failure
