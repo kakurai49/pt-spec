@@ -41,6 +41,18 @@ jobs:
         working-directory: desktop
         run: npx electron-builder -w --dir
 
+      - name: Verify win-unpacked includes ffmpeg.dll
+        working-directory: desktop
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "dist\win-unpacked\ffmpeg.dll")) {
+            Write-Host "== dist\win-unpacked listing =="
+            Get-ChildItem -Path "dist\win-unpacked" | Format-Table Name,Length
+            throw "ffmpeg.dll not found in dist\win-unpacked"
+          }
+          Write-Host "ffmpeg.dll sha256:"
+          Get-FileHash "dist\win-unpacked\ffmpeg.dll" -Algorithm SHA256 | Format-List
+
       - name: Zip unpacked build
         working-directory: desktop
         run: |
@@ -82,57 +94,116 @@ jobs:
 
       - name: Extract win-unpacked
         run: |
+          Remove-Item -Recurse -Force win-unpacked -ErrorAction SilentlyContinue
           Expand-Archive -Path win-unpacked.zip -DestinationPath win-unpacked
+
+      - name: Preflight - verify win-unpacked and ffmpeg.dll
+        run: |
+          Write-Host "== win-unpacked root listing =="
+          Get-ChildItem -Path win-unpacked | Format-Table Name,Length
+
+          if (-not (Test-Path "win-unpacked\ffmpeg.dll")) {
+            Write-Host "ffmpeg.dll not found at win-unpacked root. Searching recursively..."
+            Get-ChildItem -Path win-unpacked -Filter ffmpeg.dll -Recurse -ErrorAction SilentlyContinue | Format-Table FullName,Length
+            throw "ffmpeg.dll not found in win-unpacked"
+          }
+
+          Write-Host "ffmpeg.dll sha256:"
+          Get-FileHash "win-unpacked\ffmpeg.dll" -Algorithm SHA256 | Format-List
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          architecture: 'x64'
 
-      - name: Create venv
+      - name: Preflight - base Python health (toolcache/stdlib)
         run: |
-          python -m venv .venv
-          .\.venv\Scripts\python -m pip install --upgrade pip
+          Write-Host "== python resolution =="
+          Get-Command python | Format-List
+          & where.exe python
 
-      - name: Verify venv Python SSL and pip
-        run: |
-          .\.venv\Scripts\python -c "import ssl; print(ssl.OPENSSL_VERSION)"
-          .\.venv\Scripts\python -m ensurepip --upgrade
+          Write-Host "== base python =="
+          python -V
+          python -c "import sys, os; print('exe:', sys.executable); print('prefix:', sys.prefix); print('has os.py:', os.path.exists(os.path.join(sys.prefix,'Lib','os.py')))"
 
-      - name: Install UI test dependencies
+      - name: Create venv (clean) + validate base stdlib
         run: |
-          .\.venv\Scripts\python -m pip install -r automation/requirements.txt
+          # Host env pollution can break Python prefix resolution
+          Remove-Item Env:PYTHONHOME -ErrorAction SilentlyContinue
+          Remove-Item Env:PYTHONPATH -ErrorAction SilentlyContinue
 
-      - name: Preflight UI test environment
-        run: |
-          .\.venv\Scripts\python -V
-          .\.venv\Scripts\python -c "import sys; print(sys.executable); print(sys.version)"
-          .\.venv\Scripts\python -m pip list
-          Get-ChildItem win-unpacked | Format-Table Name,Length
-          if (-not (Test-Path win-unpacked\ffmpeg.dll)) {
-            Get-ChildItem -Path win-unpacked -Filter ffmpeg.dll -Recurse | Format-Table FullName,Length
-            throw "ffmpeg.dll not found in win-unpacked"
+          # Ensure clean venv
+          Remove-Item -Recurse -Force .venv -ErrorAction SilentlyContinue
+
+          python -m venv --upgrade-deps .venv
+
+          if (-not (Test-Path ".venv\pyvenv.cfg")) { throw "pyvenv.cfg missing: venv creation failed" }
+          Write-Host "== .venv\pyvenv.cfg =="
+          Get-Content ".venv\pyvenv.cfg"
+
+          # Validate venv base home stdlib exists
+          $homeLine = (Select-String -Path ".venv\pyvenv.cfg" -Pattern '^home\s*=' -ErrorAction SilentlyContinue | Select-Object -First 1).Line
+          if ($homeLine) {
+            $home = ($homeLine -replace '^home\s*=\s*','').Trim()
+            Write-Host "venv base home: $home"
+            if (-not (Test-Path "$home\Lib\os.py")) {
+              Write-Host "== listing of base home directory =="
+              Get-ChildItem -Path $home -ErrorAction SilentlyContinue | Format-Table Name,Length
+              throw "Base Python stdlib not found: $home\Lib\os.py (toolcache may be broken/cleaned)"
+            }
+          } else {
+            Write-Host "WARN: home line not found in pyvenv.cfg"
           }
-          Get-FileHash win-unpacked\ffmpeg.dll -Algorithm SHA256
+
+          # Confirm venv python can start
+          .\.venv\Scripts\python.exe -E -c "import sys; print('venv ok:', sys.executable)"
+
+      - name: Install UI test dependencies (venv)
+        run: |
+          .\.venv\Scripts\python.exe -E -m pip install -r automation/requirements.txt
+
+      - name: Preflight UI test environment (venv)
+        run: |
+          .\.venv\Scripts\python.exe -E -V
+          .\.venv\Scripts\python.exe -E -c "import sys; print(sys.executable); print(sys.version)"
+          .\.venv\Scripts\python.exe -E -m pip --version
+          .\.venv\Scripts\python.exe -E -m pip list
+
+          # Confirm venv can import stdlib modules
+          .\.venv\Scripts\python.exe -E -c "import os, ssl; print('os ok'); print('ssl:', ssl.OPENSSL_VERSION)"
 
       - name: Set APP_EXE
         run: |
           $excluded = @("chrome_crashpad_handler.exe", "Uninstall.exe")
           $rootCandidates = Get-ChildItem -Path win-unpacked -Filter *.exe -File |
             Where-Object { $excluded -notcontains $_.Name }
+
           $exeCandidates = if ($rootCandidates) {
             $rootCandidates
           } else {
             Get-ChildItem -Path win-unpacked -Filter *.exe -File -Recurse |
               Where-Object { $excluded -notcontains $_.Name }
           }
+
           if (-not $exeCandidates) { throw "APP_EXE not found in win-unpacked" }
-          $exe = $exeCandidates | Sort-Object Length, FullName | Select-Object -Last 1
-          "APP_EXE=$($exe.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+          # deterministic: size desc, fullname asc
+          $exe = $exeCandidates | Sort-Object @{Expression='Length';Descending=$true}, @{Expression='FullName';Descending=$false} | Select-Object -First 1
+
+          Write-Host "Selected APP_EXE: $($exe.FullName)"
+          "APP_EXE=$($exe.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
       - name: Run UI tests
         run: |
-          .\.venv\Scripts\python -X faulthandler -m pytest -q 2>&1 | Tee-Object -FilePath automation/pytest.log
+          # Avoid host env pollution affecting Python prefix resolution
+          Remove-Item Env:PYTHONHOME -ErrorAction SilentlyContinue
+          Remove-Item Env:PYTHONPATH -ErrorAction SilentlyContinue
+
+          New-Item -ItemType Directory -Force -Path "automation" | Out-Null
+
+          # Use venv python directly; ignore PYTHON* env vars with -E; capture all streams with *>&1
+          .\.venv\Scripts\python.exe -E -X faulthandler -m pytest -q *>&1 | Tee-Object -FilePath automation/pytest.log
           exit $LASTEXITCODE
 
       - name: Collect Windows EventLog on failure
@@ -141,6 +212,7 @@ jobs:
           $eventLogPath = "automation/artifacts/windows-eventlog.txt"
           New-Item -ItemType Directory -Path (Split-Path $eventLogPath) -Force | Out-Null
           $startTime = (Get-Date).AddMinutes(-10)
+
           Get-WinEvent -FilterHashtable @{ LogName = "Application"; StartTime = $startTime } -ErrorAction SilentlyContinue |
             Where-Object { $_.ProviderName -in "Application Error", "Windows Error Reporting" } |
             Select-Object TimeCreated, Id, LevelDisplayName, ProviderName, Message |
