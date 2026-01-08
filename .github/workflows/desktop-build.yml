@@ -233,7 +233,7 @@ jobs:
           New-Item -ItemType Directory -Force -Path "automation" | Out-Null
 
           # python.exe 経由に固定（pytest.exe stub/ PATH 汚染を踏まない）
-          .\.venv\Scripts\python.exe -X faulthandler -m pytest -q *>&1 | Tee-Object -FilePath automation/pytest.log
+          .\.venv\Scripts\python.exe -X faulthandler -m pytest -q automation *>&1 | Tee-Object -FilePath automation/pytest.log
           exit $LASTEXITCODE
 
       - name: Collect Windows EventLog on failure
