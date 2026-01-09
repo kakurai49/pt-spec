@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import os
 import time
 from datetime import datetime
@@ -9,10 +10,13 @@ from typing import Callable, Optional
 import pytest
 
 try:
+    from pywinauto import Desktop, timings
     from pywinauto.application import Application
     from pywinauto.base_wrapper import BaseWrapper
 except ModuleNotFoundError:
     pytest.skip("pywinauto is required for Windows UI automation tests.", allow_module_level=True)
+
+LOGGER = logging.getLogger(__name__)
 
 ARTIFACTS_DIR = Path(__file__).resolve().parents[1] / "artifacts"
 
@@ -35,12 +39,41 @@ def launch_app(app_exe: Path) -> Application:
     return Application(backend="uia").start(cmdline, timeout=10)
 
 
+def _describe_windows() -> str:
+    """Collect a summary of current top-level windows for debugging."""
+    entries = []
+    for win in Desktop(backend="uia").windows():
+        try:
+            entries.append(
+                "title={!r} class={!r} handle={} process={}".format(
+                    win.window_text(),
+                    win.class_name(),
+                    win.handle,
+                    win.process_id(),
+                )
+            )
+        except Exception:
+            continue
+    return "\n".join(entries)
+
+
 def get_main_window(app: Application) -> BaseWrapper:
     """Wait for the main window to become visible."""
-    window = app.window(title_re=r".*PT Spec Desktop.*")
-    window.wait("exists enabled", timeout=30)
-    window.set_focus()
-    return window
+    process_id = app.process
+    deadline = time.monotonic() + 30
+    while time.monotonic() < deadline:
+        windows = Desktop(backend="uia").windows(process=process_id)
+        for win in windows:
+            if win.exists() and win.is_enabled() and win.is_visible():
+                win.set_focus()
+                return win
+        time.sleep(0.2)
+    LOGGER.error(
+        "Main window not found for process %s. Current windows:\n%s",
+        process_id,
+        _describe_windows(),
+    )
+    raise timings.TimeoutError("Timed out waiting for main window")
 
 
 def retry_until(predicate: Callable[[], Optional[str]], timeout: float) -> Optional[str]:
@@ -105,9 +138,9 @@ def close_app(app: Application) -> None:
 def test_links_update_path(app_exe_path: Path) -> None:
     """Click key links and verify the E2E PATH overlay updates."""
     app = launch_app(app_exe_path)
-    window = get_main_window(app)
-
+    window: Optional[BaseWrapper] = None
     try:
+        window = get_main_window(app)
         scenarios = [
             ("VEGAを開始", "bt7/index.html"),
             ("ALTAIRを開始", "bt30/index.html"),
@@ -117,7 +150,8 @@ def test_links_update_path(app_exe_path: Path) -> None:
             click_link(window, label)
             wait_for_path_suffix(window, expected_suffix)
     except Exception:
-        save_screenshot(window, "test_links_update_path")
+        if window is not None:
+            save_screenshot(window, "test_links_update_path")
         raise
     finally:
         close_app(app)
