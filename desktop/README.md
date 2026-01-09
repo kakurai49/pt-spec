@@ -45,3 +45,4 @@ UIテストは `runs-on: [self-hosted, windows, win-uia]` を要求します。�
 
 - `npm run start -- --e2e` または環境変数 `PT_SPEC_E2E=1` を付けて起動すると、画面右下に `PATH: ...` オーバーレイが表示されます。
 - 通常起動ではオーバーレイは表示されません。
+- E2Eモードでは `prefers-reduced-motion` を強制し、バックグラウンド処理の負荷を抑える設定になります（通常起動には影響しません）。
