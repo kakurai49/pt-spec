@@ -147,7 +147,11 @@ jobs:
       - name: Extract win-unpacked
         run: |
           Remove-Item -Recurse -Force win-unpacked -ErrorAction SilentlyContinue
-          Expand-Archive -Path artifacts/win-unpacked/win-unpacked.zip -DestinationPath win-unpacked
+          Expand-Archive -Path artifacts/win-unpacked/win-unpacked.zip -DestinationPath win-unpacked -ErrorAction SilentlyContinue
+
+          if (-not (Test-Path "win-unpacked")) {
+            throw "win-unpacked directory not found after extraction"
+          }
 
       - name: Extract Python runtime
         run: |
