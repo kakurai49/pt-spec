@@ -26,6 +26,7 @@ function createWindow() {
   const mainWindow = new BrowserWindow({
     width: 1200,
     height: 820,
+    title: "PT Spec Desktop",
     show: false,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
