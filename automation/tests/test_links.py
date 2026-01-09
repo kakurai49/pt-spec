@@ -38,7 +38,8 @@ def launch_app(app_exe: Path) -> Application:
 def get_main_window(app: Application) -> BaseWrapper:
     """Wait for the main window to become visible."""
     window = app.window(title_re=r".*PT Spec Desktop.*")
-    window.wait("visible", timeout=10)
+    window.wait("exists enabled", timeout=30)
+    window.set_focus()
     return window
 
 
