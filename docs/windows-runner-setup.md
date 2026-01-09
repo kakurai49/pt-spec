@@ -60,7 +60,8 @@ from pywinauto import Application
 
 app = Application(backend="uia").start("calc.exe")
 window = app.window(title_re=".*電卓.*|.*Calculator.*")
-window.wait("visible", timeout=10)
+window.wait("exists enabled", timeout=30)
+window.set_focus()
 app.kill()
 print("OK")
 PY
