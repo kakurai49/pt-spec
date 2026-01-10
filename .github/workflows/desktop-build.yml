@@ -41,10 +41,52 @@ jobs:
         working-directory: desktop
         run: npx electron-builder -w --dir
 
+      - name: Verify unpacked directory contents
+        working-directory: desktop
+        shell: pwsh
+        run: |
+          $asarCandidates = Get-ChildItem -Path dist -Recurse -File -Filter app.asar |
+            Where-Object { $_.Directory.Name -eq "resources" }
+          $appDirCandidates = Get-ChildItem -Path dist -Recurse -Directory -Filter app |
+            Where-Object { $_.Parent.Name -eq "resources" }
+          $rootCandidates = @()
+          $rootCandidates += $asarCandidates | ForEach-Object { $_.Directory.Parent }
+          $rootCandidates += $appDirCandidates | ForEach-Object { $_.Parent.Parent }
+          $rootCandidates = $rootCandidates | Where-Object { $_ } | Sort-Object FullName -Unique
+
+          if (-not $rootCandidates) { throw "Unpacked directory not found in dist (missing resources/app.asar or resources/app)" }
+
+          $target = $rootCandidates |
+            Where-Object { (Get-ChildItem -Path $_.FullName -Filter *.exe -File).Count -gt 0 } |
+            Select-Object -First 1
+          if (-not $target) {
+            $target = $rootCandidates | Select-Object -First 1
+          }
+
+          $missing = @()
+          $resourceDir = Join-Path $target.FullName "resources"
+          if (-not (Test-Path $resourceDir)) { $missing += "resources" }
+          if (-not (Test-Path (Join-Path $resourceDir "app.asar")) -and -not (Test-Path (Join-Path $resourceDir "app"))) {
+            $missing += "resources/app.asar or resources/app"
+          }
+          if (-not (Get-ChildItem -Path $target.FullName -Filter *.exe -File)) { $missing += "root *.exe" }
+
+          if ($missing.Count -gt 0) {
+            Write-Host "== unpacked root listing =="
+            Get-ChildItem -Path $target.FullName | Format-Table Name,Length
+            Write-Host "== unpacked recursive listing =="
+            Get-ChildItem -Path $target.FullName -Recurse | Format-Table FullName,Length
+            throw "Unpacked directory missing: $($missing -join ', ')"
+          }
+
+          "UNPACKED_DIR=$($target.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
       - name: Zip unpacked build
         working-directory: desktop
+        shell: pwsh
         run: |
-          Compress-Archive -Path dist/win-unpacked/* -DestinationPath dist/win-unpacked.zip
+          if (-not $env:UNPACKED_DIR) { throw "UNPACKED_DIR is not set" }
+          Compress-Archive -Path (Join-Path $env:UNPACKED_DIR "*") -DestinationPath dist/win-unpacked.zip
 
       - name: Upload win-unpacked artifact
         uses: actions/upload-artifact@v4
