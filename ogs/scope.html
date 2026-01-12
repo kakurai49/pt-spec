@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <title>OGS | Scope</title>
+  <link rel="stylesheet" href="ogs-theme.css" />
+</head>
+<body class="ogs-page">
+  <a class="skip" href="#main">本文へスキップ</a>
+  <canvas id="starfield" aria-hidden="true"></canvas>
+
+  <header class="course-header">
+    <div class="wrap nav">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Python Training</h1>
+          <p>OGS Course | Obligation Gate System</p>
+        </div>
+      </div>
+
+      <nav aria-label="OGSナビゲーション">
+        <div class="navlinks">
+          <a href="../index.html">Homeへ戻る</a>
+          <a class="active" href="scope.html">Scope</a>
+          <a href="index.html">Index</a>
+          <a href="overview.html">Overview</a>
+          <a href="spec.html">Spec</a>
+        </div>
+        <div class="cta">
+          <a class="btn" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+          <a class="btn primary" href="index.html"><span class="dot" aria-hidden="true"></span>Indexへ進む</a>
+        </div>
+        <button class="hamburger" id="hamburger" aria-expanded="false" aria-label="メニューを開く">
+          <span aria-hidden="true"></span>
+        </button>
+      </nav>
+    </div>
+
+    <div class="mobile" id="mobile">
+      <div class="mobilePanel" role="dialog" aria-label="モバイルメニュー">
+        <a href="../index.html">Homeへ戻る</a>
+        <a class="active" href="scope.html">Scope</a>
+        <a href="index.html">Index</a>
+        <a href="overview.html">Overview</a>
+        <a href="spec.html">Spec</a>
+        <div class="row">
+          <a class="btn" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+          <a class="btn primary" href="index.html"><span class="dot" aria-hidden="true"></span>Indexへ進む</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="wrap ogs-content">
+    <section class="ogs-card ogs-hero">
+      <p class="eyebrow">OGS (Obligation Gate System)</p>
+      <h1>Scope / 到達イメージ</h1>
+      <p class="lede">
+        PULL型の運用とオブリゲーション（a1〜a12）を軸に、品質合格を再現可能にするトレーニングコース。
+        運用設計・監査性・品質判断の分離を学び、GateBoardとJudge OKまで一連の流れを理解します。
+      </p>
+      <div class="hero-actions">
+        <a class="btn primary" href="index.html"><span class="dot" aria-hidden="true"></span>Indexを開く</a>
+        <a class="btn" href="overview.html"><span class="dot" aria-hidden="true"></span>全体像を読む</a>
+        <a class="btn" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>Homeへ戻る</a>
+      </div>
+      <div class="subnav" aria-label="OGS内部ナビゲーション">
+        <a class="active" href="scope.html">Scope</a>
+        <a href="index.html">Index</a>
+        <a href="overview.html">Overview</a>
+        <a href="spec.html">Spec</a>
+      </div>
+    </section>
+
+    <section class="ogs-card">
+      <div class="badge">学習のゴール</div>
+      <div class="stat-list">
+        <div class="stat"><strong>期間の目安</strong><span>1日1時間 × 10日</span></div>
+        <div class="stat"><strong>対象ロール</strong><span>member / leader / admin / reviewer</span></div>
+        <div class="stat"><strong>主なテーマ</strong><span>PULL運用・obligation設計・監査性</span></div>
+        <div class="stat"><strong>アウトプット</strong><span>GateBoardとJudge OKの運用像</span></div>
+      </div>
+      <div class="callout">実装ではなく「運用設計」と「品質合格の可視化」にフォーカスしたコースです。</div>
+    </section>
+
+    <section class="ogs-card">
+      <div class="badge">成果物イメージ</div>
+      <ul>
+        <li>Obligation Catalog（a1〜a12）とDoD・証跡要件の整理。</li>
+        <li>キャンペーン単位のObligationItem生成とQueue運用フロー。</li>
+        <li>EvidenceとAudit Eventsを用いた監査可能なログ構造。</li>
+        <li>GateBoard / Evaluation / Judge OKの可視化と最終判断の記録。</li>
+      </ul>
+      <div class="callout good">最終的に「誰が・いつ・何を・どの義務で合格させたか」を説明できる状態が到達点です。</div>
+    </section>
+
+    <section class="ogs-card">
+      <div class="badge">ロール分離の学び</div>
+      <div class="ogs-grid">
+        <div>
+          <h3>member</h3>
+          <p>キューからObligationItemをclaimし、実行結果とEvidenceを提出する。</p>
+        </div>
+        <div>
+          <h3>leader / admin</h3>
+          <p>キャンペーン作成・obligation初期化・Judge OKの確定を担う。</p>
+        </div>
+        <div>
+          <h3>reviewer（任意）</h3>
+          <p>Evidenceと結果のレビュー承認で品質判断を補強する。</p>
+        </div>
+      </div>
+      <div class="callout warn">実行者と判断者を分離することで、PULL実行と品質判断が混ざらない状態を作ります。</div>
+    </section>
+
+    <section class="ogs-card">
+      <div class="badge">対象外 / 非ゴール</div>
+      <ul>
+        <li>実装言語の詳細チューニング（API実装の最適化など）。</li>
+        <li>確率的に揺れるテストや、運に依存した合格判定。</li>
+        <li>テスト技法の網羅よりも、obligationベースの合格義務を優先。</li>
+      </ul>
+    </section>
+  </main>
+
+  <script src="../bt30/altair_shared.js"></script>
+</body>
+</html>
