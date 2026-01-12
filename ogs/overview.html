@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <title>OGS | Overview</title>
+  <link rel="stylesheet" href="ogs-theme.css" />
+</head>
+<body class="ogs-page">
+  <a class="skip" href="#main">本文へスキップ</a>
+  <canvas id="starfield" aria-hidden="true"></canvas>
+
+  <header class="course-header">
+    <div class="wrap nav">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Python Training</h1>
+          <p>OGS Course | Obligation Gate System</p>
+        </div>
+      </div>
+
+      <nav aria-label="OGSナビゲーション">
+        <div class="navlinks">
+          <a href="../index.html">Homeへ戻る</a>
+          <a href="scope.html">Scope</a>
+          <a href="index.html">Index</a>
+          <a class="active" href="overview.html">Overview</a>
+          <a href="spec.html">Spec</a>
+        </div>
+        <div class="cta">
+          <a class="btn" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+          <a class="btn primary" href="spec.html"><span class="dot" aria-hidden="true"></span>技術仕様へ</a>
+        </div>
+        <button class="hamburger" id="hamburger" aria-expanded="false" aria-label="メニューを開く">
+          <span aria-hidden="true"></span>
+        </button>
+      </nav>
+    </div>
+
+    <div class="mobile" id="mobile">
+      <div class="mobilePanel" role="dialog" aria-label="モバイルメニュー">
+        <a href="../index.html">Homeへ戻る</a>
+        <a href="scope.html">Scope</a>
+        <a href="index.html">Index</a>
+        <a class="active" href="overview.html">Overview</a>
+        <a href="spec.html">Spec</a>
+        <div class="row">
+          <a class="btn" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+          <a class="btn primary" href="spec.html"><span class="dot" aria-hidden="true"></span>技術仕様へ</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="wrap ogs-content">
+    <section class="ogs-card ogs-hero">
+      <p class="eyebrow">OGS (Obligation Gate System)</p>
+      <h1>Overview / 学習&応用マニュアル</h1>
+      <p class="lede">
+        PULL型運用とobligation中心の品質合格モデルを、初心者エンジニアが理解・応用できるように整理した学習用マニュアル。
+        Doneの曖昧さを排除し、Evidenceと監査ログで判断できる運用を作ります。
+      </p>
+      <div class="hero-actions">
+        <a class="btn primary" href="spec.html"><span class="dot" aria-hidden="true"></span>技術仕様へ</a>
+        <a class="btn" href="index.html"><span class="dot" aria-hidden="true"></span>学習手順へ</a>
+        <a class="btn" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>Homeへ戻る</a>
+      </div>
+      <div class="subnav" aria-label="OGS内部ナビゲーション">
+        <a href="scope.html">Scope</a>
+        <a href="index.html">Index</a>
+        <a class="active" href="overview.html">Overview</a>
+        <a href="spec.html">Spec</a>
+      </div>
+    </section>
+
+    <section class="ogs-card">
+      <div class="badge">システムの特徴（要約）</div>
+      <ul>
+        <li><b>PULL型運用</b>：仕事は「割当」ではなく「引く」。WIP制限と二重claim防止を設計。</li>
+        <li><b>obligation中心</b>：テスト技法ではなくa1〜a12の合格義務で品質を収束。</li>
+        <li><b>Evidence / 監査ログ</b>：実施した証跡がJudge OKを支える。</li>
+        <li><b>例外承認フロー</b>：ExceptionApprovedも監査可能な状態で記録。</li>
+        <li><b>GateBoard可視化</b>：a1〜a12の進捗と品質合格を即座に把握。</li>
+      </ul>
+    </section>
+
+    <section class="ogs-card">
+      <div class="badge">主要コンセプト（W / E / S* / A(S*)）</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>記号</th><th>意味</th><th>OGSでの扱い</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>W</td><td>連続的な可能性空間</td><td>キャンペーンごとにWorldSnapshotを持つ</td></tr>
+            <tr><td>E</td><td>制約／評価情報</td><td>E_quality（Exit Criteria）とE_pull（PULL制約）</td></tr>
+            <tr><td>S*</td><td>ゲートobligation観点</td><td>テスト技法ではなくobligation視点で整理</td></tr>
+            <tr><td>A(S*)</td><td>キューに積める離散単位</td><td>ObligationItemとしてa1〜a12を生成</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout">観点を「技法」ではなく「合格義務」に置き換えることで、運用と判断が明確になります。</div>
+    </section>
+
+    <section class="ogs-card">
+      <div class="badge">役割と責務</div>
+      <div class="ogs-grid">
+        <div>
+          <h3>member</h3>
+          <p>Queueからclaimし、実行結果とEvidenceを提出する。</p>
+        </div>
+        <div>
+          <h3>leader</h3>
+          <p>キャンペーン作成・obligation初期化・Judge OKを担う。</p>
+        </div>
+        <div>
+          <h3>admin</h3>
+          <p>システム全体の管理権限。例外承認の最終責任者。</p>
+        </div>
+        <div>
+          <h3>reviewer</h3>
+          <p>Evidenceのレビュー承認を担当（任意）。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="ogs-card">
+      <div class="badge">典型フロー（初心者の道順）</div>
+      <ol>
+        <li>キャンペーン作成（leader/admin）</li>
+        <li>Obligationカタログ確認（全ロール）</li>
+        <li>obligation初期化（leader/admin）</li>
+        <li>キュー確認 & claim（member/leader/admin）</li>
+        <li>結果提出（PASS/FAIL/Blocked）</li>
+        <li>Evidence追加</li>
+        <li>レビュー承認（任意）</li>
+        <li>GateBoard / Evaluation確認</li>
+        <li>Judge OK確定</li>
+      </ol>
+    </section>
+
+    <section class="ogs-card">
+      <div class="badge">機能別の学習ポイント</div>
+      <div class="ogs-grid">
+        <div>
+          <h3>Obligation Catalog</h3>
+          <p>DoD・証跡・依存関係をデータとして定義し、運用と実装を分離する。</p>
+        </div>
+        <div>
+          <h3>Queue / Claim</h3>
+          <p>READYな項目のみを表示し、WIP制限と二重claim防止を仕組みにする。</p>
+        </div>
+        <div>
+          <h3>結果提出 & Blocked</h3>
+          <p>DoDを満たした後にPASS/FAILを確定し、Blockedは理由と解決タスクを残す。</p>
+        </div>
+        <div>
+          <h3>Evidence</h3>
+          <p>監査に耐える証跡構造を用意し、評価判断の裏付けに使う。</p>
+        </div>
+        <div>
+          <h3>ExceptionApproved</h3>
+          <p>例外でも必ず理由・承認者・時刻を記録し、GateBoardで注記付きでPass扱い。</p>
+        </div>
+        <div>
+          <h3>GateBoard / Evaluation</h3>
+          <p>a1〜a12の進捗と品質合格可否をリアルタイムに可視化する。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="ogs-card">
+      <div class="badge">監査イベント（Audit Events）</div>
+      <p>主要操作はAudit Eventsとして記録し、トラブルシュートと監査対応に備える。</p>
+      <ul>
+        <li>claim / submit / evidence / exception / judge を必須イベントとして残す。</li>
+        <li>イベントと状態更新の順序（イベント先行 or 状態先行）を明示。</li>
+        <li>GateBoardは状態データ、監査はイベントデータを参照。</li>
+      </ul>
+    </section>
+  </main>
+
+  <script src="../bt30/altair_shared.js"></script>
+</body>
+</html>

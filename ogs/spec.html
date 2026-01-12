@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <title>OGS | Spec</title>
+  <link rel="stylesheet" href="ogs-theme.css" />
+</head>
+<body class="ogs-page">
+  <a class="skip" href="#main">本文へスキップ</a>
+  <canvas id="starfield" aria-hidden="true"></canvas>
+
+  <header class="course-header">
+    <div class="wrap nav">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Python Training</h1>
+          <p>OGS Course | Obligation Gate System</p>
+        </div>
+      </div>
+
+      <nav aria-label="OGSナビゲーション">
+        <div class="navlinks">
+          <a href="../index.html">Homeへ戻る</a>
+          <a href="scope.html">Scope</a>
+          <a href="index.html">Index</a>
+          <a href="overview.html">Overview</a>
+          <a class="active" href="spec.html">Spec</a>
+        </div>
+        <div class="cta">
+          <a class="btn" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+          <a class="btn primary" href="overview.html"><span class="dot" aria-hidden="true"></span>概要へ戻る</a>
+        </div>
+        <button class="hamburger" id="hamburger" aria-expanded="false" aria-label="メニューを開く">
+          <span aria-hidden="true"></span>
+        </button>
+      </nav>
+    </div>
+
+    <div class="mobile" id="mobile">
+      <div class="mobilePanel" role="dialog" aria-label="モバイルメニュー">
+        <a href="../index.html">Homeへ戻る</a>
+        <a href="scope.html">Scope</a>
+        <a href="index.html">Index</a>
+        <a href="overview.html">Overview</a>
+        <a class="active" href="spec.html">Spec</a>
+        <div class="row">
+          <a class="btn" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+          <a class="btn primary" href="overview.html"><span class="dot" aria-hidden="true"></span>概要へ戻る</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="wrap ogs-content">
+    <section class="ogs-card ogs-hero">
+      <p class="eyebrow">OGS (Obligation Gate System)</p>
+      <h1>Spec / 技術スタックと設計指針</h1>
+      <p class="lede">
+        FastAPI・Redis・Celeryを組み合わせて、PULL運用と監査ログを両立させる実装設計。
+        「状態」と「監査」を分離し、GateBoardとEvaluationが正確に収束することを優先します。
+      </p>
+      <div class="hero-actions">
+        <a class="btn primary" href="overview.html"><span class="dot" aria-hidden="true"></span>概要へ戻る</a>
+        <a class="btn" href="index.html"><span class="dot" aria-hidden="true"></span>Indexを見る</a>
+        <a class="btn" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>Homeへ戻る</a>
+      </div>
+      <div class="subnav" aria-label="OGS内部ナビゲーション">
+        <a href="scope.html">Scope</a>
+        <a href="index.html">Index</a>
+        <a href="overview.html">Overview</a>
+        <a class="active" href="spec.html">Spec</a>
+      </div>
+    </section>
+
+    <section class="ogs-card">
+      <div class="badge">技術スタックの役割</div>
+      <div class="ogs-grid">
+        <div>
+          <h3>FastAPI</h3>
+          <p>キャンペーン作成、queue一覧、claim、結果提出、evaluationなどの主要APIを提供。</p>
+        </div>
+        <div>
+          <h3>Redis</h3>
+          <p>状態管理・インデックス・監査イベント（Streams）を保持し、読み取り用途と監査用途を分離。</p>
+        </div>
+        <div>
+          <h3>Celery</h3>
+          <p>Ready再計算、放置claim回収、滞留検知などの非同期処理を担当。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="ogs-card">
+      <div class="badge">主要データモデル</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>データ</th><th>役割</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Campaign</td><td>WorldSnapshotと対象obligationを束ねる単位。</td></tr>
+            <tr><td>ObligationCatalog</td><td>a1〜a12のDoD・証跡・依存関係を定義。</td></tr>
+            <tr><td>ObligationItem</td><td>キャンペーンごとの実行単位。Queueに積まれる。</td></tr>
+            <tr><td>Evidence</td><td>実施した証跡（ログ/CI/リンクなど）。</td></tr>
+            <tr><td>AuditEvent</td><td>claim/submit/evidence/exception/judgeを記録。</td></tr>
+            <tr><td>ExceptionApproved</td><td>例外承認の理由・承認者・時刻を保持。</td></tr>
+            <tr><td>GateBoard</td><td>a1〜a12の進捗と合格可否を集計表示。</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="ogs-card">
+      <div class="badge">主要APIの整理</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>API</th><th>目的</th><th>備考</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>POST /campaigns</td><td>キャンペーン作成</td><td>WorldSnapshotと期間を登録</td></tr>
+            <tr><td>POST /campaigns/{id}/init</td><td>obligation初期化</td><td>ObligationItem生成とQueue投入</td></tr>
+            <tr><td>GET /queue</td><td>READY一覧</td><td>WIP制限を反映</td></tr>
+            <tr><td>POST /queue/{item}/claim</td><td>claim</td><td>二重claim防止・冪等性</td></tr>
+            <tr><td>POST /items/{id}/submit</td><td>結果提出</td><td>PASS/FAIL/Blocked</td></tr>
+            <tr><td>POST /items/{id}/evidence</td><td>Evidence追加</td><td>監査イベント同時記録</td></tr>
+            <tr><td>POST /items/{id}/exception</td><td>例外承認</td><td>理由・承認者・時刻</td></tr>
+            <tr><td>GET /gateboard</td><td>GateBoard</td><td>Exit Criteriaに基づく集計</td></tr>
+            <tr><td>POST /judge-ok</td><td>Judge OK</td><td>最終判断を監査ログへ</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="ogs-card">
+      <div class="badge">Celeryタスク（非同期処理）</div>
+      <ul>
+        <li>Ready再計算：DoD達成度と依存関係をもとにQueueを更新。</li>
+        <li>放置claim回収：期限超過のclaimを解放し再投入。</li>
+        <li>滞留検知：Blockedや長期停滞を検出して通知。</li>
+      </ul>
+      <div class="callout">タスクは冪等性を前提にし、再実行に耐える設計とする。</div>
+    </section>
+
+    <section class="ogs-card">
+      <div class="badge">技術スタッフ向けチェックリスト</div>
+      <ol>
+        <li>API操作が監査イベントとして必ず記録されるか。</li>
+        <li>claim/submit/evidenceの状態遷移が矛盾しないか。</li>
+        <li>GateBoard/Evaluationが最新状態を反映できるか。</li>
+        <li>Celeryタスクが冪等で再実行可能か。</li>
+        <li>例外承認（ExceptionApproved）が監査可能か。</li>
+      </ol>
+    </section>
+  </main>
+
+  <script src="../bt30/altair_shared.js"></script>
+</body>
+</html>

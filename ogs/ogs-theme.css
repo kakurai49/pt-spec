@@ -1,0 +1,143 @@
+@import url("../bt30/altair-theme.css");
+
+body.ogs-page {
+  margin: 0;
+}
+
+.ogs-content {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 16px auto 32px;
+}
+
+.ogs-hero {
+  display: grid;
+  gap: 14px;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 12px;
+  color: var(--muted);
+  margin: 0;
+}
+
+.lede {
+  margin: 10px 0 0;
+  color: var(--muted);
+  line-height: 1.8;
+  max-width: 80ch;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.subnav {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.subnav a {
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.subnav a.active {
+  color: var(--text);
+  border-color: rgba(124, 247, 255, 0.32);
+  box-shadow: 0 0 0 3px rgba(124, 247, 255, 0.16) inset;
+}
+
+.ogs-card {
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.ogs-card::before {
+  content: "";
+  position: absolute;
+  inset: -80px;
+  background:
+    radial-gradient(420px 180px at 20% 20%, rgba(124, 247, 255, 0.1), transparent 60%),
+    radial-gradient(420px 160px at 80% 70%, rgba(167, 139, 250, 0.09), transparent 62%);
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+.ogs-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.ogs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+}
+
+.stat-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.stat {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.24);
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.stat strong {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--text);
+}
+
+.stat span {
+  color: var(--muted);
+}
+
+.callout {
+  border-left: 4px solid var(--accent);
+  padding: 12px 14px;
+  background: rgba(124, 247, 255, 0.08);
+  border-radius: 12px;
+  color: var(--muted);
+}
+
+.callout.warn {
+  border-left-color: var(--gold);
+  background: rgba(255, 211, 110, 0.1);
+}
+
+.callout.good {
+  border-left-color: #63f2a1;
+  background: rgba(99, 242, 161, 0.12);
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+@media (max-width: 960px) {
+  .nav {
+    justify-content: flex-start;
+  }
+}

@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <title>OGS | Index</title>
+  <link rel="stylesheet" href="ogs-theme.css" />
+</head>
+<body class="ogs-page">
+  <a class="skip" href="#main">本文へスキップ</a>
+  <canvas id="starfield" aria-hidden="true"></canvas>
+
+  <header class="course-header">
+    <div class="wrap nav">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Python Training</h1>
+          <p>OGS Course | Obligation Gate System</p>
+        </div>
+      </div>
+
+      <nav aria-label="OGSナビゲーション">
+        <div class="navlinks">
+          <a href="../index.html">Homeへ戻る</a>
+          <a href="scope.html">Scope</a>
+          <a class="active" href="index.html">Index</a>
+          <a href="overview.html">Overview</a>
+          <a href="spec.html">Spec</a>
+        </div>
+        <div class="cta">
+          <a class="btn" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+          <a class="btn primary" href="spec.html"><span class="dot" aria-hidden="true"></span>技術仕様へ</a>
+        </div>
+        <button class="hamburger" id="hamburger" aria-expanded="false" aria-label="メニューを開く">
+          <span aria-hidden="true"></span>
+        </button>
+      </nav>
+    </div>
+
+    <div class="mobile" id="mobile">
+      <div class="mobilePanel" role="dialog" aria-label="モバイルメニュー">
+        <a href="../index.html">Homeへ戻る</a>
+        <a href="scope.html">Scope</a>
+        <a class="active" href="index.html">Index</a>
+        <a href="overview.html">Overview</a>
+        <a href="spec.html">Spec</a>
+        <div class="row">
+          <a class="btn" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>コース一覧</a>
+          <a class="btn primary" href="spec.html"><span class="dot" aria-hidden="true"></span>技術仕様へ</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="wrap ogs-content">
+    <section class="ogs-card ogs-hero">
+      <p class="eyebrow">OGS (Obligation Gate System)</p>
+      <h1>Index / 進め方</h1>
+      <p class="lede">
+        PULL型運用とobligation運用を10日で一気に把握するためのガイド。
+        1日のアウトプットは「GateBoardに映る状態」と「Evidenceが残る状態」です。
+      </p>
+      <div class="hero-actions">
+        <a class="btn primary" href="overview.html"><span class="dot" aria-hidden="true"></span>全体像を読む</a>
+        <a class="btn" href="scope.html"><span class="dot" aria-hidden="true"></span>Scopeへ戻る</a>
+        <a class="btn" href="../index.html#courses"><span class="dot" aria-hidden="true"></span>Homeへ戻る</a>
+      </div>
+      <div class="subnav" aria-label="OGS内部ナビゲーション">
+        <a href="scope.html">Scope</a>
+        <a class="active" href="index.html">Index</a>
+        <a href="overview.html">Overview</a>
+        <a href="spec.html">Spec</a>
+      </div>
+    </section>
+
+    <section class="ogs-card">
+      <div class="badge">標準フロー（学習の順番）</div>
+      <ol>
+        <li><b>キャンペーン作成</b>：目的と期間、対象ロールを決める。</li>
+        <li><b>Obligationカタログ確認</b>：a1〜a12のDoD・証跡要件を読み解く。</li>
+        <li><b>obligation初期化</b>：キャンペーンごとにObligationItemを生成しQueueへ。</li>
+        <li><b>claim → 実行</b>：memberがPULLでclaimし、WIP制限を守って実行する。</li>
+        <li><b>結果提出 + Evidence</b>：PASS/FAIL/Blockedと証跡を同時に残す。</li>
+        <li><b>レビュー承認</b>：必要に応じてreviewer/adminが承認する。</li>
+        <li><b>GateBoard確認</b>：a1〜a12の達成状況を可視化して確認。</li>
+        <li><b>Judge OK</b>：leader/adminが最終判断を監査ログに記録。</li>
+      </ol>
+      <div class="callout">各ステップは「実施した証跡が残ること」を合否判断の中心に置きます。</div>
+    </section>
+
+    <section class="ogs-card">
+      <div class="badge">10日プラン例</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Day</th><th>テーマ</th><th>アウトプット</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>OGS全体像</td><td>W/E/S*/A(S*)を自分の言葉で説明</td></tr>
+            <tr><td>2</td><td>Obligation Catalog</td><td>a1〜a12のDoDと証跡要件を整理</td></tr>
+            <tr><td>3</td><td>Queue / Claim</td><td>WIP制限・二重claim防止のルール設計</td></tr>
+            <tr><td>4</td><td>Evidence & Audit</td><td>監査ログの粒度と保存方針をまとめる</td></tr>
+            <tr><td>5</td><td>ExceptionApproved</td><td>例外承認フローと記録項目を整備</td></tr>
+            <tr><td>6</td><td>GateBoard</td><td>可視化に必要な状態データを設計</td></tr>
+            <tr><td>7</td><td>Evaluation</td><td>Green/Yellow/Red判定条件を定義</td></tr>
+            <tr><td>8</td><td>Judge OK</td><td>最終判断の監査ログを設計</td></tr>
+            <tr><td>9</td><td>技術スタック</td><td>FastAPI/Redis/Celeryの役割を整理</td></tr>
+            <tr><td>10</td><td>総まとめ</td><td>GateBoardとAuditの整合性チェック</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="ogs-card">
+      <div class="badge">提出物の粒度</div>
+      <ul>
+        <li>必ず「どのobligation（a1〜a12）に影響したか」を明記する。</li>
+        <li>Evidenceの種類（ログ/CI/リンク/画像など）を列挙する。</li>
+        <li>Blockedの場合は理由と解決タスクをPULL化する。</li>
+      </ul>
+      <div class="callout warn">Doneの曖昧さを排除するため、Evidenceの欠落は合格扱いにしません。</div>
+    </section>
+  </main>
+
+  <script src="../bt30/altair_shared.js"></script>
+</body>
+</html>
